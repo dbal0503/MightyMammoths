@@ -5,10 +5,10 @@ on:
     branches:
       - main
   pull_request:
-    
 
 jobs:
   sonarqube:
+    environment: Dev
     name: SonarQube
     runs-on: ubuntu-latest
     steps:
@@ -18,4 +18,4 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
