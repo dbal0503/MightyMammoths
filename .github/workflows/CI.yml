@@ -74,7 +74,7 @@ jobs:
         run: |
           cd ./frontend/MightyMammoths
           CI=1 expo prebuild --no-install
-          expo run:ios --simulator "iPhone 15"
+          expo run:ios 
 
       - name: Wait for Simulator to Boot
         run: sleep 30
