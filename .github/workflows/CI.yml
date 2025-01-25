@@ -82,11 +82,10 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: "yOs41PeIKW3MVQlUO0JI2DRT_Ma_C_xcoD79E1b1"
 
       - name: Build iOS App
-        run: |
-          run: eas build --platform ios --non-interactive
+        run: eas build --platform ios --non-interactive
 
       - name: Wait for Simulator to Boot
         run: sleep 30
