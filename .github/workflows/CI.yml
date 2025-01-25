@@ -44,6 +44,8 @@ jobs:
     runs-on: macos-latest
     env:
       EXPO_NO_INTERACTIVE: 1
+      DETOX_START_TIMEOUT: 60000
+
     name: E2E Test
     steps:
       - uses: actions/checkout@v4
@@ -54,29 +56,42 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
+      - name: Install Watchman
+        run: brew install watchman
+
+      - name: Install Expo CLI
+        run: npm install -g expo
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Detox Dependencies
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+
       - name: Install Detox CLI
         run: npm install -g detox-cli
 
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Install Dependencies
+      - name: Build iOS App
         run: |
-          cd frontend/MightyMammoths
-          npm ci
+          eas build:configure --platform ios
+          eas build --platform ios --profile simulator --non-interactive
 
-      - name: Build Expo Managed App
-        run: |
-          cd frontend/MightyMammoths
-          expo build:ios --type simulator --no-interactive
-        env:
-          EXPO_NO_INTERACTIVE: 1
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Wait for Simulator to Boot
+        run: sleep 30
 
-      - name: Run Detox Tests
-        run: |
-          cd frontend/MightyMammoths
-          npx detox test --configuration ios.sim.release --headless
+      - name: Run Detox E2E Tests
+        run: detox test --configuration ios.sim.release --headless
 
   lint:
     runs-on: ubuntu-latest
