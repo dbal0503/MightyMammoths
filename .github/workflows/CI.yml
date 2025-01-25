@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - CI
   pull_request:
 
 jobs:
@@ -38,7 +39,7 @@ jobs:
       - name: Run Tests
         run: |
             cd ./frontend/MightyMammoths
-            npm t
+            npm run test:unit
   e2e-test:
     runs-on: ubuntu-latest
     name: E2E Test
