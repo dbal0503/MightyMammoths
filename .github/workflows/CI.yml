@@ -42,6 +42,8 @@ jobs:
             
   e2e-test:
     runs-on: macos-latest
+    env:
+      EXPO_NO_INTERACTIVE: 1
     name: E2E Test
     steps:
       - uses: actions/checkout@v4
@@ -63,11 +65,17 @@ jobs:
           cd frontend/MightyMammoths
           npm ci
 
+      - name: Install CocoaPods (iOS only)
+        run: |
+          cd frontend/MightyMammoths
+          pod install --silent
+        working-directory: frontend/MightyMammoths/ios
+
       - name: Build Expo App
         run: |
           cd frontend/MightyMammoths
-          expo prebuild
-          expo run:ios --no-wait --device
+          expo prebuild --no-install --non-interactive
+          expo run:ios --no-wait --device --non-interactive
 
       - name: Run Detox Tests
         run: |
