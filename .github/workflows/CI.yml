@@ -49,51 +49,53 @@ jobs:
     name: E2E Test
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
+      - name: Navigate to Project Directory
+        run: cd ./frontend/MightyMammoths
+
       - name: Install Watchman
         run: brew install watchman
 
-      - name: Install Expo CLI
-        run: npm install -g expo
+      - name: Install Global Dependencies
+        run: |
+          npm install -g expo-cli
+          npm install -g eas-cli
+          npm install -g detox-cli
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Install Project Dependencies
+        run: npm ci
 
-      - name: Install Dependencies
-        run: 
-          cd ./frontend/MightyMammoths
-          npm ci
-
-      - name: Install Detox Dependencies
+      - name: Install Detox Native Dependencies
         run: |
           brew tap wix/brew
           brew install applesimutils
-
-      - name: Install Detox CLI
-        run: npm install -g detox-cli
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
+          expo-version: latest
           token: "yOs41PeIKW3MVQlUO0JI2DRT_Ma_C_xcoD79E1b1"
 
-      - name: Build iOS App
+      - name: Build iOS App for E2E Testing
         run: |
-            cd ./frontend/MightyMammoths
-            eas build --platform ios --non-interactive
+          cd ./frontend/MightyMammoths
+          eas build --platform ios --non-interactive
 
       - name: Wait for Simulator to Boot
         run: sleep 30
 
       - name: Run Detox E2E Tests
-        run: detox test --configuration ios.sim.release --headless
+        run: |
+          cd ./frontend/MightyMammoths
+          npx detox test --configuration ios.sim.release --headless
 
   lint:
     runs-on: ubuntu-latest
