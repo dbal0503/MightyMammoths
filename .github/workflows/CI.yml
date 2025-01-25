@@ -57,39 +57,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
-      - name: Navigate to Project Directory
-        run: cd ./frontend/MightyMammoths
-
-      - name: Install Watchman
-        run: brew install watchman
-
-      - name: Install Global Dependencies
+      - name: Install Dependencies
         run: |
-          npm install -g expo-cli
-          npm install -g eas-cli
+          npm install -g expo
           npm install -g detox-cli
+          brew install watchman
+          brew tap wix/brew
+          brew install applesimutils
 
       - name: Install Project Dependencies
         run: |
           cd ./frontend/MightyMammoths
           npm ci
 
-      - name: Install Detox Native Dependencies
-        run: |
-          brew tap wix/brew
-          brew install applesimutils
-
-      - name: Setup Expo
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          expo-version: latest
-          token: "yOs41PeIKW3MVQlUO0JI2DRT_Ma_C_xcoD79E1b1"
-
-      - name: Build iOS App for E2E Testing
+      - name: Build Expo App for iOS Simulator
         run: |
           cd ./frontend/MightyMammoths
-          eas build --platform ios --non-interactive
+          expo prebuild --no-install --non-interactive
+          expo run:ios --no-wait --device
 
       - name: Wait for Simulator to Boot
         run: sleep 30
