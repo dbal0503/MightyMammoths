@@ -65,17 +65,13 @@ jobs:
           cd frontend/MightyMammoths
           npm ci
 
-      - name: Install CocoaPods (iOS only)
+      - name: Build Expo Managed App
         run: |
           cd frontend/MightyMammoths
-          pod install --silent
-        working-directory: frontend/MightyMammoths/ios
-
-      - name: Build Expo App
-        run: |
-          cd frontend/MightyMammoths
-          expo prebuild --no-install --non-interactive
-          expo run:ios --no-wait --device --non-interactive
+          expo build:ios --type simulator --no-interactive
+        env:
+          EXPO_NO_INTERACTIVE: 1
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Run Detox Tests
         run: |
