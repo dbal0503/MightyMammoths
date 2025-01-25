@@ -73,8 +73,8 @@ jobs:
       - name: Build Expo App for iOS Simulator
         run: |
           cd ./frontend/MightyMammoths
-          expo prebuild --no-install --non-interactive
-          expo run:ios --no-wait --device
+          CI=1 expo prebuild --no-install
+          expo run:ios --simulator "iPhone 15"
 
       - name: Wait for Simulator to Boot
         run: sleep 30
