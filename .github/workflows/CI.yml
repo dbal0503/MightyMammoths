@@ -86,8 +86,7 @@ jobs:
 
       - name: Build iOS App
         run: |
-          eas build:configure --platform ios
-          eas build --platform ios --profile simulator --non-interactive
+          run: eas build --platform ios --non-interactive
 
       - name: Wait for Simulator to Boot
         run: sleep 30
