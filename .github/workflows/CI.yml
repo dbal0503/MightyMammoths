@@ -70,7 +70,9 @@ jobs:
           npm install -g detox-cli
 
       - name: Install Project Dependencies
-        run: npm ci
+        run: |
+          cd ./frontend/MightyMammoths
+          npm ci
 
       - name: Install Detox Native Dependencies
         run: |
