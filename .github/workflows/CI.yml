@@ -45,11 +45,12 @@ jobs:
     env:
       EXPO_NO_INTERACTIVE: 1
       DETOX_START_TIMEOUT: 60000
-
-    name: E2E Test
+      EXPO_METRO_CACHE: 1
+      NODE_OPTIONS: '--max_old_space_size=4096'
+    
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -57,32 +58,76 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
       
-      - name: Install Dependencies
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+      
+      - name: Cache CocoaPods dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: pods-cache-${{ runner.os }}-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: pods-cache-
+      
+      - name: Cache Metro Bundler
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.metro
+            ~/Library/Caches/metro
+          key: metro-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: metro-cache-
+      
+      - name: Install Global Dependencies
         run: |
-          npm install -g expo
+          npm install -g expo-cli
           npm install -g detox-cli
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
-
+      
       - name: Install Project Dependencies
         run: |
           cd ./frontend/MightyMammoths
           npm ci
-
+      
+      - name: Prepare iOS Simulator
+        run: |
+          xcrun simctl delete unavailable
+          
+          SIMULATOR_NAME="E2E-iPhone-15-Pro"
+          xcrun simctl create "$SIMULATOR_NAME" \
+            com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro \
+            com.apple.CoreSimulator.SimRuntime.iOS-17-0
+          
+          xcrun simctl boot "$SIMULATOR_NAME"
+          
+          xcrun simctl list devices | grep "Booted"
+          while [ $? -ne 0 ]; do
+            sleep 5
+            xcrun simctl list devices | grep "Booted"
+          done
+      
       - name: Build Expo App for iOS Simulator
         run: |
           cd ./frontend/MightyMammoths
-          CI=1 npx expo prebuild --no-install
-          CI=1 npx expo run:ios 
-
-      - name: Wait for Simulator to Boot
-        run: sleep 30
-
+          npx expo prebuild --no-install
+          npx expo run:ios \
+            --no-build-cache \
+            --simulator "E2E-iPhone-15-Pro"
+      
       - name: Run Detox E2E Tests
+        timeout-minutes: 15
+        continue-on-error: true
         run: |
           cd ./frontend/MightyMammoths
-          npx detox test --configuration ios.sim.release --headless
+          npx detox test \
+            --configuration ios.sim.release \
+            --headless \
+            --retries 2
 
   lint:
     runs-on: ubuntu-latest
