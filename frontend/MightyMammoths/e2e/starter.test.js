@@ -12,10 +12,10 @@ describe('Example', () => {
   });
 
   it('Should show step 2 on the welcome screen', async () => {
-    await expect(element(by.text('step2'))).toBeVisible();
+    await expect(element(by.id('step2'))).toBeVisible();
   });
 
   it('Should show step 3 on the welcome screen', async () => {
-    await expect(element(by.text('step3'))).toBeVisible();
+    await expect(element(by.id('step3'))).toBeVisible();
   });
 });

@@ -44,7 +44,6 @@ jobs:
     runs-on: macos-latest
     env:
       EXPO_NO_INTERACTIVE: 1
-      DETOX_START_TIMEOUT: 60000
       EXPO_METRO_CACHE: 1
       NODE_OPTIONS: '--max_old_space_size=4096'
     
