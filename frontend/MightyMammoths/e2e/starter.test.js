@@ -11,13 +11,11 @@ describe('Example', () => {
     await expect(element(by.id('welcome'))).toBeVisible();
   });
 
-  it('should show hello screen after tap', async () => {
-    await element(by.id('hello_button')).tap();
-    await expect(element(by.text('Hello!!!'))).toBeVisible();
+  it('Should show step 2 on the welcome screen', async () => {
+    await expect(element(by.text('step2'))).toBeVisible();
   });
 
-  it('should show world screen after tap', async () => {
-    await element(by.id('world_button')).tap();
-    await expect(element(by.text('World!!!'))).toBeVisible();
+  it('Should show step 3 on the welcome screen', async () => {
+    await expect(element(by.text('step3'))).toBeVisible();
   });
 });

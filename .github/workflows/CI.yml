@@ -58,33 +58,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
       
-      - name: Cache npm dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
-      
-      - name: Cache CocoaPods dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/Caches/CocoaPods
-          key: pods-cache-${{ runner.os }}-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: pods-cache-
-      
-      - name: Cache Metro Bundler
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.metro
-            ~/Library/Caches/metro
-          key: metro-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: metro-cache-
-      
       - name: Install Global Dependencies
         run: |
-          npm install -g expo-cli
-          npm install -g detox-cli
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
@@ -94,40 +69,20 @@ jobs:
           cd ./frontend/MightyMammoths
           npm ci
       
-      - name: Prepare iOS Simulator
-        run: |
-          xcrun simctl delete unavailable
-          
-          SIMULATOR_NAME="E2E-iPhone-15-Pro"
-          xcrun simctl create "$SIMULATOR_NAME" \
-            com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro \
-            com.apple.CoreSimulator.SimRuntime.iOS-17-0
-          
-          xcrun simctl boot "$SIMULATOR_NAME"
-          
-          xcrun simctl list devices | grep "Booted"
-          while [ $? -ne 0 ]; do
-            sleep 5
-            xcrun simctl list devices | grep "Booted"
-          done
-      
-      - name: Build Expo App for iOS Simulator
+      - name: Prebuild Expo
         run: |
           cd ./frontend/MightyMammoths
-          npx expo prebuild --no-install
-          npx expo start --no-interactive --host tunnel &
-          sleep 30  
-          npx expo run:ios --no-build-cache
+          npx expo prebuild 
       
-      - name: Run Detox E2E Tests
-        timeout-minutes: 15
-        continue-on-error: true
+      - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx detox test \
-            --configuration ios.sim.release \
-            --headless \
-            --retries 2
+          npx detox build --configuration ios.sim.release
+
+      - name: Run E2E Tests
+        run: |
+          cd ./frontend/MightyMammoths
+          npx detox test --configuration ios.sim.release
 
   lint:
     runs-on: ubuntu-latest
