@@ -11,13 +11,13 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mightymammoths.app',
-      build: 'xcodebuild -workspace ios/mightymammoths.xcworkspace -scheme mightymammoths -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/MightyMammoths.app',
+      build: 'xcodebuild -workspace ios/MightyMammoths.xcworkspace -scheme MightyMammoths -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mightymammoths.app',
-      build: 'xcodebuild -workspace ios/mightymammoths.xcworkspace -scheme mightymammoths -configuration Release -sdk iphonesimulator -derivedDataPath ios/build'
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/MightyMammoths.app',
+      build: 'xcodebuild -workspace ios/MightyMammoths.xcworkspace -scheme MightyMammoths -configuration Release -sdk iphonesimulator -derivedDataPath ios/build'
     },
     'android.debug': {
       type: 'android.apk',
@@ -37,7 +37,7 @@ module.exports = {
     simulator: {
       type: 'ios.simulator',
       device: {
-        type: 'iPhone 15'
+        type: 'iPhone 16 Pro Max'
       }
     },
     emulator: {

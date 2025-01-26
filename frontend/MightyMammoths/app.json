@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.MightyMammoths"
+      "buildConfiguration": "Release",
+      "bundleIdentifier": "com.anonymous.MightyMammoths",
+      "useFrameworks": "static",
+      "jsEngine": "hermes"
     },
     "android": {
       "adaptiveIcon": {
