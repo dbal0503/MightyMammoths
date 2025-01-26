@@ -73,6 +73,7 @@ jobs:
         run: |
           cd ./frontend/MightyMammoths
           npx expo prebuild --clean 
+          cd ios
           pod install
       
       - name: Build App
