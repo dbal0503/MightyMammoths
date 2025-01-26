@@ -115,6 +115,8 @@ jobs:
         run: |
           cd ./frontend/MightyMammoths
           npx expo prebuild --no-install
+          npx expo start --no-interactive --host tunnel &
+          sleep 30  
           npx expo run:ios --no-build-cache
       
       - name: Run Detox E2E Tests
