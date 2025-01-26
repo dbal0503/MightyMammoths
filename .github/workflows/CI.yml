@@ -69,10 +69,11 @@ jobs:
           cd ./frontend/MightyMammoths
           npm ci
       
-      - name: Prebuild Expo
+      - name: Prebuild Expo and Install CocoaPods
         run: |
           cd ./frontend/MightyMammoths
-          npx expo prebuild 
+          npx expo prebuild --clean --verbose
+          pod install
       
       - name: Build App
         run: |
