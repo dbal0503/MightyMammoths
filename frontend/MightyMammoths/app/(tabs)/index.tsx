@@ -5,12 +5,14 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
+import RetroSwitch from "@/components/ui/input/RetroSwitch";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["20%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
-
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
  
   return (
     <>
@@ -30,6 +32,11 @@ export default function HomeScreen() {
         </View>
           <Text style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton />
+          <Text style={styles.subTitleText}>Accessibility</Text>
+          <View style={styles.accessibilityContainer}>
+            <Text style={styles.accessibilityLabel}>Accessibility mode</Text>
+            <RetroSwitch value={isEnabled} onValueChange={setIsEnabled} />
+          </View>
         </BottomSheet>
       </GestureHandlerRootView>
     </>
@@ -53,5 +60,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 40,
     marginTop: 30,
+  },
+  accessibilityContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginLeft: 40,
+    marginRight: 40,
+    marginTop: 20,
+  },
+  accessibilityLabel: {
+    color: "white",
+    fontSize: 22,
   },
 });
