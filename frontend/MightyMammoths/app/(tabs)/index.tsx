@@ -6,6 +6,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
+import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
@@ -14,9 +15,15 @@ export default function HomeScreen() {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
  
+
+  //TODO: fetch list of buildings from backend
+  const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];
+
+
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
         <BottomSheet
           ref={sheetRef}
           snapPoints={snapPoints}
