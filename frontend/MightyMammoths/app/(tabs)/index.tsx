@@ -1,11 +1,15 @@
-import React, { useCallback, useRef, useMemo } from "react";
+import React, { useCallback, useRef, useMemo, useState } from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
+import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
+
+
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["20%", "70%"], []);
+  const [selectedCampus, setSelectedCampus] = useState("SGW");
 
  
   return (
@@ -18,7 +22,12 @@ export default function HomeScreen() {
           backgroundStyle={{backgroundColor: '#010213'}}
           handleIndicatorStyle={{backgroundColor: 'white'}}
         >
-            <View style={styles.outerRectangle}/>   
+        <View style={styles.centeredView}>
+          <ToggleSwitch
+            options={["SGW", "LOY"]}
+            onToggle={(selected) => setSelectedCampus(selected)}
+          />
+        </View>
         </BottomSheet>
       </GestureHandlerRootView>
     </>
@@ -32,12 +41,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 
-  outerRectangle: {
-      height: '10%',
-      marginTop: '10%',
-      marginLeft: '14%',
-      width: '70%',
-      backgroundColor: '#ACACAC',
-      borderRadius: 22,
+  centeredView: {
+    marginTop: "10%",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
