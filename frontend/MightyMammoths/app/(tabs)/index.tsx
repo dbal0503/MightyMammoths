@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
-
+import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
@@ -28,6 +28,8 @@ export default function HomeScreen() {
             onToggle={(selected) => setSelectedCampus(selected)}
           />
         </View>
+          <Text style={styles.subTitleText}>Calendar</Text>
+          <GoogleCalendarButton />
         </BottomSheet>
       </GestureHandlerRootView>
     </>
@@ -45,5 +47,11 @@ const styles = StyleSheet.create({
     marginTop: "10%",
     alignItems: "center",
     justifyContent: "center",
+  },
+  subTitleText : {
+    color: "#b2b3b8",
+    fontSize: 16,
+    marginLeft: 40,
+    marginTop: 30,
   },
 });
