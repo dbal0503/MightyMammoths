@@ -7,10 +7,11 @@ import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import DefaultButton from "@/components/ui/buttons/DefaultButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["20%", "70%"], []);
+  const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -23,7 +24,10 @@ export default function HomeScreen() {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
-        <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+        <View style={styles.topElements}>
+          <DefaultButton imageSrc={require('@/assets/images/gear.png')} />
+          <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+        </View>
         <BottomSheet
           ref={sheetRef}
           snapPoints={snapPoints}
@@ -53,10 +57,16 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 200,
+    paddingTop: 70,
     backgroundColor: 'white',
   },
-
+  topElements:{
+    gap: '6%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '10%'
+  },
   centeredView: {
     marginTop: "10%",
     alignItems: "center",
