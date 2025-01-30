@@ -7,7 +7,7 @@ import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
-import DefaultButton from "@/components/ui/buttons/DefaultButton";
+import RoundButton from "@/components/ui/buttons/RoundButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
@@ -20,13 +20,19 @@ export default function HomeScreen() {
   //TODO: fetch list of buildings from backend
   const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];
 
-
+//TODO: settings button onclick -> either nav to settings screen or have a modal slide down
+//TODO: recenter map onclick -> should re-center map on location
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
         <View style={styles.topElements}>
-          <DefaultButton imageSrc={require('@/assets/images/gear.png')} />
-          <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+          <RoundButton imageSrc={require('@/assets/images/gear.png')} /> 
+          <View style={styles.dropdownWrapper}>
+            <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+          </View>
+        </View>
+        <View style={styles.bottomElements}>
+          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} /> 
         </View>
         <BottomSheet
           ref={sheetRef}
@@ -60,7 +66,20 @@ const styles = StyleSheet.create({
     paddingTop: 70,
     backgroundColor: 'white',
   },
-  topElements:{
+  dropdownWrapper: {
+    top: '-28%',
+    height: '10%'
+  },
+  bottomElements: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    position: 'absolute',
+    width: '100%',
+    bottom: '22%',
+    paddingRight: 20
+  },
+  topElements: {
     gap: '6%',
     flexDirection: 'row',
     justifyContent: 'center',

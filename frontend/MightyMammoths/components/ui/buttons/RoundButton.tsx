@@ -1,17 +1,17 @@
 import { Pressable, type PressableProps, StyleSheet, View, Image } from "react-native"
 import { SvgUri } from "react-native-svg";
 
-export type DefaultButtonProps = PressableProps & {
+export type RoundButtonProps = PressableProps & {
     imageSrc: any; //path to svg asset
     size?: number; //diameter of the button
     onPress?: () => void;
 }
 
-export default function DefaultButton({
+export default function RoundButton({
     imageSrc,
-    size = 50,
+    size = 52,
     onPress
-} : DefaultButtonProps){
+} : RoundButtonProps){
     const imageSize = size * 0.7;
     return (
         <Pressable onPress={onPress} 
