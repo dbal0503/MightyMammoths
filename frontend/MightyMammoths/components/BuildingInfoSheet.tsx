@@ -1,0 +1,1 @@
+//Component for displaying the information of a building, called in index.tsx
