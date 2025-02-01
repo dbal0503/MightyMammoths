@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useMemo, useState } from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
+import React, { useCallback, useRef, useMemo, useState, useEffect } from "react";
+import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
@@ -15,7 +15,24 @@ export default function HomeScreen() {
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
  
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setIsKeyboardVisible(true);
+      sheetRef.current?.close();
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setIsKeyboardVisible(false);
+      sheetRef.current?.snapToPosition("20%");
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   //TODO: fetch list of buildings from backend
   const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];

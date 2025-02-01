@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   container: {
     width: 280,
     position: "relative",
+    alignSelf: "center",
   },
   dropdownContainer: {
     flexDirection: "row",
