@@ -7,11 +7,13 @@ import { IconSymbol } from '@/components/ui/IconSymbol'
 export function TransportChoice() {
     const destinationBuilding = 'Henry F.Hall Building';
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
+    const transportTime='8 minutes'
+    const transportDistance='0.46km'
     const modeIcons = {
-        'Drive': 'car',  // Replace with the icon name for Drive
-        'Public Transit': 'directions-bus',  // Icon for bus
-        'Bike': 'directions-bike',  // Icon for bike
-        'Walk': 'directions-walk',  // Icon for walking
+        'Drive': 'car',  
+        'Public Transit': 'directions-bus',  
+        'Bike': 'directions-bike',  
+        'Walk': 'directions-walk',
     };
 
     return (
@@ -25,7 +27,14 @@ export function TransportChoice() {
                 <Text key={index} style={styles.transportItem}>
                     <View key={index} style={styles.transportItemContainer}>
                         <IconSymbol name='map.fill' size={30} color="black" style={styles.modeIcon} />
-                        <Text style={styles.transportMode}>{mode}</Text>
+                        <View style={styles.textInformation}>
+                            <Text style={styles.transportMode}>{mode}</Text>
+                            <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
+                        </View>
+                        <View style={styles.travelInformation}>
+                            <Text style={styles.time}>{transportTime}</Text>
+                            <Text style={styles.distance}>{transportDistance}</Text>
+                        </View>
                     </View>
                 </Text>
                 ))}
@@ -66,8 +75,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center', // Center items vertically
         marginBottom: 8,
-        backgroundColor: 'blue',
-        flex:1
+        height: '100%',
+        borderRadius:20,
+        width:'100%'
       },
     modeIcon: {
         marginRight: 10,
@@ -75,6 +85,23 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     transportMode:{
-        fontSize: 15,
-    }
+        fontSize: 20,
+    },
+    subRouteHeadingDestination:{
+        fontSize:15,
+    },
+    textInformation:{
+        
+    },
+    travelInformation:{
+        marginLeft: 'auto',
+        paddingRight:10
+    },
+    time:{
+        fontSize:20
+    },
+    distance:{
+        marginLeft:'auto'
+    },
+
 });
