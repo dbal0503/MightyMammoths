@@ -19,7 +19,8 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          display: 'none',
+          // Make the tab bar visible
+          backgroundColor: Colors[colorScheme ?? 'light'].background,
         },
       }}>
       <Tabs.Screen
@@ -34,6 +35,13 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="navigation"
+        options={{
+          title: 'Navigation',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
         }}
       />
     </Tabs>
