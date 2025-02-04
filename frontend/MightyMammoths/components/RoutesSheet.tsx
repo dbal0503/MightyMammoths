@@ -7,14 +7,14 @@ import { IconSymbol } from '@/components/ui/IconSymbol'
 export function TransportChoice() {
     const destinationBuilding = 'Henry F.Hall Building';
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
-    const transportTime='8 minutes'
-    const transportDistance='0.46km'
-    const modeIcons = {
-        'Drive': 'car',  
-        'Public Transit': 'directions-bus',  
-        'Bike': 'directions-bike',  
-        'Walk': 'directions-walk',
-    };
+    const transportTime='8 minutes';
+    const transportDistance='0.46km';
+    const transportIcons = [<IconSymbol name='car.fill' size={30} color="black" style={styles.modeIcon} />,
+                            <IconSymbol name='bus.fill' size={30} color="black" style={styles.modeIcon} />, 
+                            <IconSymbol name='bicycle' size={30} color="black" style={styles.modeIcon} />,
+                            <IconSymbol name='figure.walk' size={30} color="black" style={styles.modeIcon} />
+                        ];
+
 
     return (
         <View style={styles.container}>
@@ -26,7 +26,7 @@ export function TransportChoice() {
                 {transportModes.map((mode, index) => (
                 <Text key={index} style={styles.transportItem}>
                     <View key={index} style={styles.transportItemContainer}>
-                        <IconSymbol name='map.fill' size={30} color="black" style={styles.modeIcon} />
+                        {transportIcons[index]}
                         <View style={styles.textInformation}>
                             <Text style={styles.transportMode}>{mode}</Text>
                             <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     },
     transportMode:{
         fontSize: 20,
+        fontWeight: 'bold',
     },
     subRouteHeadingDestination:{
         fontSize:15,
@@ -98,7 +99,8 @@ const styles = StyleSheet.create({
         paddingRight:10
     },
     time:{
-        fontSize:20
+        fontSize:20,
+        fontWeight: 'bold',
     },
     distance:{
         marginLeft:'auto'
