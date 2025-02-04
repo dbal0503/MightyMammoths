@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
       },
       routeHeadingDestination: {
         fontSize: 20,
-        marginBottom: 16,
+        marginBottom: 8,
         color: 'white',
       },
       transportList: {

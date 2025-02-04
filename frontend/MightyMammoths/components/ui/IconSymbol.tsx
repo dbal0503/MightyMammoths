@@ -17,7 +17,8 @@ const MAPPING = {
   'car.fill': 'directions-car', 
   'bus.fill': 'directions-bus',
   'bicycle': 'directions-bike',  
-  'figure.walk': 'directions-walk',  
+  'figure.walk': 'directions-walk',
+  'more-vert': 'more-vert',  
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

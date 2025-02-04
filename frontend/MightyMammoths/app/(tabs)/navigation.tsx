@@ -7,20 +7,22 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {TransportChoice} from "@/components/RoutesSheet";
 import { DestinationChoices } from '@/components/Destinations';
 
+
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ["20%", "70%"], []);
+    const snapPoints = useMemo(() => ["20%", "65%"], []);
     return (
     <>
-      
       <GestureHandlerRootView style={styles.container}>
+        <DestinationChoices>
+        </DestinationChoices>
         <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          enableDynamicSizing={false}
-          backgroundStyle={{backgroundColor: '#010213'}}
-          handleIndicatorStyle={{backgroundColor: 'white'}}
-        >
+            ref={sheetRef}
+            snapPoints={snapPoints}
+            enableDynamicSizing={false}
+            backgroundStyle={{backgroundColor: '#010213'}}
+            handleIndicatorStyle={{backgroundColor: 'white'}}
+            >
         <TransportChoice/>
         </BottomSheet>
       </GestureHandlerRootView>
@@ -31,8 +33,11 @@ export default function NavigationScreen () {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
       alignItems: 'center',
-      padding: 16,
+      paddingTop:25,
+      padding: 0,
+
     },
+
+    
   });
