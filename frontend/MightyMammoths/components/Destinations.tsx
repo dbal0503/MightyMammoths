@@ -20,7 +20,7 @@ export function DestinationChoices() {
 
 const styles = StyleSheet.create({
     container: {
-        height: '25%',
+        height: '23%',
         width: '100%',
         padding: 16,
         marginBottom:0,

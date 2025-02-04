@@ -10,7 +10,7 @@ import { DestinationChoices } from '@/components/Destinations';
 
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ["20%", "65%"], []);
+    const snapPoints = useMemo(() => ["20%", "60%"], []);
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
