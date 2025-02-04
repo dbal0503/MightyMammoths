@@ -33,20 +33,6 @@ allprojects {
             // Android JSC is installed from npm
             url(new File(['node', '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), '../dist'))
         }
-
-        maven {
-            url 'https://api.mapbox.com/downloads/v2/releases/maven'
-            authentication {
-                basic(BasicAuthentication)
-            }
-            credentials {
-                // Do not change the username below.
-                username = 'mapbox'
-                // Use the secret token
-                password = "";
-            }
-        }
-
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
