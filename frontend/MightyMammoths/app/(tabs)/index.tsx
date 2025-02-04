@@ -2,6 +2,8 @@ import React, { useCallback, useRef, useMemo, useState, useEffect } from "react"
 import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
+import { ActionSheetRef } from "react-native-actions-sheet";
 
 import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
@@ -11,6 +13,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [isEnabled, setIsEnabled] = useState(false);
@@ -49,7 +52,9 @@ export default function HomeScreen() {
           </View>
         </View>
         <View style={styles.bottomElements}>
-          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} /> 
+          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{
+            actionSheetRef.current?.hide()
+          }} /> 
         </View>
         <BottomSheet
           ref={sheetRef}
@@ -72,6 +77,9 @@ export default function HomeScreen() {
             <RetroSwitch value={isEnabled} onValueChange={setIsEnabled} />
           </View>
         </BottomSheet>
+        <ActionSheet ref={actionSheetRef}>
+          <Text>Hi, I am here.</Text>
+        </ActionSheet>
       </GestureHandlerRootView>
     </>
   );
@@ -84,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   dropdownWrapper: {
-    top: '-28%',
+    top: '-29%',
     height: '10%'
   },
   bottomElements: {
