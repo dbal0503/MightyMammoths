@@ -213,6 +213,15 @@ export default function HomeScreen() {
       });
     }
 
+    const CenterOnLocation = () => {
+      setRegion({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
     const switchToSGW = () => {
       setRegion({
         latitude: 45.49465577566852,
@@ -227,6 +236,7 @@ export default function HomeScreen() {
     setLocation({latitude: location.coords.latitude, longitude: location.coords.longitude});
   }
  
+
   useEffect(() => {
     getCurrentLocation(); // set the current location
 
@@ -268,10 +278,8 @@ export default function HomeScreen() {
           title={"MY LOCATION"}
           description={"MY LOCATION"}
           />
-        </MapView>
+          </MapView>
       
-        
-
         <View style={styles.topElements}>
           <RoundButton imageSrc={require('@/assets/images/gear.png')} /> 
           <View style={styles.dropdownWrapper}>
@@ -279,9 +287,7 @@ export default function HomeScreen() {
           </View>
         </View>
         <View style={styles.bottomElements}>
-          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{
-            actionSheetRef.current?.hide()
-          }} /> 
+          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{CenterOnLocation()}} /> 
         </View>
 
         <BottomSheet
@@ -324,6 +330,11 @@ const styles = StyleSheet.create({
     top: '-29%',
     height: '10%'
   },
+
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
   bottomElements: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
