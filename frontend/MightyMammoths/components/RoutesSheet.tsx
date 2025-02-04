@@ -2,16 +2,23 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-import { IconSymbol } from '@/components/ui/IconSymbol'
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export function TransportChoice() {
+interface TransportChoiceProps {
+    transportationChoice: string | null;
+    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+  }
+
+export function TransportChoice({
+    transportationChoice,
+    setTransportationChoice,
+}: TransportChoiceProps) {
     //TODO: make the variables dynamic according to buildings chosen
     const destinationBuilding = 'Henry F.Hall Building';
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
     const transportTime='8 minutes';
     const transportDistance='0.46km';
 
-    const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
 
     const transportIcons = [<IconSymbol name='car.fill' size={30} color="black" style={styles.modeIcon} />,
                             <IconSymbol name='bus.fill' size={30} color="black" style={styles.modeIcon} />, 
@@ -111,7 +118,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     distance:{
-        marginLeft:'auto'
+        marginLeft:'auto',
+        fontSize:18,
     },
 
 });
