@@ -1,20 +1,28 @@
 //Shows routes to a destination such as walk, bike, drive, shuttle
 import React, {useState} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/IconSymbol'
 
 export function TransportChoice() {
+    //TODO: make the variables dynamic according to buildings chosen
     const destinationBuilding = 'Henry F.Hall Building';
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
     const transportTime='8 minutes';
     const transportDistance='0.46km';
+
+    const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
+
     const transportIcons = [<IconSymbol name='car.fill' size={30} color="black" style={styles.modeIcon} />,
                             <IconSymbol name='bus.fill' size={30} color="black" style={styles.modeIcon} />, 
                             <IconSymbol name='bicycle' size={30} color="black" style={styles.modeIcon} />,
                             <IconSymbol name='figure.walk' size={30} color="black" style={styles.modeIcon} />
                         ];
 
+    const handlePress = (index: number) => {
+        setTransportationChoice(transportModes[index]);
+        console.log('Selected transportation mode:', transportModes[index]);
+    };
 
     return (
         <View style={styles.container}>
@@ -24,8 +32,8 @@ export function TransportChoice() {
 
             <View style={styles.transportList}>
                 {transportModes.map((mode, index) => (
-                <Text key={index} style={styles.transportItem}>
-                    <View key={index} style={styles.transportItemContainer}>
+                <TouchableOpacity key={index} style={styles.transportItem} onPress={() => handlePress(index)}>
+                    <View style={styles.transportItemContainer}>
                         {transportIcons[index]}
                         <View style={styles.textInformation}>
                             <Text style={styles.transportMode}>{mode}</Text>
@@ -36,7 +44,7 @@ export function TransportChoice() {
                             <Text style={styles.distance}>{transportDistance}</Text>
                         </View>
                     </View>
-                </Text>
+                </TouchableOpacity>
                 ))}
             </View>
         </View>

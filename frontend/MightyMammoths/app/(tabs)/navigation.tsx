@@ -5,12 +5,14 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import {TransportChoice} from "@/components/RoutesSheet";
+import { DestinationChoices } from '@/components/Destinations';
 
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ["20%", "70%"], []);
     return (
-        <>
+    <>
+      
       <GestureHandlerRootView style={styles.container}>
         <BottomSheet
           ref={sheetRef}
