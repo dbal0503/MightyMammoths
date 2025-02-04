@@ -19,8 +19,7 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          // Make the tab bar visible
-          backgroundColor: Colors[colorScheme ?? 'light'].background,
+          display: 'none',
         },
       }}>
       <Tabs.Screen
