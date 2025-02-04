@@ -2,6 +2,8 @@ import React, { useCallback, useRef, useMemo, useState, useEffect } from "react"
 import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
+import { ActionSheetRef } from "react-native-actions-sheet";
 
 import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
@@ -174,10 +176,12 @@ const mapstyle = [
   }
 ]
 
+import RoundButton from "@/components/ui/buttons/RoundButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["20%", "70%"], []);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
+  const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -245,9 +249,8 @@ export default function HomeScreen() {
   //TODO: fetch list of buildings from backend
   const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];
 
-  //TODO: This bottomsheet library is dogwater, replace with a better one
-
-  console.log(location);
+//TODO: settings button onclick -> either nav to settings screen or have a modal slide down
+//TODO: recenter map onclick -> should re-center map on location
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
@@ -269,8 +272,16 @@ export default function HomeScreen() {
       
         
 
-        <View style={styles.dropdownWrapper}>
-          <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+        <View style={styles.topElements}>
+          <RoundButton imageSrc={require('@/assets/images/gear.png')} /> 
+          <View style={styles.dropdownWrapper}>
+            <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+          </View>
+        </View>
+        <View style={styles.bottomElements}>
+          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{
+            actionSheetRef.current?.hide()
+          }} /> 
         </View>
 
         <BottomSheet
@@ -294,6 +305,9 @@ export default function HomeScreen() {
             <RetroSwitch value={isEnabled} onValueChange={setIsEnabled} />
           </View>
         </BottomSheet>
+        <ActionSheet ref={actionSheetRef}>
+          <Text>Hi, I am here.</Text>
+        </ActionSheet>
       </GestureHandlerRootView>
     </>
   );
@@ -303,21 +317,29 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
-    paddingTop: 200,
+    paddingTop: 70,
     backgroundColor: 'white',
   },
-
   dropdownWrapper: {
+    top: '-29%',
+    height: '10%'
+  },
+  bottomElements: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
     position: 'absolute',
-    top: "8.5%",
-    left: "15%",
-    justifyContent: 'center'
+    width: '100%',
+    bottom: '22%',
+    paddingRight: 20
   },
-
-  map: {
-    ...StyleSheet.absoluteFillObject,
+  topElements: {
+    gap: '6%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '10%'
   },
-
   centeredView: {
     marginTop: "10%",
     alignItems: "center",
