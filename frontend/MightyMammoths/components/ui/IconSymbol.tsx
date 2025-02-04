@@ -19,7 +19,10 @@ const MAPPING = {
   'bicycle': 'directions-bike',  
   'figure.walk': 'directions-walk',
   'more-vert': 'more-vert',
-  'arrow-back': 'arrow-back'
+  'arrow-back': 'arrow-back',
+  'play' : 'play-circle-outline',
+  'flag' : 'flag-circle',
+  'arrow-up-right' : 'arrow-up-right',
 
 } as Partial<
   Record<
