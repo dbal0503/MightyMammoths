@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {TransportChoice} from "@/components/RoutesSheet";
 import { DestinationChoices } from '@/components/Destinations';
 import { StartNavigation } from '@/components/RouteStart';
+import { NavigationInformation } from '@/components/NavigationInformation';
 
 
 export default function NavigationScreen () {
@@ -24,8 +25,14 @@ export default function NavigationScreen () {
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
-        <DestinationChoices>
-        </DestinationChoices>
+        
+        <NavigationInformation>
+            
+        </NavigationInformation>
+        {//<DestinationChoices>
+        //</DestinationChoices>
+        }
+        
         <BottomSheet
             ref={sheetRef}
             snapPoints={snapPoints}
@@ -39,7 +46,10 @@ export default function NavigationScreen () {
                     setTransportationChoice={setTransportationChoice} 
                 />
             ) : (
-                <StartNavigation />
+                <StartNavigation
+                    transportationChoice={transportationChoice} 
+                    setTransportationChoice={setTransportationChoice}
+                />
             )}
         </BottomSheet>
       </GestureHandlerRootView>

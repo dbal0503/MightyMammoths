@@ -2,13 +2,35 @@ import React, {useState} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useNavigation } from '@react-navigation/native';
 
-export function StartNavigation() {
+interface TransportChoiceProps {
+    transportationChoice: string | null;
+    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+
+export function StartNavigation({
+    transportationChoice,
+    setTransportationChoice,
+}: TransportChoiceProps) {
     const destinationBuilding = 'Henry F.Hall Building';
     const transportTime='8 minutes';
     const transportDistance='0.46km';
+    const navigation = useNavigation();
+
+    const setModeNull = () => {
+        setTransportationChoice(null);
+    }
+
+    const startNavigation = () => {
+        //navigation.navigate('directions'); 
+    };
+
     return (<View style={styles.container}>
-                <IconSymbol name='arrow-back' size={50} color="black" style={styles.modeIcon} />
+                <TouchableOpacity onPress={setModeNull}>
+                    <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
+                </TouchableOpacity>
                 <View style={styles.destinationInformation}>
                     <Text style={styles.routeHeading}>Routes to</Text>
                     <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
@@ -16,9 +38,11 @@ export function StartNavigation() {
                         <Text style={styles.time}>{transportTime}</Text>
                         <Text style={styles.distance}>{transportDistance}</Text>
                     </View>
-                    <View style = {styles.startButton}>
-                        <Text style={styles.time}>Start</Text>
-                    </View>
+                    <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                        <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
+                        <Text style={styles.start}>Start</Text>
+                    </TouchableOpacity>
+
                 </View>
             </View>
             );
@@ -80,5 +104,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'blue',
         borderRadius: 20,
         height: 60,
-    }
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    navigationIcon: {
+        paddingLeft: 20
+    },
+    start:{
+        paddingLeft:15,
+        fontSize: 23,
+        color: 'white',
+    },
 });
