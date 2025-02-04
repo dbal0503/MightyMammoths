@@ -7,7 +7,8 @@ import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Styling the map https://mapstyle.withgoogle.com/
@@ -16,15 +17,7 @@ const mapstyle = [
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#212121"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
+        "color": "#242f3e"
       }
     ]
   },
@@ -32,7 +25,7 @@ const mapstyle = [
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#757575"
+        "color": "#746855"
       }
     ]
   },
@@ -40,33 +33,7 @@ const mapstyle = [
     "elementType": "labels.text.stroke",
     "stylers": [
       {
-        "color": "#212121"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#757575"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.country",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#9e9e9e"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "stylers": [
-      {
-        "visibility": "off"
+        "color": "#242f3e"
       }
     ]
   },
@@ -75,7 +42,7 @@ const mapstyle = [
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#bdbdbd"
+        "color": "#d59563"
       }
     ]
   },
@@ -84,7 +51,7 @@ const mapstyle = [
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#757575"
+        "color": "#d59563"
       }
     ]
   },
@@ -93,7 +60,7 @@ const mapstyle = [
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#181818"
+        "color": "#263c3f"
       }
     ]
   },
@@ -102,43 +69,34 @@ const mapstyle = [
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#616161"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1b1b1b"
+        "color": "#6b9a76"
       }
     ]
   },
   {
     "featureType": "road",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#2c2c2c"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#8a8a8a"
-      }
-    ]
-  },
-  {
-    "featureType": "road.arterial",
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#373737"
+        "color": "#38414e"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#212a37"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9ca5b3"
       }
     ]
   },
@@ -147,34 +105,43 @@ const mapstyle = [
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#3c3c3c"
+        "color": "#746855"
       }
     ]
   },
   {
-    "featureType": "road.highway.controlled_access",
-    "elementType": "geometry",
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
     "stylers": [
       {
-        "color": "#4e4e4e"
+        "color": "#1f2835"
       }
     ]
   },
   {
-    "featureType": "road.local",
+    "featureType": "road.highway",
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#616161"
+        "color": "#f3d19c"
       }
     ]
   },
   {
     "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#2f3948"
+      }
+    ]
+  },
+  {
+    "featureType": "transit.station",
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#757575"
+        "color": "#d59563"
       }
     ]
   },
@@ -183,7 +150,7 @@ const mapstyle = [
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#000000"
+        "color": "#17263c"
       }
     ]
   },
@@ -192,7 +159,16 @@ const mapstyle = [
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#3d3d3d"
+        "color": "#515c6d"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#17263c"
       }
     ]
   }
@@ -206,6 +182,8 @@ export default function HomeScreen() {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  const [location, setLocation] = useState({latitude: 45.49465577566852,longitude: -73.57763385380554,});
 
   const [regionMap, setRegion] = useState({
     latitude: 45.49465577566852,
@@ -239,8 +217,15 @@ export default function HomeScreen() {
         longitudeDelta: 0.01,
       });
     }
+
+  async function getCurrentLocation() {
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation({latitude: location.coords.latitude, longitude: location.coords.longitude});
+  }
  
   useEffect(() => {
+    getCurrentLocation(); // set the current location
+
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
       sheetRef.current?.close();
@@ -261,16 +246,28 @@ export default function HomeScreen() {
   const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];
 
   //TODO: This bottomsheet library is dogwater, replace with a better one
+
+  console.log(location);
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
         
         <MapView
         style={styles.map}
-        onMapReady={()=>switchToSGW()}
+        initialRegion={regionMap}
         region={regionMap}
         customMapStyle={mapstyle}
-        > </MapView>
+        >
+          
+          <Marker
+          image={require("../../assets/images/arrow.png")}
+          coordinate={location} 
+          title={"MY LOCATION"}
+          description={"MY LOCATION"}
+          />
+        </MapView>
+      
+        
 
         <View style={styles.dropdownWrapper}>
           <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
@@ -280,7 +277,7 @@ export default function HomeScreen() {
           ref={sheetRef}
           snapPoints={snapPoints}
           enableDynamicSizing={false}
-          backgroundStyle={{backgroundColor: '#010213'}}
+          backgroundStyle={{backgroundColor: '#000A18'}}
           handleIndicatorStyle={{backgroundColor: 'white'}}
         >
         <View style={styles.centeredView}>
