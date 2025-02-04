@@ -14,10 +14,10 @@ const MAPPING = {
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'map.fill': 'map',
-  'Drive': 'directions-car', 
-  'Public Transit': 'directions-bus', 
-  'Bike': 'directions-bike', 
-  'Walk': 'directions-walk',
+  'car.fill': 'directions-car', 
+  'bus.fill': 'directions-bus',
+  'bicycle': 'directions-bike',  
+  'figure.walk': 'directions-walk',  
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
