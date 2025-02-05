@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Marker } from 'react-native-maps';
-import { Alert, Image } from 'react-native';
+import { Alert, Image, Text, StyleSheet, View } from 'react-native';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import campusBuildingCoords from '../../assets/buildings/coordinates/campusbuildingcoords.json';
@@ -61,11 +61,13 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
           >
 
             {}
-            <Image
-              testID={`markerImage-${buildingName}`}
-              source={require('../../assets/images/arrow.png')} 
-              style={{ width: 30, height: 30 }} 
-            />
+            
+            <View style={styles.marker}
+                  testID={`markerImage-${buildingName}`}
+            >
+            
+              <Text style={styles.text}>{feature.properties.Building} </Text>
+            </View>
           </Marker>
           
         );
@@ -76,6 +78,21 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
 
   return <>{renderMarkers(geoJsonData)}</>;
 };
+
+const styles = StyleSheet.create({
+  marker: {
+    backgroundColor: 'maroon',
+    padding: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
 
 const MapDataLoader: React.FC = () => {
   console.log("MapDataLoaded")
