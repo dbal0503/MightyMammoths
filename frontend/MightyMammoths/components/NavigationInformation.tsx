@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import BuildingDropdown from '@/components/ui/input/BuildingDropdown';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
 interface NavigationInformationProps {

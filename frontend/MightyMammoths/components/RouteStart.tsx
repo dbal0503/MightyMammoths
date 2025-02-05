@@ -20,7 +20,6 @@ export function StartNavigation({
     
     const transportTime='8 minutes';
     const transportDistance='0.46km';
-    const navigation = useNavigation();
     const router = useRouter();
 
     const setModeNull = () => {

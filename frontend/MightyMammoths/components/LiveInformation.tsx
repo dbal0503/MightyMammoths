@@ -3,21 +3,15 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useRouter } from "expo-router";
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useNavigation } from '@react-navigation/native';
-
-interface TransportChoiceProps {
-    transportationChoice: string | null;
-    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
 
 export function LiveNavigation() {
     const arrivalTime = '11:37 AM';
     const transportTime='8 minutes';
     const transportDistance='0.46km';
+    const router = useRouter();
 
     const stopNavigation = () => {
-        
+        router.push("/navigation");
     };
 
     return (<View style={styles.container}>
