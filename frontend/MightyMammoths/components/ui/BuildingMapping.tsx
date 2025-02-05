@@ -3,6 +3,8 @@ import { Marker } from 'react-native-maps';
 import { Alert, Image } from 'react-native';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
+import campusBuildingCoords from '../../assets/buildings/coordinates/campusbuildingcoords.json';
+
 
 interface GeoJsonFeature {
   type: string;
@@ -56,12 +58,14 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
             description={address}
             onPress={() => handleMarkerPress(buildingName, address)} 
           >
+
             {}
             <Image
               source={require('../../assets/images/arrow.png')} 
               style={{ width: 30, height: 30 }} 
             />
           </Marker>
+          
         );
       }
       return null;
@@ -72,31 +76,16 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
 };
 
 const MapDataLoader: React.FC = () => {
+  console.log("MapDataLoaded")
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
 
   useEffect(() => {
-    const loadGeoJSON = async () => {
-      const asset = Asset.fromModule(require('../../assets/buildings/coordinates/campusbuildingcoords.json'));
-      await asset.downloadAsync();
-
-      if (asset.localUri) {
-        try {
-          const fileContent = await FileSystem.readAsStringAsync(asset.localUri);
-          const data: GeoJsonData = JSON.parse(fileContent);
-          console.log('GeoJSON Data:', data);
-          setGeoJsonData(data);
-        } catch (error) {
-          console.error('Error reading GeoJSON file:', error);
-        }
-      } else {
-        console.error('Asset localUri is null.');
-      }
-    };
-
-    loadGeoJSON();
+    
+    setGeoJsonData(campusBuildingCoords);
   }, []);
 
   return geoJsonData ? <BuildingMapping geoJsonData={geoJsonData} /> : null;
+
 };
 
 export default MapDataLoader;
