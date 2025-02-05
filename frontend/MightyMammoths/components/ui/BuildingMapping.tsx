@@ -77,14 +77,14 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
 
 const styles = StyleSheet.create({
   marker: {
-    backgroundColor: 'blue',
+    backgroundColor: 'maroon',
     padding: 10,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
-    color: 'maroon',
+    color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
