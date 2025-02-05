@@ -25,14 +25,8 @@ export default function NavigationScreen () {
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
-        
-        <NavigationInformation>
-            
-        </NavigationInformation>
-        {//<DestinationChoices>
-        //</DestinationChoices>
-        }
-        
+        <DestinationChoices>
+        </DestinationChoices>
         <BottomSheet
             ref={sheetRef}
             snapPoints={snapPoints}
