@@ -4,18 +4,33 @@ import { StyleSheet, Text, View } from 'react-native';
 import BuildingDropdown from '@/components/ui/input/BuildingDropdown';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export function DestinationChoices({ setSelectedBuilding }: { setSelectedBuilding: (building: string) => void }) {
+interface DestinationChoicesProps {
+    setSelectedBuilding: (building: string) => void;
+    setTwoBuildingsSelected: (selected: boolean) => void;
+}
+
+export function DestinationChoices({ setSelectedBuilding, setTwoBuildingsSelected }: DestinationChoicesProps) {
     const buildingList = ["EV","Hall", "JMSB", "CL Building", "Learning Square"];
+    const [selectedStart, setSelectedStart] = useState<string | null>(null);
     const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+
+    const checkSelection = (start: string | null, destination: string | null) => {
+        setTwoBuildingsSelected(start !== null && destination !== null);
+    };
+
     return (<View style={styles.container}>
                 <View style={styles.dropdownWrapper}>
-                    <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+                    <BuildingDropdown options={buildingList} onSelect={(selected) => {
+                        setSelectedStart(selected);
+                        checkSelection(selected, selectedDestination);
+                    }} />
                 </View>
                 <IconSymbol name='more-vert' size={30} color="black" style={styles.modeIcon} />
                 <View style={styles.dropdownWrapper}>
                     <BuildingDropdown options={buildingList} onSelect={(selected) => {
                         setSelectedDestination(selected);
                         setSelectedBuilding(selected); 
+                        checkSelection(selectedStart, selected);
                     }}  />
                 </View>
             </View>

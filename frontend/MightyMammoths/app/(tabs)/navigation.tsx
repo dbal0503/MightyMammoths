@@ -15,6 +15,7 @@ export default function NavigationScreen () {
     const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
     const [showStartNavigation, setShowStartNavigation] = useState(false);
     const [selectedBuilding, setSelectedBuilding] = useState<string>('Hall');
+    const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
 
     useEffect(() => {
         if (transportationChoice !== null) {
@@ -26,7 +27,9 @@ export default function NavigationScreen () {
     <>
       <GestureHandlerRootView style={styles.container}>
         <DestinationChoices
-            setSelectedBuilding={setSelectedBuilding}>
+            setSelectedBuilding={setSelectedBuilding}
+            setTwoBuildingsSelected={setTwoBuildingsSelected}
+        >
         </DestinationChoices>
         <BottomSheet
             ref={sheetRef}
@@ -39,7 +42,8 @@ export default function NavigationScreen () {
                 <TransportChoice 
                     transportationChoice={transportationChoice} 
                     setTransportationChoice={setTransportationChoice}
-                    destinationBuilding={selectedBuilding} 
+                    destinationBuilding={selectedBuilding}
+                    bothSelected={twoBuildingsSelected} 
                 />
             ) : (
                 <StartNavigation

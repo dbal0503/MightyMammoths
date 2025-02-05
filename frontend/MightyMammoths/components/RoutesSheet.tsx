@@ -8,12 +8,15 @@ interface TransportChoiceProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
     destinationBuilding: string | null;
+    bothSelected: boolean;
 }
 
 export function TransportChoice({
     transportationChoice,
     setTransportationChoice,
-    destinationBuilding
+    destinationBuilding,
+    bothSelected
+    
 }: TransportChoiceProps) {
     //TODO: make the variables dynamic according to buildings chosen
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
@@ -40,7 +43,7 @@ export function TransportChoice({
 
             <View style={styles.transportList}>
                 {transportModes.map((mode, index) => (
-                <TouchableOpacity key={index} style={styles.transportItem} onPress={() => handlePress(index)}>
+                <TouchableOpacity key={index} style={styles.transportItem} onPress={() => handlePress(index)} disabled={!bothSelected}>
                     <View style={styles.transportItemContainer}>
                         {transportIcons[index]}
                         <View style={styles.textInformation}>
