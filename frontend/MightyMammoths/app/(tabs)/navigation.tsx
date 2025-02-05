@@ -9,12 +9,12 @@ import { DestinationChoices } from '@/components/Destinations';
 import { StartNavigation } from '@/components/RouteStart';
 
 
-
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ["30%", "60%"], []);
     const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
     const [showStartNavigation, setShowStartNavigation] = useState(false);
+    const [selectedBuilding, setSelectedBuilding] = useState<string>('Hall');
 
     useEffect(() => {
         if (transportationChoice !== null) {
@@ -25,7 +25,8 @@ export default function NavigationScreen () {
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
-        <DestinationChoices>
+        <DestinationChoices
+            setSelectedBuilding={setSelectedBuilding}>
         </DestinationChoices>
         <BottomSheet
             ref={sheetRef}
@@ -37,7 +38,8 @@ export default function NavigationScreen () {
             {transportationChoice === null ? (
                 <TransportChoice 
                     transportationChoice={transportationChoice} 
-                    setTransportationChoice={setTransportationChoice} 
+                    setTransportationChoice={setTransportationChoice}
+                    destinationBuilding={selectedBuilding} 
                 />
             ) : (
                 <StartNavigation

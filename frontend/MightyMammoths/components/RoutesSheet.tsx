@@ -7,14 +7,15 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 interface TransportChoiceProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
-  }
+    destinationBuilding: string | null;
+}
 
 export function TransportChoice({
     transportationChoice,
     setTransportationChoice,
+    destinationBuilding
 }: TransportChoiceProps) {
     //TODO: make the variables dynamic according to buildings chosen
-    const destinationBuilding = 'Henry F.Hall Building';
     const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
     const transportTime='8 minutes';
     const transportDistance='0.46km';
