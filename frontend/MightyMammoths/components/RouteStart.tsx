@@ -28,7 +28,14 @@ export function StartNavigation({
     }
 
     const startNavigation = () => {
-        router.push('/directions'); 
+        if (destinationBuilding) {
+            router.push({
+                pathname: "/directions",
+                params: { destination: destinationBuilding }, // Send destination as query param
+            });
+        } else {
+            router.push("/directions");
+        }
     };
 
     return (<View style={styles.container}>

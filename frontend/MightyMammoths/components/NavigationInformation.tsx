@@ -4,8 +4,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import BuildingDropdown from '@/components/ui/input/BuildingDropdown';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export function NavigationInformation() {
-    const destinationBuilding='Henry F. Hall Building';
+interface NavigationInformationProps {
+    destinationBuilding: string; // Accept destination as prop
+}
+
+export function NavigationInformation({ destinationBuilding }: NavigationInformationProps) {
     const address='1550 De Maisonnneuve West';
     const nextStep='Rue Sainte-Catherine O';
     const distance='240m';
