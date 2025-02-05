@@ -45,6 +45,7 @@ export default function NavigationScreen () {
                 <StartNavigation
                     transportationChoice={transportationChoice} 
                     setTransportationChoice={setTransportationChoice}
+                    destinationBuilding={selectedBuilding}
                 />
             )}
         </BottomSheet>

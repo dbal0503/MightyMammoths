@@ -8,14 +8,16 @@ import { useNavigation } from '@react-navigation/native';
 interface TransportChoiceProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    destinationBuilding: string | null;
 }
 
 
 export function StartNavigation({
     transportationChoice,
     setTransportationChoice,
+    destinationBuilding
 }: TransportChoiceProps) {
-    const destinationBuilding = 'Henry F.Hall Building';
+    
     const transportTime='8 minutes';
     const transportDistance='0.46km';
     const navigation = useNavigation();

@@ -141,6 +141,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d1d1d1",
     overflow: "hidden",
+    position: 'absolute',
+    zIndex: 1000,
+    width: 280,
+    top: '100%'
   },
   searchInput: {
     paddingVertical: 10,
