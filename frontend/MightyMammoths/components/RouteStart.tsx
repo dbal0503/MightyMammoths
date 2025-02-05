@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useRouter } from "expo-router";
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useNavigation } from '@react-navigation/native';
 
 interface TransportChoiceProps {
     transportationChoice: string | null;
