@@ -1,0 +1,1 @@
+//This is the component where starting and destination locations are selected
