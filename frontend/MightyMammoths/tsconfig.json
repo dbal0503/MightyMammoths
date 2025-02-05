@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "types": ["jest", "node", "detox"],
     "strict": true,
     "paths": {
       "@/*": [
@@ -13,5 +14,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "e2e/jest.config.js",
+  "e2e/markers.specs.ts",
+  "e2e/"
+]
 }

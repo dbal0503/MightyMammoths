@@ -53,6 +53,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
         return (
           <Marker
             key={buildingName}
+            testID={`marker-${buildingName}`}
             coordinate={{ latitude, longitude }} 
             title={buildingName}
             description={address}
@@ -61,6 +62,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
 
             {}
             <Image
+              testID={`markerImage-${buildingName}`}
               source={require('../../assets/images/arrow.png')} 
               style={{ width: 30, height: 30 }} 
             />
