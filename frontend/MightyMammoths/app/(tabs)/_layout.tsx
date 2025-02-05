@@ -19,7 +19,7 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          display: 'none'
+          
         },
       }}>
       <Tabs.Screen

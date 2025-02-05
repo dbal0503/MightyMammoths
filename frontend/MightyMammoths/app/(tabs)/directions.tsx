@@ -3,19 +3,34 @@ import {StyleSheet, View, Text } from 'react-native';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import {TransportChoice} from "@/components/RoutesSheet";
-import { DestinationChoices } from '@/components/Destinations';
+import { LiveNavigation } from '@/components/LiveInformation';
+import { NavigationInformation } from '@/components/NavigationInformation';
 
+export default function NavigationScreen () {
+    const sheetRef = useRef<BottomSheet>(null);
+    const snapPoints = useMemo(() => ["20%", "60%"], []);
+    const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
+    const [showStartNavigation, setShowStartNavigation] = useState(false);
 
-
-export default function DirectionsScreen () {
-    
+    useEffect(() => {
+        if (transportationChoice !== null) {
+            setShowStartNavigation(true);
+        }
+    }, [transportationChoice]); 
 
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
-            <DestinationChoices>
-            </DestinationChoices>
+        <NavigationInformation></NavigationInformation>
+        <BottomSheet
+            ref={sheetRef}
+            snapPoints={snapPoints}
+            enableDynamicSizing={false}
+            backgroundStyle={{backgroundColor: '#010213'}}
+            handleIndicatorStyle={{backgroundColor: 'white'}}
+            >
+            <LiveNavigation></LiveNavigation>
+        </BottomSheet>
       </GestureHandlerRootView>
     </>
     );

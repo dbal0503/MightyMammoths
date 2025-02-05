@@ -11,38 +11,26 @@ interface TransportChoiceProps {
 }
 
 
-export function StartNavigation({
-    transportationChoice,
-    setTransportationChoice,
-}: TransportChoiceProps) {
-    const destinationBuilding = 'Henry F.Hall Building';
+export function LiveNavigation() {
+    const arrivalTime = '11:37 AM';
     const transportTime='8 minutes';
     const transportDistance='0.46km';
-    const navigation = useNavigation();
-    const router = useRouter();
 
-    const setModeNull = () => {
-        setTransportationChoice(null);
-    }
-
-    const startNavigation = () => {
-        router.push('/directions'); 
+    const stopNavigation = () => {
+        
     };
 
     return (<View style={styles.container}>
-                <TouchableOpacity onPress={setModeNull}>
-                    <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
-                </TouchableOpacity>
                 <View style={styles.destinationInformation}>
-                    <Text style={styles.routeHeading}>Routes to</Text>
-                    <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
+                    <Text style={styles.routeHeading}>ETA</Text>
+                    <Text style={styles.routeHeadingDestination}>{arrivalTime}</Text>
                     <View style={styles.travelInformation}>
                         <Text style={styles.time}>{transportTime}</Text>
                         <Text style={styles.distance}>{transportDistance}</Text>
                     </View>
-                    <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                    <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
                         <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
-                        <Text style={styles.start}>Start</Text>
+                        <Text style={styles.start}>Stop</Text>
                     </TouchableOpacity>
 
                 </View>
