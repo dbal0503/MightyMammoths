@@ -10,6 +10,8 @@ import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
+import BuildingMapping from "@/components/ui/BuildingMapping"
+
 
 // Styling the map https://mapstyle.withgoogle.com/
 const mapstyle = [
@@ -252,23 +254,16 @@ export default function HomeScreen() {
     <>
       <GestureHandlerRootView style={styles.container}>
         
-        <MapView
-        style={styles.map}
-        initialRegion={regionMap}
-        region={regionMap}
-        customMapStyle={mapstyle}
-        >
+        <MapView style={styles.map}
+        initialRegion={regionMap} region={regionMap} customMapStyle={mapstyle}>
           
           <Marker
-          image={require("../../assets/images/arrow.png")}
-          coordinate={location} 
-          title={"MY LOCATION"}
-          description={"MY LOCATION"}
-          />
+          image={require("../../assets/images/arrow.png")} coordinate={location} 
+          title={"MY LOCATION"} description={"MY LOCATION"}/>
+
+          <BuildingMapping />
         </MapView>
       
-        
-
         <View style={styles.dropdownWrapper}>
           <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
         </View>
