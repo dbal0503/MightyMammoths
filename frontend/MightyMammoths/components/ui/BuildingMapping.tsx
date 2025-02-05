@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Marker } from 'react-native-maps';
-import { Alert, Image, Text, StyleSheet, View } from 'react-native';
+import { Alert, Image, Modal, Text, StyleSheet, View } from 'react-native';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import campusBuildingCoords from '../../assets/buildings/coordinates/campusbuildingcoords.json';
+import BuildingInfo from '../BuildingInfoSheet';
 
 
 interface GeoJsonFeature {
@@ -34,11 +35,13 @@ interface BuildingMappingProps {
 }
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
-
-  // Function to handle Marker clicks
-  const handleMarkerPress = (buildingName: string, address: string) => {
-    // Replace with the info sheet
-    Alert.alert(`Building: ${buildingName}`, `Address: ${address}`);
+  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false); 
+  // Function to handle Marker clicks: calls the BuildingInfoSheet
+  const handleMarkerPress = (buildingName: string) => {
+    console.log('Marker pressed:', buildingName);
+    setSelectedBuildingName(buildingName);
+    setModalVisible(true); 
   };
 
   const renderMarkers = (geoJsonData: GeoJsonData) => {
@@ -56,7 +59,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
             coordinate={{ latitude, longitude }} 
             title={buildingName}
             description={address}
-            onPress={() => handleMarkerPress(buildingName, address)} 
+            onPress={() => handleMarkerPress(buildingName)} 
           >
 
             {}
@@ -71,8 +74,24 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
       return null;
     });
   };
-
-  return <>{renderMarkers(geoJsonData)}</>;
+//Pop up containing the BuildingInfo
+  return (<>{renderMarkers(geoJsonData)}
+ <Modal
+  visible={modalVisible}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={() => {
+    setModalVisible(false);
+    setSelectedBuildingName(null);
+  }}
+>
+  <View style={styles.modalContainer}>
+    {selectedBuildingName && (
+      <BuildingInfo key={selectedBuildingName} buildingName={selectedBuildingName} />
+    )}
+  </View>
+</Modal>
+  </>);
 };
 
 const styles = StyleSheet.create({
@@ -87,6 +106,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 
