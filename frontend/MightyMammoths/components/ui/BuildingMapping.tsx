@@ -56,6 +56,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
         return (
           <Marker
             key={buildingName}
+            testID={`marker-${buildingName}`}
             coordinate={{ latitude, longitude }} 
             title={buildingName}
             description={address}
@@ -64,7 +65,10 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData }) => {
 
             {}
             
-            <View style={styles.marker}>
+            <View style={styles.marker}
+                  testID={`markerImage-${buildingName}`}
+            >
+            
               <Text style={styles.text}>{feature.properties.Building} </Text>
             </View>
           </Marker>
