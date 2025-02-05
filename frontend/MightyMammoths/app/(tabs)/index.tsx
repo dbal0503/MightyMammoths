@@ -190,8 +190,8 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState({
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.0006,
+    longitudeDelta: 0.0006,
   });
 
   const changeCampus = (campus: string) => {
@@ -206,8 +206,8 @@ export default function HomeScreen() {
     setRegion({
       latitude: 45.458177049773354, 
       longitude: -73.63924402074171,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
+      latitudeDelta: 0.002,
+      longitudeDelta: 0.002,
       });
     }
 
@@ -215,8 +215,8 @@ export default function HomeScreen() {
       setRegion({
         latitude: 45.49465577566852,
         longitude: -73.57763385380554,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.002,
+        longitudeDelta: 0.002,
       });
     }
 
