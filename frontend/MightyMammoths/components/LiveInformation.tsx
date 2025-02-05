@@ -27,12 +27,11 @@ export function LiveNavigation() {
                     <View style={styles.travelInformation}>
                         <Text style={styles.time}>{transportTime}</Text>
                         <Text style={styles.distance}>{transportDistance}</Text>
+                        <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
+                            <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
+                            <Text style={styles.stop}>Stop</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
-                        <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
-                        <Text style={styles.start}>Stop</Text>
-                    </TouchableOpacity>
-
                 </View>
             </View>
             );
@@ -40,7 +39,7 @@ export function LiveNavigation() {
 
 const styles = StyleSheet.create({
     container: {
-        height: '60%',
+        height: '35%',
         width: '100%',
         padding: 16,
         marginBottom:0,
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     },
     routeHeadingDestination: {
         fontSize: 20,
-        marginBottom: 8,
+        marginBottom: 0,
         color: 'white',
     },
     destinationInformation: {
@@ -77,7 +76,7 @@ const styles = StyleSheet.create({
     travelInformation:{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingTop: 20,
+        paddingTop: 0,
     },
     time:{
         fontSize:20,
@@ -90,18 +89,20 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     startButton:{
-        marginTop:40,
-        backgroundColor: 'blue',
+        marginTop:0,
+        backgroundColor: 'red',
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
         alignItems: 'center',
+        marginLeft: 30,
+        width:'40%'
     },
     navigationIcon: {
-        paddingLeft: 20
+        paddingLeft: 10
     },
-    start:{
-        paddingLeft:15,
+    stop:{
+        paddingLeft:6,
         fontSize: 23,
         color: 'white',
     },
