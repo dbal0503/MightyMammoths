@@ -12,7 +12,7 @@ import { NavigationInformation } from '@/components/NavigationInformation';
 
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ["20%", "60%"], []);
+    const snapPoints = useMemo(() => ["30%", "60%"], []);
     const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
     const [showStartNavigation, setShowStartNavigation] = useState(false);
 
