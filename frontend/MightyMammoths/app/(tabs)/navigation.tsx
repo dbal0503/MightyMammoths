@@ -7,7 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {TransportChoice} from "@/components/RoutesSheet";
 import { DestinationChoices } from '@/components/Destinations';
 import { StartNavigation } from '@/components/RouteStart';
-import { NavigationInformation } from '@/components/NavigationInformation';
+
 
 
 export default function NavigationScreen () {
