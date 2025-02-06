@@ -1,4 +1,4 @@
-import { GOOGLE_MAPS_API_KEY } from "@env";
+//import { GOOGLE_MAPS_API_KEY } from "@env";
 import axios from "axios";
 
 export interface RouteData {
@@ -7,7 +7,6 @@ export interface RouteData {
   distance: string;
   steps: any[];
 }
-
 export async function getRoutes(
   origin: string,
   destination: string,

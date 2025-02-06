@@ -8,7 +8,6 @@ import { DestinationChoices } from "@/components/Destinations";
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
-
 import { getBuildingAddress } from "@/utils/buildingMapping";
 
 const transportModes = ["driving", "transit", "bicycling", "walking"];
