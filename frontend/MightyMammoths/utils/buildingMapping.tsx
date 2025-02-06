@@ -7,6 +7,8 @@ export function getBuildingAddress(abbreviation: string): string {
     "Learning Square": "Concordia University, Learning Square, Montreal, QC",
     "Smith Building":
       "Concordia University Smith Building, Loyola Campus, Montreal, QC, Canada",
+    "Hingston Hall":
+      "Concordia University, Hingston Hall, Montreal, QC, Canada",
   };
 
   return mapping[abbreviation] || abbreviation;
