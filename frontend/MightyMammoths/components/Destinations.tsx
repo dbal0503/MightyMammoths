@@ -20,6 +20,7 @@ export function DestinationChoices({
     "CL Building",
     "Learning Square",
     "Smith Building",
+    "Hingston Hall",
   ];
   return (
     <View style={styles.container}>
