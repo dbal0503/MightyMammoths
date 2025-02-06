@@ -1,125 +1,118 @@
-//Shows routes to a destination such as walk, bike, drive, shuttle
-import React, {useState} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-
-import { IconSymbol } from '@/components/ui/IconSymbol';
+// components/RoutesSheet.tsx
+import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
-    transportationChoice: string | null;
-    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
-  }
+  routeEstimates: { [mode: string]: RouteData[] };
+  onSelectMode: (mode: string) => void;
+}
 
 export function TransportChoice({
-    transportationChoice,
-    setTransportationChoice,
+  routeEstimates,
+  onSelectMode,
 }: TransportChoiceProps) {
-    //TODO: make the variables dynamic according to buildings chosen
-    const destinationBuilding = 'Henry F.Hall Building';
-    const transportModes = ['Drive', 'Public Transit', 'Bicycle', 'Walk' ];
-    const transportTime='8 minutes';
-    const transportDistance='0.46km';
+  const modeDisplayNames: { [key: string]: string } = {
+    driving: "Drive",
+    transit: "Public Transit",
+    bicycling: "Bicycle",
+    walking: "Walk",
+  };
 
+  const modeIcons: { [key: string]: JSX.Element } = {
+    driving: (
+      <IconSymbol
+        name="car.fill"
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
+    ),
+    transit: (
+      <IconSymbol
+        name="bus.fill"
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
+    ),
+    bicycling: (
+      <IconSymbol
+        name="bicycle"
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
+    ),
+    walking: (
+      <IconSymbol
+        name="figure.walk"
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
+    ),
+  };
 
-    const transportIcons = [<IconSymbol name='car.fill' size={30} color="black" style={styles.modeIcon} />,
-                            <IconSymbol name='bus.fill' size={30} color="black" style={styles.modeIcon} />, 
-                            <IconSymbol name='bicycle' size={30} color="black" style={styles.modeIcon} />,
-                            <IconSymbol name='figure.walk' size={30} color="black" style={styles.modeIcon} />
-                        ];
-
-    const handlePress = (index: number) => {
-        setTransportationChoice(transportModes[index]);
-        console.log('Selected transportation mode:', transportModes[index]);
-    };
-
-    return (
-        <View style={styles.container}>
-            {/* Route Heading */}
-            <Text style={styles.routeHeading}>Routes to</Text>
-            <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
-
-            <View style={styles.transportList}>
-                {transportModes.map((mode, index) => (
-                <TouchableOpacity key={index} style={styles.transportItem} onPress={() => handlePress(index)}>
-                    <View style={styles.transportItemContainer}>
-                        {transportIcons[index]}
-                        <View style={styles.textInformation}>
-                            <Text style={styles.transportMode}>{mode}</Text>
-                            <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
-                        </View>
-                        <View style={styles.travelInformation}>
-                            <Text style={styles.time}>{transportTime}</Text>
-                            <Text style={styles.distance}>{transportDistance}</Text>
-                        </View>
-                    </View>
-                </TouchableOpacity>
-                ))}
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Select Transportation Mode</Text>
+      {Object.keys(modeDisplayNames).map((mode) => {
+        const estimates = routeEstimates[mode];
+        const bestEstimate =
+          estimates && estimates.length > 0 ? estimates[0] : null;
+        return (
+          <TouchableOpacity
+            key={mode}
+            style={styles.modeItem}
+            onPress={() => onSelectMode(mode)}
+          >
+            {modeIcons[mode]}
+            <View style={styles.textContainer}>
+              <Text style={styles.modeText}>{modeDisplayNames[mode]}</Text>
+              {bestEstimate && (
+                <Text style={styles.estimateText}>
+                  {bestEstimate.duration} – {bestEstimate.distance}
+                </Text>
+              )}
             </View>
-        </View>
+          </TouchableOpacity>
         );
+      })}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: 'black'
-      },
-      routeHeading: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 0,
-        color: 'white',
-      },
-      routeHeadingDestination: {
-        fontSize: 20,
-        marginBottom: 8,
-        color: 'white',
-      },
-      transportList: {
-        marginTop: 5,
-        flex: 1
-      },
-      transportItem: {
-        fontSize: 18,
-        marginBottom: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        height:90,
-      },
-      transportItemContainer: {
-        flexDirection: 'row',
-        alignItems: 'center', // Center items vertically
-        marginBottom: 8,
-        height: '100%',
-        borderRadius:20,
-        width:'100%'
-      },
-    modeIcon: {
-        marginRight: 10,
-        marginLeft: 10,
-        alignItems: 'center'
-    },
-    transportMode:{
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    subRouteHeadingDestination:{
-        fontSize:15,
-    },
-    textInformation:{
-        
-    },
-    travelInformation:{
-        marginLeft: 'auto',
-        paddingRight:10
-    },
-    time:{
-        fontSize:20,
-        fontWeight: 'bold',
-    },
-    distance:{
-        marginLeft:'auto',
-        fontSize:18,
-    },
-
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 10,
+  },
+  modeItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  modeIcon: {
+    marginRight: 10,
+  },
+  textContainer: {},
+  modeText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  estimateText: {
+    fontSize: 14,
+    color: "gray",
+  },
 });
