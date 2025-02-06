@@ -12,6 +12,9 @@ import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
+import BuildingMapping from "@/components/ui/BuildingMapping"
+
+
 
 // Styling the map https://mapstyle.withgoogle.com/
 const mapstyle = [
@@ -192,8 +195,8 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState({
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.0006,
+    longitudeDelta: 0.0006,
   });
 
   const changeCampus = (campus: string) => {
@@ -226,8 +229,8 @@ export default function HomeScreen() {
       setRegion({
         latitude: 45.49465577566852,
         longitude: -73.57763385380554,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.002,
+        longitudeDelta: 0.002,
       });
     }
 
@@ -265,12 +268,8 @@ export default function HomeScreen() {
     <>
       <GestureHandlerRootView style={styles.container}>
         
-        <MapView
-        style={styles.map}
-        initialRegion={regionMap}
-        region={regionMap}
-        customMapStyle={mapstyle}
-        >
+        <MapView style={styles.map}
+        initialRegion={regionMap} region={regionMap} customMapStyle={mapstyle}>
           
           <Marker
           image={require("../../assets/images/arrow.png")}
