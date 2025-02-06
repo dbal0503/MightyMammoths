@@ -13,7 +13,14 @@ export function DestinationChoices({
   onSelectOrigin,
   onSelectDestination,
 }: DestinationChoicesProps) {
-  const buildingList = ["EV", "Hall", "JMSB", "CL Building", "Learning Square"];
+  const buildingList = [
+    "EV",
+    "Hall",
+    "JMSB",
+    "CL Building",
+    "Learning Square",
+    "Smith Building",
+  ];
   return (
     <View style={styles.container}>
       <View style={styles.dropdownWrapper}>

@@ -38,9 +38,6 @@ export default function NavigationScreen() {
             estimates[mode] = routes;
           }
           setRouteEstimates(estimates);
-          console.log("origin " + encodeURIComponent(origin)); //REMOVE AFTER DONE DEBUGGING
-          console.log("destination " + encodeURIComponent(destination)); //REMOVE AFTER DONE DEBUGGING
-          console.log("Route estimates:", estimates); //REMOVE AFTER DONE DEBUGGING
         } catch (error) {
           console.error("Error fetching routes", error);
         } finally {
