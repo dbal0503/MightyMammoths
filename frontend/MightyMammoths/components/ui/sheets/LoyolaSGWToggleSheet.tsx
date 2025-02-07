@@ -10,6 +10,7 @@ import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
     setSelectedCampus: React.Dispatch<React.SetStateAction<string>>;
+    actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
 }
 
 function LoyolaSGWToggleSheet({
@@ -22,17 +23,18 @@ function LoyolaSGWToggleSheet({
     initialSnapIndex = 0,
     overdrawEnabled = false,
     overdrawSize = 200,
+    actionsheetref
 }: LoyolaSGWToggleSheetProps) {
-    const actionSheetRef = useRef<ActionSheetRef>(null);
+    // const actionSheetRef = useRef<ActionSheetRef>(null);
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-    useEffect(()=>{
-        actionSheetRef.current?.show();
-    },[]);
+    // useEffect(()=>{
+    //     actionSheetRef.current?.show();
+    // },[]);
 
     return (
       <ActionSheet
-        ref={actionSheetRef}
+        ref={actionsheetref}
         isModal={isModal} 
         snapPoints={snapPoints} 
         backgroundInteractionEnabled={backgroundInteractionEnabled}

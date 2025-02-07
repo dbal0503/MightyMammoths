@@ -19,6 +19,10 @@ import BuildingMapping from "@/components/ui/BuildingMapping";
 import BuildingInfo from "@/components/BuildingInfoSheet";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
+import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
+import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
+
+
 
 // Map styling from https://mapstyle.withgoogle.com/
 const mapstyle = [
@@ -99,6 +103,7 @@ const mapstyle = [
 ];
 
 export default function HomeScreen() {
+  const actionSheetRef = useRef<ActionSheetRef>(null);
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
@@ -161,6 +166,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     getCurrentLocation();
+    actionSheetRef.current?.show()
 
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -222,6 +228,7 @@ export default function HomeScreen() {
           />
         </View>
         <LoyolaSGWToggleSheet
+          actionsheetref = {actionSheetRef}
           setSelectedCampus={setSelectedCampus}
         />
       </GestureHandlerRootView>
