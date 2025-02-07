@@ -20,12 +20,20 @@ export function findNextBusTime(day: string, campus: string, currentTime: string
     return null;
   }
 
+  //console.log("Schedule:", schedule);
+  //console.log("Current time:", currentTime);
+  //console.log("Campus:", campus);
+  //console.log("Day:", day);
+
   const currentTimeNum = timeToNumber(currentTime);
+  //console.log("Current time num:", currentTimeNum)
 
   let left = 0;
   let right = schedule.length - 1;
 
   const lastBusNum = timeToNumber(schedule[right]);
+  //console.log("First bus num:", firstBusNum);
+    //console.log("Last bus num:", lastBusNum);
 
   if (currentTimeNum > lastBusNum) {
     return "No more buses today";
@@ -41,6 +49,8 @@ export function findNextBusTime(day: string, campus: string, currentTime: string
       left = mid + 1; 
     }
   }
+  //console.log("Left:", left)
+  //console.log("Left:", schedule[left])
 
   return schedule[left] || "No more buses today";
 }
