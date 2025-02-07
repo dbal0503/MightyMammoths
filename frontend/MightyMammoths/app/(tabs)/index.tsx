@@ -183,7 +183,9 @@ export default function HomeScreen() {
   }, []);
 
   // TODO: fetch list of buildings from backend
-  const buildingList = ["EV", "Hall", "JMSB", "CL Building", "Learning Square"];
+  //for feature in features, feature.properties.Building
+  //const buildingList = ["EV", "Hall", "JMSB", "CL Building", "Learning Square"];
+  const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
