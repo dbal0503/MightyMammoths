@@ -2,7 +2,7 @@ import React from 'react';
 import { Marker } from 'react-native-maps';
 import { View, Text, StyleSheet } from 'react-native';
 
-interface GeoJsonFeature {
+export interface GeoJsonFeature {
   type: string;
   properties: {
     Campus: string;

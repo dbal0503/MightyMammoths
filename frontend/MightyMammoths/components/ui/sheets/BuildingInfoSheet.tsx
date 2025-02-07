@@ -4,11 +4,11 @@ import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
 import GeoJsonData from "../BuildingMapping"
-
+import { GeoJsonFeature } from '../BuildingMapping';
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-    building: GeoJsonData;
+    building: GeoJsonFeature;
 }
 
 function BuildingInfoSheet({
