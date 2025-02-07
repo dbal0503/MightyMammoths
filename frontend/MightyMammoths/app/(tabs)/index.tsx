@@ -11,6 +11,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet from "@gorhom/bottom-sheet";
 import ActionSheet from "react-native-actions-sheet";
 import { ActionSheetRef } from "react-native-actions-sheet";
+import GeoJsonData from "@/components/ui/BuildingMapping"
+
 
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from "react-native-maps";
@@ -112,6 +114,7 @@ export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
+  const [selectedBuilding, setSelectedBuilding] = useState<typeof GeoJsonData | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const [location, setLocation] = useState({
@@ -155,6 +158,10 @@ export default function HomeScreen() {
     });
   };
 
+  const setBuilding = () => {
+    setSelectedBuilding(campusBuildingCoords.features.filter((building:any)=>{building.properties.buildingName == selectedBuildingName}))
+  }
+
   const switchToSGW = () => {
     setRegion({
       latitude: 45.49465577566852,
@@ -194,6 +201,7 @@ export default function HomeScreen() {
 
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
+    setBuilding()
     console.log(selectedBuildingName);
     buildingInfoSheet.current?.show();
   };
@@ -236,9 +244,9 @@ export default function HomeScreen() {
         </View>
 
 
-
         <BuildingInfoSheet
           actionsheetref = {buildingInfoSheet}
+          building = {selectedBuilding}
         />
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}

@@ -1,15 +1,14 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
-
-import GoogleCalendarButton from '../input/GoogleCalendarButton';
+import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
-import ToggleSwitch from '../input/ToggleSwitch';
-import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
+import GeoJsonData from "../BuildingMapping"
+
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+    building: GeoJsonData;
 }
 
 function BuildingInfoSheet({
@@ -21,11 +20,12 @@ function BuildingInfoSheet({
     initialSnapIndex = 0,
     overdrawEnabled = false,
     overdrawSize = 200,
-    actionsheetref
+    actionsheetref,
+    building
 }: BuildingInfoSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-  
+
     return (
       <ActionSheet
         ref={actionsheetref}
@@ -37,45 +37,12 @@ function BuildingInfoSheet({
         initialSnapIndex={initialSnapIndex}
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
-        containerStyle={styles.root}
         >
-          <View style={styles.centeredView}>
-
-          </View>
-      </ActionSheet>
+  
+    </ActionSheet>
     );
   }
 
-   
-  const styles = StyleSheet.create({
-    root:{
-        height: '70%',
-        backgroundColor: '#010213',
-        borderRadius: 10
-    },
-    centeredView: {
-        marginTop: "10%",
-        alignItems: "center",
-        justifyContent: 'flex-start',
-      },
-      subTitleText : {
-        color: "#b2b3b8",
-        fontSize: 16,
-        marginLeft: 40,
-        marginTop: 30,
-      },
-      accessibilityContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginLeft: 40,
-        marginRight: 40,
-        marginTop: 20,
-      },
-      accessibilityLabel: {
-        color: "white",
-        fontSize: 22,
-      },
-  });
+  
 
-
-  export default BuildingInfoSheet;
+export default BuildingInfoSheet;
