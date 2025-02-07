@@ -3,7 +3,7 @@ import React, { useRef, useMemo, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
 import { DestinationChoices } from "@/components/Destinations";
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
@@ -29,6 +29,22 @@ export default function NavigationScreen() {
   useEffect(() => {
     async function fetchRoutes() {
       if (origin && destination) {
+
+        let startDirection = "";
+
+        if (origin.includes("Hall Building") || origin.includes("CL Building") ||
+          origin.includes("John Molson") || origin.includes("EV")){
+          if (destination.includes("Hingston Hall") || destination.includes("Smith Building")){
+            startDirection = "SGW";
+          }
+        } else {
+          if (destination.includes("Hall Building") ||
+          destination.includes("CL Building") ||
+          destination.includes("John Molson") ||
+          destination.includes("EV")){
+            startDirection = "LOY";
+          }
+        }
         setLoadingRoutes(true);
         const estimates: { [mode: string]: RouteData[] } = {};
         try {
@@ -36,6 +52,7 @@ export default function NavigationScreen() {
             const routes = await getRoutes(origin, destination, mode);
             estimates[mode] = routes;
           }
+          estimates["shuttle"] = await getShuttleBusRoute(origin, destination, startDirection);
           setRouteEstimates(estimates);
         } catch (error) {
           console.error("Error fetching routes", error);

@@ -12,7 +12,8 @@ export async function getRoutes(
   destination: string,
   mode: string
 ): Promise<RouteData[]> {
-  const apiKey = GOOGLE_MAPS_API_KEY; //REPLACE WITH YOUR OWN API KEY
+  //const apiKey = GOOGLE_MAPS_API_KEY; //REPLACE WITH YOUR OWN API KEY
+  const apiKey = ""
   const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
     origin
   )}&destination=${encodeURIComponent(
