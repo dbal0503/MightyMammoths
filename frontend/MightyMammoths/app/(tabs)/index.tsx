@@ -12,9 +12,6 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import ActionSheet from "react-native-actions-sheet";
 import { ActionSheetRef } from "react-native-actions-sheet";
 
-import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
-import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
-import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -103,10 +100,8 @@ const mapstyle = [
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
-  const actionSheetRef = useRef<ActionSheetRef>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
-  const [isEnabled, setIsEnabled] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const [location, setLocation] = useState({
@@ -226,64 +221,19 @@ export default function HomeScreen() {
             onPress={CenterOnLocation}
           />
         </View>
-
-        <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          enableDynamicSizing={false}
-          backgroundStyle={{ backgroundColor: "#000A18" }}
-          handleIndicatorStyle={{ backgroundColor: "white" }}
-        >
-          <View style={styles.centeredView}>
-            <ToggleSwitch
-              options={["SGW", "LOY"]}
-              onToggle={(selected) => changeCampus(selected)}
-            />
-          </View>
-          <Text style={styles.subTitleText}>Calendar</Text>
-          <GoogleCalendarButton />
-          <Text style={styles.subTitleText}>Accessibility</Text>
-          <View style={styles.accessibilityContainer}>
-            <Text style={styles.accessibilityLabel}>Accessibility mode</Text>
-            <RetroSwitch value={isEnabled} onValueChange={setIsEnabled} />
-          </View>
-        </BottomSheet>
-        <ActionSheet ref={actionSheetRef}>
-          <Text>Hi, I am here.</Text>
-        </ActionSheet>
-
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => {
-            setModalVisible(false);
-            setSelectedBuildingName(null);
-          }}
-        >
-          <View>
-          <TouchableOpacity
-            style={styles.modalContainer}
-            activeOpacity={1}
-            onPressOut={() => {
-              setModalVisible(false);
-              setSelectedBuildingName(null);
-            }}
-          >
-            <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
-              {selectedBuildingName && (
-                <BuildingInfo buildingName={selectedBuildingName} />
-              )}
-            </TouchableOpacity>
-          </TouchableOpacity>
-          </View>
-        </Modal>
+        <LoyolaSGWToggleSheet
+          setSelectedCampus={setSelectedCampus}
+        />
       </GestureHandlerRootView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  root:{
+    backgroundColor: '#010213',
+    borderRadius: 10
+  },
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
