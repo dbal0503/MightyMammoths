@@ -2,22 +2,17 @@ import React, { useCallback, useRef, useMemo, useState, useEffect } from "react"
 import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
-import { ActionSheetRef } from "react-native-actions-sheet";
+import LoyolaSGWToggleSheet from "@/components/ui/sheet/LoyolaSGWToggleSheet";
 
-import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
-import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
-import RetroSwitch from "@/components/ui/input/RetroSwitch";
+import '@/components/Sheets'
+
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 
 export default function HomeScreen() {
   const sheetRef = useRef<BottomSheet>(null);
-  const actionSheetRef = useRef<ActionSheetRef>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
-  const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
  
   useEffect(() => {
@@ -53,39 +48,22 @@ export default function HomeScreen() {
         </View>
         <View style={styles.bottomElements}>
           <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{
-            actionSheetRef.current?.hide()
+            
           }} /> 
         </View>
-        <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          enableDynamicSizing={false}
-          backgroundStyle={{backgroundColor: '#010213'}}
-          handleIndicatorStyle={{backgroundColor: 'white'}}
-        >
-        <View style={styles.centeredView}>
-          <ToggleSwitch
-            options={["SGW", "LOY"]}
-            onToggle={(selected) => setSelectedCampus(selected)}
-          />
-        </View>
-          <Text style={styles.subTitleText}>Calendar</Text>
-          <GoogleCalendarButton />
-          <Text style={styles.subTitleText}>Accessibility</Text>
-          <View style={styles.accessibilityContainer}>
-            <Text style={styles.accessibilityLabel}>Accessibility mode</Text>
-            <RetroSwitch value={isEnabled} onValueChange={setIsEnabled} />
-          </View>
-        </BottomSheet>
-        <ActionSheet ref={actionSheetRef}>
-          <Text>Hi, I am here.</Text>
-        </ActionSheet>
+        <LoyolaSGWToggleSheet
+          setSelectedCampus={setSelectedCampus}
+        />
       </GestureHandlerRootView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
+  root:{
+    backgroundColor: '#010213',
+    borderRadius: 10
+  },
   container: {
     flex: 1,
     paddingTop: 70,
