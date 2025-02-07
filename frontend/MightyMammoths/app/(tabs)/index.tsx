@@ -103,7 +103,12 @@ const mapstyle = [
 ];
 
 export default function HomeScreen() {
-  const actionSheetRef = useRef<ActionSheetRef>(null);
+  const campusToggleSheet = useRef<ActionSheetRef>(null);
+  const buildingInfoSheet = useRef<ActionSheetRef>(null);
+
+
+
+
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
@@ -166,7 +171,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     getCurrentLocation();
-    actionSheetRef.current?.show()
+    campusToggleSheet.current?.show()
 
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -190,7 +195,7 @@ export default function HomeScreen() {
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
     console.log(selectedBuildingName);
-    setModalVisible(true);
+    buildingInfoSheet.current?.show();
   };
 
   return (
@@ -229,10 +234,18 @@ export default function HomeScreen() {
             onPress={CenterOnLocation}
           />
         </View>
+
+
+
+        <BuildingInfoSheet
+          actionsheetref = {buildingInfoSheet}
+        />
         <LoyolaSGWToggleSheet
-          actionsheetref = {actionSheetRef}
+          actionsheetref = {campusToggleSheet}
           setSelectedCampus={setSelectedCampus}
         />
+
+
       </GestureHandlerRootView>
     </>
   );

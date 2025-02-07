@@ -23,14 +23,11 @@ function LoyolaSGWToggleSheet({
     initialSnapIndex = 0,
     overdrawEnabled = false,
     overdrawSize = 200,
-    actionsheetref
+    actionsheetref,
+    zIndex = 300
 }: LoyolaSGWToggleSheetProps) {
-    // const actionSheetRef = useRef<ActionSheetRef>(null);
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-    // useEffect(()=>{
-    //     actionSheetRef.current?.show();
-    // },[]);
 
     return (
       <ActionSheet
@@ -44,6 +41,7 @@ function LoyolaSGWToggleSheet({
         containerStyle={styles.root}
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
+        zIndex={zIndex}
         >
           <View style={styles.centeredView}>
             <ToggleSwitch
