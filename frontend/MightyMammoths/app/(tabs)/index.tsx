@@ -12,6 +12,9 @@ import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
+import BuildingMapping from "@/components/ui/BuildingMapping"
+
+
 
 // Styling the map https://mapstyle.withgoogle.com/
 const mapstyle = [
@@ -192,8 +195,8 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState({
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.0006,
+    longitudeDelta: 0.0006,
   });
 
   const changeCampus = (campus: string) => {
@@ -208,8 +211,8 @@ export default function HomeScreen() {
     setRegion({
       latitude: 45.458177049773354, 
       longitude: -73.63924402074171,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
+      latitudeDelta: 0.002,
+      longitudeDelta: 0.002,
       });
     }
 
@@ -226,8 +229,8 @@ export default function HomeScreen() {
       setRegion({
         latitude: 45.49465577566852,
         longitude: -73.57763385380554,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.002,
+        longitudeDelta: 0.002,
       });
     }
 
@@ -265,29 +268,20 @@ export default function HomeScreen() {
     <>
       <GestureHandlerRootView style={styles.container}>
         
-        <MapView
-        style={styles.map}
-        initialRegion={regionMap}
-        region={regionMap}
-        customMapStyle={mapstyle}
-        >
+        <MapView style={styles.map}
+        initialRegion={regionMap} region={regionMap} customMapStyle={mapstyle}>
           
           <Marker
-          image={require("../../assets/images/arrow.png")}
-          coordinate={location} 
-          title={"MY LOCATION"}
-          description={"MY LOCATION"}
-          />
-          </MapView>
+
+          image={require("../../assets/images/arrow.png")} coordinate={location} 
+          title={"MY LOCATION"} description={"MY LOCATION"}/>
+
+          <BuildingMapping />
+        </MapView>
       
-        <View style={styles.topElements}>
-          <RoundButton imageSrc={require('@/assets/images/gear.png')} /> 
-          <View style={styles.dropdownWrapper}>
-            <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
-          </View>
-        </View>
-        <View style={styles.bottomElements}>
-          <RoundButton imageSrc={require('@/assets/images/recenter-map.png')} onPress={()=>{CenterOnLocation()}} /> 
+        <View style={styles.dropdownWrapper}>
+          <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
+
         </View>
 
         <BottomSheet
