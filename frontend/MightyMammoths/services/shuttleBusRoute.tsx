@@ -26,12 +26,12 @@ export async function getShuttleBusRoute(
   
     try {
       // ─── STEP 1: WALKING LEG (Origin -> Pickup Location) ───────────────────────
-      console.log("Step 1")
+      //console.log("Step 1")
       const walkingUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
         origin
       )}&destination=${encodeURIComponent(pickupLocation)}&mode=walking&key=${apiKey}`;
-      console.log("Origin:", origin)
-      console.log("Pickup Location:", pickupLocation)
+      //console.log("Origin:", origin)
+      //console.log("Pickup Location:", pickupLocation)
   
       const walkingResponse = await axios.get<{ routes: any[] }>(walkingUrl);
       const walkingRoutes = walkingResponse.data.routes;
@@ -42,11 +42,14 @@ export async function getShuttleBusRoute(
       const walkingLeg = walkingRoute.legs[0];
       const walkingDurationSeconds = walkingLeg.duration.value;
       const walkingDurationText = walkingLeg.duration.text;
-      const walkingDistanceText = walkingLeg.distance.text;
+      const walkingDistanceMeters: number = walkingLeg.distance.value;
+      const walkingDistanceKm: number = walkingDistanceMeters / 1000;
+      const walkingDistanceText: string = `${walkingDistanceKm.toFixed(2)} km`;
       const walkingPolyline = walkingRoute.overview_polyline.points;
       const walkingSteps = walkingLeg.steps;
-      console.log("Walking text:", walkingDurationText)
-      console.log("Walking polyline:", walkingPolyline)
+      //console.log("Walking text:", walkingDurationText)
+      //console.log("Walking distance:", walkingDistanceText)
+      //console.log("Walking polyline:", walkingPolyline)
   
       // Calculate arrival time at the pickup location.
       const now = new Date();
@@ -54,7 +57,7 @@ export async function getShuttleBusRoute(
       const arrivalHours = arrivalTime.getHours().toString().padStart(2, "0");
       const arrivalMinutes = arrivalTime.getMinutes().toString().padStart(2, "0");
       const formattedArrivalTime = `${arrivalHours}:${arrivalMinutes}`;
-      console.log("Arrival time:", formattedArrivalTime)
+      //console.log("Arrival time:", formattedArrivalTime)
   
       // Determine the current day (e.g., "Monday") for schedule lookup.
       const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -62,7 +65,7 @@ export async function getShuttleBusRoute(
   
       // Lookup the next bus departure time using your helper.
       const nextBusTime = findNextBusTime(currentDay, direction, formattedArrivalTime);
-      console.log("Next bus time:", nextBusTime)
+      //console.log("Next bus time:", nextBusTime)
       let waitingTimeMinutes = 0;
       if (nextBusTime && nextBusTime !== "No more buses today") {
         const [busHours, busMinutes] = nextBusTime.split(":").map(Number);
@@ -70,9 +73,10 @@ export async function getShuttleBusRoute(
         const [arrivalH, arrivalM] = formattedArrivalTime.split(":").map(Number);
         const arrivalTimeInMinutes = arrivalH * 60 + arrivalM;
         waitingTimeMinutes = busTimeInMinutes - arrivalTimeInMinutes;
+        //console.log("Waiting time:", waitingTimeMinutes)
         if (waitingTimeMinutes < 0) waitingTimeMinutes = 0;
       }
-      console.log("Step 2")
+      //console.log("Step 2")
       // ─── STEP 2: BUS SHUTTLE LEG (Pickup Location -> Destination) ────────────────
       const busUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
         pickupLocation
@@ -87,19 +91,60 @@ export async function getShuttleBusRoute(
       const busLeg = busRoute.legs[0];
       const busDurationSeconds = busLeg.duration.value;
       const busDurationText = busLeg.duration.text;
-      const busDistanceText = busLeg.distance.text;
+      const busDistanceMeters: number = busLeg.distance.value;
+      const busDistanceKm: number = busDistanceMeters / 1000;
+      const busDistanceText: string = `${busDistanceKm.toFixed(2)} km`;
       const busPolyline = busRoute.overview_polyline.points;
       const busSteps = busLeg.steps;
-      console.log("Bus text:", busDurationText)
-      console.log("Bus polyline:", busPolyline)
+      //console.log("Bus text:", busDurationText)
+      //console.log("Bus distance:", busDistanceText)
+      //console.log("Bus polyline:", busPolyline)
+    
+        // ─── STEP 3: WALKING LEG (Dropoff Location -> Destination) ───────────────────
+      //console.log("Step 3")
+      let dropOffLocation = "";
+
+      if (pickupLocation === "1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8") {
+        dropOffLocation = "7141 Sherbrooke St W, Montreal, QC H4B 1R6";
+        } else {
+        dropOffLocation = "1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8";
+        }
+        
+        const walkingUrlDropOff = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+            dropOffLocation
+          )}&destination=${encodeURIComponent(destination)}&mode=walking&key=${apiKey}`;
+          //console.log("Drop off:", dropOffLocation)
+          //console.log("Destination:", destination)
+      
+          const walkingResponseDropOff = await axios.get<{ routes: any[] }>(walkingUrlDropOff);
+          const walkingRoutesDropOff = walkingResponseDropOff.data.routes;
+          if (walkingRoutesDropOff.length === 0) {
+            throw new Error("No walking route found");
+          }
+          const walkingRouteDropOff = walkingRoutesDropOff[0];
+          const walkingLegDropOff = walkingRouteDropOff.legs[0];
+          const walkingDurationSecondsDropOff = walkingLegDropOff.duration.value;
+          const walkingDurationTextDropOff = walkingLegDropOff.duration.text;
+          const walkingDistanceMetersDropOff: number = walkingLegDropOff.distance.value;
+          const walkingDistanceKmDropOff: number = walkingDistanceMetersDropOff / 1000;
+          const walkingDistanceTextDropOff: string = `${walkingDistanceKmDropOff.toFixed(2)} km`;
+          const walkingPolylineDropOff = walkingRouteDropOff.overview_polyline.points;
+          const walkingStepsDropOff = walkingLegDropOff.steps;
+          //console.log("Walking text:", walkingDurationTextDropOff)
+          //console.log("Walking distance:", walkingDistanceTextDropOff)
+          //console.log("Walking polyline:", walkingPolylineDropOff)
   
-      // ─── STEP 3: COMBINE THE INFORMATION ─────────────────────────────────────────
-      // Compute total duration (walking + waiting + bus) in minutes.
-      console.log("Step 3")
+      // ─── STEP 4: COMBINE THE INFORMATION ─────────────────────────────────────────
+      // Compute total duration (walking + waiting + bus + walking) in minutes.
+      //console.log("Step 4")
       const totalDurationMinutes =
-        Math.ceil(walkingDurationSeconds / 60) + waitingTimeMinutes + Math.ceil(busDurationSeconds / 60);
+        Math.ceil(walkingDurationSeconds / 60) + waitingTimeMinutes + Math.ceil(busDurationSeconds / 60) + Math.ceil(walkingDurationSecondsDropOff / 60);
       const totalDurationText = `${totalDurationMinutes} mins`;
-      console.log("Total duration:", totalDurationText)
+      //console.log("Total duration:", totalDurationText)
+
+      const totalDistanceKm: number = walkingDistanceKm + busDistanceKm + walkingDistanceKmDropOff;
+      const totalDistanceText: string = `${totalDistanceKm.toFixed(2)} km`;
+      //console.log("Total distance:", totalDistanceText)
       
       //TODO To combine the polyline, we need to decode both the walking and bus polylines,
       //TODO merge te coordinates arrays and then re-encode them
@@ -131,16 +176,24 @@ export async function getShuttleBusRoute(
           instructions: `Take the shuttle from ${pickupLocation} to ${destination}`,
           steps: busSteps,
         },
+        {
+          mode: "WALKING",
+          polyline: walkingPolylineDropOff,
+          duration: walkingDurationTextDropOff,
+          distance: walkingDistanceTextDropOff,
+          instructions: `Walk from shuttle drop-off at ${dropOffLocation} to ${destination}`,
+          steps: walkingStepsDropOff,
+        },
       ];
-      console.log("Combined steps:", combinedSteps)
+      //console.log("Combined steps:", combinedSteps)
   
       const shuttleRoute: RouteData = {
         polyline: combinedPolyline,
         duration: totalDurationText,
-        distance: `${walkingDistanceText} + ${busDistanceText}`, // or sum numeric values if needed
+        distance: totalDistanceText, // or sum numeric values if needed
         steps: combinedSteps,
       };
-      console.log("Shuttle route:", shuttleRoute)
+      //console.log("Shuttle route:", shuttleRoute)
   
       return [shuttleRoute];
     } catch (error) {
