@@ -1,71 +1,110 @@
-//screen for choosing start and end destination
-import React, {useRef, useMemo, useEffect,useState} from 'react';
-import {StyleSheet, View, Text } from 'react-native';
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+// screens/NavigationScreen.tsx
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import {TransportChoice} from "@/components/RoutesSheet";
-import { DestinationChoices } from '@/components/Destinations';
-import { StartNavigation } from '@/components/RouteStart';
+import { DestinationChoices } from "@/components/Destinations";
+import { TransportChoice } from "@/components/RoutesSheet";
+import { StartNavigation } from "@/components/RouteStart";
+import { getRoutes, RouteData } from "@/services/directionsService";
 
+import { getBuildingAddress } from "@/utils/buildingMapping";
 
-export default function NavigationScreen () {
-    const sheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ["30%", "60%"], []);
-    const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
-    const [showStartNavigation, setShowStartNavigation] = useState(false);
-    const [selectedBuilding, setSelectedBuilding] = useState<string>('Hall');
-    const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+const transportModes = ["driving", "transit", "bicycling", "walking"];
 
-    useEffect(() => {
-        if (transportationChoice !== null) {
-            setShowStartNavigation(true);
+export default function NavigationScreen() {
+  const sheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["30%", "60%"], []);
+
+  const [origin, setOrigin] = useState<string>("");
+  const [destination, setDestination] = useState<string>("");
+  const [routeEstimates, setRouteEstimates] = useState<{
+    [mode: string]: RouteData[];
+  }>({});
+  const [loadingRoutes, setLoadingRoutes] = useState<boolean>(false);
+  const [selectedMode, setSelectedMode] = useState<string | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+
+  
+
+  // Prefetch route estimates once both origin and destination are selected.
+  useEffect(() => {
+    async function fetchRoutes() {
+      if (origin && destination) {
+        setLoadingRoutes(true);
+        const estimates: { [mode: string]: RouteData[] } = {};
+        try {
+          for (const mode of transportModes) {
+            const routes = await getRoutes(origin, destination, mode);
+            estimates[mode] = routes;
+          }
+          setRouteEstimates(estimates);
+        } catch (error) {
+          console.error("Error fetching routes", error);
+        } finally {
+          setLoadingRoutes(false);
         }
-    }, [transportationChoice]); 
+      }
+    }
+    fetchRoutes();
+  }, [origin, destination]);
 
-    return (
-    <>
-      <GestureHandlerRootView style={styles.container}>
-        <DestinationChoices
-            setSelectedBuilding={setSelectedBuilding}
-            setTwoBuildingsSelected={setTwoBuildingsSelected}
-        >
-        </DestinationChoices>
-        <BottomSheet
-            ref={sheetRef}
-            snapPoints={snapPoints}
-            enableDynamicSizing={false}
-            backgroundStyle={{backgroundColor: '#010213'}}
-            handleIndicatorStyle={{backgroundColor: 'white'}}
-            >
-            {transportationChoice === null ? (
-                <TransportChoice 
-                    transportationChoice={transportationChoice} 
-                    setTransportationChoice={setTransportationChoice}
-                    destinationBuilding={selectedBuilding}
-                    bothSelected={twoBuildingsSelected} 
-                />
-            ) : (
-                <StartNavigation
-                    transportationChoice={transportationChoice} 
-                    setTransportationChoice={setTransportationChoice}
-                    destinationBuilding={selectedBuilding}
-                />
-            )}
-        </BottomSheet>
-      </GestureHandlerRootView>
-    </>
-    );
-};
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <DestinationChoices
+        onSelectOrigin={(origin) => setOrigin(getBuildingAddress(origin))}
+        onSelectDestination={(destination) =>
+          setDestination(getBuildingAddress(destination))
+        }
+        setSelectedBuilding={setSelectedBuilding}
+        setTwoBuildingsSelected={setTwoBuildingsSelected}
+      />
+      {loadingRoutes && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={{ color: "white" }}>Fetching routes...</Text>
+        </View>
+      )}
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        backgroundStyle={{ backgroundColor: "#010213" }}
+        handleIndicatorStyle={{ backgroundColor: "white" }}
+      >
+        {selectedMode === null ? (
+          // Show the transportation mode options
+          <TransportChoice
+            routeEstimates={routeEstimates}
+            onSelectMode={(mode) => setSelectedMode(mode)}
+            destinationBuilding={selectedBuilding}
+            bothSelected={twoBuildingsSelected}
+          />
+        ) : (
+          // Once a mode is selected, show alternative routes for that mode.
+          <StartNavigation
+            mode={selectedMode}
+            routes={routeEstimates[selectedMode] || []}
+            onSelectRoute={setSelectedRoute}
+            onBack={() => setSelectedMode(null)}
+            destinationBuilding={selectedBuilding}
+          />
+        )}
+      </BottomSheet>
+    </GestureHandlerRootView>
+  );
+}
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      paddingTop:25,
-      padding: 0,
-
-    },
-
-    
-  });
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    padding: 16,
+    alignItems: "center",
+    backgroundColor: "#010213",
+  },
+});

@@ -22,7 +22,6 @@ export function LiveNavigation() {
                         <Text style={styles.time}>{transportTime}</Text>
                         <Text style={styles.distance}>{transportDistance}</Text>
                         <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
-                            <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
                             <Text style={styles.stop}>Stop</Text>
                         </TouchableOpacity>
                     </View>
@@ -90,13 +89,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginLeft: 30,
-        width:'40%'
+        width:'40%',
+        justifyContent: 'center',
     },
     navigationIcon: {
         paddingLeft: 10
     },
     stop:{
-        paddingLeft:6,
+        
         fontSize: 23,
         color: 'white',
     },
