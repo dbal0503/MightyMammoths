@@ -1,206 +1,75 @@
-import React, { useCallback, useRef, useMemo, useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Keyboard,
-  Modal,
-  TouchableOpacity,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet from "@gorhom/bottom-sheet";
-import ActionSheet from "react-native-actions-sheet";
-import { ActionSheetRef } from "react-native-actions-sheet";
-import GeoJsonData from "@/components/ui/BuildingMapping"
-import { GeoJsonFeature } from "@/components/ui/BuildingMapping"
-
+import React, {useRef, useState, useEffect} from "react";
+import {StyleSheet, View, Keyboard} from "react-native";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
+import {ActionSheetRef} from "react-native-actions-sheet";
+import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping from "@/components/ui/BuildingMapping";
-import BuildingInfo from "@/components/BuildingInfoSheet";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
+import mapStyle from "../../assets/map/map.json";
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
 
 
-
-// Map styling from https://mapstyle.withgoogle.com/
-const mapstyle = [
-  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#263c3f" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#6b9a76" }],
-  },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9ca5b3" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#746855" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#1f2835" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#f3d19c" }],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#2f3948" }],
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#515c6d" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#17263c" }],
-  },
-];
-
 export default function HomeScreen() {
+  
+  const sgwRegion = {
+    latitude: 45.49465577566852,
+    longitude: -73.57763385380554,
+    latitudeDelta: 0.002,
+    longitudeDelta: 0.002,
+  };
+
+  const loyolaRegion = {
+    latitude: 45.458177049773354,
+    longitude: -73.63924402074171,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  };
+  
+  const mapRef = useRef<MapView>(null);
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
-
-
-  const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["17%", "70%"], []);
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
+  const [regionMap, setRegion] = useState(sgwRegion);
+  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
 
-  const [location, setLocation] = useState({
-    latitude: 45.49465577566852,
-    longitude: -73.57763385380554,
-  });
-  const [regionMap, setRegion] = useState({
-    latitude: 45.49465577566852,
-    longitude: -73.57763385380554,
-    latitudeDelta: 0.0006,
-    longitudeDelta: 0.0006,
-  });
+  const ChangeLocation = (area: string) => {
+    let newRegion;
+    if (area == "SGW") newRegion = sgwRegion;
+    else if (area == "LOY") newRegion = loyolaRegion;
+    else newRegion = myLocation;
+    setRegion(newRegion);    
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(newRegion, 1000);
+    }
+  };
 
-  // Modal state
-  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(
-    null
-  );
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const changeCampus = (campus: string) => {
+  const CenterOnCampus = (campus:string) => {
     setSelectedCampus(campus);
-    if (campus === "SGW") switchToSGW();
-    else switchToLOY();
-  };
+    ChangeLocation(campus);
+  }
 
-  const switchToLOY = () => {
-    setRegion({
-      latitude: 45.458177049773354,
-      longitude: -73.63924402074171,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
-  };
-
-  const CenterOnLocation = () => {
-    setRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
+  const CenterOnLocation = async () => {
+    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
+    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
+    ChangeLocation("Own Location");
   };
 
   const setBuilding = (buildingName: string) => {
     const buildingFeature = campusBuildingCoords.features.find(
       (feature: GeoJsonFeature) => feature.properties.BuildingName === buildingName
     );
-  
-    if (buildingFeature) {
+    if (buildingFeature) 
       setSelectedBuilding(buildingFeature);
-    }
   };
 
-  const switchToSGW = () => {
-    setRegion({
-      latitude: 45.49465577566852,
-      longitude: -73.57763385380554,
-      latitudeDelta: 0.002,
-      longitudeDelta: 0.002,
-    });
-  };
-
-  async function getCurrentLocation() {
-    let loc = await Location.getCurrentPositionAsync({});
-    setLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
-  }
-
-  useEffect(() => {
-    getCurrentLocation();
-    campusToggleSheet.current?.show()
-
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-      sheetRef.current?.close();
-    });
-    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-      sheetRef.current?.snapToPosition("20%");
-    });
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-
-  // TODO: fetch list of buildings from backend
-  //for feature in features, feature.properties.Building
-  //const buildingList = ["EV", "Hall", "JMSB", "CL Building", "Learning Square"];
   const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const handleMarkerPress = (buildingName: string) => {
@@ -210,18 +79,34 @@ export default function HomeScreen() {
     buildingInfoSheet.current?.show();
   };
 
+  useEffect(() => {
+    async()=>{await Location.requestForegroundPermissionsAsync();}
+    campusToggleSheet.current?.show()
+
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setIsKeyboardVisible(false);
+    });
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
         <MapView
           style={styles.map}
           initialRegion={regionMap}
-          region={regionMap}
-          customMapStyle={mapstyle}
+          customMapStyle={mapStyle}
+          ref={mapRef}
         >
           <Marker
             image={require("../../assets/images/arrow.png")}
-            coordinate={location}
+            coordinate={myLocation}
             title="MY LOCATION"
             description="MY LOCATION"
           />
@@ -240,6 +125,8 @@ export default function HomeScreen() {
             />
           </View>
         </View>
+
+        {/* LOCATION BUTTON */}
         <View style={styles.bottomElements}>
           <RoundButton
             imageSrc={require("@/assets/images/recenter-map.png")}
@@ -247,18 +134,19 @@ export default function HomeScreen() {
           />
         </View>
 
-
+        {/* SGW|LOY TOGGLE */}
+        <LoyolaSGWToggleSheet
+          actionsheetref = {campusToggleSheet}
+          setSelectedCampus={CenterOnCampus}
+        />
+        
+        {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
           />
         )}
-        <LoyolaSGWToggleSheet
-          actionsheetref = {campusToggleSheet}
-          setSelectedCampus={changeCampus}
-        />
-
 
       </GestureHandlerRootView>
     </>
