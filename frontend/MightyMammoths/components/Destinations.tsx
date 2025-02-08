@@ -1,6 +1,6 @@
 // components/Destinations.tsx
-import React, {useState} from "react";
-import { StyleSheet, View } from "react-native";
+import React, {useState, useEffect} from "react";
+import { StyleSheet, View, Animated } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
@@ -9,13 +9,15 @@ interface DestinationChoicesProps {
   setSelectedBuilding: (building: string) => void;
   onSelectDestination: (destination: string) => void;
   setTwoBuildingsSelected: (selected: boolean) => void;
+  visible?: boolean;
 }
 
 export function DestinationChoices({
   onSelectOrigin,
   onSelectDestination,
   setSelectedBuilding,
-  setTwoBuildingsSelected
+  setTwoBuildingsSelected,
+  visible
 }: DestinationChoicesProps) {
   const buildingList = [
     "EV",
@@ -28,11 +30,38 @@ export function DestinationChoices({
   ];
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+  const slideAnim = useState(new Animated.Value(-500))[0];
   const checkSelection = (start: string | null, destination: string | null) => {
     setTwoBuildingsSelected(start !== null && destination !== null);
-};
+  };
+
+  useEffect(() => {
+    if (visible) {
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 20,
+        friction: 7
+      }).start();
+    } else {
+      Animated.spring(slideAnim, {
+        toValue: -500,
+        useNativeDriver: true,
+        tension: 20,
+        friction: 7
+      }).start();
+    }
+  }, [visible]);
+
   return (
-    <View style={styles.container}>
+    <Animated.View 
+      style={[
+        styles.container,
+        {
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}
+    >
       <View style={styles.dropdownWrapper}>
         <BuildingDropdown options={buildingList} onSelect={(selected) => {
                         setSelectedStart(selected);
@@ -57,19 +86,22 @@ export function DestinationChoices({
           }}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: "23%",
+    height: "30%",
     width: "100%",
+    paddingTop:75,
     padding: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     backgroundColor: "black",
     alignItems: "center",
+    zIndex: 9999,
+    elevation: 9999
   },
   dropdownWrapper: {
     alignItems: "center",

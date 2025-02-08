@@ -10,8 +10,12 @@ import BuildingMapping from "@/components/ui/BuildingMapping";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
+import { DestinationChoices } from "@/components/Destinations";
+
+//sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
+import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
 export default function HomeScreen() {
@@ -31,8 +35,12 @@ export default function HomeScreen() {
   };
   
   const mapRef = useRef<MapView>(null);
+
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
+  const navigationSheet = useRef<ActionSheetRef>(null);
+  const [chooseDestVisible, setChooseDestVisible] = useState(false);
+
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -85,6 +93,12 @@ export default function HomeScreen() {
     }, 60); 
   };
 
+  const startNavigation = () => {
+    buildingInfoSheet.current?.hide();
+    navigationSheet.current?.show();
+    setChooseDestVisible(true);
+  }
+
   useEffect(() => {
     async()=>{await Location.requestForegroundPermissionsAsync();}
     campusToggleSheet.current?.show()
@@ -121,6 +135,15 @@ export default function HomeScreen() {
             onMarkerPress={handleMarkerPress}
           />
         </MapView>
+        <DestinationChoices
+          visible={chooseDestVisible}
+          //onSelectOrigin={(origin) => setOrigin(getBuildingAddress(origin))}
+          //onSelectDestination={(destination) =>
+          //  setDestination(getBuildingAddress(destination))
+          //}
+          //setSelectedBuilding={setSelectedBuilding}
+          //setTwoBuildingsSelected={setTwoBuildingsSelected}
+        />
 
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} />
@@ -149,11 +172,16 @@ export default function HomeScreen() {
         {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
+            navigate={startNavigation}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
           />
         )}
 
+        <NavigationSheet
+          actionsheetref={navigationSheet}
+          closeChooseDest={setChooseDestVisible}
+        />
       </GestureHandlerRootView>
     </>
   );
@@ -167,7 +195,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
-    paddingTop: 70,
+    //paddingTop: 70,
     backgroundColor: "white",
   },
   toggleButtonContainer: {
@@ -189,11 +217,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     position: "absolute",
     width: "100%",
-    bottom: "22%",
+    bottom: "18%",
     paddingRight: 20,
   },
   topElements: {
+    position: 'absolute',
+    // position coordinates
+    top: 0,
+    left: 28,
+
     gap: "6%",
+    marginTop: 70,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

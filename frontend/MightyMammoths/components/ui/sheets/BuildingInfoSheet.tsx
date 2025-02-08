@@ -1,13 +1,15 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
+import { navigate } from 'expo-router/build/global-state/routing';
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     building: GeoJsonFeature;
+    navigate: () => void;
 }
 
 function BuildingInfoSheet({
@@ -20,7 +22,8 @@ function BuildingInfoSheet({
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    building
+    building,
+    navigate
 }: BuildingInfoSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -41,7 +44,12 @@ function BuildingInfoSheet({
       <View style={styles.container}>
         <Text style={styles.header}> {building?.properties['Building Long Name']} </Text>
         <Text style={styles.header}> to fill </Text>
-
+        {/* Temporary button for navigation to navigation screen*/}
+        <Pressable onPress={navigate}> 
+          <Text style={styles.header}>
+            Select as Destination
+          </Text>
+        </Pressable>
       </View>
     </ActionSheet>
     );
@@ -49,6 +57,7 @@ function BuildingInfoSheet({
 
 const styles = StyleSheet.create({
   root:{
+    height: '60%',
     backgroundColor: '#010213',
     borderRadius: 10
   },
@@ -65,6 +74,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   }
 });
-  
 
 export default BuildingInfoSheet;
