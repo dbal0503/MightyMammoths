@@ -9,7 +9,7 @@ import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
-    setSelectedCampus: React.Dispatch<React.SetStateAction<string>>;
+    setSelectedCampus: (selected: string) => void;
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
 }
 
@@ -27,7 +27,6 @@ function LoyolaSGWToggleSheet({
     zIndex = 300
 }: LoyolaSGWToggleSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     return (
       <ActionSheet
@@ -45,9 +44,13 @@ function LoyolaSGWToggleSheet({
         >
           <View style={styles.centeredView}>
             <ToggleSwitch
-            options={["SGW", "LOY"]}
-            onToggle={(selected) => setSelectedCampus(selected)}
-          />
+              options={["SGW", "LOY"]}
+              onToggle={(selected) => {
+                if (selected == "SGW") setSelectedCampus(selected);
+                else setSelectedCampus(selected)
+                }
+              }
+            />
           </View>
           <Text style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton />

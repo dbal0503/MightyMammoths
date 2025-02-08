@@ -256,7 +256,7 @@ export default function HomeScreen() {
         )}
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
-          setSelectedCampus={setSelectedCampus}
+          setSelectedCampus={changeCampus}
         />
 
 
