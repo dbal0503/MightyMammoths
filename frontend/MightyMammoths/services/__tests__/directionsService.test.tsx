@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getRoutes, RouteData } from "../services/directionsService";
+import { getRoutes, RouteData } from "../directionsService";
 
 /*
 Test Case -> What It Ensures

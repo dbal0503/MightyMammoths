@@ -1,4 +1,4 @@
-import { findNextBusTime } from "../utils/getNextShuttleBus";
+import { findNextBusTime } from "../getNextShuttleBus";
 
 jest.mock("../utils/shuttleBusSchedule.json", () => ({
   Monday: {
