@@ -26,12 +26,12 @@ export default function NavigationScreen() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] =
     useState<boolean>(false);
-
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
 
+  // Subscribe to live location updates via expo-location.
   useEffect(() => {
     let subscription: any;
     (async () => {
