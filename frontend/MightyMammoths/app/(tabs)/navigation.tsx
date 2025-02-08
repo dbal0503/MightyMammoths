@@ -3,20 +3,18 @@ import React, { useRef, useMemo, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
 import { DestinationChoices } from "@/components/Destinations";
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
-
 import { getBuildingAddress } from "@/utils/buildingMapping";
+import { subscribeToLocationUpdates } from "@/services/locationService";
 
 const transportModes = ["driving", "transit", "bicycling", "walking"];
 
 export default function NavigationScreen() {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%", "60%"], []);
-
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
   const [routeEstimates, setRouteEstimates] = useState<{
@@ -26,9 +24,32 @@ export default function NavigationScreen() {
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
-  const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+  const [twoBuildingsSelected, setTwoBuildingsSelected] =
+    useState<boolean>(false);
 
-  
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let subscription: any;
+    (async () => {
+      try {
+        subscription = await subscribeToLocationUpdates((coords) => {
+          setCurrentLocation(coords);
+          console.log("Live location update:", coords);
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
+  }, []);
 
   // Prefetch route estimates once both origin and destination are selected.
   useEffect(() => {
