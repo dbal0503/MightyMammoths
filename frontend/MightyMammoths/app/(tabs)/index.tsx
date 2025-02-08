@@ -76,7 +76,13 @@ export default function HomeScreen() {
     setSelectedBuildingName(buildingName);
     setBuilding(buildingName);
     console.log(buildingName);
-    buildingInfoSheet.current?.show();
+    console.log(buildingInfoSheet.current); 
+    // TO FIX
+    setTimeout(() => { // this is a temporary solution for the building sheet not appearing on first click
+      if (buildingInfoSheet.current) {
+        buildingInfoSheet.current.show();
+      }
+    }, 60); 
   };
 
   useEffect(() => {
@@ -134,7 +140,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* SGW|LOY TOGGLE */}
+        {/* SGW & LOY TOGGLE */}
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
