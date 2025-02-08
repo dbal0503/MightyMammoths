@@ -2,8 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
-import GeoJsonData from "../BuildingMapping"
+import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
@@ -37,12 +36,35 @@ function BuildingInfoSheet({
         initialSnapIndex={initialSnapIndex}
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
+        containerStyle={styles.root}
         >
-  
+      <View style={styles.container}>
+        <Text style={styles.header}> {building?.properties['Building Long Name']} </Text>
+        <Text style={styles.header}> to fill </Text>
+
+      </View>
     </ActionSheet>
     );
   }
 
+const styles = StyleSheet.create({
+  root:{
+    backgroundColor: '#010213',
+    borderRadius: 10
+  },
+  container: {
+    backgroundColor: '#0f0f17',
+    padding: 20,
+    borderRadius: 15,
+    maxWidth: 400,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
+  }
+});
   
 
 export default BuildingInfoSheet;
