@@ -11,9 +11,5 @@ module.exports = {
   verbose: true,
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest', 
-    '^.+\\.json$': 'jest-transform-stub' 
   },
-  moduleNameMapper: {
-    '\\.json$': '<rootDir>/__mocks__/jsonMock.js' 
-  }
 };
