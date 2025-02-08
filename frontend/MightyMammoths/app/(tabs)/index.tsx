@@ -86,9 +86,12 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    async()=>{await Location.requestForegroundPermissionsAsync();}
+    (async () => {
+      await Location.requestForegroundPermissionsAsync();
+    })();
     campusToggleSheet.current?.show()
 
+    console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
