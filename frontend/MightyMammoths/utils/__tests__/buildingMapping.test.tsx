@@ -1,4 +1,4 @@
-import { getBuildingAddress } from "../utils/buildingMapping";
+import { getBuildingAddress } from "../buildingMapping";
 
 describe("getBuildingAddress", () => {
   it("should return the correct address for a valid abbreviation", () => {
