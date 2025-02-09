@@ -12,6 +12,9 @@ import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuild
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
 
+//Context providers
+import { NavigationProvider } from "@/components/NavigationProvider";
+
 //sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
@@ -135,15 +138,7 @@ export default function HomeScreen() {
             onMarkerPress={handleMarkerPress}
           />
         </MapView>
-        <DestinationChoices
-          visible={chooseDestVisible}
-          //onSelectOrigin={(origin) => setOrigin(getBuildingAddress(origin))}
-          //onSelectDestination={(destination) =>
-          //  setDestination(getBuildingAddress(destination))
-          //}
-          //setSelectedBuilding={setSelectedBuilding}
-          //setTwoBuildingsSelected={setTwoBuildingsSelected}
-        />
+
 
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} />
@@ -178,10 +173,15 @@ export default function HomeScreen() {
           />
         )}
 
-        <NavigationSheet
-          actionsheetref={navigationSheet}
-          closeChooseDest={setChooseDestVisible}
-        />
+        <NavigationProvider>
+          <NavigationSheet
+            actionsheetref={navigationSheet}
+            closeChooseDest={setChooseDestVisible}
+          />
+          <DestinationChoices
+            visible={chooseDestVisible}
+          />
+          </NavigationProvider>
       </GestureHandlerRootView>
     </>
   );

@@ -4,21 +4,23 @@ import { StyleSheet, View, Animated } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
+import { useNavigation } from "@/components/NavigationProvider";
+
 interface DestinationChoicesProps {
-  onSelectOrigin: (origin: string) => void;
-  setSelectedBuilding: (building: string) => void;
-  onSelectDestination: (destination: string) => void;
-  setTwoBuildingsSelected: (selected: boolean) => void;
   visible?: boolean;
 }
 
 export function DestinationChoices({
-  onSelectOrigin,
-  onSelectDestination,
-  setSelectedBuilding,
-  setTwoBuildingsSelected,
   visible
 }: DestinationChoicesProps) {
+  const { functions } = useNavigation();
+  const { 
+    setOrigin,
+    setDestination, 
+    setSelectedBuilding, 
+    setTwoBuildingsSelected 
+  } = functions;
+
   const buildingList = [
     "EV",
     "Hall",
@@ -66,7 +68,7 @@ export function DestinationChoices({
         <BuildingDropdown options={buildingList} onSelect={(selected) => {
                         setSelectedStart(selected);
                         checkSelection(selected, selectedDestination);
-                        onSelectOrigin(selected);
+                        setOrigin(selected);
         }} />
       </View>
       <IconSymbol
@@ -79,7 +81,7 @@ export function DestinationChoices({
         <BuildingDropdown
           options={buildingList}
           onSelect={(selected) => {
-            onSelectDestination(selected);
+            setDestination(selected);
             setSelectedBuilding(selected);
             setSelectedDestination(selected);
             checkSelection(selectedStart, selected);

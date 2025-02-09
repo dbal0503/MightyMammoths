@@ -12,6 +12,8 @@ import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
 
+import { useNavigation } from "@/components/NavigationProvider"
+
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,17 +31,18 @@ function NavigationSheet({
     actionsheetref,
     closeChooseDest
 }: NavigationSheetProps) {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const [origin, setOrigin] = useState<string>("");
-    const [destination, setDestination] = useState<string>("");
-    const [routeEstimates, setRouteEstimates] = useState<{
-      [mode: string]: RouteData[];
-    }>({});
-    const [loadingRoutes, setLoadingRoutes] = useState<boolean>(false);
-    const [selectedMode, setSelectedMode] = useState<string | null>(null);
-    const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
-    const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
-    const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+    const { state, functions } = useNavigation();
+    const { 
+        routeEstimates, 
+        selectedMode, 
+        selectedBuilding, 
+        twoBuildingsSelected 
+    } = state;
+    
+    const { 
+        setSelectedMode, 
+        setSelectedRoute 
+    } = functions;
 
     return (
       <ActionSheet
