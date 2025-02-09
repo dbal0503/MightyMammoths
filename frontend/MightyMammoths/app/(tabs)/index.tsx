@@ -15,7 +15,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BuildingMapping from "@/components/ui/BuildingMapping"
 
 
-
 // Styling the map https://mapstyle.withgoogle.com/
 const mapstyle = [
   {
