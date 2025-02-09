@@ -114,16 +114,33 @@ export default function HomeScreen() {
           ref={mapRef}
         >
           <Marker
-
-          image={require("../../assets/images/arrow.png")} coordinate={location} 
-          title={"MY LOCATION"} description={"MY LOCATION"}/>
-
-          <BuildingMapping />
+            image={require("../../assets/images/arrow.png")}
+            coordinate={myLocation}
+            title="MY LOCATION"
+            description="MY LOCATION"
+          />
+          <BuildingMapping
+            geoJsonData={campusBuildingCoords}
+            onMarkerPress={handleMarkerPress}
+          />
         </MapView>
-      
-        <View style={styles.dropdownWrapper}>
-          <BuildingDropdown options={buildingList} onSelect={(selected) => console.log(selected)} />
 
+        <View style={styles.topElements}>
+          <RoundButton imageSrc={require("@/assets/images/gear.png")} />
+          <View style={styles.dropdownWrapper}>
+            <BuildingDropdown
+              options={buildingList}
+              onSelect={(selected) => console.log(selected)}
+            />
+          </View>
+        </View>
+
+        {/* LOCATION BUTTON */}
+        <View style={styles.bottomElements}>
+          <RoundButton
+            imageSrc={require("@/assets/images/recenter-map.png")}
+            onPress={CenterOnLocation}
+          />
         </View>
 
         {/* SGW & LOY TOGGLE */}
