@@ -55,7 +55,6 @@ function BuildingInfoSheet({
             <Text style={styles.buttonText}>{building.properties.Address}</Text>
         </View>
     </View>
-
     <View style={styles.buttonsContainer}>
             <View style={styles.button}>
             <Pressable>
@@ -69,8 +68,6 @@ function BuildingInfoSheet({
             </View>
     </View>
 </View>
-
-                
       
     </ActionSheet>
     );
@@ -101,6 +98,12 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal: 5,
         alignItems: 'center',
+    },
+    destinationButton: {
+        backgroundColor: '#007AFF', 
+    },
+    indoorMapButton: {
+        backgroundColor: '#800000', 
     },
     buttonText: {
         color: 'white',
