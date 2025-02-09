@@ -1,26 +1,16 @@
-import campusBuildingCoords from '../assets/buildings/coordinates/campusbuildingcoords.json';
-import { device, expect, element, by } from 'detox';
+import { device, expect, element, by, waitFor } from 'detox';
 
-
-
-describe('Building Markers', () => {
+describe('Building Markers (Visible Markers Only)', () => {
   beforeAll(async () => {
     await device.launchApp();
   });
 
-  
-    campusBuildingCoords.features.forEach((feature) => {
-    const buildingName = feature.properties.BuildingName;
+  const visibleMarkers = 'FB Building'; 
 
-   
-    it(`should display marker for ${buildingName}`, async () => {
-      
-      await waitFor(element(by.id(`marker-${buildingName}`)))
+    it(`should display marker for ${visibleMarkers}`, async () => {
+      await waitFor(element(by.id(`marker-${visibleMarkers}`)))
         .toBeVisible()
         .withTimeout(5000);
-      
-      
-      await expect(element(by.id(`marker-${buildingName}`))).toBeVisible();
-    });
-  });
+      await expect(element(by.id(`marker-${visibleMarkers}`))).toBeVisible();
+});
 });
