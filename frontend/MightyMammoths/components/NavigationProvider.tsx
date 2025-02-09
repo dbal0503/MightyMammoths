@@ -1,7 +1,9 @@
 import { createContext, useState, useEffect, ReactNode, useRef, useMemo, useContext } from "react";
 import { getRoutes, RouteData } from "@/services/directionsService";
 import BottomSheet from "@gorhom/bottom-sheet";
+import * as Location from "expo-location";
 
+import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 // Constants can be exported from the same file
 export const transportModes = ["driving", "transit", "bicycling", "walking"];
 
@@ -30,6 +32,7 @@ interface NavigationContextType {
     setSelectedRoute: (value: RouteData | null) => void;
     setSelectedBuilding: (value: string | null) => void;
     setTwoBuildingsSelected: (value: boolean) => void;
+    fetchRoutes: () => void;
   };
 }
 
@@ -54,25 +57,46 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
 
+  //Translate building name i.e EV, MB, etc to coords to pass to google directions api
+  async function buildingNametoCoords(building: string): Promise<string>{
+    if(building == "Your Location"){
+      const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
+      return `${loc.coords.latitude},${loc.coords.longitude}`
+    }else{
+      const loc = campusBuildingCoords.features.find((item) => item.properties.Building == building)?.properties
+      return loc ? `${loc.Latitude},${loc.Longitude}` : ""
+    }
+  }
+
   // Move the route fetching logic into the provider
-  useEffect(() => {
-    async function fetchRoutes() {
-      if (origin && destination) {
-        setLoadingRoutes(true);
-        const estimates: { [mode: string]: RouteData[] } = {};
-        try {
-          for (const mode of transportModes) {
-            const routes = await getRoutes(origin, destination, mode);
-            estimates[mode] = routes;
-          }
-          setRouteEstimates(estimates);
-        } catch (error) {
-          console.error("Error fetching routes", error);
-        } finally {
-          setLoadingRoutes(false);
+  async function fetchRoutes() {
+    if (origin && destination) {
+      console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
+      setLoadingRoutes(true);
+      const estimates: { [mode: string]: RouteData[] } = {};
+      try {
+        const originCoords = await buildingNametoCoords(origin)
+        const destinationCoords = await buildingNametoCoords(destination)
+        console.log(`originCoords: ${originCoords}, destinationCoords: ${destinationCoords}`)
+        for (const mode of transportModes) {
+          const routes = await getRoutes(originCoords, destinationCoords, mode);
+          estimates[mode] = routes;
         }
+        //console.log(estimates) 
+        setRouteEstimates(estimates);
+      } catch (error) {
+        console.error("Error fetching routes", error);
+      } finally {
+        setLoadingRoutes(false);
       }
     }
+  }
+
+  useEffect(() => {
+    async()=>{await Location.requestForegroundPermissionsAsync()};
+  })
+
+  useEffect(() => {
     fetchRoutes();
   }, [origin, destination]);
 
@@ -100,6 +124,7 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
           setSelectedRoute,
           setSelectedBuilding,
           setTwoBuildingsSelected,
+          fetchRoutes
         },
       }}
     >

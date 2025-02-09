@@ -1,6 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect} from "react";
-import { StyleSheet, View, Animated } from "react-native";
+import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
@@ -22,7 +22,8 @@ export function DestinationChoices({
     setOrigin,
     setDestination, 
     setSelectedBuilding, 
-    setTwoBuildingsSelected 
+    setTwoBuildingsSelected,
+    fetchRoutes 
   } = functions;
 
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
@@ -51,6 +52,10 @@ export function DestinationChoices({
   }, [visible]);
 
   useEffect(()=>{
+    setSelectedStart("Your Location");
+    checkSelection("Your Location", selectedDestination);
+    setOrigin("Your Location");
+
     setDestination(destination);
     setSelectedBuilding(destination);
     setSelectedDestination(destination);
@@ -67,7 +72,7 @@ export function DestinationChoices({
       ]}
     >
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown options={["Your Location", ...buildingList]} onSelect={(selected) => {
+        <BuildingDropdown defaultVal={"Your Location"} options={["Your Location", ...buildingList]} onSelect={(selected) => {
           setSelectedStart(selected);
           checkSelection(selected, selectedDestination);
           setOrigin(selected);
@@ -79,6 +84,12 @@ export function DestinationChoices({
         color="black"
         style={styles.modeIcon}
       />
+      {/* <Pressable onPress={async ()=>{
+          await fetchRoutes();
+          console.log('fetching routes')
+        }}>
+        <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
+      </Pressable> */}
       <View style={styles.dropdownWrapper}>
         <BuildingDropdown
           defaultVal={destination}

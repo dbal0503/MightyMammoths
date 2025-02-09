@@ -88,7 +88,7 @@ function NavigationSheet({
   const styles = StyleSheet.create({
     root:{
         width: '100%',
-        height: '60%',
+        height: '65%',
         backgroundColor: '#010213',
         borderRadius: 10
     },

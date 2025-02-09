@@ -81,6 +81,7 @@ export default function HomeScreen() {
       setSelectedBuilding(buildingFeature);
   };
 
+  //will change to also have addresses
   const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const handleMarkerPress = (buildingName: string) => {
