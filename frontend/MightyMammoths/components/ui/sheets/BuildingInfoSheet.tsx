@@ -40,6 +40,24 @@ function BuildingInfoSheet({
         >
    <View style={styles.container}>
     <Text style={styles.header}>{building?.properties['Building Long Name']}</Text>
+
+    <View style={styles.buttonsContainer}>
+            <View style={[
+                styles.button, styles.destinationButton
+                ]}>
+            <Pressable>
+                <Text style={styles.buttonText}>Set As Destination</Text>
+                </Pressable>
+            </View>
+            <View style={
+                [styles.button, styles.indoorMapButton]
+                }>
+            <Pressable>
+                <Text style={styles.buttonText}>View Indoor Map</Text>
+                </Pressable>
+            </View>
+    </View>
+
     <Text style={styles.header}>Information:</Text>
     <View style={styles.buttonsContainer}>
         <View style={styles.button}>
@@ -55,18 +73,7 @@ function BuildingInfoSheet({
             <Text style={styles.buttonText}>{building.properties.Address}</Text>
         </View>
     </View>
-    <View style={styles.buttonsContainer}>
-            <View style={styles.button}>
-            <Pressable>
-                <Text style={styles.buttonText}>Set As Destination</Text>
-                </Pressable>
-            </View>
-            <View style={styles.button}>
-            <Pressable>
-                <Text style={styles.buttonText}>View Indoor Map</Text>
-                </Pressable>
-            </View>
-    </View>
+    
 </View>
       
     </ActionSheet>
@@ -89,7 +96,9 @@ const styles = StyleSheet.create({
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
+        marginTop: 14,
+        paddingBlock: 8
+        
     },
     button: {
         backgroundColor: '#1c1c1e',
@@ -100,14 +109,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     destinationButton: {
-        backgroundColor: '#007AFF', 
+        backgroundColor: '#007AFF',
+        fontWeight: 'bold',
+        fontSize: 20
+        
     },
     indoorMapButton: {
         backgroundColor: '#800000', 
+        fontWeight: 'bold',
+        fontSize: 20
     },
     buttonText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: 16,
     },
   header: {
     fontSize: 20,
