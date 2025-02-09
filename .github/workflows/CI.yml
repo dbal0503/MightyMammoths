@@ -32,6 +32,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
+      - name: Create env.tsx
+        run: |
+            echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
+
       - name: Install Dependencies
         run: |
             cd ./frontend/MightyMammoths
@@ -57,6 +61,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
+
+      - name: Create env.tsx
+        run: |
+              echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
       
       - name: Install Global Dependencies
         run: |
@@ -99,6 +107,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
       
+      - name: Create env.tsx
+        run: |
+              echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
+      
       - name: "Install Dependencies"
         run: | 
           cd ./frontend/MightyMammoths  
@@ -109,4 +121,3 @@ jobs:
         run: |
           cd ./frontend/MightyMammoths
           npm run lint
-  
