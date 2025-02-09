@@ -1,6 +1,6 @@
 import { findNextBusTime } from "../getNextShuttleBus";
 
-jest.mock("../utils/shuttleBusSchedule.json", () => ({
+jest.mock("../shuttleBusSchedule.json", () => ({
   Monday: {
     SGW: ["08:00", "09:30", "11:00", "13:30", "15:00", "17:30"],
     LOY: ["08:15", "09:45", "11:15", "13:45", "15:15", "17:45"],
