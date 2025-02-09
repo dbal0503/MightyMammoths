@@ -58,6 +58,7 @@ function NavigationSheet({
         overdrawSize={overdrawSize}
         onClose={() =>{
             closeChooseDest(false)
+            setSelectedMode(null)
         }}
         >
           <View style={styles.centeredView}>

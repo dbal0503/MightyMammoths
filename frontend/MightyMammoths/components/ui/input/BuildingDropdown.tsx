@@ -12,11 +12,12 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface BuildingDropdownProps {
+  defaultVal?: string;
   options: string[];
   onSelect: (selected: string) => void;
 }
 
-const BuildingDropdown: React.FC<BuildingDropdownProps> = ({ options, onSelect }) => {
+const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options, onSelect}) => {
   const [selected, setSelected] = useState("Select a building");
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,6 +48,12 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({ options, onSelect }
       );
     }
   }, [searchQuery, options]);
+
+  useEffect(() => {
+    if (defaultVal) {
+      setSelected(defaultVal)
+    }
+  }, [defaultVal])
 
   const handleSelect = (item: string) => {
     setSelected(item);

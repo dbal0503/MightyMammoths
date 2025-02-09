@@ -100,6 +100,8 @@ export default function HomeScreen() {
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
     setChooseDestVisible(true);
+    //have destination be set to the selected building
+
   }
 
   useEffect(() => {
@@ -179,10 +181,12 @@ export default function HomeScreen() {
             closeChooseDest={setChooseDestVisible}
           />
           <DestinationChoices
+            buildingList={buildingList}
             visible={chooseDestVisible}
+            destination={selectedBuilding?.properties.Building || ""}
           />
         </NavigationProvider>
-        
+
       </GestureHandlerRootView>
     </>
   );

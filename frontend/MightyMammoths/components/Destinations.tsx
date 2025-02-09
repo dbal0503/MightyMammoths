@@ -7,11 +7,15 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useNavigation } from "@/components/NavigationProvider";
 
 interface DestinationChoicesProps {
+  buildingList: string[];
   visible?: boolean;
+  destination: string;
 }
 
 export function DestinationChoices({
-  visible
+  buildingList,
+  visible,
+  destination
 }: DestinationChoicesProps) {
   const { functions } = useNavigation();
   const { 
@@ -21,15 +25,6 @@ export function DestinationChoices({
     setTwoBuildingsSelected 
   } = functions;
 
-  const buildingList = [
-    "EV",
-    "Hall",
-    "JMSB",
-    "CL Building",
-    "Learning Square",
-    "Smith Building",
-    "Hingston Hall",
-  ];
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
   const slideAnim = useState(new Animated.Value(-500))[0];
@@ -55,6 +50,13 @@ export function DestinationChoices({
     }
   }, [visible]);
 
+  useEffect(()=>{
+    setDestination(destination);
+    setSelectedBuilding(destination);
+    setSelectedDestination(destination);
+    checkSelection(selectedStart, destination);
+  }, [destination])
+
   return (
     <Animated.View 
       style={[
@@ -65,10 +67,10 @@ export function DestinationChoices({
       ]}
     >
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown options={buildingList} onSelect={(selected) => {
-                        setSelectedStart(selected);
-                        checkSelection(selected, selectedDestination);
-                        setOrigin(selected);
+        <BuildingDropdown options={["Your Location", ...buildingList]} onSelect={(selected) => {
+          setSelectedStart(selected);
+          checkSelection(selected, selectedDestination);
+          setOrigin(selected);
         }} />
       </View>
       <IconSymbol
@@ -79,6 +81,7 @@ export function DestinationChoices({
       />
       <View style={styles.dropdownWrapper}>
         <BuildingDropdown
+          defaultVal={destination}
           options={buildingList}
           onSelect={(selected) => {
             setDestination(selected);
