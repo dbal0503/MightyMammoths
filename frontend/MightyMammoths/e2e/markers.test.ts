@@ -2,7 +2,9 @@ import { device, expect, element, by, waitFor } from 'detox';
 
 describe('Building Markers (Visible Markers Only)', () => {
   beforeAll(async () => {
-    await device.launchApp();
+    await device.launchApp({
+      permissions: { location: 'always' } 
+    });
   });
 
   const visibleMarkers = 'FB Building'; 
