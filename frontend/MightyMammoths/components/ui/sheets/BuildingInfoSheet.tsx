@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
@@ -38,17 +38,47 @@ function BuildingInfoSheet({
         overdrawSize={overdrawSize}
         containerStyle={styles.root}
         >
-      <View style={styles.container}>
-        <Text style={styles.header}> {building?.properties['Building Long Name']} </Text>
-        <Text style={styles.header}> to fill </Text>
+   <View style={styles.container}>
+    <Text style={styles.header}>{building?.properties['Building Long Name']}</Text>
+    <Text style={styles.header}>Information:</Text>
+    <View style={styles.buttonsContainer}>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.BuildingName}</Text>
+        </View>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.Campus}</Text>
+        </View>
+    </View>
 
-      </View>
+    <View style={styles.buttonsContainer}>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.Address}</Text>
+        </View>
+    </View>
+
+    <View style={styles.buttonsContainer}>
+            <View style={styles.button}>
+            <Pressable>
+                <Text style={styles.buttonText}>Set As Destination</Text>
+                </Pressable>
+            </View>
+            <View style={styles.button}>
+            <Pressable>
+                <Text style={styles.buttonText}>View Indoor Map</Text>
+                </Pressable>
+            </View>
+    </View>
+</View>
+
+                
+      
     </ActionSheet>
     );
   }
 
 const styles = StyleSheet.create({
   root:{
+    height: '60%',
     backgroundColor: '#010213',
     borderRadius: 10
   },
@@ -58,12 +88,40 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     maxWidth: 400,
   },
+  
+    buttonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+    button: {
+        backgroundColor: '#1c1c1e',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginHorizontal: 5,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 14,
+    },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
-  }
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+},
+info: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+},
 });
   
 
