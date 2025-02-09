@@ -86,29 +86,31 @@ function NavigationSheet({
 
   const styles = StyleSheet.create({
     root:{
+        width: '100%',
         height: '60%',
         backgroundColor: '#010213',
         borderRadius: 10
     },
     centeredView: {
-        marginTop: "10%",
+        height: '100%',
+        width: '100%',
         alignItems: "center",
         justifyContent: 'flex-start',
       },
-      subTitleText : {
+    subTitleText : {
         color: "#b2b3b8",
         fontSize: 16,
         marginLeft: 40,
         marginTop: 30,
       },
-      accessibilityContainer: {
+    accessibilityContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginLeft: 40,
         marginRight: 40,
         marginTop: 20,
       },
-      accessibilityLabel: {
+    accessibilityLabel: {
         color: "white",
         fontSize: 22,
       },

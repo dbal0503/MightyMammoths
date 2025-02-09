@@ -181,7 +181,8 @@ export default function HomeScreen() {
           <DestinationChoices
             visible={chooseDestVisible}
           />
-          </NavigationProvider>
+        </NavigationProvider>
+        
       </GestureHandlerRootView>
     </>
   );

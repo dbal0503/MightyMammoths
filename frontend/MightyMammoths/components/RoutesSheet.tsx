@@ -96,6 +96,7 @@ export function TransportChoice({
 
 const styles = StyleSheet.create({
   container: {
+    width: '90%',
     flex: 1,
     padding: 16,
     backgroundColor: 'black'
