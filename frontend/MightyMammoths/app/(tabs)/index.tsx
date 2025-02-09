@@ -22,8 +22,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 // Import your NavigationScreen component
 import NavigationScreen from "./navigation";
-import BuildingMapping from "@/components/ui/BuildingMapping"
-
 
 
 // Styling the map https://mapstyle.withgoogle.com/
