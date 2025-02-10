@@ -1,4 +1,3 @@
-// components/BuildingInfo.tsx
 import campusBuildingCoords from '../assets/buildings/coordinates/campusbuildingcoords.json';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';

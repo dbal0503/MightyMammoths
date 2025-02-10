@@ -662,70 +662,6 @@
       "type": "Feature",
       "properties": {
         "Campus": "SGW",
-        "Building": "MK",
-        "BuildingName": "MK Building",
-        "Building Long Name": "MK Annex",
-        "Address": "2000-20002 Mackay St",
-        "Latitude": 45.496606,
-        "Longitude": -73.579025
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.579025, 45.496606]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
-        "Building": "MM",
-        "BuildingName": "MM Building",
-        "Building Long Name": "MM Annex",
-        "Address": "1209 Guy Street",
-        "Latitude": 45.494665,
-        "Longitude": -73.576365
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.576365, 45.494665]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
-        "Building": "MN",
-        "BuildingName": "MN Building",
-        "Building Long Name": "MN Annex",
-        "Address": "1205-1207 Guy Street",
-        "Latitude": 45.494568,
-        "Longitude": -73.576315
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.576315, 45.494568]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
-        "Building": "MT",
-        "BuildingName": "MT Building",
-        "Building Long Name": "Montefiore Building",
-        "Address": "1195 Guy Street",
-        "Latitude": 45.494442,
-        "Longitude": -73.576108
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.576108, 45.494442]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
         "Building": "MU",
         "BuildingName": "MU Building",
         "Building Long Name": "MU Annex",
@@ -736,22 +672,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [-73.579506, 45.497963]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
-        "Building": "P",
-        "BuildingName": "P Building",
-        "Building Long Name": "P Annex",
-        "Address": "2020 Mackay Street",
-        "Latitude": 45.496745,
-        "Longitude": -73.579113
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.579113, 45.496745]
       }
     },
     {
@@ -854,22 +774,6 @@
       "type": "Feature",
       "properties": {
         "Campus": "SGW",
-        "Building": "Q",
-        "BuildingName": "Q Building",
-        "Building Long Name": "Q Annex",
-        "Address": "2010 Mackay Street",
-        "Latitude": 45.496648,
-        "Longitude": -73.579094
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.579094, 45.496648]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
         "Building": "R",
         "BuildingName": "R Building",
         "Building Long Name": "R Annex",
@@ -912,22 +816,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [-73.641028, 45.458489]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "Campus": "SGW",
-        "Building": "RR",
-        "BuildingName": "RR Building",
-        "Building Long Name": "RR Annex",
-        "Address": "2040 Mackay Street",
-        "Latitude": 45.496796,
-        "Longitude": -73.579259
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-73.579259, 45.496796]
       }
     },
     {
@@ -1105,7 +993,6 @@
 { "type": "Feature", "properties": { "Campus": "SGW", "Building": "VA", "BuildingName": "VA Building", "Building Long Name": "Visual Arts Building", "Address": "1395 Rene Levesque W", "Latitude": 45.495543, "Longitude": -73.573795 }, "geometry": { "type": "Point", "coordinates": [ -73.573795, 45.495543 ] } },
 { "type": "Feature", "properties": { "Campus": "LOY", "Building": "VE", "BuildingName": "VE Building", "Building Long Name": "Vanier Extension", "Address": "7141 Sherbrooke W", "Latitude": 45.459026, "Longitude": -73.638606 }, "geometry": { "type": "Point", "coordinates": [ -73.638606, 45.459026 ] } },
 { "type": "Feature", "properties": { "Campus": "LOY", "Building": "VL", "BuildingName": "VL Building", "Building Long Name": "Vanier Library Building", "Address": "7141 Sherbrooke W", "Latitude": 45.459026, "Longitude": -73.638606 }, "geometry": { "type": "Point", "coordinates": [ -73.638606, 45.459026 ] } },
-{ "type": "Feature", "properties": { "Campus": "SGW", "Building": "X", "BuildingName": "X Building", "Building Long Name": "X Annex", "Address": "2080 Mackay Street", "Latitude": 45.49694, "Longitude": -73.579593 }, "geometry": { "type": "Point", "coordinates": [ -73.579593, 45.49694 ] } },
 { "type": "Feature", "properties": { "Campus": "SGW", "Building": "Z", "BuildingName": "Z Building", "Building Long Name": "Z Annex", "Address": "2090 Mackay Street", "Latitude": 45.496981, "Longitude": -73.579705 }, "geometry": { "type": "Point", "coordinates": [ -73.579705, 45.496981 ] } }
 ]
 }
