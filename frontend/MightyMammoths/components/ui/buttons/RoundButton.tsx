@@ -1,5 +1,5 @@
 import { Pressable, type PressableProps, StyleSheet, View, Image } from "react-native"
-import { SvgUri } from "react-native-svg";
+
 
 export type RoundButtonProps = PressableProps & {
     imageSrc: any; //path to svg asset

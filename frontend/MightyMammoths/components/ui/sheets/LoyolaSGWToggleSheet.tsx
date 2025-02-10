@@ -15,7 +15,7 @@ export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
 
 function LoyolaSGWToggleSheet({
     isModal = false,
-    snapPoints = [17, 70],
+    snapPoints = [30, 100],
     setSelectedCampus,
     backgroundInteractionEnabled = true,
     closable = false,

@@ -1,31 +1,82 @@
 // components/Destinations.tsx
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React, {useState, useEffect} from "react";
+import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
+import { useNavigation } from "@/components/NavigationProvider";
+
 interface DestinationChoicesProps {
-  onSelectOrigin: (origin: string) => void;
-  onSelectDestination: (destination: string) => void;
+  buildingList: string[];
+  visible?: boolean;
+  destination: string;
 }
 
 export function DestinationChoices({
-  onSelectOrigin,
-  onSelectDestination,
+  buildingList,
+  visible,
+  destination
 }: DestinationChoicesProps) {
-  const buildingList = [
-    "EV",
-    "Hall",
-    "JMSB",
-    "CL Building",
-    "Learning Square",
-    "Smith Building",
-    "Hingston Hall",
-  ];
+  const { functions } = useNavigation();
+  const { 
+    setOrigin,
+    setDestination, 
+    setSelectedBuilding, 
+    setTwoBuildingsSelected,
+    fetchRoutes 
+  } = functions;
+
+  const [selectedStart, setSelectedStart] = useState<string | null>(null);
+  const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+  const slideAnim = useState(new Animated.Value(-500))[0];
+  const checkSelection = (start: string | null, destination: string | null) => {
+    setTwoBuildingsSelected(start !== null && destination !== null);
+  };
+
+  useEffect(() => {
+    if (visible) {
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 20,
+        friction: 7
+      }).start();
+    } else {
+      Animated.spring(slideAnim, {
+        toValue: -500,
+        useNativeDriver: true,
+        tension: 20,
+        friction: 7
+      }).start();
+    }
+  }, [visible]);
+
+  useEffect(()=>{
+    setSelectedStart("Your Location");
+    checkSelection("Your Location", selectedDestination);
+    setOrigin("Your Location");
+
+    setDestination(destination);
+    setSelectedBuilding(destination);
+    setSelectedDestination(destination);
+    checkSelection(selectedStart, destination);
+  }, [destination])
+
   return (
-    <View style={styles.container}>
+    <Animated.View 
+      style={[
+        styles.container,
+        {
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}
+    >
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown options={buildingList} onSelect={onSelectOrigin} />
+        <BuildingDropdown defaultVal={"Your Location"} options={["Your Location", ...buildingList]} onSelect={(selected) => {
+          setSelectedStart(selected);
+          checkSelection(selected, selectedDestination);
+          setOrigin(selected);
+        }} />
       </View>
       <IconSymbol
         name="more-vert"
@@ -33,25 +84,40 @@ export function DestinationChoices({
         color="black"
         style={styles.modeIcon}
       />
+      {/* <Pressable onPress={async ()=>{
+          await fetchRoutes();
+          console.log('fetching routes')
+        }}>
+        <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
+      </Pressable> */}
       <View style={styles.dropdownWrapper}>
         <BuildingDropdown
+          defaultVal={destination}
           options={buildingList}
-          onSelect={onSelectDestination}
+          onSelect={(selected) => {
+            setDestination(selected);
+            setSelectedBuilding(selected);
+            setSelectedDestination(selected);
+            checkSelection(selectedStart, selected);
+          }}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: "23%",
+    height: "30%",
     width: "100%",
+    paddingTop:75,
     padding: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     backgroundColor: "black",
     alignItems: "center",
+    zIndex: 9999,
+    elevation: 9999
   },
   dropdownWrapper: {
     alignItems: "center",

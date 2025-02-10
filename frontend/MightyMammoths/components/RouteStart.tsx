@@ -10,94 +10,117 @@ import {
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 import { useRouter } from "expo-router";
+import { useNavigation } from '@react-navigation/native';
 
-interface StartNavigationProps {
-  mode: string;
-  routes: RouteData[];
-  onSelectRoute: (route: RouteData) => void;
-  onBack: () => void;
+interface TransportChoiceProps {
+    transportationChoice: string | null;
+    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export function StartNavigation({
-  mode,
-  routes,
-  onSelectRoute,
-  onBack,
-}: StartNavigationProps) {
-  const router = useRouter();
+    transportationChoice,
+    setTransportationChoice,
+}: TransportChoiceProps) {
+    const destinationBuilding = 'Henry F.Hall Building';
+    const transportTime='8 minutes';
+    const transportDistance='0.46km';
+    const navigation = useNavigation();
+    const router = useRouter();
 
-  const handleStartNavigation = () => {
-    // Pass the selected route data to your directions screen or shared state.
-    router.push("/directions");
-  };
+    const setModeNull = () => {
+        setTransportationChoice(null);
+    }
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={onBack} style={styles.backButton}>
-        <IconSymbol name="arrow-back" size={30} color="white" />
-      </TouchableOpacity>
-      <Text style={styles.heading}>Select a Route for {mode}</Text>
-      <FlatList
-        data={routes}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.routeItem}
-            onPress={() => onSelectRoute(item)}
-          >
-            <Text style={styles.routeText}>
-              {item.duration} – {item.distance}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={handleStartNavigation}
-      >
-        <IconSymbol name="play" size={30} color="white" />
-        <Text style={styles.startText}>Start Navigation</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    const startNavigation = () => {
+        router.push('/directions'); 
+    };
+
+    return (<View style={styles.container}>
+                <TouchableOpacity onPress={setModeNull}>
+                    <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
+                </TouchableOpacity>
+                <View style={styles.destinationInformation}>
+                    <Text style={styles.routeHeading}>Routes to</Text>
+                    <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
+                    <View style={styles.travelInformation}>
+                        <Text style={styles.time}>{transportTime}</Text>
+                        <Text style={styles.distance}>{transportDistance}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                        <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
+                        <Text style={styles.start}>Start</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </View>
+            );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#010213",
-  },
-  backButton: {
-    marginBottom: 10,
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 10,
-  },
-  routeItem: {
-    backgroundColor: "white",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  routeText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  startButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "blue",
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  startText: {
-    fontSize: 18,
-    color: "white",
-    marginLeft: 10,
-  },
+    container: {
+        height: '60%',
+        width: '100%',
+        padding: 16,
+        marginBottom:0,
+        flexDirection: 'row',
+        borderBottomLeftRadius:10,
+        borderBottomRightRadius:10,
+        backgroundColor: 'black',
+      },
+    dropdownWrapper: {
+        alignItems: "center",
+    },
+    modeIcon: {
+        alignItems: 'center',
+        color: 'black',
+        padding: 5,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        height:'22%'
+    },
+    routeHeading: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 0,
+        color: 'white',
+    },
+    routeHeadingDestination: {
+        fontSize: 20,
+        marginBottom: 8,
+        color: 'white',
+    },
+    destinationInformation: {
+        paddingLeft: 20,
+    },
+    travelInformation:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: 20,
+    },
+    time:{
+        fontSize:20,
+        fontWeight: 'bold',
+        color: 'white',
+        paddingRight: 40
+    },
+    distance:{
+        fontSize:18,
+        color: 'white',
+    },
+    startButton:{
+        marginTop:40,
+        backgroundColor: 'blue',
+        borderRadius: 20,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    navigationIcon: {
+        paddingLeft: 20
+    },
+    start:{
+        paddingLeft:15,
+        fontSize: 23,
+        color: 'white',
+    },
 });
