@@ -1,17 +1,30 @@
-import React, {useRef, useState, useEffect} from "react";
-import {StyleSheet, View, Keyboard} from "react-native";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
-import {ActionSheetRef} from "react-native-actions-sheet";
-import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
+import React, { useCallback, useRef, useMemo, useState, useEffect } from "react";
+import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
+import { ActionSheetRef } from "react-native-actions-sheet";
+
+import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
+import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
+import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
-import MapView, { Marker } from "react-native-maps";
-import * as Location from "expo-location";
-import BuildingMapping from "@/components/ui/BuildingMapping";
+import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location'
+import { SafeAreaView } from "react-native-safe-area-context";
+import BuildingMapping from "@/components/ui/BuildingMapping"
+import NavigationScreen from "./navigation";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
+import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
+
+
+
+
+// Styling the map https://mapstyle.withgoogle.com/
 
 
 export default function HomeScreen() {
@@ -39,6 +52,8 @@ export default function HomeScreen() {
   const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [showNavigation, setShowNavigation] = useState(false);
+
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -104,9 +119,22 @@ export default function HomeScreen() {
     };
   }, []);
 
+
+
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+      <View style={styles.toggleButtonContainer}>
+          <Button
+            title={showNavigation ? "Show Map View" : "Show Navigation Screen"}
+            onPress={() => setShowNavigation((prev) => !prev)}
+          />
+        </View>
+        {showNavigation ? (
+          // Render NavigationScreen for testing
+          <NavigationScreen />
+        ) : (
+          <>
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -156,7 +184,8 @@ export default function HomeScreen() {
             building={selectedBuilding}
           />
         )}
-
+                 </>
+        )}
       </GestureHandlerRootView>
     </>
   );
@@ -206,6 +235,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 40,
     marginTop: 30,
+  },
+  toggleButtonContainer: {
+    position: "absolute",
+    top: 30,
+    left: 10,
+    zIndex: 100,
   },
   accessibilityContainer: {
     flexDirection: "row",
