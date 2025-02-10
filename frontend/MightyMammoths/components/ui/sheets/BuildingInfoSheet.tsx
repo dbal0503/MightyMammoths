@@ -44,12 +44,7 @@ function BuildingInfoSheet({
       <View style={styles.container}>
         <Text style={styles.header}> {building?.properties['Building Long Name']} </Text>
         <Text style={styles.header}> to fill </Text>
-        {/* Temporary button for navigation to navigation screen*/}
-        <Pressable onPress={navigate}> 
-          <Text style={styles.header}>
-            Select as Destination
-          </Text>
-        </Pressable>
+
       </View>
     </ActionSheet>
     );
@@ -67,12 +62,53 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     maxWidth: 400,
   },
+  
+    buttonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 14,
+        paddingBlock: 8
+        
+    },
+    button: {
+        backgroundColor: '#1c1c1e',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginHorizontal: 5,
+        alignItems: 'center',
+    },
+    destinationButton: {
+        backgroundColor: '#007AFF',
+        fontWeight: 'bold',
+        fontSize: 20
+        
+    },
+    indoorMapButton: {
+        backgroundColor: '#800000', 
+        fontWeight: 'bold',
+        fontSize: 20
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+    },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
-  }
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+},
+info: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+},
 });
 
 export default BuildingInfoSheet;

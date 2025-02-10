@@ -1,4 +1,5 @@
-//import { GOOGLE_MAPS_API_KEY } from "@env";
+
+import { GOOGLE_MAPS_API_KEY } from "../env";
 import axios from "axios";
 
 export interface RouteData {
@@ -13,7 +14,9 @@ export async function getRoutes(
   destination: string,
   mode: string
 ): Promise<RouteData[]> {
-  const apiKey = 'GOOGLE_MAPS_API_KEY'; //REPLACE WITH YOUR OWN API KEY
+
+  const apiKey = GOOGLE_MAPS_API_KEY;
+
   const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
     origin
   )}&destination=${encodeURIComponent(
@@ -34,4 +37,5 @@ export async function getRoutes(
     console.error("Error fetching directions", error);
     throw error;
   }
+
 }
