@@ -62,14 +62,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     position: "relative",
-    padding: 5,
+    padding: 2,
   },
   slider: {
     position: "absolute",
     height: 50,
     backgroundColor: "white",
     borderRadius: 25,
-    left: 5,
+   
     justifyContent: "center",
     alignItems: "center",
   },

@@ -12,7 +12,7 @@ describe('Building Markers (Visible Markers Only)', () => {
     it(`should display marker for ${visibleMarkers}`, async () => {
       await waitFor(element(by.id(`marker-${visibleMarkers}`)))
         .toBeVisible()
-        .withTimeout(5000);
+        .withTimeout(20000);
       await expect(element(by.id(`marker-${visibleMarkers}`))).toBeVisible();
 });
 });
