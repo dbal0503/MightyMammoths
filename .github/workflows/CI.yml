@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - tests
   pull_request:
 
 jobs:
@@ -43,7 +44,7 @@ jobs:
       - name: Run Tests
         run: |
             cd ./frontend/MightyMammoths
-            npm run test:unit
+            npm run test:unit -- --coverage
             
   e2e-test:
     runs-on: macos-latest
