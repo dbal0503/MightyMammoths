@@ -7,11 +7,15 @@ import { RouteData } from "@/services/directionsService";
 interface TransportChoiceProps {
   routeEstimates: { [mode: string]: RouteData[] };
   onSelectMode: (mode: string) => void;
+  destinationBuilding: string | null;
+  bothSelected: boolean;
 }
 
 export function TransportChoice({
   routeEstimates,
   onSelectMode,
+  destinationBuilding,
+  bothSelected
 }: TransportChoiceProps) {
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
@@ -57,7 +61,8 @@ export function TransportChoice({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Select Transportation Mode</Text>
+      <Text style={styles.routeHeading}>Routes to</Text>
+      <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
       {Object.keys(modeDisplayNames).map((mode) => {
         const estimates = routeEstimates[mode];
         const bestEstimate =
@@ -67,15 +72,20 @@ export function TransportChoice({
             key={mode}
             style={styles.modeItem}
             onPress={() => onSelectMode(mode)}
+            disabled={!bothSelected}
           >
             {modeIcons[mode]}
-            <View style={styles.textContainer}>
-              <Text style={styles.modeText}>{modeDisplayNames[mode]}</Text>
-              {bestEstimate && (
-                <Text style={styles.estimateText}>
-                  {bestEstimate.duration} – {bestEstimate.distance}
-                </Text>
-              )}
+            <View style={styles.textInformation}>
+                <Text style={styles.transportMode}>{modeDisplayNames[mode]}</Text>
+                <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
+            </View>
+            <View style={styles.travelInformation}>
+                {bestEstimate && (
+                    <>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                    </>
+                )}
             </View>
           </TouchableOpacity>
         );
@@ -86,8 +96,10 @@ export function TransportChoice({
 
 const styles = StyleSheet.create({
   container: {
+    width: '90%',
     flex: 1,
     padding: 16,
+    backgroundColor: 'black'
   },
   heading: {
     fontSize: 20,
@@ -99,20 +111,56 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 10,
+    
+    borderRadius: 20,
+    marginBottom: 20,
+    height:90,
   },
   modeIcon: {
     marginRight: 10,
+    marginLeft: 10,
+    alignItems: 'center',
   },
   textContainer: {},
   modeText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
   },
   estimateText: {
     fontSize: 14,
     color: "gray",
   },
+  routeHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 0,
+    color: 'white',
+  },
+  routeHeadingDestination: {
+    fontSize: 20,
+    marginBottom: 20,
+    color: 'white',
+  },
+  textInformation:{
+        
+  },
+  transportMode:{
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  subRouteHeadingDestination:{
+    fontSize:15,
+  },
+  travelInformation:{
+    marginLeft: 'auto',
+    paddingRight:20
+}, time:{
+    fontSize:20,
+    fontWeight: 'bold',
+},
+distance:{
+    marginLeft:'auto',
+    fontSize:18,
+},
+
 });

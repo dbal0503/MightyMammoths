@@ -2,6 +2,7 @@ import React, {useRef, useMemo, useEffect,useState} from 'react';
 import {StyleSheet, View, Text } from 'react-native';
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useLocalSearchParams } from "expo-router";
 
 import { LiveNavigation } from '@/components/LiveInformation';
 import { NavigationInformation } from '@/components/NavigationInformation';
@@ -9,19 +10,16 @@ import { NavigationInformation } from '@/components/NavigationInformation';
 export default function NavigationScreen () {
     const sheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ["20%", "60%"], []);
-    const [transportationChoice, setTransportationChoice] = useState<string | null>(null);
     const [showStartNavigation, setShowStartNavigation] = useState(false);
-
-    useEffect(() => {
-        if (transportationChoice !== null) {
-            setShowStartNavigation(true);
-        }
-    }, [transportationChoice]); 
-
+    const { destination } = useLocalSearchParams();
+    
     return (
     <>
       <GestureHandlerRootView style={styles.container}>
-        <NavigationInformation></NavigationInformation>
+        <NavigationInformation
+          destinationBuilding={destination as string}
+        >
+        </NavigationInformation>
         <BottomSheet
             ref={sheetRef}
             snapPoints={snapPoints}
