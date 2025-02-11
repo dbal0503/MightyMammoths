@@ -35,7 +35,12 @@ jobs:
             npm run test:unit -- --coverage
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarcloud-scan-action@v1
+        with:
+          args: >
+            -Dsonar.organization=dbal0503
+            -Dsonar.projectKey=dbal0503_MightyMammoths
+            # etc.
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             
