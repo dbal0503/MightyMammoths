@@ -8,20 +8,8 @@ on:
       - tests
   pull_request:
 
-jobs:
-  sonarqube:
-    environment: Dev
-    name: SonarQube
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  unit-test:
+jobs:      
+  unit-test-and-sonar:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
@@ -41,10 +29,15 @@ jobs:
         run: |
             cd ./frontend/MightyMammoths
             npm ci
-      - name: Run Tests
+      - name: Run Tests with Coverage
         run: |
             cd ./frontend/MightyMammoths
             npm run test:unit -- --coverage
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             
   e2e-test:
     runs-on: macos-latest
