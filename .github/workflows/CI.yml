@@ -47,7 +47,7 @@ jobs:
             cd ./frontend/MightyMammoths
             npm run test:unit -- --coverage
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: frontend/MightyMammoths/coverage
