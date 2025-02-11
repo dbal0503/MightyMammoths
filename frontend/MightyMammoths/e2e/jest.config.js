@@ -7,6 +7,9 @@ module.exports = {
   globalSetup: 'detox/runners/jest/globalSetup',
   globalTeardown: 'detox/runners/jest/globalTeardown',
   reporters: ['detox/runners/jest/reporter'],
+  coveragePathIgnorePatterns: [
+    "<rootDir>/frontend/MightyMammoths/env.tsx"
+  ],
   testEnvironment: 'detox/runners/jest/testEnvironment',
   verbose: true,
   transform: {
