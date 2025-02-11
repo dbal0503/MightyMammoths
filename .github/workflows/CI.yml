@@ -35,7 +35,7 @@ jobs:
             npm run test:unit -- --coverage
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarcloud-scan-action@v1
+        uses: SonarSource/sonarcloud-github-action@v1.10
         with:
           args: >
             -Dsonar.organization=dbal0503
