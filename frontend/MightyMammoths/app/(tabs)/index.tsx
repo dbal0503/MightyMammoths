@@ -17,14 +17,18 @@ import NavigationScreen from "./navigation";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
+import { DestinationChoices } from "@/components/Destinations";
+
+//Context providers
+import { NavigationProvider } from "@/components/NavigationProvider";
+
+//sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
 import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
 
-
-
-
 // Styling the map https://mapstyle.withgoogle.com/
+import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
 export default function HomeScreen() {
@@ -44,8 +48,12 @@ export default function HomeScreen() {
   };
   
   const mapRef = useRef<MapView>(null);
+
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
+  const navigationSheet = useRef<ActionSheetRef>(null);
+  const [chooseDestVisible, setChooseDestVisible] = useState(false);
+
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -85,6 +93,7 @@ export default function HomeScreen() {
       setSelectedBuilding(buildingFeature);
   };
 
+  //will change to also have addresses
   const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const handleMarkerPress = (buildingName: string) => {
@@ -99,6 +108,14 @@ export default function HomeScreen() {
       }
     }, 60); 
   };
+
+  const startNavigation = () => {
+    buildingInfoSheet.current?.hide();
+    navigationSheet.current?.show();
+    setChooseDestVisible(true);
+    //have destination be set to the selected building
+
+  }
 
   useEffect(() => {
     (async () => {
@@ -124,17 +141,6 @@ export default function HomeScreen() {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
-      <View style={styles.toggleButtonContainer}>
-          <Button
-            title={showNavigation ? "Show Map View" : "Show Navigation Screen"}
-            onPress={() => setShowNavigation((prev) => !prev)}
-          />
-        </View>
-        {showNavigation ? (
-          // Render NavigationScreen for testing
-          <NavigationScreen />
-        ) : (
-          <>
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -152,6 +158,7 @@ export default function HomeScreen() {
             onMarkerPress={handleMarkerPress}
           />
         </MapView>
+
 
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} />
@@ -180,12 +187,24 @@ export default function HomeScreen() {
         {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
+            navigate={startNavigation}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
           />
         )}
-                 </>
-        )}
+
+        <NavigationProvider>
+          <NavigationSheet
+            actionsheetref={navigationSheet}
+            closeChooseDest={setChooseDestVisible}
+          />
+          <DestinationChoices
+            buildingList={buildingList}
+            visible={chooseDestVisible}
+            destination={selectedBuilding?.properties.Building || ""}
+          />
+        </NavigationProvider>
+
       </GestureHandlerRootView>
     </>
   );
@@ -199,8 +218,14 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
-    paddingTop: 70,
+    //paddingTop: 70,
     backgroundColor: "white",
+  },
+  toggleButtonContainer: {
+    position: "absolute",
+    top: 30,
+    left: 10,
+    zIndex: 100,
   },
   dropdownWrapper: {
     top: "-29%",
@@ -215,11 +240,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     position: "absolute",
     width: "100%",
-    bottom: "22%",
+    bottom: "18%",
     paddingRight: 20,
   },
   topElements: {
+    position: 'absolute',
+    // position coordinates
+    top: 0,
+    left: 28,
+
     gap: "6%",
+    marginTop: 70,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -235,12 +266,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 40,
     marginTop: 30,
-  },
-  toggleButtonContainer: {
-    position: "absolute",
-    top: 30,
-    left: 10,
-    zIndex: 100,
   },
   accessibilityContainer: {
     flexDirection: "row",
@@ -266,3 +291,94 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
+
+// Styling the map https://mapstyle.withgoogle.com/
+const mapstyle = [
+  {
+    elementType: "geometry",
+    stylers: [{ color: "#242f3e" }],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#242f3e" }],
+  },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#263c3f" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b9a76" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f3d19c" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#2f3948" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
+];
