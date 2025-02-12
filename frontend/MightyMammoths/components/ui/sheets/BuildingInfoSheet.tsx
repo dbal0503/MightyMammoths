@@ -70,12 +70,11 @@ function BuildingInfoSheet({
         </View>
     </View>
 
-        {/* Temporary button for navigation to navigation screen*/}
-        <Pressable onPress={navigate}> 
-          <Text style={styles.header}>
-            Select as Destination
-          </Text>
-        </Pressable>
+    <View style={styles.buttonsContainer}>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.Address}</Text>
+        </View>
+    </View>
       </View>
     </ActionSheet>
     );
