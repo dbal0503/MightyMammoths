@@ -47,7 +47,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
             testID={`marker-${buildingAccronym}`}
           >
             <View style={styles.marker}>
-              <Text style={styles.text}>{feature.properties.Building}</Text>
+              <Text style={styles.text} testID={`marker-text-${buildingAccronym}`}>{feature.properties.Building}</Text>
             </View>
           </Marker>
         );

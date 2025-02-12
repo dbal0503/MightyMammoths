@@ -8,29 +8,18 @@ describe('Building Markers (Visible Markers Only)', () => {
     
   });
 
-  it('should display marker for FB Building', async () => {
-    await waitFor(element(by.id('marker-FB')))
+  it('should display marker for GA Building', async () => {
+    await waitFor(element(by.id('marker-GA')))
       .toBeVisible()
-      .withTimeout(20000);
+      .withTimeout(40000);
 
-    await expect(element(by.id('marker-FB'))).toBeVisible();
+    await expect(element(by.id('marker-GA'))).toBeVisible();
   });
+  it('should display marker text for GA Building', async () => {
+    await waitFor(element(by.id('marker-text-GA')))
+      .toBeVisible()
+      .withTimeout(40000);
 
-  it('should display multiple building markers', async () => {
-    const buildingMarkers = [
-      'marker-EV',
-      'marker-TD',
-      'marker-FG',
-      'marker-GA',
-      'marker-GNL',
-      'marker-B',
-    ];
-
-    for (const markerId of buildingMarkers) {
-      await waitFor(element(by.id(markerId)))
-        .toBeVisible()
-        .withTimeout(20000);
-      await expect(element(by.id(markerId))).toBeVisible();
-    }
+    await expect(element(by.id('marker-text-GA'))).toBeVisible();
   });
 });

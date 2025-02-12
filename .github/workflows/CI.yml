@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - tests
+      - jscior/e2e
   pull_request:
 
 jobs:
