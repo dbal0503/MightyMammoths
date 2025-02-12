@@ -47,7 +47,7 @@ function BuildingInfoSheet({
             <View style={[
                 styles.button, styles.destinationButton
                 ]}>
-            <Pressable>
+            <Pressable onPress={navigate}>
                 <Text style={styles.buttonText}>Set As Destination</Text>
                 </Pressable>
             </View>
@@ -58,6 +58,16 @@ function BuildingInfoSheet({
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>
+    </View>
+
+    <Text style={styles.header}>Information:</Text>
+    <View style={styles.buttonsContainer}>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.BuildingName}</Text>
+        </View>
+        <View style={styles.button}>
+            <Text style={styles.buttonText}>{building.properties.Campus}</Text>
+        </View>
     </View>
 
         {/* Temporary button for navigation to navigation screen*/}
