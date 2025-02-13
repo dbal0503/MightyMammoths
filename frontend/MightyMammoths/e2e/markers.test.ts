@@ -28,8 +28,9 @@ describe('Gear Icon visible', () => {
   beforeAll(async () => {
     await device.launchApp({
       permissions: { location: 'always' } 
+      
     });
-    
+    await device.disableSynchronization();
   });
 
   it('should display gear icon', async () => {
