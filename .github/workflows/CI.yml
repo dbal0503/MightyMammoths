@@ -9,6 +9,7 @@ on:
 
 jobs:
   sonarqube:
+    needs: unit-test 
     environment: Dev
     name: SonarQube
     runs-on: ubuntu-latest
@@ -40,10 +41,15 @@ jobs:
         run: |
             cd ./frontend/MightyMammoths
             npm ci
-      - name: Run Tests
+      - name: Run Tests with Coverage
         run: |
             cd ./frontend/MightyMammoths
-            npm run test:unit
+            npm run test:unit -- --coverage
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: frontend/MightyMammoths/coverage
             
   e2e-test:
     runs-on: macos-latest
