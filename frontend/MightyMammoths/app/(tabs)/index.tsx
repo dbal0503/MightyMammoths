@@ -9,6 +9,7 @@ import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +19,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
+import { autoCompleteSearch } from "@/services/searchService";
 
 //Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -109,6 +111,10 @@ export default function HomeScreen() {
     }, 60); 
   };
 
+  const getPlaceSuggestion = async (queryString: string) => {
+    await autoCompleteSearch(queryString);
+  }
+
   const startNavigation = () => {
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
@@ -163,10 +169,14 @@ export default function HomeScreen() {
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} />
           <View style={styles.dropdownWrapper}>
-            <BuildingDropdown
+            <AutoCompleteDropdown
               options={buildingList}
               onSelect={(selected) => console.log(selected)}
             />
+            {/* <BuildingDropdown
+              options={buildingList}
+              onSelect={(selected) => console.log(selected)}
+            /> */}
           </View>
         </View>
 
