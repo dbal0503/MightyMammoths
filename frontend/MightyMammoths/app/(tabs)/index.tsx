@@ -59,7 +59,7 @@ export default function HomeScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
-  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.1, longitudeDelta: 0.1,});
   const [showNavigation, setShowNavigation] = useState(false);
 
 
@@ -80,9 +80,9 @@ export default function HomeScreen() {
   }
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
+    const loc = await Location.getCurrentPositionAsync();
     setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
-    ChangeLocation("Own Location");
+    ChangeLocation("my Location");
   };
 
   const setBuilding = (buildingName: string) => {
@@ -120,6 +120,8 @@ export default function HomeScreen() {
   useEffect(() => {
     (async () => {
       await Location.requestForegroundPermissionsAsync();
+      const loc = await Location.getCurrentPositionAsync();
+      setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
     })();
     campusToggleSheet.current?.show()
 
@@ -153,6 +155,7 @@ export default function HomeScreen() {
             title="MY LOCATION"
             description="MY LOCATION"
           />
+          
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={handleMarkerPress}
