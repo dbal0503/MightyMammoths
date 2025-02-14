@@ -34,15 +34,21 @@ import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
 export default function HomeScreen() {
+  interface Region {
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+  }
   
-  const sgwRegion = {
+  const sgwRegion: Region = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
     latitudeDelta: 0.002,
     longitudeDelta: 0.002,
   };
 
-  const loyolaRegion = {
+  const loyolaRegion: Region = {
     latitude: 45.458177049773354,
     longitude: -73.63924402074171,
     latitudeDelta: 0.01,
@@ -63,6 +69,10 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [showNavigation, setShowNavigation] = useState(false);
+
+  //Search Marker state
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
 
 
   const ChangeLocation = (area: string) => {
@@ -122,12 +132,14 @@ export default function HomeScreen() {
         console.log('failed to fetch place location')
         return
       }
-      const placeRegion = {
+      const placeRegion: Region = {
         latitude: location.latitude,
         longitude: location.longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
       }
+      setSearchMarkerLocation(placeRegion);
+      setSearchMarkerVisible(true);
       setRegion(placeRegion);    
       if (mapRef.current) {
         mapRef.current.animateToRegion(placeRegion, 1000);
@@ -181,6 +193,11 @@ export default function HomeScreen() {
             title="MY LOCATION"
             description="MY LOCATION"
           />
+          {searchMarkerVisible && 
+            <Marker
+              coordinate={searchMarkerLocation}
+            />
+          }
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={handleMarkerPress}
