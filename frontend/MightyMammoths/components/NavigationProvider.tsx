@@ -2,10 +2,12 @@ import { createContext, useState, useEffect, ReactNode, useRef, useMemo, useCont
 import { getRoutes, RouteData } from "@/services/directionsService";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
-
+import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
+import { fetchShuttleData } from "@/utils/getLiveShuttleData";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 // Constants can be exported from the same file
 export const transportModes = ["driving", "transit", "bicycling", "walking"];
+
 
 // Extend our previous state interface
 interface NavigationState {
@@ -71,6 +73,26 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
     if (origin && destination) {
+
+      //! When a building marker is clicked, the fetchRoutes is called right away without even clicking as select destination
+      //! Bring it up to Yan to be fixed
+
+      let startDirection = "";
+
+      //TODO Refactor
+      if (origin.includes("Hall Building") || origin.includes("CL Building") ||
+        origin.includes("John Molson") || origin.includes("EV")){
+        if (destination.includes("Hingston Hall") || destination.includes("Smith Building")){
+          startDirection = "SGW";
+        }
+      } else {
+        if (destination.includes("Hall Building") ||
+        destination.includes("CL Building") ||
+        destination.includes("John Molson") ||
+        destination.includes("EV")){
+          startDirection = "LOY";
+        }
+      }
       console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
       setLoadingRoutes(true);
       const estimates: { [mode: string]: RouteData[] } = {};
@@ -82,7 +104,9 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
           const routes = await getRoutes(originCoords, destinationCoords, mode);
           estimates[mode] = routes;
         }
-        //console.log(estimates) 
+        console.log(estimates) 
+        await fetchShuttleData();
+        estimates["shuttle"] = await getShuttleBusRoute(origin, destination, startDirection);
         setRouteEstimates(estimates);
       } catch (error) {
         console.error("Error fetching routes", error);
