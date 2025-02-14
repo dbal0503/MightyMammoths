@@ -11,12 +11,12 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { autoCompleteSearch } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
 
 interface AutoCompleteDropdownProps {
   defaultVal?: string;
   options: string[];
-  onSelect: (selected: string) => void;
+  onSelect: (selected: suggestionResult | undefined) => void;
 }
 
 const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, options, onSelect}) => {
@@ -24,6 +24,7 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [suggestionData, setSuggestionData] = useState<suggestionResult[]>([]);
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
@@ -39,20 +40,11 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
     }
   }, [isOpen]);
 
-//   useEffect(() => { //change to fetch suggestions and populate flatlist
-//     if (searchQuery.trim() === "") {
-//       setFilteredOptions(options);
-//     } else {
-//       setFilteredOptions(
-//         options.filter((option) =>
-//           option.toLowerCase().includes(searchQuery.toLowerCase())
-//         )
-//       );
-//     }
-//   }, [searchQuery, options]);
-
   const getSuggestions = async (searchQuery: string) => {
-    await autoCompleteSearch(searchQuery);
+    const results = await autoCompleteSearch(searchQuery);
+    //change options to suggestions and store the data for the suggestions
+    setSuggestionData(results);
+    setFilteredOptions(results.map((item) => item.placePrediction.structuredFormat.mainText.text));
   }
 
   useEffect(() => {
@@ -61,9 +53,10 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
     }
   }, [defaultVal])
 
-  const handleSelect = (item: string) => {
-    setSelected(item);
-    onSelect(item);
+  const handleSelect = (placeName: string) => {
+    setSelected(placeName);
+    //change to pass data for select place
+    onSelect(suggestionData.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName));
     setIsOpen(false);
     setSearchQuery("");
   };

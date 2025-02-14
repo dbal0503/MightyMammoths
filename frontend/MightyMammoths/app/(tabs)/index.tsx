@@ -19,7 +19,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
-import { autoCompleteSearch } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
 
 //Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -111,8 +111,30 @@ export default function HomeScreen() {
     }, 60); 
   };
 
-  const getPlaceSuggestion = async (queryString: string) => {
-    await autoCompleteSearch(queryString);
+  const handleSearch = async (data: suggestionResult | undefined) => {
+    try {
+      if(data === undefined){
+        console.log('selected place is undefined')
+        return
+      }
+      const location = await placeIDtoLocation(data.placePrediction.placeId)
+      if(location === undefined){
+        console.log('failed to fetch place location')
+        return
+      }
+      const placeRegion = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+      }
+      setRegion(placeRegion);    
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(placeRegion, 1000);
+      }
+    } catch (error) {
+      console.log(`Error selecting place: ${error}`)
+    }
   }
 
   const startNavigation = () => {
@@ -171,7 +193,7 @@ export default function HomeScreen() {
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
               options={buildingList}
-              onSelect={(selected) => console.log(selected)}
+              onSelect={(selected) => handleSearch(selected)}
             />
             {/* <BuildingDropdown
               options={buildingList}
