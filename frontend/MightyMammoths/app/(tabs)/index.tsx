@@ -27,15 +27,15 @@ export default function HomeScreen() {
   const sgwRegion = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
-    latitudeDelta: 0.002,
-    longitudeDelta: 0.002,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   };
 
   const loyolaRegion = {
     latitude: 45.458177049773354,
     longitude: -73.63924402074171,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   };
   
   const mapRef = useRef<MapView>(null);
@@ -49,7 +49,7 @@ export default function HomeScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
-  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.1, longitudeDelta: 0.1,});
+  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
   const [showNavigation, setShowNavigation] = useState(false);
   const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
@@ -71,7 +71,7 @@ export default function HomeScreen() {
 
   const CenterOnLocation = async () => {
     const loc = await Location.getCurrentPositionAsync();
-    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
+    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
     ChangeLocation("my Location");
   };
 
@@ -108,7 +108,7 @@ export default function HomeScreen() {
     (async () => {
       await Location.requestForegroundPermissionsAsync();
       const loc = await Location.getCurrentPositionAsync();
-      setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
+      setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
     })();
 
     campusToggleSheet.current?.show()
