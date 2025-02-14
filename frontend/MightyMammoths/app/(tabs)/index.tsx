@@ -164,7 +164,7 @@ export default function HomeScreen() {
 
 
         <View style={styles.topElements}>
-          <RoundButton imageSrc={require("@/assets/images/gear.png")} />
+          <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
             <BuildingDropdown
               options={buildingList}
