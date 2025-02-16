@@ -5,16 +5,20 @@ export type RoundButtonProps = PressableProps & {
     imageSrc: any; //path to svg asset
     size?: number; //diameter of the button
     onPress?: () => void;
+    testID?: string;
 }
 
 export default function RoundButton({
     imageSrc,
     size = 52,
-    onPress
+    onPress,
+    testID
 } : RoundButtonProps){
     const imageSize = size * 0.7;
     return (
-        <Pressable onPress={onPress} 
+        <Pressable 
+        testID={testID}
+        onPress={onPress} 
         style={({ pressed }) => [
             styles.button,
             {
