@@ -77,20 +77,23 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
       //! When a building marker is clicked, the fetchRoutes is called right away without even clicking as select destination
       //! Bring it up to Yan to be fixed
 
-      let startDirection = "";
+      let shuttleBusDirection = "";
+      let origin = "AD"; //! Temp fix for the bug where as soon as we click on select as destination it calls fetchRoutes
+      console.log("Origin: ", origin)
+      console.log("Destination: ", destination)
 
-      //TODO Refactor
+      //TODO Refactor - use the campusbuildingcoords.json file to get the campus of the building
       if (origin.includes("Hall Building") || origin.includes("CL Building") ||
         origin.includes("John Molson") || origin.includes("EV")){
         if (destination.includes("Hingston Hall") || destination.includes("Smith Building")){
-          startDirection = "SGW";
+          shuttleBusDirection = "SGW";
         }
       } else {
         if (destination.includes("Hall Building") ||
         destination.includes("CL Building") ||
         destination.includes("John Molson") ||
         destination.includes("EV")){
-          startDirection = "LOY";
+          shuttleBusDirection = "LOY";
         }
       }
       console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
@@ -105,8 +108,8 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
           estimates[mode] = routes;
         }
         console.log(estimates) 
-        await fetchShuttleData();
-        estimates["shuttle"] = await getShuttleBusRoute(origin, destination, startDirection);
+        //await fetchShuttleData();
+        estimates["shuttle"] = await getShuttleBusRoute(origin, destination, shuttleBusDirection);
         setRouteEstimates(estimates);
       } catch (error) {
         console.error("Error fetching routes", error);

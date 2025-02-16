@@ -5,6 +5,15 @@ const GET_URL = SHUTTLE_GET_URL;
 const POST_URL = SHUTTLE_POST_URL;
 const REQUEST_INTERVAL = 15000;
 
+/*
+justinsciortino@Justins-MBP-7 ~ % curl -X POST "https://shuttle.concordia.ca/concordiabusmap/WebService/GService.asmx/GetGoogleObject" \
+     -H "Host: shuttle.concordia.ca" \
+     -H "Content-Length: 0" \
+     -H "Content-Type: application/json; charset=UTF-8" \
+     -H "Cookie: ASP.NET_SessionId=sssry3wrey3dinzzcsmkc1mp" \
+     -d "{}"
+*/
+
 let cachedCookies: string | null = null;
 
 async function getSessionCookies(): Promise<string | null> {
