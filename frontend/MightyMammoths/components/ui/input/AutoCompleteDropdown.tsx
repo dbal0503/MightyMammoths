@@ -13,24 +13,29 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
 
+export interface BuildingData {
+  buildingName: string;
+  placeID: string;
+}
+
 interface AutoCompleteDropdownProps {
   defaultVal?: string;
-  options: string[];
+  buildingData: BuildingData[];
   onSelect: (selected: suggestionResult | undefined) => void;
 }
 
-const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, options, onSelect}) => {
+const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, buildingData, onSelect}) => {
   const [selected, setSelected] = useState("Select a building");
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const [suggestionData, setSuggestionData] = useState<suggestionResult[]>([]);
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
-      toValue: isOpen ? Math.min(options.length * 45 + 50, 250) : 0,
+      toValue: isOpen ? Math.min(buildingData.length * 45 + 50, 250) : 0,
       duration: 250,
       useNativeDriver: false,
     }).start();
@@ -42,9 +47,9 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    //change options to suggestions and store the data for the suggestions
+    //change buildingData to suggestions and store the data for the suggestions
     setSuggestionData(results);
-    setFilteredOptions(results.map((item) => item.placePrediction.structuredFormat.mainText.text));
+    setFilteredOptions([...results.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)]);
   }
 
   useEffect(() => {
@@ -55,8 +60,46 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
+    let selectedLocation = suggestionData.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    if(!selectedLocation){
+      let building = buildingData.find((item) => item.buildingName == placeName)
+      if(!building){
+        console.log('failed to fetch data for selected location')
+        return
+      }
+      selectedLocation = {
+        placePrediction: {
+          place: "",
+          placeId: building.placeID,
+          text: {
+            text: building.buildingName,
+            matches: [
+              {
+                startOffset: 1,
+                endOffset: 1
+              }
+            ]
+          },
+          structuredFormat: {
+            mainText: {
+              text: "",
+              matches: [
+                {
+                  startOffset: 1,
+                  endOffset: 1
+                }
+              ]
+            },
+            secondaryText: {
+              text: ""
+            }
+          },
+          types: []
+      }
+      }
+    }
     //change to pass data for select place
-    onSelect(suggestionData.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName));
+    onSelect(selectedLocation);
     setIsOpen(false);
     setSearchQuery("");
   };

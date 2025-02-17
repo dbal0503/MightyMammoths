@@ -140,10 +140,21 @@ export default function HomeScreen() {
       }
       setSearchMarkerLocation(placeRegion);
       setSearchMarkerVisible(true);
-      setRegion(placeRegion);    
+      setRegion(placeRegion);
       if (mapRef.current) {
         mapRef.current.animateToRegion(placeRegion, 1000);
       }
+
+      if(buildingInfoSheet.current){
+        buildingInfoSheet.current?.show(); 
+      }else{
+        console.log('building info sheet ref is not defined');
+      }
+
+      //TODO:
+      //Show building details after animation
+      //Show building details when clicking on marker
+      //Refactor transition from details to navigation
     } catch (error) {
       console.log(`Error selecting place: ${error}`)
     }
@@ -209,13 +220,9 @@ export default function HomeScreen() {
           <RoundButton imageSrc={require("@/assets/images/gear.png")} />
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
-              options={buildingList}
+              buildingData={buildingList}
               onSelect={(selected) => handleSearch(selected)}
             />
-            {/* <BuildingDropdown
-              options={buildingList}
-              onSelect={(selected) => console.log(selected)}
-            /> */}
           </View>
         </View>
 
