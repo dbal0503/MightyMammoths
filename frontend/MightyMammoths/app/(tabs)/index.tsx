@@ -63,8 +63,15 @@ export default function HomeScreen() {
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
 
+  //This is for globally storing data for place search so that all location choice dropdown
+  //have the same options
+  //probably should be refactored to be defined in a context if time allows
+  const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
+
   const placeInfoSheet = useRef<ActionSheetRef>(null);
   const [currentPlace, setCurrentPlace] = useState<placeDetails| undefined>(undefined)
+  const [destination, setDestination] = useState<string>("")
+  const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
 
@@ -107,8 +114,10 @@ export default function HomeScreen() {
     const buildingFeature = campusBuildingCoords.features.find(
       (feature: GeoJsonFeature) => feature.properties.BuildingName === buildingName
     );
-    if (buildingFeature) 
+    if (buildingFeature) {
+      setDestination(buildingFeature.properties.Building)
       setSelectedBuilding(buildingFeature);
+    }
   };
 
   //will change to also have addresses
@@ -145,19 +154,23 @@ export default function HomeScreen() {
         longitudeDelta: 0.005
       }
       setSearchMarkerLocation(placeRegion);
-      setSearchMarkerVisible(true);
       setRegion(placeRegion);
       if (mapRef.current) {
         mapRef.current.animateToRegion(placeRegion, 1000);
       }
 
       setCurrentPlace(details);
+      setDestination(data.placePrediction.structuredFormat.mainText.text)
+      console.log(data);
+
 
       if(placeInfoSheet.current){
-            placeInfoSheet.current.show();
+        setSearchMarkerVisible(true);
+        placeInfoSheet.current.show();
       }else{
         console.log('location info sheet ref is not defined');
       }
+
 
       //TODO:
       //Show building details after animation
@@ -169,10 +182,12 @@ export default function HomeScreen() {
   }
 
   const startNavigation = () => {
+    setChooseDestVisible(true);
+    setNavigationMode(true);
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
-    setChooseDestVisible(true);
+
     //have destination be set to the selected building
   }
 
@@ -228,6 +243,8 @@ export default function HomeScreen() {
           <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
+              searchSuggestions={searchSuggestions}
+              setSearchSuggestions={setSearchSuggestions}
               buildingData={buildingList}
               onSelect={(selected) => handleSearch(selected)}
             />
@@ -264,15 +281,20 @@ export default function HomeScreen() {
           placeDetails={currentPlace}
         />
 
-        <NavigationProvider>
+        <NavigationProvider
+          searchSuggestions={searchSuggestions}
+          setSearchSuggestions={setSearchSuggestions}
+          navigationMode={navigationMode}
+        >
           <NavigationSheet
+            setNavigationMode = {setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
           />
           <DestinationChoices
-            buildingList={buildingList.map((item)=>item.buildingName)}
+            buildingList={buildingList}
             visible={chooseDestVisible}
-            destination={selectedBuilding?.properties.Building || ""}
+            destination={destination}
           />
         </NavigationProvider>
 

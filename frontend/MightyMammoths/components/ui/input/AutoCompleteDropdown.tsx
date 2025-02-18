@@ -21,16 +21,23 @@ export interface BuildingData {
 interface AutoCompleteDropdownProps {
   defaultVal?: string;
   buildingData: BuildingData[];
+  searchSuggestions: suggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: suggestionResult | undefined) => void;
 }
 
-const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, buildingData, onSelect}) => {
+const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({
+  defaultVal, 
+  buildingData, 
+  onSelect,
+  searchSuggestions,
+  setSearchSuggestions,
+}) => {
   const [selected, setSelected] = useState("Select a building");
   const [options, setOptions] = useState(buildingData.map((item)=>item.buildingName))
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
-  const [suggestionData, setSuggestionData] = useState<suggestionResult[]>([]);
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
@@ -61,7 +68,7 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
     //change buildingData to suggestions and store the data for the suggestions
-    setSuggestionData(results);
+    setSearchSuggestions(results);
     setFilteredOptions([...results.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)]);
   }
 
@@ -73,7 +80,7 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
-    let selectedLocation = suggestionData.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
       let building = buildingData.find((item) => item.buildingName == placeName)
       if(!building){
@@ -82,10 +89,10 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
       }
       selectedLocation = {
         placePrediction: {
-          place: "",
+          place: "building",
           placeId: building.placeID,
           text: {
-            text: building.buildingName,
+            text: "",
             matches: [
               {
                 startOffset: 1,
@@ -95,7 +102,7 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
           },
           structuredFormat: {
             mainText: {
-              text: "",
+              text: building.buildingName,
               matches: [
                 {
                   startOffset: 1,

@@ -34,7 +34,12 @@ export async function getRoutes(
     }));
     return result;
   } catch (error) {
-    console.error("Error fetching directions", error);
+    console.error("Error fetching directions,")
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
     throw error;
   }
 

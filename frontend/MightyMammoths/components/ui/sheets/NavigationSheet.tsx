@@ -17,6 +17,7 @@ import { useNavigation } from "@/components/NavigationProvider"
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
+    setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function NavigationSheet({
@@ -29,7 +30,8 @@ function NavigationSheet({
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    closeChooseDest
+    closeChooseDest,
+    setNavigationMode
 }: NavigationSheetProps) {
     const { state, functions } = useNavigation();
     const { 
@@ -41,7 +43,8 @@ function NavigationSheet({
     
     const { 
         setSelectedMode, 
-        setSelectedRoute 
+        setSelectedRoute,
+        setRouteEstimates
     } = functions;
 
     return (
@@ -57,8 +60,10 @@ function NavigationSheet({
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
         onClose={() =>{
-            closeChooseDest(false)
-            setSelectedMode(null)
+          setNavigationMode(false);
+          closeChooseDest(false);
+          setSelectedMode(null);
+          setRouteEstimates({});
         }}
         >
           <View style={styles.centeredView}>

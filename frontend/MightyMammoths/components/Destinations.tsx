@@ -2,12 +2,13 @@
 import React, {useState, useEffect} from "react";
 import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import AutoCompleteDropdown, { BuildingData } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 import { useNavigation } from "@/components/NavigationProvider";
 
 interface DestinationChoicesProps {
-  buildingList: string[];
+  buildingList: BuildingData[];
   visible?: boolean;
   destination: string;
 }
@@ -17,7 +18,7 @@ export function DestinationChoices({
   visible,
   destination
 }: DestinationChoicesProps) {
-  const { functions } = useNavigation();
+  const { state, functions } = useNavigation();
   const { 
     setOrigin,
     setDestination, 
@@ -25,6 +26,11 @@ export function DestinationChoices({
     setTwoBuildingsSelected,
     fetchRoutes 
   } = functions;
+
+  const {
+    searchSuggestions,
+    setSearchSuggestions
+  } = state;
 
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
@@ -72,10 +78,16 @@ export function DestinationChoices({
       ]}
     >
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown defaultVal={"Your Location"} options={["Your Location", ...buildingList]} onSelect={(selected) => {
-          setSelectedStart(selected);
-          checkSelection(selected, selectedDestination);
-          setOrigin(selected);
+        <AutoCompleteDropdown
+          searchSuggestions={searchSuggestions}
+          setSearchSuggestions={setSearchSuggestions} 
+          defaultVal={"Your Location"} 
+          buildingData={buildingList} 
+          onSelect={(selected) => {
+            if(!selected) return;
+            setSelectedStart(selected.placePrediction.structuredFormat.mainText.text);
+            checkSelection(selected.placePrediction.structuredFormat.mainText.text, selectedDestination);
+            setOrigin(selected.placePrediction.structuredFormat.mainText.text);
         }} />
       </View>
       <IconSymbol
@@ -91,14 +103,17 @@ export function DestinationChoices({
         <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
       </Pressable> */}
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown
+        <AutoCompleteDropdown
+          searchSuggestions={searchSuggestions}
+          setSearchSuggestions={setSearchSuggestions} 
           defaultVal={destination}
-          options={buildingList}
+          buildingData={buildingList}
           onSelect={(selected) => {
-            setDestination(selected);
-            setSelectedBuilding(selected);
-            setSelectedDestination(selected);
-            checkSelection(selectedStart, selected);
+            if(!selected) return;
+            setDestination(selected.placePrediction.structuredFormat.mainText.text);
+            setSelectedBuilding(selected.placePrediction.structuredFormat.mainText.text);
+            setSelectedDestination(selected.placePrediction.structuredFormat.mainText.text);
+            checkSelection(selectedStart, selected.placePrediction.structuredFormat.mainText.text);
           }}
         />
       </View>
