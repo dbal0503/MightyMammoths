@@ -26,6 +26,7 @@ interface AutoCompleteDropdownProps {
 
 const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, buildingData, onSelect}) => {
   const [selected, setSelected] = useState("Select a building");
+  const [options, setOptions] = useState(buildingData.map((item)=>item.buildingName))
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
@@ -44,6 +45,18 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({defaultVal, 
       setTimeout(() => searchInputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredOptions(options);
+    } else {
+      setFilteredOptions(
+        options.filter((option) =>
+          option.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery, options]);
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);

@@ -20,6 +20,7 @@ import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuild
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
 import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
+import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 
 //Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -106,7 +107,7 @@ export default function HomeScreen() {
   };
 
   //will change to also have addresses
-  const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
+  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.Building, placeID: properties.PlaceID || ""}));
 
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
@@ -255,7 +256,7 @@ export default function HomeScreen() {
             closeChooseDest={setChooseDestVisible}
           />
           <DestinationChoices
-            buildingList={buildingList}
+            buildingList={buildingList.map((item)=>item.buildingName)}
             visible={chooseDestVisible}
             destination={selectedBuilding?.properties.Building || ""}
           />
