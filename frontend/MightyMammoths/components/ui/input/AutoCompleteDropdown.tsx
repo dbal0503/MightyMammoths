@@ -11,23 +11,39 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-interface BuildingDropdownProps {
-  defaultVal?: string;
-  options: string[];
-  onSelect: (selected: string) => void;
+import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+
+export interface BuildingData {
+  buildingName: string;
+  placeID: string;
 }
 
-const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options, onSelect}) => {
+interface AutoCompleteDropdownProps {
+  defaultVal?: string;
+  buildingData: BuildingData[];
+  searchSuggestions: suggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  onSelect: (selected: suggestionResult | undefined) => void;
+}
+
+const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({
+  defaultVal, 
+  buildingData, 
+  onSelect,
+  searchSuggestions,
+  setSearchSuggestions,
+}) => {
   const [selected, setSelected] = useState("Select a building");
+  const [options, setOptions] = useState(buildingData.map((item)=>item.buildingName))
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
-      toValue: isOpen ? Math.min(options.length * 45 + 50, 250) : 0,
+      toValue: isOpen ? Math.min(buildingData.length * 45 + 50, 250) : 0,
       duration: 250,
       useNativeDriver: false,
     }).start();
@@ -49,15 +65,61 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options,
     }
   }, [searchQuery, options]);
 
+  const getSuggestions = async (searchQuery: string) => {
+    const results = await autoCompleteSearch(searchQuery);
+    //change buildingData to suggestions and store the data for the suggestions
+    setSearchSuggestions(results);
+    setFilteredOptions([...results.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)]);
+  }
+
   useEffect(() => {
     if (defaultVal) {
       setSelected(defaultVal)
     }
   }, [defaultVal])
 
-  const handleSelect = (item: string) => {
-    setSelected(item);
-    onSelect(item);
+  const handleSelect = (placeName: string) => {
+    setSelected(placeName);
+    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    if(!selectedLocation){
+      let building = buildingData.find((item) => item.buildingName == placeName)
+      if(!building){
+        console.log('failed to fetch data for selected location')
+        return
+      }
+      selectedLocation = {
+        placePrediction: {
+          place: "building",
+          placeId: building.placeID,
+          text: {
+            text: "",
+            matches: [
+              {
+                startOffset: 1,
+                endOffset: 1
+              }
+            ]
+          },
+          structuredFormat: {
+            mainText: {
+              text: building.buildingName,
+              matches: [
+                {
+                  startOffset: 1,
+                  endOffset: 1
+                }
+              ]
+            },
+            secondaryText: {
+              text: ""
+            }
+          },
+          types: []
+      }
+      }
+    }
+    //change to pass data for select place
+    onSelect(selectedLocation);
     setIsOpen(false);
     setSearchQuery("");
   };
@@ -90,6 +152,9 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options,
           placeholderTextColor="#888"
           value={searchQuery}
           onChangeText={setSearchQuery}
+          onSubmitEditing={(event) => {
+            getSuggestions(event.nativeEvent.text)
+          }}
         />
         
         <FlatList
@@ -175,4 +240,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BuildingDropdown;
+export default AutoCompleteDropdown;
