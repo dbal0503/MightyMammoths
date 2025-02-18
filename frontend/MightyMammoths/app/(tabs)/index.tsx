@@ -19,7 +19,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
-import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 
 //Context providers
@@ -29,6 +29,7 @@ import { NavigationProvider } from "@/components/NavigationProvider";
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
 import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
+import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
@@ -61,6 +62,10 @@ export default function HomeScreen() {
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
+
+  const placeInfoSheet = useRef<ActionSheetRef>(null);
+  const [currentPlace, setCurrentPlace] = useState<placeDetails| undefined>(undefined)
+
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
 
   const [selectedCampus, setSelectedCampus] = useState("SGW");
@@ -128,14 +133,14 @@ export default function HomeScreen() {
         console.log('selected place is undefined')
         return
       }
-      const location = await placeIDtoLocation(data.placePrediction.placeId)
-      if(location === undefined){
+      const details = await getPlaceDetails(data.placePrediction.placeId)
+      if(details === undefined){
         console.log('failed to fetch place location')
         return
       }
       const placeRegion: Region = {
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: details.location.latitude,
+        longitude: details.location.longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
       }
@@ -146,10 +151,12 @@ export default function HomeScreen() {
         mapRef.current.animateToRegion(placeRegion, 1000);
       }
 
-      if(buildingInfoSheet.current){
-        buildingInfoSheet.current?.show(); 
+      setCurrentPlace(details);
+
+      if(placeInfoSheet.current){
+            placeInfoSheet.current.show();
       }else{
-        console.log('building info sheet ref is not defined');
+        console.log('location info sheet ref is not defined');
       }
 
       //TODO:
@@ -162,11 +169,11 @@ export default function HomeScreen() {
   }
 
   const startNavigation = () => {
+    placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
     setChooseDestVisible(true);
     //have destination be set to the selected building
-
   }
 
   useEffect(() => {
@@ -249,6 +256,13 @@ export default function HomeScreen() {
             building={selectedBuilding}
           />
         )}
+
+
+        <PlaceInfoSheet
+          navigate={startNavigation}
+          actionsheetref={placeInfoSheet}
+          placeDetails={currentPlace}
+        />
 
         <NavigationProvider>
           <NavigationSheet

@@ -93,16 +93,19 @@ export async function autoCompleteSearch(
     }
 }
 
-export interface Location {
-    latitude: number,
-    longitude: number
+export interface placeDetails {
+    location: {
+        latitude: number,
+        longitude: number
+    },
+    shortFormattedAddress: string
 }
 
-export async function placeIDtoLocation(
+export async function getPlaceDetails(
     placeID: string
-): Promise<Location | undefined> {
+): Promise<placeDetails | undefined> {
 
-    let location;
+    let details;
 
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
@@ -115,17 +118,17 @@ export async function placeIDtoLocation(
         url: url,
         headers: {
             'X-Goog-Api-Key': apiKey,
-            'X-Goog-FieldMask' : 'location'
+            'X-Goog-FieldMask' : 'location,shortFormattedAddress'
         },
     }
 
     try {
         const response = await axios(config)
-        location = response.data.location
+        details = response.data
         //console.log(response.data)
     } catch (error) {
         console.log(`Error getting place location: ${error}`)
     }finally {
-        return location;
+        return details;
     }
 }
