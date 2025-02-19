@@ -9,6 +9,7 @@ import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
 import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +19,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json";
 import { DestinationChoices } from "@/components/Destinations";
+import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
 
 //Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -32,15 +34,21 @@ import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
 export default function HomeScreen() {
+  interface Region {
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+  }
   
-  const sgwRegion = {
+  const sgwRegion: Region = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
     latitudeDelta: 0.002,
     longitudeDelta: 0.002,
   };
 
-  const loyolaRegion = {
+  const loyolaRegion: Region = {
     latitude: 45.458177049773354,
     longitude: -73.63924402074171,
     latitudeDelta: 0.01,
@@ -61,6 +69,10 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [showNavigation, setShowNavigation] = useState(false);
+
+  //Search Marker state
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
 
 
   const ChangeLocation = (area: string) => {
@@ -109,6 +121,34 @@ export default function HomeScreen() {
     }, 60); 
   };
 
+  const handleSearch = async (data: suggestionResult | undefined) => {
+    try {
+      if(data === undefined){
+        console.log('selected place is undefined')
+        return
+      }
+      const location = await placeIDtoLocation(data.placePrediction.placeId)
+      if(location === undefined){
+        console.log('failed to fetch place location')
+        return
+      }
+      const placeRegion: Region = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+      }
+      setSearchMarkerLocation(placeRegion);
+      setSearchMarkerVisible(true);
+      setRegion(placeRegion);    
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(placeRegion, 1000);
+      }
+    } catch (error) {
+      console.log(`Error selecting place: ${error}`)
+    }
+  }
+
   const startNavigation = () => {
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
@@ -153,6 +193,11 @@ export default function HomeScreen() {
             title="MY LOCATION"
             description="MY LOCATION"
           />
+          {searchMarkerVisible && 
+            <Marker
+              coordinate={searchMarkerLocation}
+            />
+          }
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={handleMarkerPress}
@@ -163,10 +208,14 @@ export default function HomeScreen() {
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
-            <BuildingDropdown
+            <AutoCompleteDropdown
+              options={buildingList}
+              onSelect={(selected) => handleSearch(selected)}
+            />
+            {/* <BuildingDropdown
               options={buildingList}
               onSelect={(selected) => console.log(selected)}
-            />
+            /> */}
           </View>
         </View>
 
