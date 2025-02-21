@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, useRef, useMemo, useContext } from "react";
 import { getRoutes, RouteData } from "@/services/directionsService";
+import { isWithinRadius } from "@/utils/isWithinCampus";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
@@ -63,53 +64,57 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
   async function buildingNametoCoords(building: string): Promise<string>{
     if(building == "Your Location"){
       const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
-      return `${loc.coords.latitude},${loc.coords.longitude}`
+      //return `${loc.coords.latitude},${loc.coords.longitude}`
+      return '45.494666,-73.577603'
     }else{
       const loc = campusBuildingCoords.features.find((item) => item.properties.Building == building)?.properties
       return loc ? `${loc.Latitude},${loc.Longitude}` : ""
     }
   }
 
+  async function parseCoordinates(coordString: string): Promise<[number, number]> {
+    const [lat, long] = coordString.split(",").map(parseFloat);
+    return [lat, long];
+  }
+
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
     if (origin && destination) {
 
-      //! When a building marker is clicked, the fetchRoutes is called right away without even clicking as select destination
-      //! Bring it up to Yan to be fixed
-
-      let shuttleBusDirection = "";
-      let origin = "AD"; //! Temp fix for the bug where as soon as we click on select as destination it calls fetchRoutes
-      console.log("Origin: ", origin)
-      console.log("Destination: ", destination)
-
-      //TODO Refactor - use the campusbuildingcoords.json file to get the campus of the building
-      if (origin.includes("Hall Building") || origin.includes("CL Building") ||
-        origin.includes("John Molson") || origin.includes("EV")){
-        if (destination.includes("Hingston Hall") || destination.includes("Smith Building")){
-          shuttleBusDirection = "SGW";
-        }
-      } else {
-        if (destination.includes("Hall Building") ||
-        destination.includes("CL Building") ||
-        destination.includes("John Molson") ||
-        destination.includes("EV")){
-          shuttleBusDirection = "LOY";
-        }
-      }
       console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
       setLoadingRoutes(true);
       const estimates: { [mode: string]: RouteData[] } = {};
       try {
         const originCoords = await buildingNametoCoords(origin)
         const destinationCoords = await buildingNametoCoords(destination)
-        console.log(`originCoords: ${originCoords}, destinationCoords: ${destinationCoords}`)
+
         for (const mode of transportModes) {
-          const routes = await getRoutes(originCoords, destinationCoords, mode);
-          estimates[mode] = routes;
-        }
-        console.log(estimates) 
+          const routeMode = await getRoutes(originCoords, destinationCoords, mode);
+          console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+          if (routeMode) {
+            estimates[mode] = [routeMode]; 
+          }
+        } 
+        
         //await fetchShuttleData();
-        estimates["shuttle"] = await getShuttleBusRoute(origin, destination, shuttleBusDirection);
+
+        const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.Building == destination)?.properties.Campus ?? "";
+        
+        if (origin == "Your Location") {
+          const [userLatitude, userLongitude] = await parseCoordinates(originCoords);
+          const nearestCampus = await isWithinRadius(userLatitude, userLongitude);
+          if (nearestCampus != destinationCampus && nearestCampus != "" && destinationCampus != "") {
+            estimates["shuttle"] = await getShuttleBusRoute(originCoords, destinationCoords, nearestCampus); 
+          }
+        } else{
+          const originCampus = campusBuildingCoords.features.find((item) => item.properties.Building == origin)?.properties.Campus ?? "";
+          if (originCampus != destinationCampus && originCampus != "" && destinationCampus != "") {
+            estimates["shuttle"] = await getShuttleBusRoute(originCoords, destinationCoords, originCampus); 
+          }
+        }
+        
+        console.log("Mode shuttle: ", estimates["shuttle"]);
+        console.log(estimates)
         setRouteEstimates(estimates);
       } catch (error) {
         console.error("Error fetching routes", error);
