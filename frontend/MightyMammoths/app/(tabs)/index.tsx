@@ -11,7 +11,6 @@ import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
-import { SafeAreaView } from "react-native-safe-area-context";
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import NavigationScreen from "./navigation";
 import RoundButton from "@/components/ui/buttons/RoundButton";
