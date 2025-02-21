@@ -1,35 +1,26 @@
-import React, { useCallback, useRef, useMemo, useState, useEffect } from "react";
-import { StyleSheet, View, Text, Button, KeyboardAvoidingView, Keyboard  } from "react-native";
+import React, {useRef, useState, useEffect} from "react";
+import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
-
-import ToggleSwitch from "@/components/ui/input/ToggleSwitch";
-import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
-import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'
-import { SafeAreaView } from "react-native-safe-area-context";
 import BuildingMapping from "@/components/ui/BuildingMapping"
-import NavigationScreen from "./navigation";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
-import mapStyle from "../../assets/map/map.json";
+import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/Destinations";
 import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
 
-//Context providers
+// Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
 
-//sheets
+// Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
 import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
-
-// Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
@@ -44,15 +35,15 @@ export default function HomeScreen() {
   const sgwRegion: Region = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
-    latitudeDelta: 0.002,
-    longitudeDelta: 0.002,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   };
 
   const loyolaRegion: Region = {
     latitude: 45.458177049773354,
     longitude: -73.63924402074171,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   };
   
   const mapRef = useRef<MapView>(null);
@@ -61,15 +52,14 @@ export default function HomeScreen() {
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
-
   const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
-  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
   const [showNavigation, setShowNavigation] = useState(false);
-
+  const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
@@ -92,9 +82,9 @@ export default function HomeScreen() {
   }
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
-    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01})
-    ChangeLocation("Own Location");
+    const loc = await Location.getCurrentPositionAsync();
+    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
+    ChangeLocation("my Location");
   };
 
   const setBuilding = (buildingName: string) => {
@@ -105,16 +95,13 @@ export default function HomeScreen() {
       setSelectedBuilding(buildingFeature);
   };
 
-  //will change to also have addresses
-  const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
     setBuilding(buildingName);
     console.log(buildingName);
     console.log(buildingInfoSheet.current); 
-    // TO FIX
-    setTimeout(() => { // this is a temporary solution for the building sheet not appearing on first click
+    setTimeout(() => {
       if (buildingInfoSheet.current) {
         buildingInfoSheet.current.show();
       }
@@ -149,18 +136,21 @@ export default function HomeScreen() {
     }
   }
 
+  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
     setChooseDestVisible(true);
-    //have destination be set to the selected building
-
+    // ...
   }
 
   useEffect(() => {
     (async () => {
       await Location.requestForegroundPermissionsAsync();
+      const loc = await Location.getCurrentPositionAsync();
+      setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
     })();
+
     campusToggleSheet.current?.show()
 
     console.log("all locked and loaded");
@@ -176,8 +166,6 @@ export default function HomeScreen() {
     };
   }, []);
 
-
-
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
@@ -190,8 +178,7 @@ export default function HomeScreen() {
           <Marker
             image={require("../../assets/images/arrow.png")}
             coordinate={myLocation}
-            title="MY LOCATION"
-            description="MY LOCATION"
+            title="My Location"
           />
           {searchMarkerVisible && 
             <Marker
@@ -202,8 +189,8 @@ export default function HomeScreen() {
             geoJsonData={campusBuildingCoords}
             onMarkerPress={handleMarkerPress}
           />
-        </MapView>
 
+        </MapView>
 
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
@@ -267,7 +254,6 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
-    //paddingTop: 70,
     backgroundColor: "white",
   },
   toggleButtonContainer: {
@@ -294,7 +280,6 @@ const styles = StyleSheet.create({
   },
   topElements: {
     position: 'absolute',
-    // position coordinates
     top: 0,
     left: 28,
 
@@ -340,94 +325,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-// Styling the map https://mapstyle.withgoogle.com/
-const mapstyle = [
-  {
-    elementType: "geometry",
-    stylers: [{ color: "#242f3e" }],
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#746855" }],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#242f3e" }],
-  },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#263c3f" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#6b9a76" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#38414e" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9ca5b3" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#746855" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#1f2835" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#f3d19c" }],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#2f3948" }],
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#515c6d" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#17263c" }],
-  },
-];
