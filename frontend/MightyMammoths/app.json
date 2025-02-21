@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.MightyMammoths"
+      "package": "com.anonymous.MightyMammoths",
+      "config": {
+        "googleMaps": {
+          "apiKey": "API_KEY"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
