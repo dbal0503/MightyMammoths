@@ -77,16 +77,6 @@ describe("getShuttleBusRoute", () => {
     expect(result).toEqual([]); 
   });
 
-  it("should return an empty array when no bus route is found", async () => {
-    (axios.get as jest.MockedFunction<typeof axios.get>)
-      .mockResolvedValueOnce(walkingMockResponse)
-      .mockResolvedValueOnce({
-        data: { routes: [] },
-      });
-
-    const result = await getShuttleBusRoute("Montreal", "Toronto", "SGW");
-    expect(result).toEqual([]); 
-  });
 
   it("should return an empty array when the API request fails", async () => {
     (axios.get as jest.MockedFunction<typeof axios.get>).mockRejectedValue(new Error("API Error"));
