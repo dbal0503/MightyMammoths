@@ -36,6 +36,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       if (feature.geometry.type === 'Point') {
         const [longitude, latitude] = feature.geometry.coordinates;
         const buildingName = feature.properties.BuildingName;
+        const buildingAccronym = feature.properties.Building;
         return (
           <Marker
             key={buildingName}
@@ -43,9 +44,10 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
             title={buildingName}
             description={feature.properties.Address}
             onPress={() => onMarkerPress(buildingName)}
+            testID={`marker-${buildingAccronym}`}
           >
             <View style={styles.marker}>
-              <Text style={styles.text}>{feature.properties.Building}</Text>
+              <Text style={styles.text} testID={`marker-text-${buildingAccronym}`}>{feature.properties.Building}</Text>
             </View>
           </Marker>
         );
