@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle} from "react";
 import {
   View,
   Text,
@@ -11,23 +11,54 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-interface BuildingDropdownProps {
-  defaultVal?: string;
-  options: string[];
-  onSelect: (selected: string) => void;
+import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+
+export interface BuildingData {
+  buildingName: string;
+  placeID: string;
 }
 
-const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options, onSelect}) => {
+export interface AutoCompleteDropdownRef {
+  reset: () => void; // Define the reset function for the ref
+}
+
+interface AutoCompleteDropdownProps {
+  currentVal?: string;
+  buildingData: BuildingData[];
+  searchSuggestions: suggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  onSelect: (selected: string) => void;
+  locked: boolean;
+}
+
+export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
+  currentVal, 
+  buildingData, 
+  onSelect,
+  searchSuggestions,
+  setSearchSuggestions,
+  locked,
+}, ref) => {
+
+  //functions exposed through ref
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      setSelected("Select a building");
+      setIsOpen(false);
+    },
+  }));
+
   const [selected, setSelected] = useState("Select a building");
+  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
-      toValue: isOpen ? Math.min(options.length * 45 + 50, 250) : 0,
+      toValue: isOpen ? Math.min(buildingData.length * 45 + 50, 250) : 0,
       duration: 250,
       useNativeDriver: false,
     }).start();
@@ -49,22 +80,53 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options,
     }
   }, [searchQuery, options]);
 
-  useEffect(() => {
-    if (defaultVal) {
-      setSelected(defaultVal)
-    }
-  }, [defaultVal])
 
-  const handleSelect = (item: string) => {
-    setSelected(item);
-    onSelect(item);
+  useEffect(()=>{
+    setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
+  }, [searchSuggestions])
+
+  const getSuggestions = async (searchQuery: string) => {
+    const results = await autoCompleteSearch(searchQuery);
+    setSearchSuggestions(results);
+  }
+
+  useEffect(() => {
+    if (currentVal) {
+      setSelected(currentVal)
+    }
+  }, [currentVal])
+
+  const handleSelect = (placeName: string) => {
+    setSelected(placeName);
+
+    if(placeName == "Your Location") {
+      onSelect(placeName);    
+      setIsOpen(false);
+      setSearchQuery("");
+      return;
+    }
+
+    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    if(!selectedLocation){
+      let building = buildingData.find((item) => item.buildingName == placeName);
+      if(!building){
+        console.log('AutoCompleteDropdown: failed to fetch data for selected location');
+        return;
+      }else{
+        onSelect(building.buildingName);
+      }
+    }else{
+      onSelect(selectedLocation.placePrediction.structuredFormat.mainText.text);
+    }
     setIsOpen(false);
     setSearchQuery("");
   };
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.dropdownContainer} onPress={() => setIsOpen(!isOpen)}>
+      <Pressable style={styles.dropdownContainer} onPress={() => {
+          if(!locked){setIsOpen(!isOpen)}
+        }}>
         <Image
           source={{
             uri: "https://www.concordia.ca/content/concordia/en/social/guidelines-conduct.img.png/1650398601839.png",
@@ -90,6 +152,9 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options,
           placeholderTextColor="#888"
           value={searchQuery}
           onChangeText={setSearchQuery}
+          onSubmitEditing={(event) => {
+            getSuggestions(event.nativeEvent.text)
+          }}
         />
         
         <FlatList
@@ -105,7 +170,7 @@ const BuildingDropdown: React.FC<BuildingDropdownProps> = ({defaultVal, options,
       </Animated.View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -175,4 +240,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BuildingDropdown;
+export default AutoCompleteDropdown;
