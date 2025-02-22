@@ -10,6 +10,8 @@ import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
 
 import { getBuildingAddress } from "@/utils/buildingMapping";
+import { fetchShuttleData } from "@/utils/getLiveShuttleData";
+import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
 
 const transportModes = ["driving", "transit", "bicycling", "walking"];
 
@@ -34,6 +36,23 @@ export default function NavigationScreen() {
   useEffect(() => {
     async function fetchRoutes() {
       if (origin && destination) {
+
+        let startDirection = "";
+
+        if (origin.includes("Hall Building") || origin.includes("CL Building") ||
+          origin.includes("John Molson") || origin.includes("EV")){
+          if (destination.includes("Hingston Hall") || destination.includes("Smith Building")){
+            startDirection = "SGW";
+          }
+        } else {
+          if (destination.includes("Hall Building") ||
+          destination.includes("CL Building") ||
+          destination.includes("John Molson") ||
+          destination.includes("EV")){
+            startDirection = "LOY";
+          }
+        }
+
         setLoadingRoutes(true);
         const estimates: { [mode: string]: RouteData[] } = {};
         try {
@@ -41,6 +60,8 @@ export default function NavigationScreen() {
             const routes = await getRoutes(origin, destination, mode);
             estimates[mode] = routes;
           }
+          estimates["shuttle"] = await getShuttleBusRoute(origin, destination, startDirection);
+          await fetchShuttleData();
           setRouteEstimates(estimates);
         } catch (error) {
           console.error("Error fetching routes", error);
