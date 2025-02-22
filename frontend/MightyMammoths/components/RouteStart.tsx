@@ -15,9 +15,11 @@ import { useNavigation } from '@react-navigation/native';
 interface TransportChoiceProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    onBack: ()=> void; 
 }
 
 export function StartNavigation({
+    onBack,
     transportationChoice,
     setTransportationChoice,
 }: TransportChoiceProps) {
@@ -28,7 +30,9 @@ export function StartNavigation({
     const router = useRouter();
 
     const setModeNull = () => {
-        setTransportationChoice(null);
+        // TO VERIFY with Yan
+        //setTransportationChoice(null);
+        onBack();
     }
 
     const startNavigation = () => {
@@ -50,7 +54,6 @@ export function StartNavigation({
                         <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
                         <Text style={styles.start}>Start</Text>
                     </TouchableOpacity>
-
                 </View>
             </View>
             );

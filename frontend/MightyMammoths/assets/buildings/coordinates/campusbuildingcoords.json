@@ -1064,7 +1064,9 @@
         "BuildingName": "VA Building", 
         "Building Long Name": "Visual Arts Building", 
         "Address": "1395 Rene Levesque W", 
-        "Latitude": 45.495543, "Longitude": -73.573795 
+        "PlaceID": "EjsxMzk1IEJvdWwuIFJlbsOpLUzDqXZlc3F1ZSBPLCBNb250csOpYWwsIFFDIEgzRyAyTTUsIENhbmFkYSIxEi8KFAoSCQUQYLRpGslMESDL3vHGtEXwEPMKKhQKEgmb095EQhrJTBG3KFYAooh0Ew",
+        "Latitude": 45.495543, 
+        "Longitude": -73.573795 
       }, 
       "geometry": { 
         "type": "Point", 
@@ -1079,7 +1081,9 @@
         "BuildingName": "VE Building", 
         "Building Long Name": "Vanier Extension", 
         "Address": "7141 Sherbrooke W", 
-        "Latitude": 45.459026, "Longitude": -73.638606 
+        "PlaceID": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
+        "Latitude": 45.459026, 
+        "Longitude": -73.638606 
       }, 
       "geometry": { 
         "type": "Point", 
@@ -1093,8 +1097,10 @@
         "Building": "VL", 
         "BuildingName": "VL Building", 
         "Building Long Name": "Vanier Library Building", 
+        "PlaceID": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
         "Address": "7141 Sherbrooke W", 
-        "Latitude": 45.459026, "Longitude": -73.638606 
+        "Latitude": 45.459026, 
+        "Longitude": -73.638606 
       }, 
       "geometry": { 
         "type": "Point", 
@@ -1109,7 +1115,9 @@
         "BuildingName": "Z Building", 
         "Building Long Name": "Z Annex", 
         "Address": "2090 Mackay Street", 
-        "Latitude": 45.496981, "Longitude": -73.579705 
+        "PlaceID": "ChIJnxjCjWoayUwR5dP9mRFfCPs",
+        "Latitude": 45.496981, 
+        "Longitude": -73.579705 
       }, 
       "geometry": { 
         "type": "Point", 
