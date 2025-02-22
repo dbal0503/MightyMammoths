@@ -59,7 +59,7 @@ function NavigationSheet({
         containerStyle={styles.root}
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
-        onClose={() =>{
+        onClose={() =>{ //cleanup 
           setNavigationMode(false);
           closeChooseDest(false);
           setSelectedMode(null);

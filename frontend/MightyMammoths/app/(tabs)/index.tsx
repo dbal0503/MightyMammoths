@@ -124,15 +124,16 @@ export default function HomeScreen() {
     }, 60); 
   };
 
-  const handleSearch = async (data: suggestionResult | undefined) => {
+  const handleSearch = async (placeName: string) => {
     try {
+      let data = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text == placeName)
       if(data === undefined){
-        console.log('selected place is undefined')
+        console.log('Index.tsx: selected place is undefined')
         return
       }
       const details = await getPlaceDetails(data.placePrediction.placeId)
       if(details === undefined){
-        console.log('failed to fetch place location')
+        console.log('Index.tsx: failed to fetch place location')
         return
       }
       const placeRegion: Region = {
@@ -156,16 +157,11 @@ export default function HomeScreen() {
         setSearchMarkerVisible(true);
         placeInfoSheet.current.show();
       }else{
-        console.log('location info sheet ref is not defined');
+        console.log('Index.tsx: location info sheet ref is not defined');
       }
 
-
-      //TODO:
-      //Show building details after animation
-      //Show building details when clicking on marker
-      //Refactor transition from details to navigation
     } catch (error) {
-      console.log(`Error selecting place: ${error}`)
+      console.log(`Index.tsx: Error selecting place: ${error}`)
     }
   }
 
@@ -232,6 +228,7 @@ export default function HomeScreen() {
           <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
+              locked={false}
               searchSuggestions={searchSuggestions}
               setSearchSuggestions={setSearchSuggestions}
               buildingData={buildingList}
@@ -263,7 +260,6 @@ export default function HomeScreen() {
           />
         )}
 
-
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
@@ -276,7 +272,7 @@ export default function HomeScreen() {
           navigationMode={navigationMode}
         >
           <NavigationSheet
-            setNavigationMode = {setNavigationMode}
+            setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
           />

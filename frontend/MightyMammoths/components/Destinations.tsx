@@ -1,8 +1,8 @@
 // components/Destinations.tsx
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
-import AutoCompleteDropdown, { BuildingData } from "./ui/input/AutoCompleteDropdown";
+import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 import { useNavigation } from "@/components/NavigationProvider";
@@ -29,11 +29,14 @@ export function DestinationChoices({
 
   const {
     searchSuggestions,
-    setSearchSuggestions
+    setSearchSuggestions,
+    loadingRoutes
   } = state;
 
+  const topDropDownRef = useRef<AutoCompleteDropdownRef>(null);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+
   const slideAnim = useState(new Animated.Value(-500))[0];
   const checkSelection = (start: string | null, destination: string | null) => {
     setTwoBuildingsSelected(start !== null && destination !== null);
@@ -54,14 +57,15 @@ export function DestinationChoices({
         tension: 20,
         friction: 7
       }).start();
+      //cleanup
+      topDropDownRef.current?.reset();
+      setSelectedStart("");
+      checkSelection("", selectedDestination);
+      setOrigin("");
     }
   }, [visible]);
 
   useEffect(()=>{
-    setSelectedStart("Your Location");
-    checkSelection("Your Location", selectedDestination);
-    setOrigin("Your Location");
-
     setDestination(destination);
     setSelectedBuilding(destination);
     setSelectedDestination(destination);
@@ -79,15 +83,16 @@ export function DestinationChoices({
     >
       <View style={styles.dropdownWrapper}>
         <AutoCompleteDropdown
+          ref={topDropDownRef}
+          locked={loadingRoutes}
           searchSuggestions={searchSuggestions}
-          setSearchSuggestions={setSearchSuggestions} 
-          defaultVal={"Your Location"} 
+          setSearchSuggestions={setSearchSuggestions}
           buildingData={buildingList} 
           onSelect={(selected) => {
             if(!selected) return;
-            setSelectedStart(selected.placePrediction.structuredFormat.mainText.text);
-            checkSelection(selected.placePrediction.structuredFormat.mainText.text, selectedDestination);
-            setOrigin(selected.placePrediction.structuredFormat.mainText.text);
+            setSelectedStart(selected);
+            checkSelection(selected, selectedDestination);
+            setOrigin(selected);
         }} />
       </View>
       <IconSymbol
@@ -104,16 +109,16 @@ export function DestinationChoices({
       </Pressable> */}
       <View style={styles.dropdownWrapper}>
         <AutoCompleteDropdown
+          locked={loadingRoutes}
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions} 
-          defaultVal={destination}
+          currentVal={destination}
           buildingData={buildingList}
           onSelect={(selected) => {
-            if(!selected) return;
-            setDestination(selected.placePrediction.structuredFormat.mainText.text);
-            setSelectedBuilding(selected.placePrediction.structuredFormat.mainText.text);
-            setSelectedDestination(selected.placePrediction.structuredFormat.mainText.text);
-            checkSelection(selectedStart, selected.placePrediction.structuredFormat.mainText.text);
+            setDestination(selected);
+            setSelectedBuilding(selected);
+            setSelectedDestination(selected);
+            checkSelection(selectedStart, selected);
           }}
         />
       </View>

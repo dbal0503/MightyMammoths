@@ -106,6 +106,7 @@ const NavigationProvider = ({
       setLoadingRoutes(true);
       const estimates: { [mode: string]: RouteData[] } = {};
       try {
+        
         //Fix only check if Your location is used and translate to coords otherwise use place id.
         const originCoords = await nameToPlaceID(origin)
         const destinationCoords = await nameToPlaceID(destination)

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle} from "react";
 import {
   View,
   Text,
@@ -18,23 +18,38 @@ export interface BuildingData {
   placeID: string;
 }
 
+export interface AutoCompleteDropdownRef {
+  reset: () => void; // Define the reset function for the ref
+}
+
 interface AutoCompleteDropdownProps {
-  defaultVal?: string;
+  currentVal?: string;
   buildingData: BuildingData[];
   searchSuggestions: suggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
-  onSelect: (selected: suggestionResult | undefined) => void;
+  onSelect: (selected: string) => void;
+  locked: boolean;
 }
 
-const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({
-  defaultVal, 
+export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
+  currentVal, 
   buildingData, 
   onSelect,
   searchSuggestions,
   setSearchSuggestions,
-}) => {
+  locked,
+}, ref) => {
+
+  //functions exposed through ref
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      setSelected("Select a building");
+      setIsOpen(false);
+    },
+  }));
+
   const [selected, setSelected] = useState("Select a building");
-  const [options, setOptions] = useState(buildingData.map((item)=>item.buildingName))
+  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
@@ -65,68 +80,53 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({
     }
   }, [searchQuery, options]);
 
+
+  useEffect(()=>{
+    setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
+  }, [searchSuggestions])
+
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    //change buildingData to suggestions and store the data for the suggestions
     setSearchSuggestions(results);
-    setFilteredOptions([...results.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)]);
   }
 
   useEffect(() => {
-    if (defaultVal) {
-      setSelected(defaultVal)
+    if (currentVal) {
+      setSelected(currentVal)
     }
-  }, [defaultVal])
+  }, [currentVal])
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
+
+    if(placeName == "Your Location") {
+      onSelect(placeName);    
+      setIsOpen(false);
+      setSearchQuery("");
+      return;
+    }
+
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
-      let building = buildingData.find((item) => item.buildingName == placeName)
+      let building = buildingData.find((item) => item.buildingName == placeName);
       if(!building){
-        console.log('failed to fetch data for selected location')
-        return
+        console.log('AutoCompleteDropdown: failed to fetch data for selected location');
+        return;
+      }else{
+        onSelect(building.buildingName);
       }
-      selectedLocation = {
-        placePrediction: {
-          place: "building",
-          placeId: building.placeID,
-          text: {
-            text: "",
-            matches: [
-              {
-                startOffset: 1,
-                endOffset: 1
-              }
-            ]
-          },
-          structuredFormat: {
-            mainText: {
-              text: building.buildingName,
-              matches: [
-                {
-                  startOffset: 1,
-                  endOffset: 1
-                }
-              ]
-            },
-            secondaryText: {
-              text: ""
-            }
-          },
-          types: []
-      }
-      }
+    }else{
+      onSelect(selectedLocation.placePrediction.structuredFormat.mainText.text);
     }
-    //change to pass data for select place
-    onSelect(selectedLocation);
     setIsOpen(false);
     setSearchQuery("");
   };
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.dropdownContainer} onPress={() => setIsOpen(!isOpen)}>
+      <Pressable style={styles.dropdownContainer} onPress={() => {
+          if(!locked){setIsOpen(!isOpen)}
+        }}>
         <Image
           source={{
             uri: "https://www.concordia.ca/content/concordia/en/social/guidelines-conduct.img.png/1650398601839.png",
@@ -170,7 +170,7 @@ const AutoCompleteDropdown: React.FC<AutoCompleteDropdownProps> = ({
       </Animated.View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

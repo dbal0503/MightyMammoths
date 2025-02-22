@@ -15,7 +15,7 @@ export type PlaceInfoSheetProps = ActionSheetProps & {
 function PlaceInfoSheet({
     isModal = false,
     snapPoints = [80],
-    backgroundInteractionEnabled = true,
+    backgroundInteractionEnabled = false,
     closable = true,
     gestureEnabled = true,
     initialSnapIndex = 0,
