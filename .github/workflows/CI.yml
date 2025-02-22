@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - test
   pull_request:
 
 jobs:
@@ -50,6 +51,14 @@ jobs:
         with:
           name: coverage
           path: frontend/MightyMammoths/coverage
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: true
+          flags: unittests
+          verbose: true
             
   e2e-test:
     runs-on: macos-latest
