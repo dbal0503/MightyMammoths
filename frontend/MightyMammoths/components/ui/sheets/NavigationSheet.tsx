@@ -11,11 +11,13 @@ import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
+import polyline from "@mapbox/polyline"
+import { LatLng } from 'react-native-maps';
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
-    onPolylineUpdate: (poly:string)=>void;
+    onPolylineUpdate: (poly:LatLng[])=>void;
 }
 
 function NavigationSheet({
@@ -47,7 +49,11 @@ function NavigationSheet({
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
 
     const setPoly = (poly: string) => {
-      onPolylineUpdate(poly);
+      const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
+        latitude,
+        longitude,
+      }));
+      onPolylineUpdate(decodedPoly);
     }
 
     return (
@@ -84,7 +90,7 @@ function NavigationSheet({
                     onBack={() => setSelectedMode(null)}
                     destinationBuilding={selectedBuilding}
                     starting={()=> setStartedSelectedRoute(true)}
-                    defPoly={() => setPoly(routeEstimates[selectedMode]["polyline"])}
+                    defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
                 ) : (
                   <LiveInformation

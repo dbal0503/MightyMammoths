@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { SHUTTLE_GET_URL, SHUTTLE_POST_URL } from '@/env';
 
-const GET_URL = SHUTTLE_GET_URL;
-const POST_URL = SHUTTLE_POST_URL;
+const GET_URL = process.env.EXPO_PUBLIC_SHUTTLE_GET_URL || "";
+const POST_URL = process.env.EXPO_PUBLIC_SHUTTLE_POST_URL || "";
 const REQUEST_INTERVAL = 15000;
 
 /*
