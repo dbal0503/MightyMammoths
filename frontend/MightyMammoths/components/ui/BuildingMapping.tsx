@@ -1,6 +1,6 @@
-import React from 'react';
-import { Marker } from 'react-native-maps';
-import { View, Text, StyleSheet } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import MapView, { Marker, Polygon} from 'react-native-maps';
+import { View, Text, StyleSheet,  } from 'react-native';
 
 export interface GeoJsonFeature {
   type: string;
@@ -10,6 +10,7 @@ export interface GeoJsonFeature {
     BuildingName: string;
     'Building Long Name': string;
     Address: string;
+    PlaceID: string;
     Latitude: number;
     Longitude: number;
   };
@@ -31,6 +32,58 @@ interface BuildingMappingProps {
 }
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarkerPress }) => {
+  const [polygons, setPolygons] = useState<any[]>([]);
+
+  
+  
+  
+  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if(!apiKey){
+        console.log('failed loading google api key in building mapping')
+    }
+    else {console.log("api key loadedj")}
+
+    const fetchPlaceDetails = async (placeId: string) => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&extra_computations=BUILDING_AND_ENTRANCES&key=${apiKey}`
+        );
+        const data = await response.json();
+        console.log(JSON.stringify(data, null, 2)); // Log the full response for debugging
+    
+        if (data.results && data.results.length > 0) {
+          const buildings = data.results[0].buildings;
+          if (buildings && buildings.length > 0) {
+            const buildingOutlines = buildings[0].building_outlines;
+            if (buildingOutlines && buildingOutlines.length > 0) {
+              const coordinates = buildingOutlines[0].display_polygon.coordinates[0].map((coord: number[]) => ({
+                latitude: coord[1],
+                longitude: coord[0],
+              }));
+              return coordinates;
+            }
+          }
+        }
+        return null; // Return null if no coordinates are found
+      } catch (error) {
+        console.error('Error fetching place details:', error);
+        return null;
+      }
+    };
+
+    const testSinglePlaceId = async () => {
+      const placeId = 'ChIJ-aOOv2sayUwR_yIIibMljzc'; 
+      const coordinates = await fetchPlaceDetails(placeId);
+        setPolygons([{ coordinates, buildingName: 'Test Building' }]);
+        console.log('Single test successful');
+      
+    };
+  
+    useEffect(() => {
+      testSinglePlaceId();
+    }, []);
+  
+
   const renderMarkers = (geoJsonData: GeoJsonData) =>
     geoJsonData.features.map((feature) => {
       if (feature.geometry.type === 'Point') {
@@ -55,7 +108,28 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       return null;
     });
 
-  return <>{renderMarkers(geoJsonData)}</>;
+
+
+    
+    
+    const renderPolygons = () =>
+      polygons
+        .filter((polygon) => polygon.coordinates) 
+        .map((polygon, index) => (
+          <Polygon
+            key={`polygon-${index}`}
+            coordinates={polygon.coordinates}
+            strokeColor="rgba(255,0,0,0.8)"
+            fillColor="rgba(255,0,0,0.3)"
+            strokeWidth={2}
+            zIndex={2}
+          />
+        ));
+
+  return <>
+  {renderMarkers(geoJsonData)}
+  {renderPolygons()}
+  </>;
 };
 
 const styles = StyleSheet.create({

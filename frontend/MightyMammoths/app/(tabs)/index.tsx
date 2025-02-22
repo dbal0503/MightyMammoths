@@ -10,7 +10,7 @@ import GoogleCalendarButton from "@/components/ui/input/GoogleCalendarButton";
 import RetroSwitch from "@/components/ui/input/RetroSwitch";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location'
 import { SafeAreaView } from "react-native-safe-area-context";
 import BuildingMapping from "@/components/ui/BuildingMapping"
