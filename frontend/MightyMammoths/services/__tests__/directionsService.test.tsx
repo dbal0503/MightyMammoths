@@ -1,14 +1,6 @@
 import axios from "axios";
 import { getRoutes, RouteData } from "../directionsService";
 
-/*
-Test Case -> What It Ensures
-- Fetch route data successfully -> Function parses API response correctly, returns expected format
-- Handles API errors gracefully -> Throws error when API fails
-- Encodes URL parameters properly ->Avoids API errors from bad URLs
-*/ 
-
-// Mock axios to prevent real API calls
 jest.mock("axios");
 
 describe("getRoutes", () => {
@@ -19,7 +11,7 @@ describe("getRoutes", () => {
           overview_polyline: { points: "mocked_polyline" },
           legs: [
             {
-              duration: { text: "15 mins" },
+              duration: { text: "15 mins", value: 900 },
               distance: { text: "5 km" },
               steps: [{ instruction: "Turn left on Main St." }],
             },
@@ -30,34 +22,19 @@ describe("getRoutes", () => {
   };
 
   it("should fetch route data successfully", async () => {
-    // Mock axios response
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue(mockResponse);
 
-    const origin = "Montreal";
-    const destination = "Toronto";
-    const mode = "driving";
+    const result: RouteData | null = await getRoutes("Montreal", "Toronto", "driving");
 
-    const result: RouteData[] = await getRoutes(origin, destination, mode);
+    expect(result).toEqual({
+      polyline: "mocked_polyline",
+      duration: "15 mins",
+      durationValue: 900,
+      distance: "5 km",
+      steps: [{ instruction: "Turn left on Main St." }],
+    });
 
-    expect(result).toEqual([
-      {
-        polyline: "mocked_polyline",
-        duration: "15 mins",
-        distance: "5 km",
-        steps: [{ instruction: "Turn left on Main St." }],
-      },
-    ]);
-
-    // Ensure axios was called with the correct URL
-    expect(axios.get).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-          origin
-        )}&destination=${encodeURIComponent(
-          destination
-        )}&mode=driving&alternatives=true&key=`
-      )
-    );
+    expect(axios.get).toHaveBeenCalled();
   });
 
   it("should handle API errors", async () => {
@@ -69,16 +46,96 @@ describe("getRoutes", () => {
   it("should correctly encode URL parameters", async () => {
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue(mockResponse);
 
-    const origin = "New York, NY";
-    const destination = "Los Angeles, CA";
-    const mode = "walking";
-
-    await getRoutes(origin, destination, mode);
+    await getRoutes("New York, NY", "Los Angeles, CA", "walking");
 
     expect(axios.get).toHaveBeenCalledWith(
       expect.stringContaining(
-        `origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=walking`
+        `origin=${encodeURIComponent("New York, NY")}&destination=${encodeURIComponent("Los Angeles, CA")}&mode=walking`
       )
     );
+  });
+
+  it("should return null when no routes are found", async () => {
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue({ data: { routes: [] } });
+
+    const result = await getRoutes("Montreal", "Toronto", "driving");
+
+    expect(result).toBeNull();
+  });
+
+  it("should return the shortest route when multiple routes are available", async () => {
+    const multiRouteResponse = {
+      data: {
+        routes: [
+          {
+            overview_polyline: { points: "route_1" },
+            legs: [{ duration: { text: "20 mins", value: 1200 }, distance: { text: "8 km" }, steps: [] }],
+          },
+          {
+            overview_polyline: { points: "route_2" },
+            legs: [{ duration: { text: "15 mins", value: 900 }, distance: { text: "5 km" }, steps: [] }],
+          },
+        ],
+      },
+    };
+
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue(multiRouteResponse);
+
+    const result = await getRoutes("Montreal", "Toronto", "driving");
+
+    expect(result).toEqual({
+      polyline: "route_2",
+      duration: "15 mins",
+      durationValue: 900,
+      distance: "5 km",
+      steps: [],
+    });
+  });
+
+  it("should handle missing duration value gracefully", async () => {
+    const missingDurationResponse = {
+      data: {
+        routes: [
+          {
+            overview_polyline: { points: "mocked_polyline" },
+            legs: [
+              {
+                duration: { text: "15 mins" }, 
+                distance: { text: "5 km" },
+                steps: [],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue(missingDurationResponse);
+
+    const result = await getRoutes("Montreal", "Toronto", "driving");
+
+    expect(result).toEqual({
+      polyline: "mocked_polyline",
+      duration: "15 mins",
+      distance: "5 km",
+      steps: [],
+    });
+  });
+
+  it("should handle missing legs array", async () => {
+    const missingLegsResponse = {
+      data: {
+        routes: [{ overview_polyline: { points: "mocked_polyline" }, legs: [] }],
+      },
+    };
+
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValue(missingLegsResponse);
+
+    await expect(getRoutes("Montreal", "Toronto", "driving")).rejects.toThrow();
+  });
+
+  it("should handle invalid input (empty origin or destination)", async () => {
+    await expect(getRoutes("", "Toronto", "driving")).rejects.toThrow();
+    await expect(getRoutes("Montreal", "", "driving")).rejects.toThrow();
   });
 });

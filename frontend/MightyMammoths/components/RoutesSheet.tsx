@@ -82,8 +82,8 @@ export function TransportChoice({
             <View style={styles.travelInformation}>
                 {bestEstimate && (
                     <>
-                        <Text style={styles.time}>{bestEstimate.duration}</Text>
-                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                      <Text style={styles.time}>{bestEstimate.duration}</Text>
+                      <Text style={styles.distance}>{bestEstimate.distance}</Text>
                     </>
                 )}
             </View>
