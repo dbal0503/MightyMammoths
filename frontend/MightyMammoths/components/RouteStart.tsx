@@ -8,17 +8,19 @@ interface StartNavigationProps {
     destinationBuilding: any
     routes: any
     starting: ()=> void;
+    defPoly:()=>void;
 }
 
 export function StartNavigation({
     onBack,
+    defPoly,
     starting,
     routes,
     destinationBuilding
 }: StartNavigationProps) {
 
     const setModeNull = () => {onBack();}
-    const startNavigation = () => {starting();}
+    const startNavigation = () => {starting(); defPoly();}
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
 

@@ -10,7 +10,6 @@ const getUpdatedTime = (duration: string) => {
 
 interface LiveInformationProps {
     routes: any
-    poly: any
 }
 
 export function LiveInformation({
@@ -22,7 +21,6 @@ routes,
     return (
     <View style={styles.container}>
         <View style={styles.destinationInformation}>
-            
             <Text style={styles.routeHeading}>ETA {getUpdatedTime(bestEstimate.duration)} </Text>
             <Text style={styles.routeHeadingDestination}>{routes.bestEstimate}</Text>
             <View style={styles.travelInformation}>

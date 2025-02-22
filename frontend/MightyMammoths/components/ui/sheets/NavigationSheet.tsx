@@ -15,9 +15,11 @@ import { LiveInformation } from '@/components/LiveInformation';
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
+    onPolylineUpdate: (poly:string)=>void;
 }
 
 function NavigationSheet({
+    onPolylineUpdate,
     isModal = false,
     snapPoints = [100],
     backgroundInteractionEnabled = true,
@@ -43,6 +45,10 @@ function NavigationSheet({
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+
+    const setPoly = (poly: string) => {
+      onPolylineUpdate(poly);
+    }
 
     return (
       <ActionSheet
@@ -78,12 +84,11 @@ function NavigationSheet({
                     onBack={() => setSelectedMode(null)}
                     destinationBuilding={selectedBuilding}
                     starting={()=> setStartedSelectedRoute(true)}
+                    defPoly={() => setPoly(routeEstimates[selectedMode]["polyline"])}
                 />
                 ) : (
                   <LiveInformation
                     routes={routeEstimates[selectedMode] || []}
-                    poly={routeEstimates["polyline"]}
-                  
                   /> 
                 )
               )}

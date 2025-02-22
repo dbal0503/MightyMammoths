@@ -240,6 +240,7 @@ export default function HomeScreen() {
           <NavigationSheet
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
+            onPolylineUpdate={(poly) => setPolyline(poly)} // Add this prop
           />
           <DestinationChoices
             buildingList={buildingList}
