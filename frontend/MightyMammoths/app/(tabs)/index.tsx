@@ -5,7 +5,7 @@ import ActionSheet from "react-native-actions-sheet"; //for some reason if I try
 import { ActionSheetRef } from "react-native-actions-sheet";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
@@ -63,7 +63,7 @@ export default function HomeScreen() {
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
-
+  const [polyline, setPolyline] = useState("");
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -190,6 +190,13 @@ export default function HomeScreen() {
             onMarkerPress={handleMarkerPress}
           />
 
+
+          (polyline && (
+            <Polyline
+            coordinates={}
+              /> 
+
+          ))
         </MapView>
 
         <View style={styles.topElements}>
