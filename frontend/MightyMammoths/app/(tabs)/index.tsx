@@ -74,7 +74,7 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
   const [showNavigation, setShowNavigation] = useState(false);
-  const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
+  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.Building, placeID: properties.PlaceID || ""}));
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
@@ -111,9 +111,6 @@ export default function HomeScreen() {
       setSelectedBuilding(buildingFeature);
     }
   };
-
-  //will change to also have addresses
-  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.Building, placeID: properties.PlaceID || ""}));
 
   const handleMarkerPress = (buildingName: string) => {
     setSelectedBuildingName(buildingName);
