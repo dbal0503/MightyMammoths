@@ -1,18 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
-
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
-
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
-
 import { useNavigation } from "@/components/NavigationProvider"
+import { LiveInformation } from '@/components/LiveInformation';
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
@@ -44,6 +42,8 @@ function NavigationSheet({
         setSelectedRoute 
     } = functions;
 
+    const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+
     return (
       <ActionSheet
         ref={actionsheetref}
@@ -70,16 +70,25 @@ function NavigationSheet({
                     destinationBuilding={selectedBuilding}
                     bothSelected={twoBuildingsSelected}
                 />
-                ) : (
-                // Once a mode is selected, show alternative routes for that mode.
+                ) : (startedSelectedRoute===false? (
                 <StartNavigation
                     mode={selectedMode}
                     routes={routeEstimates[selectedMode] || []}
                     onSelectRoute={setSelectedRoute}
                     onBack={() => setSelectedMode(null)}
                     destinationBuilding={selectedBuilding}
+                    starting={()=> setStartedSelectedRoute(true)}
                 />
-                )}
+                ) : (
+                  <LiveInformation
+                    routes={routeEstimates[selectedMode] || []}
+                    poly={routeEstimates["polyline"]}
+                  
+                  /> 
+                )
+              )}
+
+
           </View>
       </ActionSheet>
     );
