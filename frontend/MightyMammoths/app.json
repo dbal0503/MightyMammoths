@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.MightyMammoths"
+      "package": "com.anonymous.MightyMammoths",
+      "config": {
+        "googleMaps": {
+          "apiKey": "API_KEY"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +47,12 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
         }
       ]
     ],
