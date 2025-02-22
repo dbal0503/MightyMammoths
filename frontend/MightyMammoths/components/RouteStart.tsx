@@ -12,26 +12,27 @@ import { RouteData } from "@/services/directionsService";
 import { useRouter } from "expo-router";
 import { useNavigation } from '@react-navigation/native';
 
-interface TransportChoiceProps {
+interface StartNavigationProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
     onBack: ()=> void; 
+    destinationBuilding: any
+    routes: any
 }
 
 export function StartNavigation({
     onBack,
+    routes,
     transportationChoice,
     setTransportationChoice,
-}: TransportChoiceProps) {
-    const destinationBuilding = 'Henry F.Hall Building';
+    destinationBuilding
+}: StartNavigationProps) {
     const transportTime='8 minutes';
     const transportDistance='0.46km';
     const navigation = useNavigation();
     const router = useRouter();
 
     const setModeNull = () => {
-        // TO VERIFY with Yan
-        //setTransportationChoice(null);
         onBack();
     }
 
@@ -39,7 +40,12 @@ export function StartNavigation({
         router.push('/directions'); 
     };
 
-    return (<View style={styles.container}>
+    const estimates = routes;
+    const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+
+    return ( 
+
+        <View style={styles.container}>
                 <TouchableOpacity onPress={setModeNull}>
                     <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
                 </TouchableOpacity>
@@ -47,8 +53,8 @@ export function StartNavigation({
                     <Text style={styles.routeHeading}>Routes to</Text>
                     <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
                     <View style={styles.travelInformation}>
-                        <Text style={styles.time}>{transportTime}</Text>
-                        <Text style={styles.distance}>{transportDistance}</Text>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
                     </View>
                     <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
                         <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
@@ -56,7 +62,7 @@ export function StartNavigation({
                     </TouchableOpacity>
                 </View>
             </View>
-            );
+    );
 }
 
 const styles = StyleSheet.create({
