@@ -109,7 +109,11 @@ jobs:
         run: |
           cd ./frontend/MightyMammoths
           npx expo run:ios --device "iPhone 15 Pro" 
-          while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths; do sleep 2; done
+          while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths; do 
+            sleep 2
+            echo "Waiting for app to install..." 
+          done;
+          
 
       - name: Install Maestro
         run: |
