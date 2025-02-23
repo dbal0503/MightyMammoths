@@ -1,4 +1,5 @@
 appId: com.anonymous.MightyMammoths
+---
 name: LOY-button-test
 steps:
   - launchApp
