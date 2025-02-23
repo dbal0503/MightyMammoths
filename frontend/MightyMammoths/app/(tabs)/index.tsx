@@ -191,13 +191,13 @@ export default function HomeScreen() {
           />
 
 
-          (polyline && (
+          {polyline && 
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
               coordinates={polyline}
               /> 
-          ))
+          }
 
         </MapView>
 
@@ -208,10 +208,6 @@ export default function HomeScreen() {
               options={buildingList}
               onSelect={(selected) => handleSearch(selected)}
             />
-            {/* <BuildingDropdown
-              options={buildingList}
-              onSelect={(selected) => console.log(selected)}
-            /> */}
           </View>
         </View>
 
@@ -242,7 +238,7 @@ export default function HomeScreen() {
           <NavigationSheet
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
-            onPolylineUpdate={(poly) => setPolyline(poly)} // Add this prop
+            onPolylineUpdate={(poly) => setPolyline(poly)}
           />
           <DestinationChoices
             buildingList={buildingList}
