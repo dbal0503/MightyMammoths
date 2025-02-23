@@ -6,5 +6,4 @@ steps:
   - extendedWaitUntil:
       visible: "LOY"
       timeout: 30000
-  - takeScreenshot: "debug-loy.png"
   - tapOn: "LOY"
