@@ -34,9 +34,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
-      - name: Create env.tsx
+      - name: Create .env
         run: |
-            echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
+            echo "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY }}" > frontend/MightyMammoths/.env
 
       - name: Install Dependencies
         run: |
@@ -92,10 +92,6 @@ jobs:
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
-
-      - name: Install Maestro
-        run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
       
       - name: Prebuild Expo and Install CocoaPods
         run: |
@@ -112,13 +108,23 @@ jobs:
       - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx expo run:ios --device "iPhone 15 Pro" 
-          while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths; do 
-            sleep 2
-            echo "Waiting for app to install..." 
-          done;
-          echo "App installed"
-          maestro record maestro/LOY-button-test.yaml --local test.mp4
+          npx expo run:ios --device "iPhone 15 Pro" &
+          while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths data >/dev/null 2>&1; do
+            sleep 5
+          done
+
+      - name: Install Maestro
+        run: |
+          export MAESTRO_VERSION=1.39.9
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: E2E Tests
+        env : 
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
+        run: | 
+          cd ./frontend/MightyMammoths
+          maestro test maestro/ 
 
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
@@ -139,9 +145,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
       
-      - name: Create env.tsx
+      - name: Create .env
         run: |
-              echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
+              echo "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY }}" > frontend/MightyMammoths/.env
       
       - name: "Install Dependencies"
         run: | 
