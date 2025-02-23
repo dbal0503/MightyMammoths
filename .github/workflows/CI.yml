@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - dev
-      - test
+      - maestro
   pull_request:
 
 jobs:
@@ -77,16 +77,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./frontend/MightyMammoths/package-lock.json
 
-      - name: Create env.tsx
+      - name: Create .env file
         run: |
-              echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > frontend/MightyMammoths/env.tsx
+              echo "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY }}" > frontend/MightyMammoths/.env
       
       - name: Install Global Dependencies
         run: |
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
-      
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH  
+        
       - name: Install Project Dependencies
         run: |
           cd ./frontend/MightyMammoths
@@ -102,13 +107,13 @@ jobs:
       - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx detox build --configuration ios.sim.release
+          npx expo run:ios
 
       - name: Run E2E Tests
         run: |
           cd ./frontend/MightyMammoths
           npx jest --clearCache
-          npx detox test --configuration ios.sim.release
+          maestro test maestro/
 
   lint:
     runs-on: ubuntu-latest
