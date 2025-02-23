@@ -5,7 +5,7 @@ import ActionSheet from "react-native-actions-sheet"; //for some reason if I try
 import { ActionSheetRef } from "react-native-actions-sheet";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
@@ -14,7 +14,7 @@ import mapStyle from "../../assets/map/map.json"; // Styling the map https://map
 import { DestinationChoices } from "@/components/Destinations";
 import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
-
+import polyline from "@mapbox/polyline";
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
 
@@ -78,7 +78,7 @@ export default function HomeScreen() {
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
-
+  const [polyline, setPolyline] = useState<LatLng[]>([]);
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -222,6 +222,15 @@ export default function HomeScreen() {
             onMarkerPress={handleMarkerPress}
           />
 
+
+          {polyline && 
+            <Polyline
+              strokeWidth={10}
+              strokeColor="turquoise"
+              coordinates={polyline}
+              /> 
+          }
+
         </MapView>
 
         <View style={styles.topElements}>
@@ -275,6 +284,7 @@ export default function HomeScreen() {
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
+            onPolylineUpdate={(poly) => setPolyline(poly)}
           />
           <DestinationChoices
             buildingList={buildingList}

@@ -1,26 +1,28 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
-
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
-
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
-
 import { useNavigation } from "@/components/NavigationProvider"
+import { LiveInformation } from '@/components/LiveInformation';
+import polyline from "@mapbox/polyline"
+import { LatLng } from 'react-native-maps';
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
     setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
+    onPolylineUpdate: (poly:LatLng[])=>void;
 }
 
 function NavigationSheet({
+    onPolylineUpdate,
     isModal = false,
     snapPoints = [100],
     backgroundInteractionEnabled = true,
@@ -46,6 +48,16 @@ function NavigationSheet({
         setSelectedRoute,
         setRouteEstimates
     } = functions;
+
+    const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+
+    const setPoly = (poly: string) => {
+      const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
+        latitude,
+        longitude,
+      }));
+      onPolylineUpdate(decodedPoly);
+    }
 
     return (
       <ActionSheet
@@ -75,16 +87,24 @@ function NavigationSheet({
                     destinationBuilding={selectedBuilding}
                     bothSelected={twoBuildingsSelected}
                 />
-                ) : (
-                // Once a mode is selected, show alternative routes for that mode.
+                ) : (startedSelectedRoute===false? (
                 <StartNavigation
                     mode={selectedMode}
                     routes={routeEstimates[selectedMode] || []}
                     onSelectRoute={setSelectedRoute}
                     onBack={() => setSelectedMode(null)}
                     destinationBuilding={selectedBuilding}
+                    starting={()=> setStartedSelectedRoute(true)}
+                    defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
-                )}
+                ) : (
+                  <LiveInformation
+                    routes={routeEstimates[selectedMode] || []}
+                  /> 
+                )
+              )}
+
+
           </View>
       </ActionSheet>
     );
