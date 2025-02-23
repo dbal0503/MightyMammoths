@@ -9,11 +9,13 @@ const getUpdatedTime = (duration: string) => {
 };
 
 interface LiveInformationProps {
-    routes: any
+    onStop: ()=> void;
+    routes: any;
 }
 
 export function LiveInformation({
-routes,
+    onStop,
+    routes,
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
@@ -26,7 +28,7 @@ routes,
             <View style={styles.travelInformation}>
                 <Text style={styles.time}>{bestEstimate.duration}</Text>
                 <Text style={styles.distance}>{bestEstimate.distance}</Text>
-                <TouchableOpacity style={styles.startButton}>
+                <TouchableOpacity style={styles.startButton} onPress={onStop}>
                     <Text style={styles.stop}>Stop</Text>
                 </TouchableOpacity>
             </View>

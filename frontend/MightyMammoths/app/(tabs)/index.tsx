@@ -183,7 +183,7 @@ export default function HomeScreen() {
       setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
     })();
 
-    campusToggleSheet.current?.show()
+    campusToggleSheet.current?.show();
 
     console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {

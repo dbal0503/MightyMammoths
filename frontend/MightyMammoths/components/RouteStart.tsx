@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     destinationInformation: {
+        width: '80%',
         paddingLeft: 20,
     },
     travelInformation:{

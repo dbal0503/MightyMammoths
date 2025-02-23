@@ -24,11 +24,11 @@ export type NavigationSheetProps = ActionSheetProps & {
 function NavigationSheet({
     onPolylineUpdate,
     isModal = false,
-    snapPoints = [100],
+    snapPoints = [50 ,100],
     backgroundInteractionEnabled = true,
     closable = true,
     gestureEnabled = true,
-    initialSnapIndex = 0,
+    initialSnapIndex = 1,
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
@@ -83,7 +83,10 @@ function NavigationSheet({
                 // Show the transportation mode options
                 <TransportChoice
                     routeEstimates={routeEstimates}
-                    onSelectMode={(mode) => setSelectedMode(mode)}
+                    onSelectMode={(mode) => {
+                      setSelectedMode(mode);
+                      actionsheetref.current?.snapToIndex(0)
+                    }}
                     destinationBuilding={selectedBuilding}
                     bothSelected={twoBuildingsSelected}
                 />
@@ -92,13 +95,21 @@ function NavigationSheet({
                     mode={selectedMode}
                     routes={routeEstimates[selectedMode] || []}
                     onSelectRoute={setSelectedRoute}
-                    onBack={() => setSelectedMode(null)}
+                    onBack={() => {
+                      setSelectedMode(null);
+                      actionsheetref.current?.snapToIndex(1);
+                    }}
                     destinationBuilding={selectedBuilding}
                     starting={()=> setStartedSelectedRoute(true)}
                     defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
                 ) : (
                   <LiveInformation
+                    onStop={()=>{
+                      actionsheetref.current?.hide();
+                      setPoly("");
+                      setStartedSelectedRoute(false);
+                    }}
                     routes={routeEstimates[selectedMode] || []}
                   /> 
                 )
