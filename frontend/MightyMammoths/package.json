@@ -10,22 +10,7 @@
     "web": "expo start --web",
     "test-watch": "jest --watchAll",
     "test:unit": "jest --testPathIgnorePatterns=e2e",
-    "test:e2e": "detox test --configuration ios.sim.release",
     "lint": "expo lint"
-  },
-  "detox": {
-    "test-runner": "jest",
-    "runner-config": "e2e/config.json",
-    "configurations": {
-      "ios.sim.release": {
-        "type": "ios.simulator",
-        "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/mightymammoths.app",
-        "build": "xcodebuild -workspace ios/mightymammoths.xcworkspace -scheme mightymammoths -configuration Release -sdk iphonesimulator -derivedDataPath ios/build",
-        "device": {
-          "type": "iPhone 13"
-        }
-      }
-    }
   },
   "jest": {
     "preset": "jest-expo",
