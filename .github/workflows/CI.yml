@@ -124,13 +124,14 @@ jobs:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
         run: | 
           cd ./frontend/MightyMammoths
-          maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
+          maestro test maestro/
+      #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
 
-      - name: Upload Test Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-videos
-          path: LOYButtonTest.mp4
+      #- name: Upload Test Artifacts
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: test-videos
+      #    path: LOYButtonTest.mp4
 
   lint:
     runs-on: ubuntu-latest
