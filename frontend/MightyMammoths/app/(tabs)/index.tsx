@@ -4,13 +4,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
-import MapView, { Marker } from 'react-native-maps';
+import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
+import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/Destinations";
+import { autoCompleteSearch, suggestionResult, placeIDtoLocation } from "@/services/searchService";
 
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -23,15 +25,21 @@ import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 
 
 export default function HomeScreen() {
+  interface Region {
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+  }
   
-  const sgwRegion = {
+  const sgwRegion: Region = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   };
 
-  const loyolaRegion = {
+  const loyolaRegion: Region = {
     latitude: 45.458177049773354,
     longitude: -73.63924402074171,
     latitudeDelta: 0.005,
@@ -51,6 +59,12 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
   const [showNavigation, setShowNavigation] = useState(false);
+
+
+  //Search Marker state
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
+  const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
+
   const buildingList = campusBuildingCoords.features.map((feature)=> feature.properties.Building);
 
   const ChangeLocation = (area: string) => {
@@ -96,7 +110,37 @@ export default function HomeScreen() {
     }, 60); 
   };
 
+
+  const handleSearch = async (data: suggestionResult | undefined) => {
+    try {
+      if(data === undefined){
+        console.log('selected place is undefined')
+        return
+      }
+      const location = await placeIDtoLocation(data.placePrediction.placeId)
+      if(location === undefined){
+        console.log('failed to fetch place location')
+        return
+      }
+      const placeRegion: Region = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+      }
+      setSearchMarkerLocation(placeRegion);
+      setSearchMarkerVisible(true);
+      setRegion(placeRegion);    
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(placeRegion, 1000);
+      }
+    } catch (error) {
+      console.log(`Error selecting place: ${error}`)
+    }
+  }
+
   // TODO: have destination be set to the selected building
+
   const startNavigation = () => {
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
@@ -140,7 +184,13 @@ export default function HomeScreen() {
             coordinate={myLocation}
             title="My Location"
           />
-          
+
+          {searchMarkerVisible && 
+            <Marker
+              coordinate={searchMarkerLocation}
+            />
+          }
+
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={handleMarkerPress}
@@ -151,9 +201,9 @@ export default function HomeScreen() {
         <View style={styles.topElements}>
           <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
-            <BuildingDropdown
+            <AutoCompleteDropdown
               options={buildingList}
-              onSelect={(selected) => console.log(selected)}
+              onSelect={(selected) => handleSearch(selected)}
             />
           </View>
         </View>

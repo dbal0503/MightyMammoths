@@ -9,7 +9,8 @@
         "Building": "AD",
         "BuildingName": "AD Building",
         "Building Long Name": "Administration Building",
-        "Address": "7141, Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJpSgs9DEXyUwRDj_oJAj-X64",
         "Latitude": 45.457984,
         "Longitude": -73.639834
       },
@@ -26,6 +27,7 @@
         "BuildingName": "B Building",
         "Building Long Name": "B Annex",
         "Address": "2160 Bishop Street",
+        "PlaceID": "ChIJdxV6nWoayUwRSJ03L7H4FsY",
         "Latitude": 45.497856,
         "Longitude": -73.579588
       },
@@ -41,7 +43,8 @@
         "Building": "BB",
         "BuildingName": "BB Building",
         "Building Long Name": "BB-BH Annex",
-        "Address": "3502 Bermore Avenue",
+        "Address": "3502 Av. Belmore, Montréal, QC H4B 2B9",
+        "PlaceID": "ChIJa3IrlDEXyUwRDUoWNCnurGE",
         "Latitude": 45.459793,
         "Longitude": -73.639174
       },
@@ -57,7 +60,8 @@
         "Building": "BH",
         "BuildingName": "BH Building",
         "Building Long Name": "BB-BH Annex",
-        "Address": "3500 Bermore Avenue",
+        "Address": "3500 Av. Belmore, Montréal, QC H4B 2B9",
+        "PlaceID": "ChIJKV9cljEXyUwR9ttxutzGRio",
         "Latitude": 45.459819,
         "Longitude": -73.639152
       },
@@ -73,7 +77,8 @@
         "Building": "CC",
         "BuildingName": "CC Building",
         "Building Long Name": "Central Building",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJpSgs9DEXyUwRDj_oJAj-X64",
         "Latitude": 45.458204,
         "Longitude": -73.6403
       },
@@ -90,6 +95,7 @@
         "BuildingName": "CI Building",
         "Building Long Name": "CI Annex",
         "Address": "2149 Mackay Street",
+        "PlaceID": "ChIJleIxmmoayUwRfhCxEIMeY5Q",
         "Latitude": 45.497467,
         "Longitude": -73.579925
       },
@@ -105,7 +111,8 @@
         "Building": "CJA",
         "BuildingName": "CJ Building - wing A",
         "Building Long Name": "Communication Studies and Journalism Building",
-        "Address": "7141, Sherbrooke Wes",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJV20oHy4XyUwRg6HoZy3LvuI",
         "Latitude": 45.457478,
         "Longitude": -73.640354
       },
@@ -121,7 +128,8 @@
         "Building": "CJN",
         "BuildingName": "CJ Building - wing N",
         "Building Long Name": "Communication Studies and Journalism Building",
-        "Address": "7141, Sherbrooke Wes",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJV20oHy4XyUwRg6HoZy3LvuI",
         "Latitude": 45.457478,
         "Longitude": -73.640354
       },
@@ -137,7 +145,8 @@
         "Building": "CJS",
         "BuildingName": "CJ Building - wing S",
         "Building Long Name": "Communication Studies and Journalism Building",
-        "Address": "7141, Sherbrooke Wes",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJV20oHy4XyUwRg6HoZy3LvuI",
         "Latitude": 45.457478,
         "Longitude": -73.640354
       },
@@ -154,6 +163,7 @@
         "BuildingName": "CL Building",
         "Building Long Name": "CL Annex",
         "Address": "1665 Ste-Catherine W",
+        "PlaceID": "ChIJ-aOOv2sayUwR_yIIibMljzc",
         "Latitude": 45.494259,
         "Longitude": -73.579007
       },
@@ -170,6 +180,7 @@
         "BuildingName": "D Building",
         "Building Long Name": "D Annex",
         "Address": "2140 Bishop Street",
+        "PlaceID": "ChIJ92PKgmoayUwR6yekNmZG9o0",
         "Latitude": 45.497827,
         "Longitude": -73.579409
       },
@@ -186,6 +197,7 @@
         "BuildingName": "EN Building",
         "Building Long Name": "EN Annex",
         "Address": "2070 Mackay Street",
+        "PlaceID": "ChIJW-70jGoayUwRxZdxulZroTU",
         "Latitude": 45.496944,
         "Longitude": -73.579555
       },
@@ -202,6 +214,7 @@
         "BuildingName": "ER Building",
         "Building Long Name": "ER Building",
         "Address": "2155 Guy Street",
+        "PlaceID": "ChIJa59j8GoayUwR1ntPbcep6Qw",
         "Latitude": 45.496428,
         "Longitude": -73.57999
       },
@@ -218,6 +231,7 @@
         "BuildingName": "ES Building",
         "Building Long Name": "ES Building",
         "Address": "2135 Guy Street",
+        "PlaceID": "ChIJUzxL92oayUwR0b2ZkF3xFz4",
         "Latitude": 45.496172,
         "Longitude": -73.579922
       },
@@ -234,6 +248,7 @@
         "BuildingName": "ET Building",
         "Building Long Name": "ET Building",
         "Address": "2125-2127 Guy Street",
+        "PlaceID": "ChIJvRNT92oayUwRdEEoiPuoFsQ",
         "Latitude": 45.496163,
         "Longitude": -73.579904
       },
@@ -250,6 +265,7 @@
         "BuildingName": "EV Building",
         "Building Long Name": "Engineering, Computer Science and Visual Arts Integrated Complex",
         "Address": "1515 Ste-Catherine W",
+        "PlaceID": "EjQxNTE1IFJ1ZSBTYWludGUtQ2F0aGVyaW5lLCBNb250csOpYWwsIFFDIEgzRywgQ2FuYWRhIjESLwoUChIJDTj6MWoayUwRKE7enaOBnB4Q6wsqFAoSCX3o82RtGslMEWokxNt_Urmr",
         "Latitude": 45.495376,
         "Longitude": -73.577997
       },
@@ -266,6 +282,7 @@
         "BuildingName": "FA Building",
         "Building Long Name": "FA Annex",
         "Address": "2060 Mackay Street",
+        "PlaceID": "ChIJGz6Bi2oayUwRkG34HBL9Jjo",
         "Latitude": 45.496874,
         "Longitude": -73.579468
       },
@@ -282,6 +299,7 @@
         "BuildingName": "FB Building",
         "Building Long Name": "Faubourg Building",
         "Address": "1250 Guy Street",
+        "PlaceID": "ChIJWS880msayUwRUTGA2lqg0LA",
         "Latitude": 45.494666,
         "Longitude": -73.577603
       },
@@ -297,7 +315,8 @@
         "Building": "FC",
         "BuildingName": "FC Building",
         "Building Long Name": "F.C. Smith Building",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJpSgs9DEXyUwRDj_oJAj-X64",
         "Latitude": 45.458493,
         "Longitude": -73.639287
       },
@@ -314,6 +333,7 @@
         "BuildingName": "FG Building",
         "Building Long Name": "Faubourg Ste-Catherine Building",
         "Address": "1610 Ste-Catherine",
+        "PlaceID": "ChIJv6MzwWsayUwRjjwBuqMvag4",
         "Latitude": 45.494381,
         "Longitude": -73.578425
       },
@@ -330,6 +350,7 @@
         "BuildingName": "GA Building",
         "Building Long Name": "Grey Nuns Annex",
         "Address": "1211-1215 St-Mathieu",
+        "PlaceID": "ChIJ4Qwd3GsayUwRbthZ9YIe90M",
         "Latitude": 45.494123,
         "Longitude": -73.57787
       },
@@ -345,7 +366,8 @@
         "Building": "GE",
         "BuildingName": "GE Building",
         "Building Long Name": "Centre for Structural and Functional Genomics",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJhwIFcC4XyUwRjjIXKLk338Q",
         "Latitude": 45.457017,
         "Longitude": -73.640432
       },
@@ -362,6 +384,7 @@
         "BuildingName": "GM Building",
         "Building Long Name": "Guy-De Maisonneuve Building",
         "Address": "1550 DeMaisonneuve W",
+        "PlaceID": "ChIJP6zRUGoayUwRl5UpyJsDKMU",
         "Latitude": 45.495983,
         "Longitude": -73.578824
       },
@@ -378,6 +401,7 @@
         "BuildingName": "GN Building - wing A",
         "Building Long Name": "Grey Nuns Building",
         "Address": "1190 Guy Street",
+        "PlaceID": "",
         "Latitude": 45.493622,
         "Longitude": -73.577003
       },
@@ -394,6 +418,7 @@
         "BuildingName": "GN Building - wings B, C, D, E, F, G, P",
         "Building Long Name": "Grey Nuns Building",
         "Address": "1190 Guy Street",
+        "PlaceID": "ChIJV-mGQ2kayUwRT2vvO_XjKtE",
         "Latitude": 45.493622,
         "Longitude": -73.577003
       },
@@ -410,6 +435,7 @@
         "BuildingName": "GN Building - wings H, I, J, K",
         "Building Long Name": "Grey Nuns Building",
         "Address": "1190 Guy Street",
+        "PlaceID": "ChIJV-mGQ2kayUwRT2vvO_XjKtE",
         "Latitude": 45.493622,
         "Longitude": -73.577003
       },
@@ -426,6 +452,7 @@
         "BuildingName": "GN Building - wings L, M, N",
         "Building Long Name": "Grey Nuns Building",
         "Address": "1190 Guy Street",
+        "PlaceID": "ChIJV-mGQ2kayUwRT2vvO_XjKtE",
         "Latitude": 45.493622,
         "Longitude": -73.577003
       },
@@ -442,6 +469,7 @@
         "BuildingName": "GS Building",
         "Building Long Name": "Guy-Sherbrooke Building",
         "Address": "1538, Sherbrooke W",
+        "PlaceID": "ChIJ74RhuCEbyUwRQT24tgRkkV0",
         "Latitude": 45.496673,
         "Longitude": -73.581409
       },
@@ -458,6 +486,7 @@
         "BuildingName": "H Building",
         "Building Long Name": "Henry F. Hall Building",
         "Address": "1455 DeMaisonneuve W",
+        "PlaceID": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "Latitude": 45.497092,
         "Longitude": -73.5788
       },
@@ -473,7 +502,8 @@
         "Building": "HA",
         "BuildingName": "HA Building",
         "Building Long Name": "Hingston Hall, wing HA",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJ15NUMzAXyUwRMoIkjm8hhQ4",
         "Latitude": 45.459356,
         "Longitude": -73.64127
       },
@@ -489,7 +519,8 @@
         "Building": "HB",
         "BuildingName": "HB Building",
         "Building Long Name": "Hingston Hall, wing HB",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJE8wlLjAXyUwRezsUA8TGpPk",
         "Latitude": 45.459308,
         "Longitude": -73.641849
       },
@@ -505,7 +536,8 @@
         "Building": "HC",
         "BuildingName": "HC Building",
         "Building Long Name": "Hingston Hall, wing HC",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJzSK6OTAXyUwRsJweEdFlitk",
         "Latitude": 45.459663,
         "Longitude": -73.64208
       },
@@ -521,7 +553,8 @@
         "Building": "HU",
         "BuildingName": "HU Building",
         "Building Long Name": "Applied Science Hub",
-        "Address": "7141, Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJGz0xAAsXyUwRAEJgG33sYjg",
         "Latitude": 45.458513,
         "Longitude": -73.641921
       },
@@ -537,7 +570,8 @@
         "Building": "JR",
         "BuildingName": "JR Building",
         "Building Long Name": "Jesuit Residence",
-        "Address": "7141 Sherbrooke West",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJKY-E2i8XyUwRs5GItpKFqeg",
         "Latitude": 45.458432,
         "Longitude": -73.643235
       },
@@ -554,6 +588,7 @@
         "BuildingName": "K Building",
         "Building Long Name": "K Annex",
         "Address": "2150 Bishop Street",
+        "PlaceID": "ChIJC_JDnWoayUwRjavnG6oPjeo",
         "Latitude": 45.497777,
         "Longitude": -73.579531
       },
@@ -570,6 +605,7 @@
         "BuildingName": "LB Building",
         "Building Long Name": "J.W. McConnell Building",
         "Address": "1400 DeMaisonneuve W",
+        "PlaceID": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
         "Latitude": 45.49705,
         "Longitude": -73.578009
       },
@@ -586,6 +622,7 @@
         "BuildingName": "LC Building",
         "Building Long Name": "LC Building",
         "Address": "1426 Bishop Street",
+        "PlaceID": "ChIJJ18cE2oayUwR9pLoCXIMyJ4",
         "Latitude": 45.496782,
         "Longitude": -73.577358
       },
@@ -602,6 +639,7 @@
         "BuildingName": "LD Building",
         "Building Long Name": "LD Building",
         "Address": "1424 Bishop Street",
+        "PlaceID": "ChIJXesHE2oayUwR_TryAMUYRfw",
         "Latitude": 45.496697,
         "Longitude": -73.577312
       },
@@ -618,6 +656,7 @@
         "BuildingName": "M Building",
         "Building Long Name": "M Annex",
         "Address": "2135 Mackay Street",
+        "PlaceID": "ChIJf9KSmmoayUwRNvoDLZmSFR4",
         "Latitude": 45.497368,
         "Longitude": -73.579777
       },
@@ -634,6 +673,7 @@
         "BuildingName": "MB Building",
         "Building Long Name": "John Molson Building",
         "Address": "1450 Guy Street",
+        "PlaceID": "ChIJgSlJUmoayUwR--CfmxFvtcM",
         "Latitude": 45.495304,
         "Longitude": -73.579044
       },
@@ -650,6 +690,7 @@
         "BuildingName": "MI Building",
         "Building Long Name": "MI Annex",
         "Address": "2130 Bishop Street",
+        "PlaceID": "ChIJ67bogmoayUwRHJggbqfgv4A",
         "Latitude": 45.497807,
         "Longitude": -73.579261
       },
@@ -666,6 +707,7 @@
         "BuildingName": "MU Building",
         "Building Long Name": "MU Annex",
         "Address": "2170 Bishop Street",
+        "PlaceID": "ChIJr1inJ0AayUwRIGIX6RGGpAs",
         "Latitude": 45.497963,
         "Longitude": -73.579506
       },
@@ -682,6 +724,7 @@
         "BuildingName": "PB Building",
         "Building Long Name": "PB Building",
         "Address": "7200 Sherbrooke W",
+        "PlaceID": "ChIJ23AyJmEXyUwR4-j3EGOCz1A",
         "Latitude": 45.456534,
         "Longitude": -73.638106
       },
@@ -697,7 +740,8 @@
         "Building": "PC",
         "BuildingName": "PC Building",
         "Building Long Name": "PERFORM centre",
-        "Address": "7200 Sherbrooke W",
+        "Address": "7200 Sherbrooke St W, Montreal, Quebec H4B 1R6",
+        "PlaceID": "ChIJ23AyJmEXyUwR4-j3EGOCz1A",
         "Latitude": 45.457088,
         "Longitude": -73.637683
       },
@@ -714,6 +758,7 @@
         "BuildingName": "PR Building",
         "Building Long Name": "PR Annex",
         "Address": "2100 Mackay Street",
+        "PlaceID": "Ei4yMTAwIFJ1ZSBNYWNrYXksIE1vbnRyw6lhbCwgUUMgSDNHIDJKMSwgQ2FuYWRhIjESLwoUChIJT-cukGoayUwRGL00lRRq_d8QtBAqFAoSCXEhVCRqGslMEWQMrAqWVMx_",
         "Latitude": 45.497066,
         "Longitude": -73.57979
       },
@@ -729,7 +774,8 @@
         "Building": "PS",
         "BuildingName": "PS Building",
         "Building Long Name": "Physical Services Building",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJhwdpvzEXyUwReUM8wFnsnb8",
         "Latitude": 45.459636,
         "Longitude": -73.639758
       },
@@ -745,7 +791,8 @@
         "Building": "PT",
         "BuildingName": "PT Building",
         "Building Long Name": "Oscar Peterson Concert Hall",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJL7mz8TEXyUwRu9P6P2NMZYU",
         "Latitude": 45.459308,
         "Longitude": -73.638941
       },
@@ -761,7 +808,8 @@
         "Building": "PY",
         "BuildingName": "PY Building",
         "Building Long Name": "Psychology Building",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
         "Latitude": 45.458938,
         "Longitude": -73.640467
       },
@@ -778,6 +826,7 @@
         "BuildingName": "R Building",
         "Building Long Name": "R Annex",
         "Address": "2050 Mackay Street",
+        "PlaceID": "ChIJAce6i2oayUwRLVNlFl8X3VM",
         "Latitude": 45.496826,
         "Longitude": -73.579389
       },
@@ -793,7 +842,8 @@
         "Building": "RA",
         "BuildingName": "RA Building",
         "Building Long Name": "Recreation and Athletics Complex",
-        "Address": "7200 Sherbrooke W",
+        "Address": "7200 Sherbrooke St W, Montreal, QC H4B 2A4",
+        "PlaceID": "ChIJ23AyJmEXyUwR4-j3EGOCz1A",
         "Latitude": 45.456774,
         "Longitude": -73.63761
       },
@@ -809,7 +859,8 @@
         "Building": "RF",
         "BuildingName": "RF Building",
         "Building Long Name": "Loyola Jesuit Hall and Conference Centre",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJ5-iCkyQXyUwRsbQ9j4Ylcyw",
         "Latitude": 45.458489,
         "Longitude": -73.641028
       },
@@ -826,6 +877,7 @@
         "BuildingName": "S Building",
         "Building Long Name": "S Annex",
         "Address": "2145 Mackay Street",
+        "PlaceID": "ChIJBaBammoayUwRIBV2ky9Lt-A",
         "Latitude": 45.497423,
         "Longitude": -73.579851
       },
@@ -842,6 +894,7 @@
         "BuildingName": "SB Building",
         "Building Long Name": "Samuel Bronfman Building",
         "Address": "1590 Doctor Penfield",
+        "PlaceID": "ChIJUTVSqhUayUwRFJGgrRDet0c",
         "Latitude": 45.4966,
         "Longitude": -73.58609
       },
@@ -857,7 +910,8 @@
         "Building": "SC",
         "BuildingName": "SC Building",
         "Building Long Name": "Student Centre",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
         "Latitude": 45.459131,
         "Longitude": -73.639251
       },
@@ -873,7 +927,8 @@
         "Building": "SH",
         "BuildingName": "SH Building",
         "Building Long Name": "Solar House",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJI4D6HwAXyUwR4hcYXi-aO4c",
         "Latitude": 45.459298,
         "Longitude": -73.642478
       },
@@ -889,7 +944,8 @@
         "Building": "SP",
         "BuildingName": "SP Building",
         "Building Long Name": "Richard J. Renaud Science Complex",
-        "Address": "7141 Sherbrooke W",
+        "Address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+        "PlaceID": "ChIJp_rxOS4XyUwRR0dJdyOlMlY",
         "Latitude": 45.457881,
         "Longitude": -73.641565
       },
@@ -906,6 +962,7 @@
         "BuildingName": "T Building",
         "Building Long Name": "T Annex",
         "Address": "2030 Mackay Street",
+        "PlaceID": "ChIJtzq-imoayUwRcpplCi7U6Vw",
         "Latitude": 45.49671,
         "Longitude": -73.57927
       },
@@ -921,7 +978,8 @@
         "Building": "TA",
         "BuildingName": "TA Building",
         "Building Long Name": "Terrebonne Building",
-        "Address": "7079 Terrebonne",
+        "Address": "7079 Terrebonne, 7075 Rue de Terrebonne, Montreal, QC H4B 2Z3",
+        "PlaceID": "ChIJEQZ4KzAXyUwRlwFHOXBwdR4",
         "Latitude": 45.459992,
         "Longitude": -73.640897
       },
@@ -938,6 +996,7 @@
         "BuildingName": "TB Building",
         "Building Long Name": "TB Annex",
         "Address": "7075 Terrebonne",
+        "PlaceID": "EjE3MDc1IFJ1ZSBkZSBUZXJyZWJvbm5lLCBNb250csOpYWwsIFFDIEg0QiwgQ2FuYWRhIjESLwoUChIJLSX1szEXyUwRlXhN_6k63N0QozcqFAoSCb8-e-VJF8lMER5sAcU8xSRT",
         "Latitude": 45.460051,
         "Longitude": -73.640842
       },
@@ -954,6 +1013,7 @@
         "BuildingName": "TD Building",
         "Building Long Name": "Toronto-Dominion Building",
         "Address": "1410 Guy Street",
+        "PlaceID": "ChIJhRaZymsayUwRuhlYx-hXCOU",
         "Latitude": 45.495103,
         "Longitude": -73.578375
       },
@@ -970,6 +1030,7 @@
         "BuildingName": "TU Building",
         "Building Long Name": "TU Tunnel",
         "Address": "1550 DeMaisonneuve",
+        "PlaceID": "ChIJP6zRUGoayUwRl5UpyJsDKMU",
         "Latitude": 45.49648,
         "Longitude": -73.578918
       },
@@ -986,13 +1047,82 @@
         "BuildingName": "V Building",
         "Building Long Name": "V Annex",
         "Address": "2110 Mackay Street",
+        "PlaceID": "Ei4yMTEwIFJ1ZSBNYWNrYXksIE1vbnRyw6lhbCwgUUMgSDNHIDJKMSwgQ2FuYWRhIjESLwoUChIJT-cukGoayUwRGL00lRRq_d8QvhAqFAoSCXEhVCRqGslMEWQMrAqWVMx_",
         "Latitude": 45.497101,
         "Longitude": -73.579907
       },
-      "geometry": { "type": "Point", "coordinates": [ -73.579907, 45.497101 ] } },
-{ "type": "Feature", "properties": { "Campus": "SGW", "Building": "VA", "BuildingName": "VA Building", "Building Long Name": "Visual Arts Building", "Address": "1395 Rene Levesque W", "Latitude": 45.495543, "Longitude": -73.573795 }, "geometry": { "type": "Point", "coordinates": [ -73.573795, 45.495543 ] } },
-{ "type": "Feature", "properties": { "Campus": "LOY", "Building": "VE", "BuildingName": "VE Building", "Building Long Name": "Vanier Extension", "Address": "7141 Sherbrooke W", "Latitude": 45.459026, "Longitude": -73.638606 }, "geometry": { "type": "Point", "coordinates": [ -73.638606, 45.459026 ] } },
-{ "type": "Feature", "properties": { "Campus": "LOY", "Building": "VL", "BuildingName": "VL Building", "Building Long Name": "Vanier Library Building", "Address": "7141 Sherbrooke W", "Latitude": 45.459026, "Longitude": -73.638606 }, "geometry": { "type": "Point", "coordinates": [ -73.638606, 45.459026 ] } },
-{ "type": "Feature", "properties": { "Campus": "SGW", "Building": "Z", "BuildingName": "Z Building", "Building Long Name": "Z Annex", "Address": "2090 Mackay Street", "Latitude": 45.496981, "Longitude": -73.579705 }, "geometry": { "type": "Point", "coordinates": [ -73.579705, 45.496981 ] } }
-]
+      "geometry": { 
+        "type": "Point", 
+        "coordinates": [ -73.579907, 45.497101 ] 
+      } 
+    },
+    { 
+      "type": "Feature", 
+      "properties": { 
+        "Campus": "SGW", 
+        "Building": "VA", 
+        "BuildingName": "VA Building", 
+        "Building Long Name": "Visual Arts Building", 
+        "Address": "1395 Rene Levesque W", 
+        "PlaceID": "EjsxMzk1IEJvdWwuIFJlbsOpLUzDqXZlc3F1ZSBPLCBNb250csOpYWwsIFFDIEgzRyAyTTUsIENhbmFkYSIxEi8KFAoSCQUQYLRpGslMESDL3vHGtEXwEPMKKhQKEgmb095EQhrJTBG3KFYAooh0Ew",
+        "Latitude": 45.495543, 
+        "Longitude": -73.573795 
+      }, 
+      "geometry": { 
+        "type": "Point", 
+        "coordinates": [ -73.573795, 45.495543 ] 
+      } 
+    },
+    { 
+      "type": "Feature", 
+      "properties": { 
+        "Campus": "LOY", 
+        "Building": "VE", 
+        "BuildingName": "VE Building", 
+        "Building Long Name": "Vanier Extension", 
+        "Address": "7141 Sherbrooke W", 
+        "PlaceID": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
+        "Latitude": 45.459026, 
+        "Longitude": -73.638606 
+      }, 
+      "geometry": { 
+        "type": "Point", 
+        "coordinates": [ -73.638606, 45.459026 ] 
+      }
+    },
+    { 
+      "type": "Feature", 
+      "properties": { 
+        "Campus": "LOY", 
+        "Building": "VL", 
+        "BuildingName": "VL Building", 
+        "Building Long Name": "Vanier Library Building", 
+        "PlaceID": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
+        "Address": "7141 Sherbrooke W", 
+        "Latitude": 45.459026, 
+        "Longitude": -73.638606 
+      }, 
+      "geometry": { 
+        "type": "Point", 
+        "coordinates": [ -73.638606, 45.459026 ] 
+      } 
+    },
+    { 
+      "type": "Feature", 
+      "properties": { 
+        "Campus": "SGW", 
+        "Building": "Z", 
+        "BuildingName": "Z Building", 
+        "Building Long Name": "Z Annex", 
+        "Address": "2090 Mackay Street", 
+        "PlaceID": "ChIJnxjCjWoayUwR5dP9mRFfCPs",
+        "Latitude": 45.496981, 
+        "Longitude": -73.579705 
+      }, 
+      "geometry": { 
+        "type": "Point", 
+        "coordinates": [ -73.579705, 45.496981 ] 
+      } 
+    }
+  ]
 }
