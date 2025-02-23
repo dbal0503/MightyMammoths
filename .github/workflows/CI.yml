@@ -62,10 +62,7 @@ jobs:
             
   e2e-test:
     runs-on: macos-latest
-    env:
-      EXPO_NO_INTERACTIVE: 1
-      EXPO_METRO_CACHE: 1
-      NODE_OPTIONS: '--max_old_space_size=4096'
+    timeout-minutes: 60
     
     steps:
       - uses: actions/checkout@v4
@@ -80,22 +77,17 @@ jobs:
       - name: Create .env file
         run: |
               echo "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY }}" > frontend/MightyMammoths/.env
+
+      - name: Install Project Dependencies
+        run: |
+          cd ./frontend/MightyMammoths
+          npm ci
       
       - name: Install Global Dependencies
         run: |
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
-
-      - name: Install Maestro
-        run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH  
-        
-      - name: Install Project Dependencies
-        run: |
-          cd ./frontend/MightyMammoths
-          npm ci
       
       - name: Prebuild Expo and Install CocoaPods
         run: |
@@ -103,17 +95,31 @@ jobs:
           npx expo prebuild --clean 
           cd ios
           pod install
+
+      - name: Start iOS Simulator
+        run: |
+          xcrun simctl boot "iPhone 15 Pro" || true
+          xcrun simctl list devices | grep Booted
       
       - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx expo run:ios
+          npx expo run:ios --device
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
 
       - name: Run E2E Tests
         run: |
           cd ./frontend/MightyMammoths
-          npx jest --clearCache
-          maestro test maestro/
+          maestro record maestro/LOY-button-test.yaml --local test.mp4
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-videos
+          path: test.mp4
 
   lint:
     runs-on: ubuntu-latest
