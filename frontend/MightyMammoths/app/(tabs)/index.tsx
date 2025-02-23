@@ -205,10 +205,6 @@ export default function HomeScreen() {
               options={buildingList}
               onSelect={(selected) => handleSearch(selected)}
             />
-            {/* <BuildingDropdown
-              options={buildingList}
-              onSelect={(selected) => console.log(selected)}
-            /> */}
           </View>
         </View>
 
