@@ -1,5 +1,9 @@
 appId: com.anonymous.MightyMammoths
----
-- launchApp
-- waitFor: LOY
-- tapOn: LOY
+name: LOY-button-test
+steps:
+  - launchApp
+  - extendedWaitUntil:
+      visible: "LOY"
+      timeout: 30000
+  - takeScreenshot: "debug-loy.png"
+  - tapOn: "LOY"
