@@ -92,6 +92,10 @@ jobs:
           brew install watchman
           brew tap wix/brew
           brew install applesimutils
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
       
       - name: Prebuild Expo and Install CocoaPods
         run: |
@@ -113,15 +117,7 @@ jobs:
             sleep 2
             echo "Waiting for app to install..." 
           done;
-          
-
-      - name: Install Maestro
-        run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-
-      - name: Run E2E Tests
-        run: |
-          cd ./frontend/MightyMammoths
+          echo "App installed"
           maestro record maestro/LOY-button-test.yaml --local test.mp4
 
       - name: Upload Test Artifacts
