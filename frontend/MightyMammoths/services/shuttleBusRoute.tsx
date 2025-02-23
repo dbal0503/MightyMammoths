@@ -1,4 +1,3 @@
-import { GOOGLE_MAPS_API_KEY } from "../env";
 import axios from "axios";
 import { RouteData } from "@/services/directionsService";
 import { findNextBusTime } from "@/utils/getNextShuttleBus";
@@ -21,7 +20,7 @@ export async function getShuttleBusRoute(
         pickupLocation = "7141 Sherbrooke St W, Montreal, QC H4B 1R6";
     }
   
-    const apiKey = GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
   
     try {
       // ─── STEP 1: WALKING LEG (Origin -> Pickup Location) ───────────────────────

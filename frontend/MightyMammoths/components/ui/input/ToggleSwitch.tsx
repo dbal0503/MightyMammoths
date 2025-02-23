@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Animated } from "react-native";
 
+interface ToggleOption {
+  label: string;
+  testID: string; 
+}
+
 interface ToggleSwitchProps {
-  options: string[];
+  options: ToggleOption[];
   onToggle: (selected: string) => void;
 }
 
@@ -17,7 +22,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ options, onToggle }) => {
       duration: 250,
       useNativeDriver: false,
     }).start();
-    onToggle(options[index]);
+    onToggle(options[index].label);
   };
 
   return (
@@ -40,12 +45,13 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ options, onToggle }) => {
       />
       {options.map((option, index) => (
         <Pressable
-          key={option}
+          key={option.label}
+          testID={option.testID}
           style={styles.option}
           onPress={() => handleToggle(index)}
         >
           <Text style={[styles.text, selectedIndex === index && styles.selectedText]}>
-            {option}
+            {option.label}
           </Text>
         </Pressable>
       ))}
