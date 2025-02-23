@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { SHUTTLE_GET_URL, SHUTTLE_POST_URL } from '@/env';
 
-const GET_URL = SHUTTLE_GET_URL;
-const POST_URL = SHUTTLE_POST_URL;
+const GET_URL = "https://shuttle.concordia.ca/concordiabusmap/Map.aspx";
+const POST_URL = "https://shuttle.concordia.ca/concordiabusmap/WebService/GService.asmx/GetGoogleObject";
 const REQUEST_INTERVAL = 15000;
 
 /*
