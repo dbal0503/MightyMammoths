@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - maestro
   pull_request:
 
 jobs:

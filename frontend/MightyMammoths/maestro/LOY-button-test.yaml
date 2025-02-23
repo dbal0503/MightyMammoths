@@ -1,7 +1,0 @@
-appId: com.anonymous.MightyMammoths
----
-- launchApp
-- extendedWaitUntil:
-    visible: "LOY"
-    timeout: 60000
-- tapOn: "LOY"
