@@ -31,6 +31,7 @@ function LoyolaSGWToggleSheet({
     return (
       <ActionSheet
         ref={actionsheetref}
+        testID="home-page-sheet"
         isModal={isModal} 
         snapPoints={snapPoints} 
         backgroundInteractionEnabled={backgroundInteractionEnabled}
@@ -55,11 +56,11 @@ function LoyolaSGWToggleSheet({
               }
             />
           </View>
-          <Text style={styles.subTitleText}>Calendar</Text>
+          <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton />
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
-            <Text style={styles.accessibilityLabel}>Accessibility mode</Text>
+            <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>
             <RetroSwitch value={isEnabled} onValueChange={(value)=>{
                 setIsEnabled(value)        
             }} />
