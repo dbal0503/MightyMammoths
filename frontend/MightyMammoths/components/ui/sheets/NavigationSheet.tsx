@@ -26,8 +26,8 @@ function NavigationSheet({
     isModal = false,
     snapPoints = [50 ,100],
     backgroundInteractionEnabled = true,
-    closable = true,
-    gestureEnabled = true,
+    closable = false,
+    gestureEnabled = false,
     initialSnapIndex = 1,
     overdrawEnabled = false,
     overdrawSize = 200,
@@ -84,6 +84,9 @@ function NavigationSheet({
                 {selectedMode === null ? (
                 // Show the transportation mode options
                 <TransportChoice
+                    onBack={()=>{
+                      actionsheetref.current?.hide();
+                    }}
                     routeEstimates={routeEstimates}
                     onSelectMode={(mode) => {
                       if(origin && destination){
@@ -104,7 +107,10 @@ function NavigationSheet({
                       actionsheetref.current?.snapToIndex(1);
                     }}
                     destinationBuilding={selectedBuilding}
-                    starting={()=> setStartedSelectedRoute(true)}
+                    starting={()=> {
+                      closeChooseDest(false)
+                      setStartedSelectedRoute(true);
+                    }}
                     defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
                 ) : (

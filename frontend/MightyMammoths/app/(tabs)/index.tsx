@@ -5,7 +5,7 @@ import ActionSheet from "react-native-actions-sheet"; //for some reason if I try
 import { ActionSheetRef } from "react-native-actions-sheet";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng } from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
@@ -117,6 +117,7 @@ export default function HomeScreen() {
     setBuilding(buildingName);
     console.log(buildingName);
     console.log(buildingInfoSheet.current); 
+    campusToggleSheet.current?.hide();
     setTimeout(() => {
       if (buildingInfoSheet.current) {
         buildingInfoSheet.current.show();

@@ -1,0 +1,7 @@
+appId: com.anonymous.MightyMammoths
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5783
+- tapOn:
+    point: "13%,12%"

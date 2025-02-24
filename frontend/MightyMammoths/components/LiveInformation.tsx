@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     },
     destinationInformation: {
         paddingLeft: 20,
+        width: '80%',
     },
     travelInformation:{
         flexDirection: 'row',

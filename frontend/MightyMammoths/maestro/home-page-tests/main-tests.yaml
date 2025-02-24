@@ -1,0 +1,7 @@
+appId: com.anonymous.MightyMammoths
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "gear-icon-tests.yaml"
+- runFlow: "campus-toggle-tests.yaml"
+- runFlow: "recenter-button.yaml"

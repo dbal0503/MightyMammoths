@@ -9,13 +9,15 @@ interface TransportChoiceProps {
   onSelectMode: (mode: string) => void;
   destinationBuilding: string | null;
   bothSelected: boolean;
+  onBack: () => void;
 }
 
 export function TransportChoice({
   routeEstimates,
   onSelectMode,
   destinationBuilding,
-  bothSelected
+  bothSelected,
+  onBack
 }: TransportChoiceProps) {
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
@@ -61,8 +63,19 @@ export function TransportChoice({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.routeHeading}>Routes to</Text>
-      <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
+      <View style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+      }}>
+        <View>
+          <Text style={styles.routeHeading}>Routes to</Text>
+          <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
+        </View>
+        <TouchableOpacity onPress={onBack}>
+          <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+        </TouchableOpacity>
+      </View>
       {Object.keys(modeDisplayNames).map((mode) => {
         const estimates = routeEstimates[mode];
         const bestEstimate =
@@ -120,6 +133,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginLeft: 10,
     alignItems: 'center',
+    borderColor: 'white',
+    borderWidth: 2,
+    borderRadius: 16
   },
   textContainer: {},
   modeText: {

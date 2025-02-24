@@ -31,6 +31,7 @@ function LoyolaSGWToggleSheet({
     return (
       <ActionSheet
         ref={actionsheetref}
+        testID="home-page-sheet"
         isModal={isModal} 
         snapPoints={snapPoints} 
         backgroundInteractionEnabled={backgroundInteractionEnabled}
@@ -44,7 +45,10 @@ function LoyolaSGWToggleSheet({
         >
           <View style={styles.centeredView}>
             <ToggleSwitch
-              options={["SGW", "LOY"]}
+              options={[
+                { label: "SGW", testID: "campus-option-sgw" },
+                { label: "LOY", testID: "campus-option-loy" }
+              ]}
               onToggle={(selected) => {
                 if (selected == "SGW") setSelectedCampus(selected);
                 else setSelectedCampus(selected)
@@ -52,11 +56,11 @@ function LoyolaSGWToggleSheet({
               }
             />
           </View>
-          <Text style={styles.subTitleText}>Calendar</Text>
+          <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton />
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
-            <Text style={styles.accessibilityLabel}>Accessibility mode</Text>
+            <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>
             <RetroSwitch value={isEnabled} onValueChange={(value)=>{
                 setIsEnabled(value)        
             }} />

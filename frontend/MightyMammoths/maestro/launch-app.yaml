@@ -1,0 +1,8 @@
+appId: com.anonymous.MightyMammoths
+---
+- launchApp:
+    permissions: {all: allow}
+    clearState: false
+- extendedWaitUntil:
+    visible: "LOY"
+    timeout: 120000

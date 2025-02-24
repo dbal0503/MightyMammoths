@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const GET_URL = process.env.EXPO_PUBLIC_SHUTTLE_GET_URL || "";
-const POST_URL = process.env.EXPO_PUBLIC_SHUTTLE_POST_URL || "";
+const GET_URL = "https://shuttle.concordia.ca/concordiabusmap/Map.aspx";
+const POST_URL = "https://shuttle.concordia.ca/concordiabusmap/WebService/GService.asmx/GetGoogleObject";
 const REQUEST_INTERVAL = 15000;
 
 /*
