@@ -1,18 +1,18 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
-import { GeoJsonFeature } from '../BuildingMapping';
 import { navigate } from 'expo-router/build/global-state/routing';
+import { placeDetails } from '@/services/searchService';
 
-export type BuildingInfoSheetProps = ActionSheetProps & {
+export type PlaceInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-    building: GeoJsonFeature;
+    placeDetails?: placeDetails;
     navigate: () => void;
 }
 
-function BuildingInfoSheet({
+function PlaceInfoSheet({
     isModal = false,
     snapPoints = [80],
     backgroundInteractionEnabled = false,
@@ -22,11 +22,9 @@ function BuildingInfoSheet({
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    building,
+    placeDetails,
     navigate
-}: BuildingInfoSheetProps) {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+}: PlaceInfoSheetProps) {
 
     return (
       <ActionSheet
@@ -42,7 +40,7 @@ function BuildingInfoSheet({
         containerStyle={styles.root}
         >
       <View style={styles.container}>
-    <Text style={styles.header}>{building?.properties['Building Long Name']}</Text>
+    <Text style={styles.header}>{placeDetails?.shortFormattedAddress || ""}</Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton
@@ -51,30 +49,9 @@ function BuildingInfoSheet({
                 <Text style={styles.buttonText}>Set As Destination</Text>
                 </Pressable>
             </View>
-            <View style={
-                [styles.button, styles.indoorMapButton]
-                }>
-            <Pressable>
-                <Text style={styles.buttonText}>View Indoor Map</Text>
-                </Pressable>
-            </View>
     </View>
 
     <Text style={styles.header}>Information:</Text>
-    <View style={styles.buttonsContainer}>
-        <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.BuildingName}</Text>
-        </View>
-        <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.Campus}</Text>
-        </View>
-    </View>
-
-    <View style={styles.buttonsContainer}>
-        <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.Address}</Text>
-        </View>
-    </View>
       </View>
     </ActionSheet>
     );
@@ -129,4 +106,4 @@ destinationButton: {
   }
 });
 
-export default BuildingInfoSheet;
+export default PlaceInfoSheet;
