@@ -6,6 +6,8 @@ import * as Location from "expo-location";
 import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
 import { fetchShuttleData } from "@/utils/getLiveShuttleData";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
+
+import { suggestionResult } from "@/services/searchService";
 // Constants can be exported from the same file
 export const transportModes = ["driving", "transit", "bicycling", "walking"];
 
@@ -22,6 +24,8 @@ interface NavigationState {
   twoBuildingsSelected: boolean;
   snapPoints: string[];
   sheetRef: React.RefObject<BottomSheet>;
+  searchSuggestions: suggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
 }
 
 interface NavigationContextType {
@@ -43,9 +47,17 @@ const NavigationContext = createContext<NavigationContextType | null>(null);
 
 export interface NavigationProviderProps {
   children: ReactNode;
+  searchSuggestions: suggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  navigationMode: boolean;
 }
 
-const NavigationProvider = ({ children }: NavigationProviderProps) => {
+const NavigationProvider = ({ 
+  children, 
+  searchSuggestions, 
+  setSearchSuggestions,
+  navigationMode 
+}: NavigationProviderProps) => {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%", "60%"], []);
 
@@ -61,14 +73,22 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
-  async function buildingNametoCoords(building: string): Promise<string>{
-    if(building == "Your Location"){
+  async function nameToPlaceID(name: string): Promise<string>{
+    if(name == "Your Location"){
       const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
-      //return `${loc.coords.latitude},${loc.coords.longitude}`
-      return '45.494666,-73.577603'
+      return `${loc.coords.latitude},${loc.coords.longitude}`
     }else{
-      const loc = campusBuildingCoords.features.find((item) => item.properties.Building == building)?.properties
-      return loc ? `${loc.Latitude},${loc.Longitude}` : ""
+      let id = campusBuildingCoords.features.find((item) => item.properties.Building == name)?.properties.PlaceID
+      if(id){
+        return `place_id:${id}`;
+      }else{
+        id = searchSuggestions.find((item) => item.placePrediction.structuredFormat.mainText.text == name)?.placePrediction.placeId
+        if(id){
+          return `place_id:${id}`;
+        }else{
+          throw new Error("Could not resolve name to place id.")
+        }
+      }
     }
   }
 
@@ -77,17 +97,21 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
     return [lat, long];
   }
 
+
+
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
-    if (origin && destination) {
-
+    if (origin && destination && navigationMode) {
       console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
       setLoadingRoutes(true);
       const estimates: { [mode: string]: RouteData[] } = {};
       try {
-        const originCoords = await buildingNametoCoords(origin)
-        const destinationCoords = await buildingNametoCoords(destination)
+        
+        //Fix only check if Your location is used and translate to coords otherwise use place id.
+        const originCoords = await nameToPlaceID(origin)
+        const destinationCoords = await nameToPlaceID(destination)
 
+        console.log(`originCoords: ${originCoords}, destinationCoords: ${destinationCoords}`)
         for (const mode of transportModes) {
           const routeMode = await getRoutes(originCoords, destinationCoords, mode);
           console.log("Mode: ", mode, "Shortest Route: ", routeMode);
@@ -117,7 +141,7 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
         console.log(estimates)
         setRouteEstimates(estimates);
       } catch (error) {
-        console.error("Error fetching routes", error);
+        console.error("Error fetching routes: ", error);
       } finally {
         setLoadingRoutes(false);
       }
@@ -130,7 +154,7 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
 
   useEffect(() => {
     fetchRoutes();
-  }, [origin, destination]);
+  }, [origin, destination, navigationMode]);
 
   return (
     <NavigationContext.Provider
@@ -146,6 +170,8 @@ const NavigationProvider = ({ children }: NavigationProviderProps) => {
           twoBuildingsSelected,
           snapPoints,
           sheetRef,
+          searchSuggestions,
+          setSearchSuggestions,
         },
         functions: {
           setOrigin,
