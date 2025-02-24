@@ -40,13 +40,15 @@ function NavigationSheet({
         routeEstimates, 
         selectedMode, 
         selectedBuilding, 
-        twoBuildingsSelected 
+        twoBuildingsSelected,
+        origin,
+        destination
     } = state;
     
     const { 
         setSelectedMode, 
         setSelectedRoute,
-        setRouteEstimates
+        setRouteEstimates,
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
@@ -84,8 +86,10 @@ function NavigationSheet({
                 <TransportChoice
                     routeEstimates={routeEstimates}
                     onSelectMode={(mode) => {
-                      setSelectedMode(mode);
-                      actionsheetref.current?.snapToIndex(0)
+                      if(origin && destination){
+                        setSelectedMode(mode);
+                        actionsheetref.current?.snapToIndex(0)
+                      }
                     }}
                     destinationBuilding={selectedBuilding}
                     bothSelected={twoBuildingsSelected}

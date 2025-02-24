@@ -159,7 +159,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         
         <FlatList
           data={filteredOptions}
-          keyExtractor={(item) => item}
+          keyExtractor={(item, index) => `${item}-${index}`}
           renderItem={({ item }) => (
             <Pressable style={styles.option} onPress={() => handleSelect(item)}>
               <Text style={styles.optionText}>{item}</Text>
