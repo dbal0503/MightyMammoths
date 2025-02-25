@@ -188,7 +188,6 @@ const centerAndShowBuilding = (buildingName: string) => {
         (place) =>
           place.placePrediction.structuredFormat.mainText.text === placeName
       );
-      console.log(data)
       if (data === undefined) {
         console.log('Index.tsx: selected place is undefined');
         return;
