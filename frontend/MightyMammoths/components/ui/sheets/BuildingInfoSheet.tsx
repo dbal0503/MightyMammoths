@@ -14,7 +14,7 @@ export type BuildingInfoSheetProps = ActionSheetProps & {
 
 function BuildingInfoSheet({
     isModal = false,
-    snapPoints = [80],
+    snapPoints = [65],
     backgroundInteractionEnabled = false,
     closable = true,
     gestureEnabled = true,

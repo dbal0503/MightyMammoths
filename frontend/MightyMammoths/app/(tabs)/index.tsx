@@ -332,6 +332,8 @@ const styles = StyleSheet.create({
   },
   topElements: {
     top: 0,
+    position: 'absolute',
+    left: 63,
     gap: "6%",
     marginTop: 45,
     flexDirection: "row",
