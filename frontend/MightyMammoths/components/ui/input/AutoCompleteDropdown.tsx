@@ -49,8 +49,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }));
 
   const [selected, setSelected] = useState("Select a building");
-  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
-  const [isOpen, setIsOpen] = useState(false);
+  const [options, setOptions] = useState([
+    "Your Location",
+    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+  ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
@@ -81,9 +83,12 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }, [searchQuery, options]);
 
 
-  useEffect(()=>{
-    setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
-  }, [searchSuggestions])
+  useEffect(() => {
+    setOptions([
+      "Your Location",
+      ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+    ]);
+  }, [searchSuggestions]);
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -239,5 +244,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
+
 
 export default AutoCompleteDropdown;
