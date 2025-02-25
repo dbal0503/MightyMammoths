@@ -11,17 +11,17 @@ PODS:
     - ExpoModulesCore
   - ExpoFileSystem (18.0.10):
     - ExpoModulesCore
-  - ExpoFont (13.0.4):
+  - ExpoFont (13.0.3):
     - ExpoModulesCore
   - ExpoHaptics (14.0.1):
     - ExpoModulesCore
   - ExpoHead (4.0.17):
     - ExpoModulesCore
-  - ExpoKeepAwake (14.0.3):
+  - ExpoKeepAwake (14.0.2):
     - ExpoModulesCore
   - ExpoLinking (7.0.5):
     - ExpoModulesCore
-  - ExpoLocation (18.0.7):
+  - ExpoLocation (18.0.5):
     - ExpoModulesCore
   - ExpoModulesCore (2.2.1):
     - DoubleConversion
@@ -46,7 +46,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - ExpoSplashScreen (0.29.22):
+  - ExpoSplashScreen (0.29.21):
     - ExpoModulesCore
   - ExpoSymbols (0.2.2):
     - ExpoModulesCore
@@ -1295,9 +1295,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-config (1.5.5):
-    - react-native-config/App (= 1.5.5)
-  - react-native-config/App (1.5.5):
+  - react-native-config (1.5.3):
+    - react-native-config/App (= 1.5.3)
+  - react-native-config/App (1.5.3):
     - React-Core
   - react-native-maps (1.20.1):
     - React-Core

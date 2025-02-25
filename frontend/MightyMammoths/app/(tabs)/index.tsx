@@ -178,14 +178,34 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
+    let permissionGranted = false;
     (async () => {
-      await Location.requestForegroundPermissionsAsync();
-      const loc = await Location.getCurrentPositionAsync();
-      setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      permissionGranted = status === 'granted';
+      if (status !== 'granted') {
+        console.log('Permission denied');
+        return;
+      }
     })();
-
+  
+    // Function to update the location every 3 seconds
+    const updateLocation = async () => {
+      if (!permissionGranted) {
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync();
+      setMyLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    };
+  
+    updateLocation();
+    const intervalId = setInterval(updateLocation, 3000); //Update the location every 3 seconds
+  
     campusToggleSheet.current?.show();
-
     console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -194,10 +214,12 @@ export default function HomeScreen() {
       setIsKeyboardVisible(false);
     });
     return () => {
+      clearInterval(intervalId);
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
   }, []);
+  
 
   return (
     <>
