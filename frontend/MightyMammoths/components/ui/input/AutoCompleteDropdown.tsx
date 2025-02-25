@@ -162,16 +162,20 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           }}
         />
         
-        <FlatList
-          data={filteredOptions}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          renderItem={({ item }) => (
+      <FlatList
+        data={filteredOptions}
+        keyExtractor={(item, index) => `${item}-${index}`}
+        renderItem={({ item }) => {
+          // Remove 'building' regardless of case and trim any extra whitespace
+          const cleanedItem = item.replace(/Building/g, '').trim();
+          return (
             <Pressable style={styles.option} onPress={() => handleSelect(item)}>
-              <Text style={styles.optionText}>{item}</Text>
+              <Text style={styles.optionText}>{cleanedItem}</Text>
             </Pressable>
-          )}
-          contentContainerStyle={{ paddingVertical: 5 }}
-        />
+          );
+        }}
+        contentContainerStyle={{ paddingVertical: 5 }}
+      />
       </Animated.View>
     </View>
   );
