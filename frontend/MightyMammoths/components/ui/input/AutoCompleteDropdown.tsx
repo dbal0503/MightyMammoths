@@ -143,7 +143,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       </Pressable>
 
       <Animated.View
-        style={[styles.dropdownList, { height: dropdownHeight, display: isOpen ? "flex" : "none" }]}
+        style={[styles.dropdownList, { width:350, height: dropdownHeight, display: isOpen ? "flex" : "none" }]}
       >
         <TextInput
           ref={searchInputRef}
