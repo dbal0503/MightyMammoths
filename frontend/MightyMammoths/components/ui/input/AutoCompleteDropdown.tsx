@@ -49,8 +49,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }));
 
   const [selected, setSelected] = useState("Select a building");
-  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
-  const [isOpen, setIsOpen] = useState(false);
+  const [options, setOptions] = useState([
+    "Your Location",
+    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+  ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
@@ -81,15 +83,25 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }, [searchQuery, options]);
 
 
-  useEffect(()=>{
-    setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
-  }, [searchSuggestions])
+  useEffect(() => {
+    setOptions([
+      "Your Location",
+      ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+    ]);
+  }, [searchSuggestions]);
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    setSearchSuggestions(results);
-  }
-
+    setSearchSuggestions(prevSuggestions => {
+      // Optionally filter out duplicates based on a unique property, e.g., placeId
+      const newResults = results.filter(newResult => 
+        !prevSuggestions.some(oldResult => 
+          oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+        )
+      );
+      return [...prevSuggestions, ...newResults];
+    });
+  };
   useEffect(() => {
     if (currentVal) {
       setSelected(currentVal)
@@ -157,16 +169,20 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           }}
         />
         
-        <FlatList
-          data={filteredOptions}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          renderItem={({ item }) => (
+      <FlatList
+        data={filteredOptions}
+        keyExtractor={(item, index) => `${item}-${index}`}
+        renderItem={({ item }) => {
+          // Remove 'building' regardless of case and trim any extra whitespace
+          const cleanedItem = item.replace(/Building/g, '').trim();
+          return (
             <Pressable style={styles.option} onPress={() => handleSelect(item)}>
-              <Text style={styles.optionText}>{item}</Text>
+              <Text style={styles.optionText}>{cleanedItem}</Text>
             </Pressable>
-          )}
-          contentContainerStyle={{ paddingVertical: 5 }}
-        />
+          );
+        }}
+        contentContainerStyle={{ paddingVertical: 5 }}
+      />
       </Animated.View>
     </View>
   );
@@ -240,5 +256,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
+
 
 export default AutoCompleteDropdown;

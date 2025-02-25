@@ -3,7 +3,6 @@ import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
-import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location'
@@ -75,7 +74,7 @@ export default function HomeScreen() {
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
   const [showNavigation, setShowNavigation] = useState(false);
-  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.Building, placeID: properties.PlaceID || ""}));
+  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.BuildingName, placeID: properties.PlaceID || ""}));
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
@@ -92,6 +91,51 @@ export default function HomeScreen() {
     }
   };
 
+const centerAndShowBuilding = (buildingName: string) => {
+  // 1. Find the building in your GeoJSON
+  const buildingFeature = campusBuildingCoords.features.find(
+    (feature: GeoJsonFeature) => 
+      feature.properties.BuildingName === buildingName
+  );
+  if (!buildingFeature) {
+    console.log("Cannot find building in campusBuildingCoords");
+    return;
+  }
+
+  // 2. Update the state to store the selected building
+  setDestination(buildingFeature.properties.BuildingName);
+  setSelectedBuilding(buildingFeature);
+
+  // 3. Get building coordinates (assuming a "Point" in geometry.coordinates)
+  // If it’s a polygon, you might need to compute or store a centroid
+  const [longitude, latitude] = buildingFeature.geometry.coordinates;
+
+  // 4. Animate to the building location
+  if (mapRef.current) {
+    mapRef.current.animateToRegion(
+      {
+        latitude,
+        longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      1000 // animation duration ms
+    );
+  }
+
+  // 5. Show the building info sheet after a brief delay
+  setTimeout(() => {
+    // If you also have a campusToggleSheet open, hide it:
+    campusToggleSheet.current?.hide();
+
+    // Then show the building sheet:
+    if (buildingInfoSheet.current) {
+      buildingInfoSheet.current.show();
+    }
+  }, 200);
+};
+
+
   const CenterOnCampus = (campus:string) => {
     setSelectedCampus(campus);
     ChangeLocation(campus);
@@ -103,69 +147,84 @@ export default function HomeScreen() {
     ChangeLocation("my Location");
   };
 
-  const setBuilding = (buildingName: string) => {
-    const buildingFeature = campusBuildingCoords.features.find(
-      (feature: GeoJsonFeature) => feature.properties.BuildingName === buildingName
-    );
-    if (buildingFeature) {
-      setDestination(buildingFeature.properties.Building)
-      setSelectedBuilding(buildingFeature);
-    }
-  };
 
-  const handleMarkerPress = (buildingName: string) => {
-    setSelectedBuildingName(buildingName);
-    setBuilding(buildingName);
-    console.log(buildingName);
-    console.log(buildingInfoSheet.current); 
-    campusToggleSheet.current?.hide();
-    setTimeout(() => {
-      if (buildingInfoSheet.current) {
-        buildingInfoSheet.current.show();
+  
+
+  
+  useEffect(() => {
+    const buildingResults: suggestionResult[] = buildingList.map((building) => ({
+      placePrediction: {
+        place: building.buildingName,
+        placeId: building.placeID,
+        text: {
+          text: building.buildingName,
+          matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
+        },
+        structuredFormat: {
+          mainText: {
+            text: building.buildingName,
+            matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
+          },
+          secondaryText: {
+            text: ""
+          }
+        },
+        types: ["building"]
       }
-    }, 60); 
-  };
+    }));
+    setSearchSuggestions(buildingResults);
+  }, []);
 
   const handleSearch = async (placeName: string) => {
     try {
-      let data = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text == placeName)
-      if(data === undefined){
-        console.log('Index.tsx: selected place is undefined')
-        return
+      const data = searchSuggestions.find(
+        (place) =>
+          place.placePrediction.structuredFormat.mainText.text === placeName
+      );
+      if (data === undefined) {
+        console.log('Index.tsx: selected place is undefined');
+        return;
       }
-      const details = await getPlaceDetails(data.placePrediction.placeId)
-      if(details === undefined){
-        console.log('Index.tsx: failed to fetch place location')
-        return
+  
+      if (data.placePrediction.types.includes("building")) {
+        // Update the building state so that BuildingInfoSheet gets the correct info
+        
+          centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
+          return;
+        
+      }
+  
+      // For non-building suggestions, fetch details and create a waypoint as before
+      const details = await getPlaceDetails(data.placePrediction.placeId);
+      if (details === undefined) {
+        console.log('Index.tsx: failed to fetch place location');
+        return;
       }
       const placeRegion: Region = {
         latitude: details.location.latitude,
         longitude: details.location.longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
-      }
+      };
       setSearchMarkerLocation(placeRegion);
       setRegion(placeRegion);
       if (mapRef.current) {
         mapRef.current.animateToRegion(placeRegion, 1000);
       }
-
+  
       setCurrentPlace(details);
-      setDestination(data.placePrediction.structuredFormat.mainText.text)
-      console.log(data);
-
-
-      if(placeInfoSheet.current){
+      setDestination(data.placePrediction.structuredFormat.mainText.text);
+      if (placeInfoSheet.current) {
         setSearchMarkerVisible(true);
         placeInfoSheet.current.show();
-      }else{
+      } else {
         console.log('Index.tsx: location info sheet ref is not defined');
       }
-
     } catch (error) {
-      console.log(`Index.tsx: Error selecting place: ${error}`)
+      console.log(`Index.tsx: Error selecting place: ${error}`);
     }
-  }
+  };
+  
 
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
@@ -177,6 +236,7 @@ export default function HomeScreen() {
 
     //have destination be set to the selected building
   }
+  
 
   useEffect(() => {
     let permissionGranted = false;
@@ -244,7 +304,7 @@ export default function HomeScreen() {
           }
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
-            onMarkerPress={handleMarkerPress}
+            onMarkerPress={centerAndShowBuilding}
           />
 
 
@@ -290,6 +350,10 @@ export default function HomeScreen() {
             navigate={startNavigation}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
+            onClose={() => {
+              campusToggleSheet.current?.show();
+              setSelectedBuilding(null);
+            }}
           />
         )}
 
