@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle} from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,9 @@ import {
   FlatList,
   Animated,
   TextInput,
+  Modal,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -53,20 +56,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
-  const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
-
-  useEffect(() => {
-    Animated.timing(dropdownHeight, {
-      toValue: isOpen ? Math.min(buildingData.length * 45 + 50, 250) : 0,
-      duration: 250,
-      useNativeDriver: false,
-    }).start();
-
-    if (isOpen) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const dropdownRef = useRef<View>(null);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -79,7 +71,6 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       );
     }
   }, [searchQuery, options]);
-
 
   useEffect(()=>{
     setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
@@ -95,6 +86,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSelected(currentVal)
     }
   }, [currentVal])
+
+  //Calulate where modal position needs to be
+  const measureDropdown = () => {
+    if (dropdownRef.current) {
+      dropdownRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setDropdownPosition({
+          top: pageY + height - 20,
+          left: pageX,
+          width: width
+        });
+      });
+    }
+  };
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
@@ -124,8 +128,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.dropdownContainer} onPress={() => {
-          if(!locked){setIsOpen(!isOpen)}
+      <Pressable ref={dropdownRef}style={styles.dropdownContainer} onPress={() => {
+          if (!locked) {
+            measureDropdown();
+            setIsOpen(!isOpen);
+          }
         }}>
         <Image
           source={{
@@ -142,32 +149,49 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         />
       </Pressable>
 
-      <Animated.View
-        style={[styles.dropdownList, { height: dropdownHeight, display: isOpen ? "flex" : "none" }]}
-      >
-        <TextInput
-          ref={searchInputRef}
-          style={styles.searchInput}
-          placeholder="Search for a building..."
-          placeholderTextColor="#888"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={(event) => {
-            getSuggestions(event.nativeEvent.text)
-          }}
-        />
-        
-        <FlatList
-          data={filteredOptions}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          renderItem={({ item }) => (
-            <Pressable style={styles.option} onPress={() => handleSelect(item)}>
-              <Text style={styles.optionText}>{item}</Text>
-            </Pressable>
-          )}
-          contentContainerStyle={{ paddingVertical: 5 }}
-        />
-      </Animated.View>
+      <Modal visible={isOpen} transparent={true} animationType="none" onRequestClose={() => setIsOpen(false)}>
+        <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View 
+                style={[
+                  styles.dropdownList, 
+                  { 
+                    top: dropdownPosition.top, 
+                    left: dropdownPosition.left,
+                    width: dropdownPosition.width 
+                  }
+                ]}
+              >
+                <TextInput
+                  ref={searchInputRef}
+                  style={styles.searchInput}
+                  placeholder="Search for a building..."
+                  placeholderTextColor="#888"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  onSubmitEditing={(event) => {
+                    getSuggestions(event.nativeEvent.text)
+                  }}
+                  autoFocus={true}
+                />
+                
+                <FlatList
+                  data={filteredOptions}
+                  keyExtractor={(item, index) => `${item}-${index}`}
+                  renderItem={({ item }) => (
+                    <Pressable style={styles.option} onPress={() => handleSelect(item)}>
+                      <Text style={styles.optionText}>{item}</Text>
+                    </Pressable>
+                  )}
+                  contentContainerStyle={{ paddingVertical: 5 }}
+                  style={{ maxHeight: 200 }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 });
@@ -206,17 +230,22 @@ const styles = StyleSheet.create({
   arrow: {
     marginLeft: 10,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
   dropdownList: {
+    position: 'absolute',
     backgroundColor: "white",
     borderRadius: 10,
-    marginTop: 5,
     borderWidth: 1,
     borderColor: "#d1d1d1",
     overflow: "hidden",
-    position: 'absolute',
-    zIndex: 1000,
-    width: 280,
-    top: '100%'
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   searchInput: {
     paddingVertical: 10,
