@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
   },
   dropdownWrapper: {
     alignItems: "center",
+    right: 30,
   },
   modeIcon: {
     alignItems: "center",

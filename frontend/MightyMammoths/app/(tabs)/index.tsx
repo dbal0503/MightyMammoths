@@ -304,7 +304,6 @@ const centerAndShowBuilding = (buildingName: string) => {
         </MapView>
 
         <View style={styles.topElements}>
-          <RoundButton imageSrc={require("@/assets/images/gear.png")} testID="gear-icon" onPress={() => console.log("Gear icon pressed!") }/>
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
               locked={false}
@@ -401,12 +400,11 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   topElements: {
-    position: 'absolute',
     top: 0,
-    left: 28,
-
+    position: 'absolute',
+    left: 30,
     gap: "6%",
-    marginTop: 70,
+    marginTop: 45,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
