@@ -90,10 +90,6 @@ export default function HomeScreen() {
     }
   };
 
-  /**
- * Centers the map on the given building and shows the building info sheet.
- * You can call this function from handleMarkerPress or from handleSearch.
- */
 const centerAndShowBuilding = (buildingName: string) => {
   // 1. Find the building in your GeoJSON
   const buildingFeature = campusBuildingCoords.features.find(
@@ -151,10 +147,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
 
 
-
-  const handleMarkerPress = (buildingName: string) => {
-    centerAndShowBuilding(buildingName);
-  };
 
 
   
@@ -288,7 +280,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           }
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
-            onMarkerPress={handleMarkerPress}
+            onMarkerPress={centerAndShowBuilding}
           />
 
 
