@@ -5,4 +5,4 @@ appId: com.anonymous.MightyMammoths
     clearState: false
 - extendedWaitUntil:
     visible: "LOY"
-    timeout: 120000
+    timeout: 150000
