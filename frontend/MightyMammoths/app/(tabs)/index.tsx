@@ -147,7 +147,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
 
 
-
+  
 
   
   useEffect(() => {
@@ -326,6 +326,10 @@ const centerAndShowBuilding = (buildingName: string) => {
             navigate={startNavigation}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
+            onClose={() => {
+              campusToggleSheet.current?.show();
+              setSelectedBuilding(null);
+            }}
           />
         )}
 
