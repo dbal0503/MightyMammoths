@@ -25,11 +25,11 @@ export type NavigationSheetProps = ActionSheetProps & {
 function NavigationSheet({
     onPolylineUpdate,
     isModal = false,
-    snapPoints = [50 ,100],
+    snapPoints = [30 ,50 ,100],
     backgroundInteractionEnabled = true,
     closable = false,
     gestureEnabled = false,
-    initialSnapIndex = 1,
+    initialSnapIndex = 2,
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
@@ -94,7 +94,7 @@ function NavigationSheet({
                     onSelectMode={(mode) => {
                       if(origin && destination){
                         setSelectedMode(mode);
-                        actionsheetref.current?.snapToIndex(0)
+                        actionsheetref.current?.snapToIndex(1)
                       }
                     }}
                     destinationBuilding={selectedBuilding}
@@ -107,12 +107,13 @@ function NavigationSheet({
                     onSelectRoute={setSelectedRoute}
                     onBack={() => {
                       setSelectedMode(null);
-                      actionsheetref.current?.snapToIndex(1);
+                      actionsheetref.current?.snapToIndex(2);
                     }}
                     destinationBuilding={selectedBuilding}
                     starting={()=> {
                       closeChooseDest(false)
                       setStartedSelectedRoute(true);
+                      actionsheetref.current?.snapToIndex(0);
                     }}
                     defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
