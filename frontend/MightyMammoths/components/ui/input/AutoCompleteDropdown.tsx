@@ -52,8 +52,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }));
 
   const [selected, setSelected] = useState("Select a building");
-  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
-  const [isOpen, setIsOpen] = useState(false);
+  const [options, setOptions] = useState([
+    "Your Location",
+    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+  ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const searchInputRef = useRef<TextInput>(null);
@@ -72,15 +74,23 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [searchQuery, options]);
 
+
   useEffect(()=>{
     setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
   }, [searchSuggestions])
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    setSearchSuggestions(results);
-  }
-
+    setSearchSuggestions(prevSuggestions => {
+      // Optionally filter out duplicates based on a unique property, e.g., placeId
+      const newResults = results.filter(newResult => 
+        !prevSuggestions.some(oldResult => 
+          oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+        )
+      );
+      return [...prevSuggestions, ...newResults];
+    });
+  };
   useEffect(() => {
     if (currentVal) {
       setSelected(currentVal)
@@ -149,6 +159,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         />
       </Pressable>
 
+
       <Modal visible={isOpen} transparent={true} animationType="none" onRequestClose={() => setIsOpen(false)}>
         <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
           <View style={styles.modalOverlay}>
@@ -192,6 +203,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
     </View>
   );
 });
@@ -215,6 +227,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    width: 350
   },
   logo: {
     width: 30,
@@ -268,5 +281,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
+
 
 export default AutoCompleteDropdown;
