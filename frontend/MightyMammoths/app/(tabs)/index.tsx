@@ -232,6 +232,7 @@ const centerAndShowBuilding = (buildingName: string) => {
     setNavigationMode(true);
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
+    campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
 
     //have destination be set to the selected building
@@ -294,7 +295,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           <Marker coordinate={myLocation} title="My Location">
             <Image
               source={require("../../assets/images/userLocationDot.png")}
-              style={{ width: 30, height: 30 }}
+              style={{ width: 22, height: 22 }}
             />
           </Marker>
           {searchMarkerVisible && 
@@ -373,6 +374,10 @@ const centerAndShowBuilding = (buildingName: string) => {
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
             onPolylineUpdate={(poly) => setPolyline(poly)}
+            onExtraClose={() => {
+              campusToggleSheet.current?.show();
+            }}
+          
           />
           <DestinationChoices
             buildingList={buildingList}

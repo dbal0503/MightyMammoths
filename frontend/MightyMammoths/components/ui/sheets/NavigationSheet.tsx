@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, act } from 'react';
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
@@ -19,6 +19,7 @@ export type NavigationSheetProps = ActionSheetProps & {
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
     setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
     onPolylineUpdate: (poly:LatLng[])=>void;
+    onExtraClose?: () => void;
 }
 
 function NavigationSheet({
@@ -33,7 +34,8 @@ function NavigationSheet({
     overdrawSize = 200,
     actionsheetref,
     closeChooseDest,
-    setNavigationMode
+    setNavigationMode,
+    onExtraClose,
 }: NavigationSheetProps) {
     const { state, functions } = useNavigation();
     const { 
@@ -78,6 +80,7 @@ function NavigationSheet({
           closeChooseDest(false);
           setSelectedMode(null);
           setRouteEstimates({});
+          if (onExtraClose) onExtraClose();
         }}
         >
           <View style={styles.centeredView}>
