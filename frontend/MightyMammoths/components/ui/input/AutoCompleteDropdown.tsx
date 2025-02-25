@@ -92,9 +92,16 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    setSearchSuggestions(results);
-  }
-
+    setSearchSuggestions(prevSuggestions => {
+      // Optionally filter out duplicates based on a unique property, e.g., placeId
+      const newResults = results.filter(newResult => 
+        !prevSuggestions.some(oldResult => 
+          oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+        )
+      );
+      return [...prevSuggestions, ...newResults];
+    });
+  };
   useEffect(() => {
     if (currentVal) {
       setSelected(currentVal)
