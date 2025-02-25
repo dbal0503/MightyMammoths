@@ -15,6 +15,7 @@ import { DestinationChoices } from "@/components/Destinations";
 import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import polyline from "@mapbox/polyline";
+import { Image } from "react-native";
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
 
@@ -230,11 +231,12 @@ export default function HomeScreen() {
           customMapStyle={mapStyle}
           ref={mapRef}
         >
-          <Marker
-            image={require("../../assets/images/arrow.png")}
-            coordinate={myLocation}
-            title="My Location"
-          />
+          <Marker coordinate={myLocation} title="My Location">
+            <Image
+              source={require("../../assets/images/userLocationDot.png")}
+              style={{ width: 30, height: 30 }}
+            />
+          </Marker>
           {searchMarkerVisible && 
             <Marker
               coordinate={searchMarkerLocation}
