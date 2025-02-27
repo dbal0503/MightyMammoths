@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { useNavigation } from "@/components/NavigationProvider";
+
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);
@@ -11,14 +13,22 @@ const getUpdatedTime = (duration: string) => {
 interface LiveInformationProps {
     onStop: ()=> void;
     routes: any;
+    onZoomOut?: ()=> void;
+    yourLocationSet: boolean;
+    isZoomedIn: boolean;
 }
 
 export function LiveInformation({
     onStop,
     routes,
+    onZoomOut,
+    yourLocationSet,
+    isZoomedIn
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+    console.log("Your location from live", yourLocationSet);
+    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut();}
 
     return (
     <View style={styles.container}>
@@ -28,7 +38,7 @@ export function LiveInformation({
             <View style={styles.travelInformation}>
                 <Text style={styles.time}>{bestEstimate.duration}</Text>
                 <Text style={styles.distance}>{bestEstimate.distance}</Text>
-                <TouchableOpacity style={styles.startButton} onPress={onStop}>
+                <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
                     <Text style={styles.stop}>Stop</Text>
                 </TouchableOpacity>
             </View>
@@ -43,7 +53,6 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 16,
         marginBottom:0,
-        marginTop:110,
         flexDirection: 'row',
         borderBottomLeftRadius:10,
         borderBottomRightRadius:10,

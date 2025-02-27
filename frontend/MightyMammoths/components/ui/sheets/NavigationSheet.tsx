@@ -20,6 +20,9 @@ export type NavigationSheetProps = ActionSheetProps & {
     setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
     onPolylineUpdate: (poly:LatLng[])=>void;
     onExtraClose?: () => void;
+    onZoomIn: () => void;
+    onZoomOut: () => void;
+    isZoomedIn: boolean;
 }
 
 function NavigationSheet({
@@ -36,6 +39,9 @@ function NavigationSheet({
     closeChooseDest,
     setNavigationMode,
     onExtraClose,
+    onZoomIn,
+    onZoomOut,
+    isZoomedIn
 }: NavigationSheetProps) {
     const { state, functions } = useNavigation();
     const { 
@@ -116,6 +122,8 @@ function NavigationSheet({
                       actionsheetref.current?.snapToIndex(0);
                     }}
                     defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
+                    onZoomIn={onZoomIn}
+                    origin={origin}
                 />
                 ) : (
                   <LiveInformation
@@ -125,6 +133,8 @@ function NavigationSheet({
                       setStartedSelectedRoute(false);
                     }}
                     routes={routeEstimates[selectedMode] || []}
+                    onZoomOut={onZoomOut}
+                    isZoomedIn={isZoomedIn}
                   /> 
                 )
               )}

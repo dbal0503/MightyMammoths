@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, {useRef, useState, useEffect, useCallback} from "react";
 import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
@@ -16,7 +16,10 @@ import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import polyline from "@mapbox/polyline";
 import { Image } from "react-native";
 // Context providers
+import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
+import { AppState } from 'react-native';
+import { computeBearing } from "@/utils/computeBearing";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -175,7 +178,39 @@ const centerAndShowBuilding = (buildingName: string) => {
     setSearchSuggestions(buildingResults);
   }, []);
 
+  const _openAppSetting = useCallback(async () => {
+      await Linking.openSettings();
+    }, []);
+  const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
   const handleSearch = async (placeName: string) => {
+
+    if (placeName === "Your Location") {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if(status !== 'granted'){
+        setLocationServicesEnabled(false);
+        Alert.alert(
+          "Location Services Disabled",
+          "Please enable location services to use this feature.",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Enable",
+              onPress: () => {
+                _openAppSetting();
+              }
+            }
+          ]
+        );
+        return;
+      } else {
+        setLocationServicesEnabled(true);
+        CenterOnLocation();
+        return;
+      }
+    }
     try {
       const data = searchSuggestions.find(
         (place) =>
@@ -224,6 +259,20 @@ const centerAndShowBuilding = (buildingName: string) => {
       console.log(`Index.tsx: Error selecting place: ${error}`);
     }
   };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async (nextAppState) => {
+      if (nextAppState === "active") {
+        // When the app becomes active, check the current location permissions
+        const { status } = await Location.getForegroundPermissionsAsync();
+        setLocationServicesEnabled(status === 'granted');
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+  
   
 
   // TODO: have destination be set to the selected building
@@ -237,35 +286,88 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     //have destination be set to the selected building
   }
-  
+  const [izZoomedIn, setIsZoomedIn] = useState(false);
+  // Zoom in: Use a smaller latitudeDelta/longitudeDelta to zoom in around the user’s location
+  const zoomIn = () => {
+    if (mapRef.current) {
+      const zoomedRegion = {
+        latitude: myLocation.latitude,
+        longitude: myLocation.longitude,
+        latitudeDelta: 0.001,  // more zoomed in
+        longitudeDelta: 0.001,
+      };
+      mapRef.current.animateToRegion(zoomedRegion, 1000);
+      setIsZoomedIn(true);
+    }
+  };
 
+  // Zoom out: Revert to the original region (or a less zoomed-in version)
+  const zoomOut = () => {
+    if (mapRef.current) {
+      const originalRegion = {
+        latitude: myLocation.latitude,
+        longitude: myLocation.longitude,
+        latitudeDelta: 0.005,  // original delta
+        longitudeDelta: 0.005,
+      };
+      mapRef.current.animateToRegion(originalRegion, 1000);
+      setIsZoomedIn(false);
+      setPolyline([]);
+    }
+  };
+
+  
   useEffect(() => {
-    let permissionGranted = false;
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      permissionGranted = status === 'granted';
+      setLocationServicesEnabled(status === 'granted');
       if (status !== 'granted') {
         console.log('Permission denied');
         return;
       }
     })();
   
-    // Function to update the location every 3 seconds
     const updateLocation = async () => {
-      if (!permissionGranted) {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      const granted = status === 'granted';
+      setLocationServicesEnabled(granted);
+  
+      if (!granted) {
         return;
       }
       const loc = await Location.getCurrentPositionAsync();
-      setMyLocation({
+      const newLocation = {
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
-      });
+      };
+      setMyLocation(newLocation);
+
+      console.log("Granted: ", granted);
+      console.log("Polyline: ", polyline[0]);
+      console.log("New Location: ", newLocation);
+      
+
+      if (granted && polyline && polyline.length > 0) {
+        const bearing = (computeBearing(newLocation, polyline[0])) + 215 % 360;
+        console.log("Bearing: ", bearing);
+        console.log("Polyline: ", polyline);
+        console.log("New Location: ", newLocation);
+        if (mapRef.current) {
+          mapRef.current.animateCamera({ heading: bearing}, {duration: 1000});
+        }
+      }
+      if (granted && !polyline){
+        if (mapRef.current) {
+          mapRef.current.animateCamera({ heading: 90}, {duration: 1000});
+        }
+      }
     };
   
+    // Run updateLocation immediately and then every 3 seconds
     updateLocation();
-    const intervalId = setInterval(updateLocation, 3000); //Update the location every 3 seconds
+    const intervalId = setInterval(updateLocation, 3000);
   
     campusToggleSheet.current?.show();
     console.log("all locked and loaded");
@@ -275,12 +377,14 @@ const centerAndShowBuilding = (buildingName: string) => {
     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
       setIsKeyboardVisible(false);
     });
+  
     return () => {
       clearInterval(intervalId);
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
   }, []);
+  
   
 
   return (
@@ -291,13 +395,17 @@ const centerAndShowBuilding = (buildingName: string) => {
           initialRegion={regionMap}
           customMapStyle={mapStyle}
           ref={mapRef}
+          rotateEnabled={true}
         >
-          <Marker coordinate={myLocation} title="My Location">
-            <Image
-              source={require("../../assets/images/userLocationDot.png")}
-              style={{ width: 22, height: 22 }}
-            />
-          </Marker>
+          {locationServicesEnabled && (
+            <Marker coordinate={myLocation} title="My Location">
+              <Image
+                source={require("../../assets/images/userLocationDot.png")}
+                style={{ width: 22, height: 22 }}
+              />
+            </Marker>
+          )}
+
           {searchMarkerVisible && 
             <Marker
               coordinate={searchMarkerLocation}
@@ -320,23 +428,26 @@ const centerAndShowBuilding = (buildingName: string) => {
         </MapView>
 
         <View style={styles.topElements}>
-          <View style={styles.dropdownWrapper}>
-            <AutoCompleteDropdown
-              locked={false}
-              searchSuggestions={searchSuggestions}
-              setSearchSuggestions={setSearchSuggestions}
-              buildingData={buildingList}
-              onSelect={(selected) => handleSearch(selected)}
-            />
-          </View>
+          {!navigationMode && (
+            <View style={styles.dropdownWrapper}>
+              <AutoCompleteDropdown
+                locked={false}
+                searchSuggestions={searchSuggestions}
+                setSearchSuggestions={setSearchSuggestions}
+                buildingData={buildingList}
+                onSelect={(selected) => handleSearch(selected)}
+              />
+            </View>
+          )}
         </View>
 
         {/* LOCATION BUTTON */}
         <View style={styles.bottomElements}>
+        {locationServicesEnabled && (
           <RoundButton
             imageSrc={require("@/assets/images/recenter-map.png")}
             onPress={CenterOnLocation}
-          />
+          />)}
         </View>
 
         {/* SGW & LOY TOGGLE */}
@@ -377,12 +488,16 @@ const centerAndShowBuilding = (buildingName: string) => {
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}
+            onZoomIn={locationServicesEnabled ? zoomIn : () => {}}
+            onZoomOut={locationServicesEnabled ? zoomOut : () => {}}
+            isZoomedIn={izZoomedIn}
           
           />
           <DestinationChoices
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
+            locationServicesEnabled={locationServicesEnabled}
           />
         </NavigationProvider>
 

@@ -1,22 +1,24 @@
 // components/Destinations.tsx
-import React, {useState, useEffect, useRef} from "react";
-import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
+import React, {useState, useEffect, useRef, useCallback} from "react";
+import { StyleSheet, View, Animated, Text, Pressable , Alert, Linking} from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-
+import * as Location from "expo-location";
 import { useNavigation } from "@/components/NavigationProvider";
 
 interface DestinationChoicesProps {
   buildingList: BuildingData[];
   visible?: boolean;
   destination: string;
+  locationServicesEnabled: boolean;
 }
 
 export function DestinationChoices({
   buildingList,
   visible,
-  destination
+  destination,
+  locationServicesEnabled
 }: DestinationChoicesProps) {
   const { state, functions } = useNavigation();
   const { 
@@ -34,6 +36,7 @@ export function DestinationChoices({
   } = state;
 
   const topDropDownRef = useRef<AutoCompleteDropdownRef>(null);
+  const bottomDropDownRef = useRef<AutoCompleteDropdownRef>(null);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
 
@@ -72,6 +75,40 @@ export function DestinationChoices({
     checkSelection(selectedStart, destination);
   }, [destination])
 
+  const _openAppSetting = useCallback(async () => {
+        await Linking.openSettings();
+      }, []);
+
+  const checkLocationPermission = async (onSuccess: () => void, onCancel: () => void) => {
+    const { status } = await Location.getForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Location Services Disabled",
+        "Please enable location services to use 'Your Location'.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => {
+              // Call the cancel callback to revert the dropdown value
+              onCancel();
+            }
+          },
+          {
+            text: "Enable",
+            onPress: () => {
+              _openAppSetting();
+            }
+          }
+        ],
+        { cancelable: false }
+      );
+    } else {
+      onSuccess();
+    }
+  };
+      
+
   return (
     <Animated.View 
       style={[
@@ -90,9 +127,24 @@ export function DestinationChoices({
           buildingData={buildingList} 
           onSelect={(selected) => {
             if(!selected) return;
-            setSelectedStart(selected);
-            checkSelection(selected, selectedDestination);
-            setOrigin(selected);
+            if (selected === "Your Location") {
+              checkLocationPermission(
+                () => {
+                  setSelectedStart(selected);
+                  checkSelection(selected, selectedDestination);
+                  setOrigin(selected);
+                },
+                () => {
+                  topDropDownRef.current?.reset();
+                  setSelectedStart("Select a building");
+                  setOrigin("Select a building");
+                }
+              );
+            } else {
+              setSelectedStart(selected);
+              checkSelection(selected, selectedDestination);
+              setOrigin(selected);
+            }
         }} />
       </View>
       <IconSymbol
@@ -108,19 +160,38 @@ export function DestinationChoices({
         <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
       </Pressable> */}
       <View style={styles.dropdownWrapper}>
-        <AutoCompleteDropdown
-          locked={loadingRoutes}
-          searchSuggestions={searchSuggestions}
-          setSearchSuggestions={setSearchSuggestions} 
-          currentVal={destination}
-          buildingData={buildingList}
-          onSelect={(selected) => {
+      <AutoCompleteDropdown
+        ref={bottomDropDownRef} // add the ref here
+        locked={loadingRoutes}
+        searchSuggestions={searchSuggestions}
+        setSearchSuggestions={setSearchSuggestions} 
+        currentVal={destination}
+        buildingData={buildingList}
+        onSelect={(selected) => {
+          if (!selected) return;
+          if (selected === "Your Location") {
+            checkLocationPermission(
+              () => {
+                setDestination(selected);
+                setSelectedBuilding(selected);
+                setSelectedDestination(selected);
+                checkSelection(selectedStart, selected);
+              },
+              () => {
+                bottomDropDownRef.current?.reset();
+                setDestination("Select a building");
+                setSelectedBuilding("Select a building");
+                setSelectedDestination("Select a building");
+              }
+            );
+          } else {
             setDestination(selected);
             setSelectedBuilding(selected);
             setSelectedDestination(selected);
             checkSelection(selectedStart, selected);
-          }}
-        />
+          }
+        }}
+      />
       </View>
     </Animated.View>
   );

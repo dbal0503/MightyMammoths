@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:../../../../../../Downloads/fixed_manual_route.gpx">
-   </FileRef>
-   <FileRef
       location = "group:MightyMammoths.xcodeproj">
    </FileRef>
    <FileRef
