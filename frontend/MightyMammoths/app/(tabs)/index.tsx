@@ -257,7 +257,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [isKeyboardVisible]);
 
   return (
     <>
@@ -315,10 +315,12 @@ const centerAndShowBuilding = (buildingName: string) => {
         </View>
 
         {/* SGW & LOY TOGGLE */}
+        {(isKeyboardVisible &&
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
         />
+        )}
         
         {/* BUILDING INFO */}
         {selectedBuilding && (
