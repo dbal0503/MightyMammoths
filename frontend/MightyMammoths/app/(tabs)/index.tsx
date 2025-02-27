@@ -352,7 +352,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       if (granted && polyline && polyline.length > 0) {
         const bearing = (computeBearing(newLocation, polyline[0])) + 215 % 360;
         console.log("Bearing: ", bearing);
-        console.log("Polyline: ", polyline);
+        console.log("Polyline: ", polyline[0]);
         console.log("New Location: ", newLocation);
         if (mapRef.current) {
           mapRef.current.animateCamera({ heading: bearing}, {duration: 1000});
@@ -360,7 +360,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
       if (granted && !polyline){
         if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: 90}, {duration: 1000});
+          mapRef.current.animateCamera({ heading: 0}, {duration: 1000});
         }
       }
     };

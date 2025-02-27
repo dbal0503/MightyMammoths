@@ -14,7 +14,6 @@ interface LiveInformationProps {
     onStop: ()=> void;
     routes: any;
     onZoomOut?: ()=> void;
-    yourLocationSet: boolean;
     isZoomedIn: boolean;
 }
 
@@ -22,12 +21,10 @@ export function LiveInformation({
     onStop,
     routes,
     onZoomOut,
-    yourLocationSet,
     isZoomedIn
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-    console.log("Your location from live", yourLocationSet);
     const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut();}
 
     return (
