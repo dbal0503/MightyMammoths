@@ -10,6 +10,7 @@ interface TransportChoiceProps {
   destinationBuilding: string | null;
   bothSelected: boolean;
   onBack: () => void;
+  steps: any[];
 }
 
 export function TransportChoice({
@@ -17,7 +18,8 @@ export function TransportChoice({
   onSelectMode,
   destinationBuilding,
   bothSelected,
-  onBack
+  onBack,
+  steps
 }: TransportChoiceProps) {
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
@@ -91,13 +93,17 @@ export function TransportChoice({
           if (mode === "shuttle" && (!estimates || estimates.length === 0)) {
             return null;
           }
-          const bestEstimate =
-            estimates && estimates.length > 0 ? estimates[0] : null;
+          const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+          
+          const steps = bestEstimate?.steps || [];
           return (
             <TouchableOpacity
               key={mode}
               style={styles.modeItem}
-              onPress={() => onSelectMode(mode)}
+              onPress={() => {
+                console.log(steps); // Log the mode when pressed
+                onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
+              }}
               disabled={!bothSelected}
             >
               {modeIcons[mode]}
