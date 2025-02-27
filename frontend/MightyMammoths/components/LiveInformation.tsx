@@ -46,7 +46,7 @@ export function LiveInformation({
 
 const styles = StyleSheet.create({
     container: {
-        height: '35%',
+        height: '30%',
         width: '100%',
         padding: 16,
         marginBottom:0,
