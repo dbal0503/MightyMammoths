@@ -315,7 +315,7 @@ const centerAndShowBuilding = (buildingName: string) => {
         </View>
 
         {/* SGW & LOY TOGGLE */}
-        {(isKeyboardVisible &&
+        {(!isKeyboardVisible &&
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
