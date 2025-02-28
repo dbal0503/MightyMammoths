@@ -63,6 +63,7 @@ function NavigationSheet({
 
     return (
       <ActionSheet
+        keyboardHandlerEnabled={false}
         ref={actionsheetref}
         isModal={isModal} 
         snapPoints={snapPoints} 
