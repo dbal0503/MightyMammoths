@@ -20,6 +20,8 @@ import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
 import { computeBearing } from "@/utils/computeBearing";
+import { haversineDistance } from "@/utils/haversineDistance";
+import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinates";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -81,7 +83,8 @@ export default function HomeScreen() {
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
-  const [polyline, setPolyline] = useState<LatLng[]>([]);
+  const [routePolyline, setRoutePolyline] = useState<LatLng[]>([]);
+  const routePolylineRef = useRef<LatLng[]>([]);
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -146,9 +149,20 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   const CenterOnLocation = async () => {
     const loc = await Location.getCurrentPositionAsync();
-    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
-    ChangeLocation("my Location");
+    const newRegion: Region = {
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+      latitudeDelta: isZoomedIn ? 0.001 : 0.005,
+      longitudeDelta: isZoomedIn ? 0.001 : 0.005,
+    };
+
+    setMyLocation(newRegion);
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(newRegion, 1000);
+    }
   };
+  
 
 
   
@@ -286,37 +300,100 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     //have destination be set to the selected building
   }
-  const [izZoomedIn, setIsZoomedIn] = useState(false);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
+  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
   // Zoom in: Use a smaller latitudeDelta/longitudeDelta to zoom in around the user’s location
-  const zoomIn = () => {
+  const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
+    console.log("Origin Place Name: ", originPlaceName);
+    console.log("Origin Place ID: ", originCoordsPlaceID);
     if (mapRef.current) {
-      const zoomedRegion = {
-        latitude: myLocation.latitude,
-        longitude: myLocation.longitude,
-        latitudeDelta: 0.001,  // more zoomed in
-        longitudeDelta: 0.001,
-      };
-      mapRef.current.animateToRegion(zoomedRegion, 1000);
-      setIsZoomedIn(true);
-    }
-  };
-
-  // Zoom out: Revert to the original region (or a less zoomed-in version)
-  const zoomOut = () => {
-    if (mapRef.current) {
-      const originalRegion = {
-        latitude: myLocation.latitude,
-        longitude: myLocation.longitude,
-        latitudeDelta: 0.005,  // original delta
-        longitudeDelta: 0.005,
-      };
-      mapRef.current.animateToRegion(originalRegion, 1000);
-      setIsZoomedIn(false);
-      setPolyline([]);
-    }
-  };
-
+      let targetRegion: Region | undefined;
   
+      if (originPlaceName === "Your Location" && myLocation) {
+        targetRegion = {
+          latitude: myLocation.latitude,
+          longitude: myLocation.longitude,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
+        };
+      } else {
+        const buildingCoords = campusBuildingCoords.features.find(
+          feature => feature.properties.BuildingName === originPlaceName
+        )?.geometry.coordinates;
+  
+        if (buildingCoords) {
+          targetRegion = {
+            latitude: buildingCoords[1],
+            longitude: buildingCoords[0],
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.001,
+          };
+        } else {
+          const placeIdCoords = await getPlaceIdCoordinates(originCoordsPlaceID);
+          targetRegion = {
+            latitude: placeIdCoords.latitude,
+            longitude: placeIdCoords.longitude,
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.001,
+          };
+        }
+      }
+  
+      if (targetRegion) {
+        setZoomedRegion(targetRegion);
+        mapRef.current.animateToRegion(targetRegion, 1000);
+        setIsZoomedIn(true);
+      }
+    }
+  };
+  
+
+  const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
+    if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
+      let targetRegion: Region | undefined;
+  
+      if (destinationPlaceName === "Your Location") {
+        targetRegion = {
+          latitude: myLocation.latitude,
+          longitude: myLocation.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        };
+      } else {
+        const buildingCoords = campusBuildingCoords.features.find(
+          feature => feature.properties.BuildingName === destinationPlaceName
+        )?.geometry.coordinates;
+  
+        if (buildingCoords) {
+          targetRegion = {
+            latitude: buildingCoords[1],
+            longitude: buildingCoords[0],
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          };
+        } else {
+          const placeIdCoords = await getPlaceIdCoordinates(destinationCoordsPlaceID);
+          targetRegion = {
+            latitude: placeIdCoords.latitude,
+            longitude: placeIdCoords.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          };
+        }
+      }
+  
+      if (targetRegion) {
+        setZoomedRegion(null);
+        mapRef.current.animateToRegion(targetRegion, 1000);
+        setIsZoomedIn(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    routePolylineRef.current = routePolyline;
+  }, [routePolyline]);
+
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -344,23 +421,34 @@ const centerAndShowBuilding = (buildingName: string) => {
       };
       setMyLocation(newLocation);
 
-      console.log("Granted: ", granted);
-      console.log("Polyline: ", polyline[0]);
-      console.log("New Location: ", newLocation);
+      //console.log("Granted: ", granted);
+      //console.log("Polyline: ", routePolylineRef.current[0]);
+      //console.log("New Location: ", newLocation);
       
-
-      if (granted && polyline && polyline.length > 0) {
-        const bearing = (computeBearing(newLocation, polyline[0])) + 215 % 360;
-        console.log("Bearing: ", bearing);
-        console.log("Polyline: ", polyline[0]);
-        console.log("New Location: ", newLocation);
-        if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: bearing}, {duration: 1000});
+      if (routePolylineRef.current && routePolylineRef.current.length > 0) {
+        let candidate: { latitude: number; longitude: number } | null = null;
+  
+        for (const point of routePolylineRef.current) {
+          const d = haversineDistance(newLocation, point);
+          if (d >= 5) {
+            candidate = point;
+            break;
+          }
         }
-      }
-      if (granted && !polyline){
+  
+        if (!candidate) {
+          candidate = routePolylineRef.current.reduce((prev, curr) => {
+            return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
+          }, routePolylineRef.current[0]);
+        }
+
+        const bearing = computeBearing(newLocation, candidate);
         if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: 0}, {duration: 1000});
+          mapRef.current.animateCamera({ heading: bearing }, { duration: 1000 });
+        }
+      } else {
+        if (mapRef.current) {
+          mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
         }
       }
     };
@@ -397,7 +485,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           ref={mapRef}
           rotateEnabled={true}
         >
-          {locationServicesEnabled && (
+          {locationServicesEnabled && myLocation && (
             <Marker coordinate={myLocation} title="My Location">
               <Image
                 source={require("../../assets/images/userLocationDot.png")}
@@ -417,11 +505,11 @@ const centerAndShowBuilding = (buildingName: string) => {
           />
 
 
-          {polyline && 
+          {routePolyline && 
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
-              coordinates={polyline}
+              coordinates={routePolyline}
               /> 
           }
 
@@ -484,13 +572,13 @@ const centerAndShowBuilding = (buildingName: string) => {
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
-            onPolylineUpdate={(poly) => setPolyline(poly)}
+            onPolylineUpdate={(poly) => setRoutePolyline(poly)}
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}
-            onZoomIn={locationServicesEnabled ? zoomIn : () => {}}
-            onZoomOut={locationServicesEnabled ? zoomOut : () => {}}
-            isZoomedIn={izZoomedIn}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            isZoomedIn={isZoomedIn}
           
           />
           <DestinationChoices

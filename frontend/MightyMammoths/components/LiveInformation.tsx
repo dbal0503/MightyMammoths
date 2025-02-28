@@ -13,19 +13,25 @@ const getUpdatedTime = (duration: string) => {
 interface LiveInformationProps {
     onStop: ()=> void;
     routes: any;
-    onZoomOut?: ()=> void;
+    onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
     isZoomedIn: boolean;
+    destination: string;
+    destinationCoords: string;
 }
 
 export function LiveInformation({
     onStop,
     routes,
     onZoomOut,
-    isZoomedIn
+    isZoomedIn,
+    destination,
+    destinationCoords
 }: LiveInformationProps) {
     const estimates = routes;
+    console.log("Destination from LiveInformation: ", destination);
+    console.log("DestinationCoords from LiveInformation: ", destinationCoords);
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut();}
+    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
 
     return (
     <View style={styles.container}>

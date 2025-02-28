@@ -9,8 +9,9 @@ interface StartNavigationProps {
     routes: any
     starting: ()=> void;
     defPoly:()=>void;
-    onZoomIn?: ()=>void;
+    onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
     origin: string;
+    originCoords: string;
 }
 
 export function StartNavigation({
@@ -20,12 +21,14 @@ export function StartNavigation({
     routes,
     destinationBuilding,
     onZoomIn,
-    origin
+    origin,
+    originCoords
 }: StartNavigationProps) {
 
     const setModeNull = () => {onBack();}
-    const yourLocationSet = true ? origin === "Your Location" : false;
-    const startNavigation = () => {starting(); defPoly(); if (onZoomIn && yourLocationSet) onZoomIn();}
+    console.log("Origin from StartNavigation: ", origin);
+    console.log("OriginCoords from StartNavigation: ", originCoords);
+    const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
 
