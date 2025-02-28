@@ -20,6 +20,7 @@ const MAPPING = {
   'figure.walk': 'directions-walk',
   'more-vert': 'more-vert',
   'arrow-back': 'arrow-back',
+  'arrow-forward': 'arrow-forward',
   'play' : 'play-circle-outline',
   'flag' : 'flag-circle',
   'arrow-up-right' : 'arrow-up-right',

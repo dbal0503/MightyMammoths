@@ -122,7 +122,7 @@ const NavigationProvider = ({
         
         //await fetchShuttleData();
 
-        const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.Building == destination)?.properties.Campus ?? "";
+        const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName == destination)?.properties.Campus ?? "";
         
         if (origin == "Your Location") {
           const [userLatitude, userLongitude] = await parseCoordinates(originCoords);
@@ -131,7 +131,7 @@ const NavigationProvider = ({
             estimates["shuttle"] = await getShuttleBusRoute(originCoords, destinationCoords, nearestCampus); 
           }
         } else{
-          const originCampus = campusBuildingCoords.features.find((item) => item.properties.Building == origin)?.properties.Campus ?? "";
+          const originCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName == origin)?.properties.Campus ?? "";
           if (originCampus != destinationCampus && originCampus != "" && destinationCampus != "") {
             estimates["shuttle"] = await getShuttleBusRoute(originCoords, destinationCoords, originCampus); 
           }

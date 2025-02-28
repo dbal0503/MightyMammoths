@@ -3,9 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
+interface navigationInformationProps {
+    visible?: boolean;
+}
 
-export function NavigationInformation() {
-    
+export function NavigationInformation({ visible = true }: navigationInformationProps) {
+    if (!visible) return null;
     const nextStep='Rue Sainte-Catherine O';
     const distance='240m';
     return (<View style={styles.container}>
