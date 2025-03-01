@@ -23,7 +23,6 @@ export function DestinationChoices({
     setDestination, 
     setSelectedBuilding, 
     setTwoBuildingsSelected,
-    fetchRoutes 
   } = functions;
 
   const {
@@ -100,12 +99,6 @@ export function DestinationChoices({
         color="black"
         style={styles.modeIcon}
       />
-      {/* <Pressable onPress={async ()=>{
-          await fetchRoutes();
-          console.log('fetching routes')
-        }}>
-        <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
-      </Pressable> */}
       <View style={styles.dropdownWrapper}>
         <AutoCompleteDropdown
           locked={loadingRoutes}

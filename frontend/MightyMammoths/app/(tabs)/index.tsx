@@ -121,16 +121,15 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // 5. Show the building info sheet after a brief delay
   setTimeout(() => {
-    // If you also have a campusToggleSheet open, hide it:
-    campusToggleSheet.current?.hide();
+      // If you also have a campusToggleSheet open, hide it:
+      campusToggleSheet.current?.hide();
 
-    // Then show the building sheet:
-    if (buildingInfoSheet.current) {
-      buildingInfoSheet.current.show();
-    }
-  }, 200);
-};
-
+      // Then show the building sheet:
+      if (buildingInfoSheet.current) {
+        buildingInfoSheet.current.show();
+      }
+    }, 200);
+  };
 
   const CenterOnCampus = (campus:string) => {
     ChangeLocation(campus);
@@ -142,10 +141,6 @@ const centerAndShowBuilding = (buildingName: string) => {
     ChangeLocation("my Location");
   };
 
-
-  
-
-  
   useEffect(() => {
     const buildingResults: suggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
@@ -182,11 +177,9 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
   
       if (data.placePrediction.types.includes("building")) {
-        // Update the building state so that BuildingInfoSheet gets the correct info
-        
+          // Update the building state so that BuildingInfoSheet gets the correct info
           centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
           return;
-        
       }
   
       // For non-building suggestions, fetch details and create a waypoint as before
@@ -220,18 +213,13 @@ const centerAndShowBuilding = (buildingName: string) => {
     }
   };
   
-
-  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
-
-    //have destination be set to the selected building
   }
-  
 
   useEffect(() => {
     (async () => {
@@ -279,15 +267,13 @@ const centerAndShowBuilding = (buildingName: string) => {
             onMarkerPress={centerAndShowBuilding}
           />
 
-
           {polyline && 
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
               coordinates={polyline}
-              /> 
+            /> 
           }
-
         </MapView>
 
         <View style={styles.topElements}>
@@ -312,10 +298,10 @@ const centerAndShowBuilding = (buildingName: string) => {
 
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
-        <LoyolaSGWToggleSheet
-          actionsheetref = {campusToggleSheet}
-          setSelectedCampus={CenterOnCampus}
-        />
+          <LoyolaSGWToggleSheet
+            actionsheetref = {campusToggleSheet}
+            setSelectedCampus={CenterOnCampus}
+          />
         )}
         
         {/* BUILDING INFO */}
@@ -354,7 +340,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             destination={destination}
           />
         </NavigationProvider>
-
       </GestureHandlerRootView>
     </>
   );

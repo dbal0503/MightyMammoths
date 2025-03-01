@@ -68,7 +68,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     if (isOpen) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
     }
-  }, [isOpen]);
+  }, [isOpen, dropdownHeight, buildingData.length]);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -111,7 +111,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
 
-    if(placeName == "Your Location") {
+    if(placeName === "Your Location") {
       onSelect(placeName);    
       setIsOpen(false);
       setSearchQuery("");
@@ -120,7 +120,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
-      let building = buildingData.find((item) => item.buildingName == placeName);
+      let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
         console.log('AutoCompleteDropdown: failed to fetch data for selected location');
         return;
