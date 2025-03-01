@@ -68,7 +68,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     if (isOpen) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
     }
-  }, [isOpen, dropdownHeight, buildingData.length]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -80,7 +80,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         )
       );
     }
-  }, [searchQuery, options]);
+  }, [searchQuery]);
 
 
   useEffect(() => {
@@ -89,6 +89,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
     ]);
   }, [searchSuggestions]);
+
+  useEffect(() => {
+    if (currentVal) {
+      setSelected(currentVal)
+    }
+  }, [currentVal])
+
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -102,11 +109,6 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       return [...prevSuggestions, ...newResults];
     });
   };
-  useEffect(() => {
-    if (currentVal) {
-      setSelected(currentVal)
-    }
-  }, [currentVal])
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);

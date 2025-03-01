@@ -163,7 +163,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
     }));
     setSearchSuggestions(buildingResults);
-  }, [buildingList]);
+  }, []);
 
   const handleSearch = async (placeName: string) => {
     try {

@@ -2,7 +2,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import { StyleSheet, View, Animated} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 
 import { useNavigation } from "@/components/NavigationProvider";
 
@@ -94,7 +94,7 @@ export function DestinationChoices({
         }} />
       </View>
       <IconSymbol
-        name="more-vert"
+        name= {"more-vert" as IconSymbolName}
         size={30}
         color="black"
         style={styles.modeIcon}
