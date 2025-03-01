@@ -2,8 +2,8 @@ import React from "react";
 import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
-    transportationChoice: string | null;
-    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    transportationChoice?: string | null;
+    setTransportationChoice?: React.Dispatch<React.SetStateAction<string | null>>;
     onBack: ()=> void; 
     destinationBuilding: any
     routes: any
