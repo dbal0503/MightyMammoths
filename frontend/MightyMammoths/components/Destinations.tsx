@@ -1,7 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect, useRef} from "react";
-import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
-import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import { StyleSheet, View, Animated} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
