@@ -80,7 +80,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         )
       );
     }
-  }, [searchQuery]);
+  }, [searchQuery, options]);
 
 
   useEffect(() => {

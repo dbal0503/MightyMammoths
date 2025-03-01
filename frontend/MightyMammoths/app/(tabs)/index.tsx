@@ -230,7 +230,7 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     campusToggleSheet.current?.show();
 
-    console.log("all locked and loaded");
+    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
