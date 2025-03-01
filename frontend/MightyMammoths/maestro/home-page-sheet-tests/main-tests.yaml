@@ -1,0 +1,5 @@
+appId: com.anonymous.MightyMammoths
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "slide-up-sheet-tests.yaml"

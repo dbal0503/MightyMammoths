@@ -1,5 +1,3 @@
-
-import { GOOGLE_MAPS_API_KEY } from "../env";
 import axios from "axios";
 
 export interface RouteData {
@@ -13,9 +11,9 @@ export async function getRoutes(
   origin: string,
   destination: string,
   mode: string
-): Promise<RouteData[]> {
+): Promise<RouteData | null> {
 
-  const apiKey = GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
     origin
@@ -26,15 +24,30 @@ export async function getRoutes(
   try {
     const response = await axios.get<{ routes: any[] }>(url);
     const routes = response.data.routes;
-    const result: RouteData[] = routes.map((route: any) => ({
-      polyline: route.overview_polyline.points,
-      duration: route.legs[0].duration.text,
-      distance: route.legs[0].distance.text,
-      steps: route.legs[0].steps,
-    }));
-    return result;
+
+    if (routes.length === 0) {
+      console.warn(`No routes found for mode: ${mode}`);
+      return null;
+    }
+
+    const shortestRoute = routes
+      .map((route: any) => ({
+        polyline: route.overview_polyline.points,
+        duration: route.legs[0].duration.text,
+        durationValue: route.legs[0].duration.value, 
+        distance: route.legs[0].distance.text,
+        steps: route.legs[0].steps,
+      }))
+      .sort((a, b) => a.durationValue - b.durationValue)[0]; // Only getting the shortest route
+
+    return shortestRoute;
   } catch (error) {
-    console.error("Error fetching directions", error);
+    console.error("Error fetching directions,")
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
     throw error;
   }
 

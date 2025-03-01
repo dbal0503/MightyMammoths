@@ -1,13 +1,14 @@
 // components/Destinations.tsx
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { StyleSheet, View, Animated, Text, Pressable } from "react-native";
 import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 import { useNavigation } from "@/components/NavigationProvider";
 
 interface DestinationChoicesProps {
-  buildingList: string[];
+  buildingList: BuildingData[];
   visible?: boolean;
   destination: string;
 }
@@ -17,7 +18,7 @@ export function DestinationChoices({
   visible,
   destination
 }: DestinationChoicesProps) {
-  const { functions } = useNavigation();
+  const { state, functions } = useNavigation();
   const { 
     setOrigin,
     setDestination, 
@@ -26,8 +27,16 @@ export function DestinationChoices({
     fetchRoutes 
   } = functions;
 
+  const {
+    searchSuggestions,
+    setSearchSuggestions,
+    loadingRoutes
+  } = state;
+
+  const topDropDownRef = useRef<AutoCompleteDropdownRef>(null);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+
   const slideAnim = useState(new Animated.Value(-500))[0];
   const checkSelection = (start: string | null, destination: string | null) => {
     setTwoBuildingsSelected(start !== null && destination !== null);
@@ -48,14 +57,15 @@ export function DestinationChoices({
         tension: 20,
         friction: 7
       }).start();
+      //cleanup
+      topDropDownRef.current?.reset();
+      setSelectedStart("");
+      checkSelection("", selectedDestination);
+      setOrigin("");
     }
   }, [visible]);
 
   useEffect(()=>{
-    setSelectedStart("Your Location");
-    checkSelection("Your Location", selectedDestination);
-    setOrigin("Your Location");
-
     setDestination(destination);
     setSelectedBuilding(destination);
     setSelectedDestination(destination);
@@ -72,10 +82,17 @@ export function DestinationChoices({
       ]}
     >
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown defaultVal={"Your Location"} options={["Your Location", ...buildingList]} onSelect={(selected) => {
-          setSelectedStart(selected);
-          checkSelection(selected, selectedDestination);
-          setOrigin(selected);
+        <AutoCompleteDropdown
+          ref={topDropDownRef}
+          locked={loadingRoutes}
+          searchSuggestions={searchSuggestions}
+          setSearchSuggestions={setSearchSuggestions}
+          buildingData={buildingList} 
+          onSelect={(selected) => {
+            if(!selected) return;
+            setSelectedStart(selected);
+            checkSelection(selected, selectedDestination);
+            setOrigin(selected);
         }} />
       </View>
       <IconSymbol
@@ -91,9 +108,12 @@ export function DestinationChoices({
         <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
       </Pressable> */}
       <View style={styles.dropdownWrapper}>
-        <BuildingDropdown
-          defaultVal={destination}
-          options={buildingList}
+        <AutoCompleteDropdown
+          locked={loadingRoutes}
+          searchSuggestions={searchSuggestions}
+          setSearchSuggestions={setSearchSuggestions} 
+          currentVal={destination}
+          buildingData={buildingList}
           onSelect={(selected) => {
             setDestination(selected);
             setSelectedBuilding(selected);
@@ -121,6 +141,7 @@ const styles = StyleSheet.create({
   },
   dropdownWrapper: {
     alignItems: "center",
+    right: 30,
   },
   modeIcon: {
     alignItems: "center",

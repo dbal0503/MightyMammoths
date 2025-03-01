@@ -1,59 +1,48 @@
-// components/RouteStart.tsx
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { RouteData } from "@/services/directionsService";
-import { useRouter } from "expo-router";
-import { useNavigation } from '@react-navigation/native';
-
-interface TransportChoiceProps {
+interface StartNavigationProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    onBack: ()=> void; 
+    destinationBuilding: any
+    routes: any
+    starting: ()=> void;
+    defPoly:()=>void;
 }
 
 export function StartNavigation({
-    transportationChoice,
-    setTransportationChoice,
-}: TransportChoiceProps) {
-    const destinationBuilding = 'Henry F.Hall Building';
-    const transportTime='8 minutes';
-    const transportDistance='0.46km';
-    const navigation = useNavigation();
-    const router = useRouter();
+    onBack,
+    defPoly,
+    starting,
+    routes,
+    destinationBuilding
+}: StartNavigationProps) {
 
-    const setModeNull = () => {
-        setTransportationChoice(null);
-    }
+    const setModeNull = () => {onBack();}
+    const startNavigation = () => {starting(); defPoly();}
+    const estimates = routes;
+    const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
 
-    const startNavigation = () => {
-        router.push('/directions'); 
-    };
-
-    return (<View style={styles.container}>
-                <TouchableOpacity onPress={setModeNull}>
-                    <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
-                </TouchableOpacity>
-                <View style={styles.destinationInformation}>
-                    <Text style={styles.routeHeading}>Routes to</Text>
-                    <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
-                    <View style={styles.travelInformation}>
-                        <Text style={styles.time}>{transportTime}</Text>
-                        <Text style={styles.distance}>{transportDistance}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
-                        <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
-                        <Text style={styles.start}>Start</Text>
-                    </TouchableOpacity>
-
+    return ( 
+        <View style={styles.container}>
+            <TouchableOpacity onPress={setModeNull}>
+                <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
+            </TouchableOpacity>
+            <View style={styles.destinationInformation}>
+                <Text style={styles.routeHeading}>Routes to</Text>
+                <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
+                <View style={styles.travelInformation}>
+                    <Text style={styles.time}>{bestEstimate.duration}</Text>
+                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
                 </View>
+                <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                    <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
+                    <Text style={styles.start}>Start</Text>
+                </TouchableOpacity>
             </View>
-            );
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -90,6 +79,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     destinationInformation: {
+        width: '80%',
         paddingLeft: 20,
     },
     travelInformation:{

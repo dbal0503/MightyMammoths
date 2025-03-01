@@ -1,0 +1,10 @@
+appId: com.anonymous.MightyMammoths
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5783
+- tapOn:
+    id: "campus-option-loy"
+- tapOn:
+    point: "90%,79%"
+- assertVisible: "EV"

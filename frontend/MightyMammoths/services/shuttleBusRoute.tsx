@@ -1,4 +1,3 @@
-import { GOOGLE_MAPS_API_KEY } from "../env";
 import axios from "axios";
 import { RouteData } from "@/services/directionsService";
 import { findNextBusTime } from "@/utils/getNextShuttleBus";
@@ -8,20 +7,15 @@ export async function getShuttleBusRoute(
     destination: string,
     direction: string
   ): Promise<RouteData[]> {
-
-    // If no valid shuttle direction was set
-    if (!direction) {
-      return [];
-    }
   
     let pickupLocation = "";
     if (direction === "SGW") {
-        pickupLocation = "1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8";
+        pickupLocation = "45.497163,-73.578535";
     }else if (direction === "LOY") {
-        pickupLocation = "7141 Sherbrooke St W, Montreal, QC H4B 1R6";
+        pickupLocation = "45.458424,-73.638369";
     }
   
-    const apiKey = GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
   
     try {
       // ─── STEP 1: WALKING LEG (Origin -> Pickup Location) ───────────────────────
@@ -32,7 +26,7 @@ export async function getShuttleBusRoute(
       const walkingResponse = await axios.get<{ routes: any[] }>(walkingUrl);
       const walkingRoutes = walkingResponse.data.routes;
       if (walkingRoutes.length === 0) {
-        throw new Error("No walking route found");
+        return [];
       }
       const walkingRoute = walkingRoutes[0];
       const walkingLeg = walkingRoute.legs[0];
@@ -81,7 +75,7 @@ export async function getShuttleBusRoute(
       const busResponse = await axios.get<{ routes: any[] }>(busUrl);
       const busRoutes = busResponse.data.routes;
       if (busRoutes.length === 0) {
-        throw new Error("No bus route found");
+        return [];
       }
       const busRoute = busRoutes[0];
       const busLeg = busRoute.legs[0];
@@ -95,12 +89,11 @@ export async function getShuttleBusRoute(
     
         // ─── STEP 3: WALKING LEG (Dropoff Location -> Destination) ───────────────────
       let dropOffLocation = "";
-
-      if (pickupLocation === "1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8") {
-        dropOffLocation = "7141 Sherbrooke St W, Montreal, QC H4B 1R6";
-        } else {
-        dropOffLocation = "1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8";
-        }
+      if (direction === "SGW") {
+        dropOffLocation = "45.458424,-73.638369";
+      }else  {
+        dropOffLocation = "45.497163,-73.578535";
+      }
         
         const walkingUrlDropOff = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
             dropOffLocation
@@ -109,7 +102,7 @@ export async function getShuttleBusRoute(
           const walkingResponseDropOff = await axios.get<{ routes: any[] }>(walkingUrlDropOff);
           const walkingRoutesDropOff = walkingResponseDropOff.data.routes;
           if (walkingRoutesDropOff.length === 0) {
-            throw new Error("No walking route found");
+            return [];
           }
           const walkingRouteDropOff = walkingRoutesDropOff[0];
           const walkingLegDropOff = walkingRouteDropOff.legs[0];
@@ -129,9 +122,6 @@ export async function getShuttleBusRoute(
 
       const totalDistanceKm: number = walkingDistanceKm + busDistanceKm + walkingDistanceKmDropOff;
       const totalDistanceText: string = `${totalDistanceKm.toFixed(2)} km`;
-      
-      //TODO To combine the polyline, we need to decode both the walking and bus polylines,
-      //TODO merge te coordinates arrays and then re-encode them
 
       const combinedPolyline = "";
   
@@ -176,10 +166,9 @@ export async function getShuttleBusRoute(
         distance: totalDistanceText, // or sum numeric values if needed
         steps: combinedSteps,
       };
-  
       return [shuttleRoute];
     } catch (error) {
       console.error("Error fetching shuttle bus route", error);
-      throw error;
+      return [];
     }
   }
