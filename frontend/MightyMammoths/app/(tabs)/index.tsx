@@ -381,8 +381,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           };
         }
       }
-  
-      
+
       if (targetRegion) {
         setZoomedRegion(null);
         mapRef.current.animateToRegion(targetRegion, 1000);
