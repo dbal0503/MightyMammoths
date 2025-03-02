@@ -18,14 +18,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded) 
       SplashScreen.hideAsync();
-    }
   }, [loaded]);
 
-  if (!loaded) {
+  if (!loaded) 
     return null;
-  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

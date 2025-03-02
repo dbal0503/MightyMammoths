@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 
 interface NavigationInformationProps {
@@ -11,23 +10,24 @@ export function NavigationInformation({ destinationBuilding }: NavigationInforma
     const address='1550 De Maisonnneuve West';
     const nextStep='Rue Sainte-Catherine O';
     const distance='240m';
-    return (<View style={styles.container}>
-                <View style={styles.destinationInformation}>
-                    <IconSymbol name="flag" size={50} color="black" style={styles.modeIcon}/>
-                    <View style={styles.textInformation}>
-                        <Text style={styles.buildingName}>{destinationBuilding}</Text>
-                        <Text style={styles.address}>{address}</Text>
-                    </View>
-                </View>
-                <View style={styles.directionInformation}>
-                    <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
-                    <View style={styles.distanceInformation}>
-                        <Text style={styles.nextStep}>{nextStep}</Text>
-                        <Text style={styles.distance}>{distance}</Text>
-                    </View>
-                </View>
+    return (
+    <View style={styles.container}>
+        <View style={styles.destinationInformation}>
+            <IconSymbol name="flag" size={50} color="black" style={styles.modeIcon}/>
+            <View style={styles.textInformation}>
+                <Text style={styles.buildingName}>{destinationBuilding}</Text>
+                <Text style={styles.address}>{address}</Text>
             </View>
-            );
+        </View>
+        <View style={styles.directionInformation}>
+            <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
+            <View style={styles.distanceInformation}>
+                <Text style={styles.nextStep}>{nextStep}</Text>
+                <Text style={styles.distance}>{distance}</Text>
+            </View>
+        </View>
+    </View>
+    );
 }
 
 const styles = StyleSheet.create({

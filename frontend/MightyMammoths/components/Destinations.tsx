@@ -1,9 +1,7 @@
-// components/Destinations.tsx
 import React, {useState, useEffect, useRef} from "react";
 import { StyleSheet, View, Animated} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
-
 import { useNavigation } from "@/components/NavigationProvider";
 
 interface DestinationChoicesProps {
@@ -34,7 +32,6 @@ export function DestinationChoices({
   const topDropDownRef = useRef<AutoCompleteDropdownRef>(null);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
-
   const slideAnim = useState(new Animated.Value(-500))[0];
   const checkSelection = (start: string | null, destination: string | null) => {
     setTwoBuildingsSelected(start !== null && destination !== null);

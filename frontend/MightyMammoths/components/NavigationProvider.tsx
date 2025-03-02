@@ -5,11 +5,9 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
-
 import { suggestionResult } from "@/services/searchService";
 // Constants can be exported from the same file
 export const transportModes = ["driving", "transit", "bicycling", "walking"];
-
 
 // Extend our previous state interface
 interface NavigationState {
@@ -95,8 +93,6 @@ const NavigationProvider = ({
     const [lat, long] = coordString.split(",").map(parseFloat);
     return [lat, long];
   }
-
-
 
   // Move the route fetching logic into the provider
   async function fetchRoutes() {

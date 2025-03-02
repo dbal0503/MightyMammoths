@@ -63,7 +63,6 @@ export default function HomeScreen() {
   const [currentPlace, setCurrentPlace] = useState<placeDetails| undefined>(undefined)
   const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
-
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -188,12 +187,14 @@ const centerAndShowBuilding = (buildingName: string) => {
         console.log('Index.tsx: failed to fetch place location');
         return;
       }
+
       const placeRegion: Region = {
         latitude: details.location.latitude,
         longitude: details.location.longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
       };
+
       setSearchMarkerLocation(placeRegion);
       setRegion(placeRegion);
       if (mapRef.current) {
@@ -228,15 +229,12 @@ const centerAndShowBuilding = (buildingName: string) => {
       setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
     })();
 
+    // show the main sheet
     campusToggleSheet.current?.show();
 
-    //console.log("all locked and loaded");
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-    });
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {setIsKeyboardVisible(true);});
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {setIsKeyboardVisible(false);});
+
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
@@ -246,12 +244,14 @@ const centerAndShowBuilding = (buildingName: string) => {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        {/* OUTDOOR MAP */}
         <MapView
           style={styles.map}
           initialRegion={regionMap}
           customMapStyle={mapStyle}
           ref={mapRef}
         >
+          {/* USER LOCATION */}
           <Marker
             image={require("../../assets/images/arrow.png")}
             coordinate={myLocation}
@@ -262,11 +262,13 @@ const centerAndShowBuilding = (buildingName: string) => {
               coordinate={searchMarkerLocation}
             />
           }
+          {/* OUTLINES */}
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
           />
 
+          {/* POLYLINE */}
           {polyline && 
             <Polyline
               strokeWidth={10}
@@ -276,6 +278,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           }
         </MapView>
 
+        {/* TOP DROPDOWN */}
         <View style={styles.topElements}>
           <View style={styles.dropdownWrapper}>
             <AutoCompleteDropdown
