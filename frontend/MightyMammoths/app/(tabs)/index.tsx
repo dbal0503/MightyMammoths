@@ -1,5 +1,5 @@
 import React, {useRef, useState, useEffect} from "react";
-import {StyleSheet, View, Keyboard} from "react-native";
+import {StyleSheet, View, Keyboard, Modal, TouchableOpacity, Text} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
@@ -25,8 +25,7 @@ import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
-import IndoorMapSheet from "@/components/ui/sheets/IndoorMapSheet";
-
+import IndoorMapModal from "@/components/ui/IndoorMapModal";
 
 export default function HomeScreen() {
   interface Region {
@@ -56,6 +55,7 @@ export default function HomeScreen() {
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
   const indoorMapSheet = useRef<ActionSheetRef>(null);
+  const [indoorMapVisible, setIndoorMapVisible] = useState(false);
 
 
   //This is for globally storing data for place search so that all location choice dropdown
@@ -235,13 +235,12 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     //have destination be set to the selected building
   }
-  
+
   const switchToIndoor = () => {
     placeInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
-    buildingInfoSheet.current?.hide();
-    indoorMapSheet.current?.show();
-  }
+    setIndoorMapVisible(true); 
+  }    
 
   useEffect(() => {
     (async () => {
@@ -320,6 +319,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           />
         </View>
 
+
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
         <LoyolaSGWToggleSheet
@@ -342,17 +342,15 @@ const centerAndShowBuilding = (buildingName: string) => {
         )}
 
         {selectedBuilding && (
-          <IndoorMapSheet
+          <IndoorMapModal
+            visible={indoorMapVisible}
             building = {selectedBuilding}
-            actionsheetref={indoorMapSheet}
             onClose={() => {
-              indoorMapSheet.current?.hide();
+              setIndoorMapVisible(false);
               campusToggleSheet.current?.show();
-              setSelectedBuilding(null);
             }}
           />
         )}
-      
 
         <PlaceInfoSheet
           navigate={startNavigation}
