@@ -3,7 +3,12 @@ import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
+import React from 'react';
 
+const options = {
+	clientId: process.env.EXPO_MAPPEDIN_ID,
+	clientSecret: process.env.EXPO_MAPPEDIN_SECRET,
+};
 
 export type IndoorMapSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
@@ -40,6 +45,7 @@ function IndoorMapSheet({
             <Pressable style = {styles.closeButton} onPress={onClose}/>  
             <Pressable style = {styles.dropdown1}/> 
             <Pressable style = {styles.dropdown2}/> 
+            {/*<MiMapView style={{ flex: 1 }} key="mappedin" options={options} /> */}
             <Pressable style = {styles.nextFloorButton}/>
             <Pressable style = {styles.prevFloorButton}/>
         </View>
