@@ -13,6 +13,8 @@ import {
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import axios from "axios";
 
+
+//webclient not android client id
 GoogleSignin.configure({
   webClientId:
     "1069237773869-m1q5nruuve50ee7a9enku70vr1f057fj.apps.googleusercontent.com",
