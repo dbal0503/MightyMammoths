@@ -238,7 +238,11 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   const navigateToRoutes = (destination: string) => {
     setDestination(destination);
-    navigationSheet.current?.show(); // Open the navigation UI
+    navigationSheet.current?.show();
+    placeInfoSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    setChooseDestVisible(true);
+    setNavigationMode(true);
 };
 
   
@@ -332,7 +336,7 @@ const centerAndShowBuilding = (buildingName: string) => {
         {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
-            navigate={navigateToRoutes}
+            navigate={startNavigation}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
             onClose={() => {

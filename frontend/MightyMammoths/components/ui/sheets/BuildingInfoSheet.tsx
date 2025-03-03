@@ -52,7 +52,7 @@ function BuildingInfoSheet({
             <View style={[
                 styles.button, styles.destinationButton
                 ]}>
-            <Pressable onPress={() => navigate(building.properties.BuildingName)}>
+            <Pressable onPress={navigate}>
                 <Text style={styles.buttonText}>Set As Destination</Text>
             </Pressable>
             
