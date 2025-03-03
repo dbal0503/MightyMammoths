@@ -235,6 +235,12 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     //have destination be set to the selected building
   }
+
+  const navigateToRoutes = (destination: string) => {
+    setDestination(destination);
+    navigationSheet.current?.show(); // Open the navigation UI
+};
+
   
 
   useEffect(() => {
@@ -319,13 +325,14 @@ const centerAndShowBuilding = (buildingName: string) => {
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
+          navigateToRoutes={navigateToRoutes} 
         />
         )}
         
         {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
-            navigate={startNavigation}
+            navigate={navigateToRoutes}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
             onClose={() => {

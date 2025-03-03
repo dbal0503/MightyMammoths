@@ -6,12 +6,14 @@ import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
 import { navigate } from 'expo-router/build/global-state/routing';
 
+
 export type BuildingInfoSheetProps = ActionSheetProps & {
-    actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-    building: GeoJsonFeature;
-    navigate: () => void;
-    onClose: () => void; 
+  actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+  building: GeoJsonFeature;
+  navigate: (destination: string) => void;
+  onClose: () => void; 
 }
+
 
 function BuildingInfoSheet({
     isModal = false,
@@ -50,9 +52,11 @@ function BuildingInfoSheet({
             <View style={[
                 styles.button, styles.destinationButton
                 ]}>
-            <Pressable onPress={navigate}>
+            <Pressable onPress={() => navigate(building.properties.BuildingName)}>
                 <Text style={styles.buttonText}>Set As Destination</Text>
-                </Pressable>
+            </Pressable>
+            
+
             </View>
             <View style={
                 [styles.button, styles.indoorMapButton]

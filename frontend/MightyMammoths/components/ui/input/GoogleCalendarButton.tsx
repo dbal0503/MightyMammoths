@@ -20,7 +20,12 @@ GoogleSignin.configure({
     "1069237773869-m1q5nruuve50ee7a9enku70vr1f057fj.apps.googleusercontent.com",
 });
 
-const GoogleCalendarButton: React.FC = () => {
+type GoogleCalendarButtonProps = {
+  navigateToRoutes: (destination: string) => void;
+};
+
+const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes }) => {
+
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [calendars, setCalendars] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -166,7 +171,7 @@ const GoogleCalendarButton: React.FC = () => {
               <Pressable
                 style={styles.showDirectionsButton}
                 onPress={() =>
-                  console.log(`Address/Directions: ${nextEvent.description}, `+ `${nextEvent.location}` + `, Time: ${nextEvent.time}`)
+                  navigateToRoutes(`${nextEvent.location}`)
                 }
               >
                 <Text style={styles.showDirectionsText}>Show Directions</Text>
