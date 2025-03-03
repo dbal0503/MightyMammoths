@@ -420,10 +420,6 @@ const centerAndShowBuilding = (buildingName: string) => {
         longitudeDelta: 0.005,
       };
       setMyLocation(newLocation);
-
-      //console.log("Granted: ", granted);
-      //console.log("Polyline: ", routePolylineRef.current[0]);
-      //console.log("New Location: ", newLocation);
       
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         let candidate: { latitude: number; longitude: number } | null = null;
@@ -471,9 +467,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []);
-  
-  
+  }, [isKeyboardVisible]);
 
   return (
     <>
@@ -539,10 +533,12 @@ const centerAndShowBuilding = (buildingName: string) => {
         </View>
 
         {/* SGW & LOY TOGGLE */}
+        {(!isKeyboardVisible &&
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
         />
+        )}
         
         {/* BUILDING INFO */}
         {selectedBuilding && (
