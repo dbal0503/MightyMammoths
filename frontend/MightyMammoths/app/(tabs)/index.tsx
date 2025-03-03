@@ -25,6 +25,7 @@ import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
+import IndoorMapSheet from "@/components/ui/sheets/IndoorMapSheet";
 
 
 export default function HomeScreen() {
@@ -54,6 +55,8 @@ export default function HomeScreen() {
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
+  const indoorMapSheet = useRef<ActionSheetRef>(null);
+
 
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
@@ -147,9 +150,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
 
 
-  
-
-  
   useEffect(() => {
     const buildingResults: suggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
@@ -236,6 +236,12 @@ const centerAndShowBuilding = (buildingName: string) => {
     //have destination be set to the selected building
   }
   
+  const switchToIndoor = () => {
+    placeInfoSheet.current?.hide();
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    indoorMapSheet.current?.show();
+  }
 
   useEffect(() => {
     (async () => {
@@ -326,14 +332,27 @@ const centerAndShowBuilding = (buildingName: string) => {
         {selectedBuilding && (
           <BuildingInfoSheet
             navigate={startNavigation}
+            navigateIndoor={switchToIndoor}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
             onClose={() => {
+              campusToggleSheet.current?.show();
+            }}
+          />
+        )}
+
+        {selectedBuilding && (
+          <IndoorMapSheet
+            building = {selectedBuilding}
+            actionsheetref={indoorMapSheet}
+            onClose={() => {
+              indoorMapSheet.current?.hide();
               campusToggleSheet.current?.show();
               setSelectedBuilding(null);
             }}
           />
         )}
+      
 
         <PlaceInfoSheet
           navigate={startNavigation}

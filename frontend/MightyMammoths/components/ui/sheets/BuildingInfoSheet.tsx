@@ -10,6 +10,7 @@ export type BuildingInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     building: GeoJsonFeature;
     navigate: () => void;
+    navigateIndoor: () => void;
     onClose: () => void; 
 }
 
@@ -25,6 +26,7 @@ function BuildingInfoSheet({
     actionsheetref,
     building,
     navigate,
+    navigateIndoor,
     onClose,
 }: BuildingInfoSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -57,7 +59,7 @@ function BuildingInfoSheet({
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable>
+            <Pressable onPress={navigateIndoor}>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>
