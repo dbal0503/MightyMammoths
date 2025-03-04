@@ -199,9 +199,9 @@ export function DestinationChoices({
 
 const styles = StyleSheet.create({
   container: {
-    height: "30%",
+    height: "24%",
     width: "100%",
-    paddingTop:75,
+    paddingTop:30,
     padding: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,

@@ -15,6 +15,8 @@ import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } f
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import polyline from "@mapbox/polyline";
 import { Image } from "react-native";
+import {NavigationInformation} from "@/components/NavigationInformation";
+import {StaticNavigationInformation} from "@/components/StaticNavigationInformation";
 // Context providers
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -82,6 +84,7 @@ export default function HomeScreen() {
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
   const [polyline, setPolyline] = useState<LatLng[]>([]);
+  const [navigationIsStarted, setNavigationIsStarted] = useState(false);
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -499,6 +502,11 @@ const centerAndShowBuilding = (buildingName: string) => {
             destination={destination}
             locationServicesEnabled={locationServicesEnabled}
           />
+          <StaticNavigationInformation
+            visible={navigationIsStarted}
+          />
+          
+
         </NavigationProvider>
 
       </GestureHandlerRootView>

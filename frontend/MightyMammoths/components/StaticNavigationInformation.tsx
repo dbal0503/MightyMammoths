@@ -1,126 +1,141 @@
-import React, {useState} from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
-import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import Animated, { Easing, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { IconSymbol } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
+import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
-export function StaticNavigationInformation() {
-    
-    const nextStep='Rue Sainte-Catherine O';
-    const distance='240m';
-    const steps=[
-        { step: 'Start at the intersection of Main St and Rue Sainte-Catherine O.', distance: '100m' },
-        { step: 'Turn right onto Rue Sainte-Catherine O.', distance: '50m' },
-        { step: 'Walk towards the bus stop.', distance: '90m' }
-    ];
+interface StaticNavigationInformationProps {
+  visible?: boolean;
+}
 
-    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+export function StaticNavigationInformation({ visible = true }: StaticNavigationInformationProps) {
+  if (!visible) return null;
 
-    const translateX = useSharedValue(0);
+  const steps = [
+    { step: 'Start at the intersection of Main St and Rue Sainte-Catherine O.', distance: '100m' },
+    { step: 'Turn right onto Rue Sainte-Catherine O.', distance: '50m' },
+    { step: 'Walk towards the bus stop.', distance: '90m' }
+  ];
+  
 
-    
-    const onGestureEvent = (event: any) => {
-        translateX.value = event.translationX;
-    };
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const translateX = useSharedValue(0);
 
-    const onGestureEnd = () => {
-        // If swipe distance is more than half of the screen width, change step
-        if (translateX.value > width / 2) {
-          setCurrentStepIndex((prevIndex) => Math.min(prevIndex + 1, steps.length - 1));
-        } else if (translateX.value < -width / 2) {
-          setCurrentStepIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-        }
-    
-        translateX.value = withTiming(0, { duration: 200, easing: Easing.ease });
-      };
+  // Gesture for Swiping
+  const swipeGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+    })
+    .onEnd((event) => {
+      if (event.translationX < -50 && currentStepIndex < steps.length - 1) {
+        setCurrentStepIndex((prevIndex) => prevIndex + 1);
+      } else if (event.translationX > 50 && currentStepIndex > 0) {
+        setCurrentStepIndex((prevIndex) => prevIndex - 1);
+      }
+      translateX.value = withSpring(0);
+    });
 
-    return (<View style={styles.container}>
-                <View style={styles.directionInformation}>
-                    <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
-                    <View style={styles.distanceInformation}>
-                        <Text style={styles.nextStep}>{steps[currentStepIndex]?.step || nextStep}</Text>
-                        <Text style={styles.distance}>{steps[currentStepIndex]?.distance || distance}</Text>
-                    </View>
-                </View>
-                <PanGestureHandler
-                    onGestureEvent={onGestureEvent}
-                    onEnded={onGestureEnd}
-                    >
-                    <Animated.View
-                        style={[
-                        styles.swipeableContainer,
-                        {
-                            transform: [{ translateX: translateX.value }],
-                        },
-                        ]}
-                    >
-                        <Text style={styles.nextStep}>{steps[currentStepIndex]?.step}</Text>
-                        <Text style={styles.distance}>{steps[currentStepIndex]?.distance}</Text>
-                    </Animated.View>
-                    </PanGestureHandler>
-            </View>
-            );
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: 1 - Math.abs(translateX.value) / 200,
+  }));
+
+  // Handlers for buttons
+  const goToNextStep = () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prevIndex) => prevIndex + 1);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex((prevIndex) => prevIndex - 1);
+    }
+  };
+
+  return (
+    <GestureDetector gesture={swipeGesture}>
+      <View style={styles.container}>
+        <View style={styles.directionInformation}>
+          <TouchableOpacity
+            style={styles.arrowButton}
+            onPress={goToPreviousStep}
+            disabled={currentStepIndex === 0}
+          >
+            <IconSymbol name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+          <View style={styles.distanceInformation}>
+            <Animated.Text style={[styles.nextStep, animatedStyle]}>
+              {steps[currentStepIndex].step}
+            </Animated.Text>
+            <Animated.Text style={[styles.distance, animatedStyle]}>
+              {steps[currentStepIndex].distance}
+            </Animated.Text>
+          </View>
+          <TouchableOpacity
+            style={styles.arrowButton}
+            onPress={goToNextStep}
+            disabled={currentStepIndex === steps.length - 1}
+          >
+            <IconSymbol name="arrow-forward" size={30} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </GestureDetector>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        position: 'absolute', 
-        top: 0, 
-        left: 0,
-        right: 0,
-        padding: 16,
-        marginBottom: 0,
-        backgroundColor: 'black',
-        alignItems: 'center',
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        zIndex: 10, 
-    },
-    dropdownWrapper: {
-        alignItems: "center",
-    },
-    modeIcon: {
-        alignItems: 'center',
-        color: 'white',
-        padding: 5
-    },
-    destinationInformation:{
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: 'white',
-        width: "90%",
-        paddingTop: 10,
-    },
-    buildingName:{
-        fontSize: 20,
-        color: 'white',
-    },
-    address:{
-        fontSize:16,
-        color: 'white',
-    },
-    textInformation:{
-        paddingLeft: 15,
-    },
-    directionInformation:{
-        flexDirection: 'row',
-        width: '90%',
-        paddingTop: 25,
-    },
-    nextStep:{
-        fontSize: 20,
-        color: 'white',
-    },
-    distance:{
-        fontSize: 20,
-        color: 'white',
-    },
-    distanceInformation:{
-        paddingLeft: 15,
-    },
-    swipeableContainer: {
-
-    }
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    paddingLeft: 0,
+    paddingRight: 0,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    zIndex: 10,
+  },
+  directionInformation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    
+  },
+  modeIcon: {
+    marginRight: 15,
+  },
+  distanceInformation: {
+    overflow: 'hidden',
+    width: 300,
+    alignItems: 'center',
+  },
+  nextStep: {
+    fontSize: 20,
+    color: 'white',
+    marginBottom: 5,
+  },
+  distance: {
+    fontSize: 20,
+    color: 'white',
+  },
+  arrowButton: {
+    padding: 10,
+    borderRadius: 30,
+    
+  },
+  previousButton: {
+    left: 0, 
+  },
+  nextButton: {
+     
+  },
 });
+
+export default StaticNavigationInformation;

@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     startButton:{
         marginTop:40,
         backgroundColor: 'blue',
+        width: 200,
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
