@@ -1,5 +1,5 @@
 // components/RoutesSheet.tsx
-import React from "react";
+import React, {useState} from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
@@ -10,7 +10,7 @@ interface TransportChoiceProps {
   destinationBuilding: string | null;
   bothSelected: boolean;
   onBack: () => void;
-  steps: any[];
+  onSetSteps: (steps: any[]) => void;
 }
 
 export function TransportChoice({
@@ -19,7 +19,7 @@ export function TransportChoice({
   destinationBuilding,
   bothSelected,
   onBack,
-  steps
+  onSetSteps,
 }: TransportChoiceProps) {
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
@@ -103,6 +103,7 @@ export function TransportChoice({
               onPress={() => {
                 console.log(steps); // Log the mode when pressed
                 onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
+                onSetSteps(steps);
               }}
               disabled={!bothSelected}
             >

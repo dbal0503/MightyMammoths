@@ -61,6 +61,12 @@ function NavigationSheet({
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
 
+    const [steps, setSteps] = useState<any[]>([]);
+
+    const onSetSteps = (newSteps: any[]) => {
+      setSteps(newSteps);
+    };
+
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
         latitude,
@@ -100,6 +106,7 @@ function NavigationSheet({
                     onSelectMode={(mode) => {
                       if(origin && destination){
                         setSelectedMode(mode);
+                        onSetSteps(steps);
                         actionsheetref.current?.snapToIndex(1)
                       }
                     }}
