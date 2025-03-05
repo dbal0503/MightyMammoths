@@ -10,6 +10,7 @@ export type BuildingInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     building: GeoJsonFeature;
     navigate: () => void;
+    onClose: () => void; 
 }
 
 function BuildingInfoSheet({
@@ -23,7 +24,8 @@ function BuildingInfoSheet({
     overdrawSize = 200,
     actionsheetref,
     building,
-    navigate
+    navigate,
+    onClose,
 }: BuildingInfoSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -40,6 +42,7 @@ function BuildingInfoSheet({
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
         containerStyle={styles.root}
+        onClose={onClose}
         >
       <View style={styles.container}>
     <Text style={styles.header}>{building?.properties['Building Long Name']}</Text>
