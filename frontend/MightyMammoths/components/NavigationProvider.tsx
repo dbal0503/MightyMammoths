@@ -136,8 +136,6 @@ const NavigationProvider = ({
           }
         }
         
-        //console.log("Mode shuttle: ", estimates["shuttle"]);
-        //console.log(estimates)
         setRouteEstimates(estimates);
       } catch (error) {
         console.error("Error fetching routes: ", error);
