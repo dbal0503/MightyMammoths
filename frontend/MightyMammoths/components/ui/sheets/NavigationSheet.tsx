@@ -1,8 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef } from "react-native-actions-sheet";
+import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { useNavigation } from "@/components/NavigationProvider"
@@ -43,7 +42,6 @@ function NavigationSheet({
     
     const { 
         setSelectedMode, 
-        setSelectedRoute,
         setRouteEstimates,
     } = functions;
 
