@@ -60,20 +60,6 @@ export function StaticNavigationInformation(
     }
   }, [currentStepIndex]); 
   
-  
-  const swipeGesture = Gesture.Pan()
-    .onUpdate((event) => {
-      translateX.value = event.translationX;
-    })
-    .onEnd((event) => {
-      if (event.translationX < -50 && currentStepIndex < stepsText.length - 1) {
-        setCurrentStepIndex((prevIndex) => prevIndex + 1);
-      } else if (event.translationX > 50 && currentStepIndex > 0) {
-        setCurrentStepIndex((prevIndex) => prevIndex - 1);
-      }
-      translateX.value = withSpring(0);
-    });
-
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
     opacity: 1 - Math.abs(translateX.value) / 200,
@@ -90,7 +76,6 @@ export function StaticNavigationInformation(
   return (
     <>
       {stepsText && (
-      <GestureDetector gesture={swipeGesture}>
         <View style={styles.container}>
           <View style={styles.directionInformation}>
             <TouchableOpacity
@@ -98,7 +83,7 @@ export function StaticNavigationInformation(
               onPress={goToPreviousStep}
               disabled={currentStepIndex === 0}
             >
-              <IconSymbol name="arrow-back" size={30} color="white" />
+              <IconSymbol name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
 
             <View style={styles.distanceInformation}>
@@ -112,12 +97,11 @@ export function StaticNavigationInformation(
               onPress={()=>{goToNextStep();}}
               disabled={currentStepIndex === stepsText.length - 1}
             >
-              <IconSymbol name="arrow-forward" size={30} color="white" />
+              <IconSymbol name="arrow-forward" size={30} color="black" />
             </TouchableOpacity>
 
           </View>
         </View>
-      </GestureDetector>
       )}
     </>
   );
@@ -142,6 +126,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    marginTop: 50,
     
   },
   modeIcon: {
@@ -153,24 +138,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextStep: {
-    fontSize: 20,
+    fontSize: 17,
     color: 'white',
     marginBottom: 5,
+    padding: 10
   },
   distance: {
     fontSize: 20,
     color: 'white',
   },
   arrowButton: {
-    padding: 10,
-    borderRadius: 30,
-    
-  },
-  previousButton: {
-    left: 0, 
-  },
-  nextButton: {
-     
+    padding: 7,
+    borderRadius: 40,
+    backgroundColor: 'white',
   },
 });
 
