@@ -34,7 +34,6 @@ interface BuildingMappingProps {
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarkerPress }) => {
   const [polygons, setPolygons] = useState<any[]>([]);
-  //const [missingPolygonsState, setmissingPolygonsState] = useState<any[]>([]);
 
     const loadAllPolygons = async () => {
       const polygonData = await Promise.all(
