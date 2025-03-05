@@ -28,6 +28,7 @@ export function LiveInformation({
     const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut();}
 
     return (
+    <>
     <View style={styles.container}>
         <View style={styles.destinationInformation}>
             <View style={styles.etaContainer}>
@@ -43,6 +44,7 @@ export function LiveInformation({
             </View>
         </View>
     </View>
+    </>
     );
 }
 

@@ -85,6 +85,8 @@ export default function HomeScreen() {
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
   const [polyline, setPolyline] = useState<LatLng[]>([]);
   const [navigationIsStarted, setNavigationIsStarted] = useState(false);
+  const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
+  const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -141,7 +143,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, 200);
 };
 
-
   const CenterOnCampus = (campus:string) => {
     setSelectedCampus(campus);
     ChangeLocation(campus);
@@ -153,10 +154,12 @@ const centerAndShowBuilding = (buildingName: string) => {
     ChangeLocation("my Location");
   };
 
-
-  
-
-  
+  useEffect(() => {
+    if(latitudeStepByStep!==0 && longitudeStepByStep!==0){
+      recenterToPolyline(latitudeStepByStep, longitudeStepByStep) 
+    }
+  }, [latitudeStepByStep, longitudeStepByStep]);
+ 
   useEffect(() => {
     const buildingResults: suggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
@@ -277,7 +280,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, []);
   
   
-
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
@@ -303,6 +305,17 @@ const centerAndShowBuilding = (buildingName: string) => {
       setIsZoomedIn(true);
     }
   };
+  
+  const recenterToPolyline = (latitude: any, longitude: any) => {
+    if (mapRef?.current !== null){
+      mapRef.current.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },1000);
+    }
+  }
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
   const zoomOut = () => {
@@ -493,6 +506,8 @@ const centerAndShowBuilding = (buildingName: string) => {
             }}
             onZoomIn={locationServicesEnabled ? zoomIn : () => {}}
             onZoomOut={locationServicesEnabled ? zoomOut : () => {}}
+            setLatitudeStepByStep = {setLatitudeStepByStep}
+            setLongitudeStepByStep = {setLongitudeStepByStep}
             isZoomedIn={izZoomedIn}
           
           />
@@ -501,11 +516,7 @@ const centerAndShowBuilding = (buildingName: string) => {
             visible={chooseDestVisible}
             destination={destination}
             locationServicesEnabled={locationServicesEnabled}
-          />
-          <StaticNavigationInformation
-            visible={navigationIsStarted}
-          />
-          
+          />    
 
         </NavigationProvider>
 

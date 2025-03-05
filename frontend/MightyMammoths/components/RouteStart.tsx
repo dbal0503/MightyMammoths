@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
     onBack: ()=> void; 
     destinationBuilding: any
     routes: any
@@ -13,8 +14,10 @@ interface StartNavigationProps {
     origin: string;
 }
 
+
 export function StartNavigation({
     onBack,
+    showStepByStep,
     defPoly,
     starting,
     routes,
@@ -22,6 +25,10 @@ export function StartNavigation({
     onZoomIn,
     origin
 }: StartNavigationProps) {
+
+    const setStepByStepVisible = () => {
+        showStepByStep(true)
+    }
 
     const setModeNull = () => {onBack();}
     const yourLocationSet = true ? origin === "Your Location" : false;
@@ -41,7 +48,7 @@ export function StartNavigation({
                     <Text style={styles.time}>{bestEstimate.duration}</Text>
                     <Text style={styles.distance}>{bestEstimate.distance}</Text>
                 </View>
-                <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                <TouchableOpacity style={styles.startButton} onPress={()=>{startNavigation(); setStepByStepVisible();}}>
                     <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
                     <Text style={styles.start}>Start</Text>
                 </TouchableOpacity>

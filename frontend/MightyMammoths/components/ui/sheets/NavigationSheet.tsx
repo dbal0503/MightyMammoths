@@ -13,11 +13,14 @@ import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
 import polyline from "@mapbox/polyline"
 import { LatLng } from 'react-native-maps';
+import { StaticNavigationInformation } from '@/components/StaticNavigationInformation';
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
     setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
+    setLatitudeStepByStep: React.Dispatch<React.SetStateAction<number>>;
+    setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
     onPolylineUpdate: (poly:LatLng[])=>void;
     onExtraClose?: () => void;
     onZoomIn: () => void;
@@ -26,6 +29,8 @@ export type NavigationSheetProps = ActionSheetProps & {
 }
 
 function NavigationSheet({
+    setLatitudeStepByStep,
+    setLongitudeStepByStep,
     onPolylineUpdate,
     isModal = false,
     snapPoints = [30 ,50 ,100],
@@ -43,6 +48,7 @@ function NavigationSheet({
     onZoomOut,
     isZoomedIn
 }: NavigationSheetProps) {
+    const [navigationIsStarted, setNavigationIsStarted] = useState(false);
     const { state, functions } = useNavigation();
     const { 
         routeEstimates, 
@@ -70,81 +76,90 @@ function NavigationSheet({
     }
 
     return (
-      <ActionSheet
-        ref={actionsheetref}
-        isModal={isModal} 
-        snapPoints={snapPoints} 
-        backgroundInteractionEnabled={backgroundInteractionEnabled}
-        closable={closable}
-        gestureEnabled={gestureEnabled}
-        initialSnapIndex={initialSnapIndex}
-        containerStyle={styles.root}
-        overdrawEnabled={overdrawEnabled}
-        overdrawSize={overdrawSize}
-        onClose={() =>{ //cleanup 
-          setNavigationMode(false);
-          closeChooseDest(false);
-          setSelectedMode(null);
-          setRouteEstimates({});
-          if (onExtraClose) onExtraClose();
-        }}
-        >
-          <View style={styles.centeredView}>
-                {selectedMode === null ? (
-                // Show the transportation mode options
-                <TransportChoice
-                    onBack={()=>{
-                      actionsheetref.current?.hide();
-                    }}
-                    routeEstimates={routeEstimates}
-                    onSelectMode={(mode) => {
-                      if(origin && destination){
-                        setSelectedMode(mode);
-                        actionsheetref.current?.snapToIndex(1)
-                      }
-                    }}
-                    onSetSteps={(steps) => {
-                      console.log("Steps set: ", steps);
-                    }}
-                    destinationBuilding={selectedBuilding}
-                    bothSelected={twoBuildingsSelected}
-                />
-                ) : (startedSelectedRoute===false? (
-                <StartNavigation
-                    mode={selectedMode}
-                    routes={routeEstimates[selectedMode] || []}
-                    onSelectRoute={setSelectedRoute}
-                    onBack={() => {
-                      setSelectedMode(null);
-                      actionsheetref.current?.snapToIndex(2);
-                    }}
-                    destinationBuilding={selectedBuilding}
-                    starting={()=> {
-                      closeChooseDest(false)
-                      setStartedSelectedRoute(true);
-                      actionsheetref.current?.snapToIndex(0);
-                    }}
-                    defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
-                    onZoomIn={onZoomIn}
-                    origin={origin}
-                />
-                ) : (
-                  <LiveInformation
-                    onStop={()=>{
-                      actionsheetref.current?.hide();
-                      setPoly("");
-                      setStartedSelectedRoute(false);
-                    }}
-                    routes={routeEstimates[selectedMode] || []}
-                    onZoomOut={onZoomOut}
-                    isZoomedIn={isZoomedIn}
-                  /> 
-                )
-              )}
-
-
-          </View>
-      </ActionSheet>
+      <>
+        {navigationIsStarted && selectedMode &&(
+          <StaticNavigationInformation                       
+            routes={routeEstimates[selectedMode] || []}
+            setLatitudeStepByStep = {setLatitudeStepByStep}
+            setLongitudeStepByStep = {setLongitudeStepByStep}
+          />
+        )}   
+    
+        <ActionSheet
+          ref={actionsheetref}
+          isModal={isModal} 
+          snapPoints={snapPoints} 
+          backgroundInteractionEnabled={backgroundInteractionEnabled}
+          closable={closable}
+          gestureEnabled={gestureEnabled}
+          initialSnapIndex={initialSnapIndex}
+          containerStyle={styles.root}
+          overdrawEnabled={overdrawEnabled}
+          overdrawSize={overdrawSize}
+          onClose={() =>{ 
+            setNavigationMode(false);
+            closeChooseDest(false);
+            setSelectedMode(null);
+            setRouteEstimates({});
+            if (onExtraClose) onExtraClose();
+          }}
+          >
+            <View style={styles.centeredView}>
+                  {selectedMode === null ? (
+                  <TransportChoice
+                      onBack={()=>{
+                        actionsheetref.current?.hide();
+                      }}
+                      routeEstimates={routeEstimates}
+                      onSelectMode={(mode) => {
+                        if(origin && destination){
+                          setSelectedMode(mode);
+                          actionsheetref.current?.snapToIndex(1)
+                        }
+                      }}
+                      onSetSteps={(steps) => {
+                        console.log("Steps set: ", steps);
+                      }}
+                      destinationBuilding={selectedBuilding}
+                      bothSelected={twoBuildingsSelected}
+                  />
+                  ) : (startedSelectedRoute===false? (
+                  <StartNavigation
+                      showStepByStep ={setNavigationIsStarted}
+                      mode={selectedMode}
+                      routes={routeEstimates[selectedMode] || []}
+                      onSelectRoute={setSelectedRoute}
+                      onBack={() => {
+                        setSelectedMode(null);
+                        actionsheetref.current?.snapToIndex(2);
+                      }}
+                      destinationBuilding={selectedBuilding}
+                      starting={()=> {
+                        closeChooseDest(false)
+                        setStartedSelectedRoute(true);
+                        actionsheetref.current?.snapToIndex(0);
+                      }}
+                      defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
+                      onZoomIn={onZoomIn}
+                      origin={origin}
+                  />
+                  ) : (
+                    <LiveInformation
+                      onStop={()=>{
+                        setNavigationIsStarted(false);
+                        actionsheetref.current?.hide();
+                        setPoly("");
+                        setStartedSelectedRoute(false);
+                      }}
+                      routes={routeEstimates[selectedMode] || []}
+                      onZoomOut={onZoomOut}
+                      isZoomedIn={isZoomedIn}
+                    /> 
+                  )
+                )}
+            </View>
+        </ActionSheet>
+      </>
     );
   }
 

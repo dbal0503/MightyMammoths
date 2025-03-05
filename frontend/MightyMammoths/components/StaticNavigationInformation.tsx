@@ -1,35 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { IconSymbol } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated';
+import { LatLng } from 'react-native-maps';
+import polyline from '@mapbox/polyline';
 
-const { width } = Dimensions.get('window');
+interface Polyline {
+  points: string;
+}
+
+interface Step {
+  html_instructions: string;
+  polyline: Polyline;
+}
 
 interface StaticNavigationInformationProps {
   visible?: boolean;
+  routes: any;
+  setLatitudeStepByStep: React.Dispatch<React.SetStateAction<number>>;
+  setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
 }
 
-export function StaticNavigationInformation({ visible = true }: StaticNavigationInformationProps) {
+export function StaticNavigationInformation(
+  { 
+    visible = true,
+    routes,
+    setLatitudeStepByStep,
+    setLongitudeStepByStep
+
+  }: StaticNavigationInformationProps) {
+  
   if (!visible) return null;
 
-  const steps = [
-    { step: 'Start at the intersection of Main St and Rue Sainte-Catherine O.', distance: '100m' },
-    { step: 'Turn right onto Rue Sainte-Catherine O.', distance: '50m' },
-    { step: 'Walk towards the bus stop.', distance: '90m' }
-  ];
-  
+  const [stepsText, setStepsText] = useState<String[]>([]);
+  const [stepsData, setStepsData] = useState<Step[]>([]);
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const translateX = useSharedValue(0);
 
-  // Gesture for Swiping
+  useEffect(() => {
+    if (routes && routes.length > 0) {
+      const bestEstimate = routes[0];
+      const stepsData = bestEstimate?.steps || [];
+      setStepsText(stepsData.map((step: Step) => step.html_instructions.replace(/<[^>]*>/g, '')));
+      setStepsData(stepsData);
+    }
+  }, [routes]);
+  
+  useEffect(() => {
+    if (currentStepIndex < stepsData.length) {
+      const decodedPoly: LatLng[] = polyline.decode(stepsData[currentStepIndex].polyline.points).map(([latitude, longitude]) => ({
+        latitude,
+        longitude,
+      }));
+      // (pls check index.tsx)
+      setLatitudeStepByStep(decodedPoly[0].latitude);
+      setLongitudeStepByStep(decodedPoly[0].longitude);
+    }
+  }, [currentStepIndex]); 
+  
+  
   const swipeGesture = Gesture.Pan()
     .onUpdate((event) => {
       translateX.value = event.translationX;
     })
     .onEnd((event) => {
-      if (event.translationX < -50 && currentStepIndex < steps.length - 1) {
+      if (event.translationX < -50 && currentStepIndex < stepsText.length - 1) {
         setCurrentStepIndex((prevIndex) => prevIndex + 1);
       } else if (event.translationX > 50 && currentStepIndex > 0) {
         setCurrentStepIndex((prevIndex) => prevIndex - 1);
@@ -42,48 +79,47 @@ export function StaticNavigationInformation({ visible = true }: StaticNavigation
     opacity: 1 - Math.abs(translateX.value) / 200,
   }));
 
-  // Handlers for buttons
-  const goToNextStep = () => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex((prevIndex) => prevIndex + 1);
-    }
+  const goToPreviousStep = () => {
+    setCurrentStepIndex((prevIndex) => prevIndex - 1);
   };
 
-  const goToPreviousStep = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex((prevIndex) => prevIndex - 1);
-    }
+  const goToNextStep = () => {
+    setCurrentStepIndex((prevIndex) => prevIndex + 1);
   };
 
   return (
-    <GestureDetector gesture={swipeGesture}>
-      <View style={styles.container}>
-        <View style={styles.directionInformation}>
-          <TouchableOpacity
-            style={styles.arrowButton}
-            onPress={goToPreviousStep}
-            disabled={currentStepIndex === 0}
-          >
-            <IconSymbol name="arrow-back" size={30} color="white" />
-          </TouchableOpacity>
-          <View style={styles.distanceInformation}>
-            <Animated.Text style={[styles.nextStep, animatedStyle]}>
-              {steps[currentStepIndex].step}
-            </Animated.Text>
-            <Animated.Text style={[styles.distance, animatedStyle]}>
-              {steps[currentStepIndex].distance}
-            </Animated.Text>
+    <>
+      {stepsText && (
+      <GestureDetector gesture={swipeGesture}>
+        <View style={styles.container}>
+          <View style={styles.directionInformation}>
+            <TouchableOpacity
+              style={styles.arrowButton}
+              onPress={goToPreviousStep}
+              disabled={currentStepIndex === 0}
+            >
+              <IconSymbol name="arrow-back" size={30} color="white" />
+            </TouchableOpacity>
+
+            <View style={styles.distanceInformation}>
+              <Animated.Text style={[styles.nextStep, animatedStyle]}>
+                {stepsText[currentStepIndex]}
+              </Animated.Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.arrowButton}
+              onPress={()=>{goToNextStep();}}
+              disabled={currentStepIndex === stepsText.length - 1}
+            >
+              <IconSymbol name="arrow-forward" size={30} color="white" />
+            </TouchableOpacity>
+
           </View>
-          <TouchableOpacity
-            style={styles.arrowButton}
-            onPress={goToNextStep}
-            disabled={currentStepIndex === steps.length - 1}
-          >
-            <IconSymbol name="arrow-forward" size={30} color="white" />
-          </TouchableOpacity>
         </View>
-      </View>
-    </GestureDetector>
+      </GestureDetector>
+      )}
+    </>
   );
 }
 
