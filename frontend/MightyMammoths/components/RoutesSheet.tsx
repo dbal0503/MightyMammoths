@@ -1,5 +1,5 @@
 // components/RoutesSheet.tsx
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
@@ -21,6 +21,16 @@ export function TransportChoice({
   onBack,
   onSetSteps,
 }: TransportChoiceProps) {
+  const [selectedMode, setSelectedMode] = useState<string>("driving");
+  const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
+
+  useEffect(() => {
+    if (routeEstimates["driving"] && routeEstimates["driving"].length > 0) {
+      setBestEstimate(routeEstimates["driving"][0]);
+      onSetSteps(routeEstimates["driving"][0].steps);
+    }
+  }, [routeEstimates, onSetSteps]);
+
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
     transit: "Public Transit",
@@ -72,6 +82,8 @@ export function TransportChoice({
     ),
   };
 
+
+
   return (
     <View style={styles.container}>
       <View style={{
@@ -87,19 +99,17 @@ export function TransportChoice({
           <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.scrollContainer}>
+      <View style={styles.transportContainer}>
         {Object.keys(modeDisplayNames).map((mode) => {
           const estimates = routeEstimates[mode];
-          if (mode === "shuttle" && (!estimates || estimates.length === 0)) {
-            return null;
-          }
           const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
           
           const steps = bestEstimate?.steps || [];
+          const isSelected = selectedMode === mode;
           return (
             <TouchableOpacity
               key={mode}
-              style={styles.modeItem}
+              style={[styles.modeItem, isSelected && styles.selectedMode]}
               onPress={() => {
                 console.log(steps); // Log the mode when pressed
                 onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
@@ -108,22 +118,24 @@ export function TransportChoice({
               disabled={!bothSelected}
             >
               {modeIcons[mode]}
-              <View style={styles.textInformation}>
-                <Text style={styles.transportMode}>{modeDisplayNames[mode]}</Text>
-                <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
-              </View>
-              <View style={styles.travelInformation}>
-                {bestEstimate && (
-                  <>
-                    <Text style={styles.time}>{bestEstimate.duration}</Text>
-                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
-                  </>
-                )}
-              </View>
             </TouchableOpacity>
           );
+          
         })}
-      </ScrollView>
+      </View>
+      <View style={styles.informationContainer}>
+        {bestEstimate && (
+          <View style={styles.travelInformation}>
+            <Text style={styles.time}>{bestEstimate.duration}</Text>
+            <Text style={styles.distance}>{bestEstimate.distance}</Text>
+          </View>
+        )}
+        <TouchableOpacity
+          style={styles.goButton}
+        >
+          <Text style={styles.goStyle}>Go</Text>
+          </TouchableOpacity>          
+      </View>
     </View>
   );
 }
@@ -146,9 +158,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     
-    borderRadius: 20,
-    marginBottom: 20,
-    height:90,
+    borderRadius: 10,
+    marginBottom: 0,
+    height:50,
+    width: 68,
+    justifyContent: 'center',
+    marginRight: 10
   },
   modeIcon: {
     marginRight: 10,
@@ -191,18 +206,52 @@ const styles = StyleSheet.create({
     fontSize:15,
   },
   travelInformation:{
-    marginLeft: 'auto',
-    paddingRight:20
-}, time:{
-    fontSize:20,
+    marginLeft: 10,
+}, 
+informationContainer:{
+  marginTop: 25,
+  flexDirection: 'row',
+  alignItems: "center",
+}, 
+time:{
+    fontSize:30,
     fontWeight: 'bold',
+    color: 'white'
 },
 distance:{
-    marginLeft:'auto',
-    fontSize:18,
+    fontSize:25,
+    color: 'white'
 },
-scrollContainer: {
-  
+transportContainer: {
+  display: 'flex',
+  flexDirection: 'row',
 },
+goButton:{
+  backgroundColor: 'green',
+  width: 80,
+  height: 80,
+  borderRadius: 10,
+  marginLeft: 'auto',
+  marginRight: 20,
+  alignItems: "center",
+  justifyContent: 'center'
+},
+goStyle:{
+  color: 'white',
+  fontSize: 30,
+  fontWeight: 'bold'
+},
+selectedMode:{
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "blue",
+    
+  borderRadius: 10,
+  marginBottom: 0,
+  height:50,
+  width: 68,
+  justifyContent: 'center',
+  marginRight: 10
+}
 
 });
