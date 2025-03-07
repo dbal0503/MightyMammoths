@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
     onBack: ()=> void; 
     destinationBuilding: any
     routes: any
@@ -14,8 +15,10 @@ interface StartNavigationProps {
     originCoords: string;
 }
 
+
 export function StartNavigation({
     onBack,
+    showStepByStep,
     defPoly,
     starting,
     routes,
@@ -24,6 +27,10 @@ export function StartNavigation({
     origin,
     originCoords
 }: StartNavigationProps) {
+
+    const setStepByStepVisible = () => {
+        showStepByStep(true)
+    }
 
     const setModeNull = () => {onBack();}
     console.log("Origin from StartNavigation: ", origin);
@@ -44,7 +51,7 @@ export function StartNavigation({
                     <Text style={styles.time}>{bestEstimate.duration}</Text>
                     <Text style={styles.distance}>{bestEstimate.distance}</Text>
                 </View>
-                <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                <TouchableOpacity style={styles.startButton} onPress={()=>{startNavigation(); setStepByStepVisible();}}>
                     <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
                     <Text style={styles.start}>Start</Text>
                 </TouchableOpacity>
@@ -108,6 +115,7 @@ const styles = StyleSheet.create({
     startButton:{
         marginTop:40,
         backgroundColor: 'blue',
+        width: 200,
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
