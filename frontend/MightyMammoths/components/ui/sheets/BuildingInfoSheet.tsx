@@ -1,10 +1,8 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
-import { navigate } from 'expo-router/build/global-state/routing';
 
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
@@ -29,9 +27,6 @@ function BuildingInfoSheet({
     navigate,
     onClose,
 }: BuildingInfoSheetProps) {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
     return (
       <ActionSheet
         ref={actionsheetref}

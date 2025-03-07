@@ -90,6 +90,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     ]);
   }, [searchSuggestions]);
 
+  useEffect(() => {
+    if (currentVal) {
+      setSelected(currentVal)
+    }
+  }, [currentVal])
+
+
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
     setSearchSuggestions(prevSuggestions => {
@@ -102,16 +109,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       return [...prevSuggestions, ...newResults];
     });
   };
-  useEffect(() => {
-    if (currentVal) {
-      setSelected(currentVal)
-    }
-  }, [currentVal])
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
 
-    if(placeName == "Your Location") {
+    if(placeName === "Your Location") {
       onSelect(placeName);    
       setIsOpen(false);
       setSearchQuery("");
@@ -120,7 +122,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
-      let building = buildingData.find((item) => item.buildingName == placeName);
+      let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
         console.log('AutoCompleteDropdown: failed to fetch data for selected location');
         return;

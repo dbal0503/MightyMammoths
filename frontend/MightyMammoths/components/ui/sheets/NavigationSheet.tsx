@@ -1,14 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
-import GoogleCalendarButton from '../input/GoogleCalendarButton';
+import { View, StyleSheet } from 'react-native';
+import { useState } from 'react';
 import ActionSheet from 'react-native-actions-sheet';
-import ToggleSwitch from '../input/ToggleSwitch';
-import RetroSwitch from '../input/RetroSwitch';
-import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
+import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
-import { getRoutes, RouteData } from "@/services/directionsService";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
 import polyline from "@mapbox/polyline"
@@ -47,7 +42,6 @@ function NavigationSheet({
     
     const { 
         setSelectedMode, 
-        setSelectedRoute,
         setRouteEstimates,
     } = functions;
 
@@ -99,9 +93,7 @@ function NavigationSheet({
                 />
                 ) : (startedSelectedRoute===false? (
                 <StartNavigation
-                    mode={selectedMode}
                     routes={routeEstimates[selectedMode] || []}
-                    onSelectRoute={setSelectedRoute}
                     onBack={() => {
                       setSelectedMode(null);
                       actionsheetref.current?.snapToIndex(1);

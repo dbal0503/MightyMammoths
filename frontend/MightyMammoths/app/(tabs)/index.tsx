@@ -1,19 +1,18 @@
 import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng, Polygon } from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng} from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/Destinations";
-import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
+import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
-import polyline from "@mapbox/polyline";
+
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
 
@@ -66,14 +65,12 @@ export default function HomeScreen() {
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
-  const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
-  const [showNavigation, setShowNavigation] = useState(false);
   const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.BuildingName, placeID: properties.PlaceID || ""}));
+
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
@@ -81,8 +78,8 @@ export default function HomeScreen() {
 
   const ChangeLocation = (area: string) => {
     let newRegion;
-    if (area == "SGW") newRegion = sgwRegion;
-    else if (area == "LOY") newRegion = loyolaRegion;
+    if (area === "SGW") newRegion = sgwRegion;
+    else if (area === "LOY") newRegion = loyolaRegion;
     else newRegion = myLocation;
     setRegion(newRegion);    
     if (mapRef.current) {
@@ -124,19 +121,17 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // 5. Show the building info sheet after a brief delay
   setTimeout(() => {
-    // If you also have a campusToggleSheet open, hide it:
-    campusToggleSheet.current?.hide();
+      // If you also have a campusToggleSheet open, hide it:
+      campusToggleSheet.current?.hide();
 
-    // Then show the building sheet:
-    if (buildingInfoSheet.current) {
-      buildingInfoSheet.current.show();
-    }
-  }, 200);
-};
-
+      // Then show the building sheet:
+      if (buildingInfoSheet.current) {
+        buildingInfoSheet.current.show();
+      }
+    }, 200);
+  };
 
   const CenterOnCampus = (campus:string) => {
-    setSelectedCampus(campus);
     ChangeLocation(campus);
   }
 
@@ -146,10 +141,6 @@ const centerAndShowBuilding = (buildingName: string) => {
     ChangeLocation("my Location");
   };
 
-
-  
-
-  
   useEffect(() => {
     const buildingResults: suggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
@@ -186,11 +177,9 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
   
       if (data.placePrediction.types.includes("building")) {
-        // Update the building state so that BuildingInfoSheet gets the correct info
-        
+          // Update the building state so that BuildingInfoSheet gets the correct info
           centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
           return;
-        
       }
   
       // For non-building suggestions, fetch details and create a waypoint as before
@@ -224,17 +213,14 @@ const centerAndShowBuilding = (buildingName: string) => {
     }
   };
   
-
-  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     navigationSheet.current?.show();
-
-    //have destination be set to the selected building
   }
+
 
   const navigateToRoutes = (destination: string) => {
     setDestination(destination);
@@ -245,7 +231,6 @@ const centerAndShowBuilding = (buildingName: string) => {
     setNavigationMode(true);
 };
 
-  
 
   useEffect(() => {
     (async () => {
@@ -256,7 +241,7 @@ const centerAndShowBuilding = (buildingName: string) => {
 
     campusToggleSheet.current?.show();
 
-    console.log("all locked and loaded");
+    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
@@ -293,15 +278,13 @@ const centerAndShowBuilding = (buildingName: string) => {
             onMarkerPress={centerAndShowBuilding}
           />
 
-
           {polyline && 
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
               coordinates={polyline}
-              /> 
+            /> 
           }
-
         </MapView>
 
         <View style={styles.topElements}>
@@ -326,11 +309,13 @@ const centerAndShowBuilding = (buildingName: string) => {
 
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
+
         <LoyolaSGWToggleSheet
           actionsheetref = {campusToggleSheet}
           setSelectedCampus={CenterOnCampus}
           navigateToRoutes={navigateToRoutes} 
         />
+
         )}
         
         {/* BUILDING INFO */}
@@ -369,7 +354,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             destination={destination}
           />
         </NavigationProvider>
-
       </GestureHandlerRootView>
     </>
   );

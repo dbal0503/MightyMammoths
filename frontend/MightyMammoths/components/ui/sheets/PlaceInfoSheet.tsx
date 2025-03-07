@@ -1,9 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import {useEffect, useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
-import { navigate } from 'expo-router/build/global-state/routing';
 import { placeDetails } from '@/services/searchService';
 
 export type PlaceInfoSheetProps = ActionSheetProps & {

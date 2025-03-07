@@ -1,9 +1,9 @@
 import React from "react";
 import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
-    transportationChoice: string | null;
-    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    transportationChoice?: string | null;
+    setTransportationChoice?: React.Dispatch<React.SetStateAction<string | null>>;
     onBack: ()=> void; 
     destinationBuilding: any
     routes: any
@@ -27,7 +27,7 @@ export function StartNavigation({
     return ( 
         <View style={styles.container}>
             <TouchableOpacity onPress={setModeNull}>
-                <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
+                <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="black" style={styles.modeIcon}/>
             </TouchableOpacity>
             <View style={styles.destinationInformation}>
                 <Text style={styles.routeHeading}>Routes to</Text>
