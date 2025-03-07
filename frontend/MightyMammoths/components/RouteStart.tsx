@@ -2,25 +2,37 @@ import React from "react";
 import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
-    transportationChoice?: string | null;
-    setTransportationChoice?: React.Dispatch<React.SetStateAction<string | null>>;
+    transportationChoice: string | null;
+    setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
+    showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
     onBack: ()=> void; 
     destinationBuilding: any
     routes: any
     starting: ()=> void;
     defPoly:()=>void;
+    onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
+    origin: string;
+    originCoords: string;
 }
 
 export function StartNavigation({
     onBack,
+    showStepByStep,
     defPoly,
     starting,
     routes,
-    destinationBuilding
+    destinationBuilding,
+    onZoomIn,
+    origin,
+    originCoords
 }: StartNavigationProps) {
 
+    const setStepByStepVisible = () => {
+        showStepByStep(true)
+    }
+
     const setModeNull = () => {onBack();}
-    const startNavigation = () => {starting(); defPoly();}
+    const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
 
@@ -36,7 +48,7 @@ export function StartNavigation({
                     <Text style={styles.time}>{bestEstimate.duration}</Text>
                     <Text style={styles.distance}>{bestEstimate.distance}</Text>
                 </View>
-                <TouchableOpacity style={styles.startButton} onPress={startNavigation}>
+                <TouchableOpacity style={styles.startButton} onPress={()=>{startNavigation(); setStepByStepVisible();}}>
                     <IconSymbol name='play' size={40} color="black" style={styles.navigationIcon} />
                     <Text style={styles.start}>Start</Text>
                 </TouchableOpacity>
@@ -100,6 +112,7 @@ const styles = StyleSheet.create({
     startButton:{
         marginTop:40,
         backgroundColor: 'blue',
+        width: 200,
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
