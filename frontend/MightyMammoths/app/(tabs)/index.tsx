@@ -1,17 +1,16 @@
 import React, {useRef, useState, useEffect, useCallback} from "react";
 import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng, Polygon } from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng} from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/Destinations";
-import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
+import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import polyline from "@mapbox/polyline";
 import { Image } from "react-native";
@@ -74,14 +73,12 @@ export default function HomeScreen() {
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
-  const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
-  const [showNavigation, setShowNavigation] = useState(false);
   const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.BuildingName, placeID: properties.PlaceID || ""}));
+
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
@@ -93,8 +90,8 @@ export default function HomeScreen() {
 
   const ChangeLocation = (area: string) => {
     let newRegion;
-    if (area == "SGW") newRegion = sgwRegion;
-    else if (area == "LOY") newRegion = loyolaRegion;
+    if (area === "SGW") newRegion = sgwRegion;
+    else if (area === "LOY") newRegion = loyolaRegion;
     else newRegion = myLocation;
     setRegion(newRegion);    
     if (mapRef.current) {
@@ -136,8 +133,8 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // 5. Show the building info sheet after a brief delay
   setTimeout(() => {
-    // If you also have a campusToggleSheet open, hide it:
-    campusToggleSheet.current?.hide();
+      // If you also have a campusToggleSheet open, hide it:
+      campusToggleSheet.current?.hide();
 
     // Then show the building sheet:
     if (buildingInfoSheet.current) {
@@ -147,11 +144,11 @@ const centerAndShowBuilding = (buildingName: string) => {
 };
 
   const CenterOnCampus = (campus:string) => {
-    setSelectedCampus(campus);
     ChangeLocation(campus);
   }
 
   const CenterOnLocation = async () => {
+    //console.log("Centering on location");
     const loc = await Location.getCurrentPositionAsync();
     const newRegion: Region = {
       latitude: loc.coords.latitude,
@@ -242,11 +239,9 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
   
       if (data.placePrediction.types.includes("building")) {
-        // Update the building state so that BuildingInfoSheet gets the correct info
-        
+          // Update the building state so that BuildingInfoSheet gets the correct info
           centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
           return;
-        
       }
   
       // For non-building suggestions, fetch details and create a waypoint as before
@@ -302,8 +297,6 @@ const centerAndShowBuilding = (buildingName: string) => {
     buildingInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
-
-    //have destination be set to the selected building
   }
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
@@ -357,8 +350,8 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
   
   const recenterToPolyline = (latitude: any, longitude: any) => {
-    console.log("Longitude from recenter to polyline: ", longitude);
-    console.log("Latitude from recenter to polyline: ", latitude);
+    //console.log("Longitude from recenter to polyline: ", longitude);
+    //console.log("Latitude from recenter to polyline: ", latitude);
     if (mapRef?.current !== null){
       mapRef.current.animateToRegion({
         latitude,
@@ -371,6 +364,8 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
   const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
+    //console.log("Destination Place Name: ", destinationPlaceName);
+    //console.log("Destination Place ID: ", destinationCoordsPlaceID);
     if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
       let targetRegion: Region | undefined;
   
@@ -405,10 +400,10 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
 
       if (targetRegion) {
+        setIsOriginYourLocation(false);
         setZoomedRegion(null);
         mapRef.current.animateToRegion(targetRegion, 1000);
         setIsZoomedIn(false);
-        setIsOriginYourLocation(false);
       }
     }
   };
@@ -442,6 +437,10 @@ const centerAndShowBuilding = (buildingName: string) => {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       };
+
+      if (!isZoomedIn) {
+        return;
+      }
       setMyLocation(newLocation);
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
@@ -464,7 +463,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           }
 
           const bearing = computeBearing(newLocation, candidate);
-          console.log("Bearing: ", bearing);
+          //console.log("Bearing: ", bearing);
           if (mapRef.current) {
             mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
           }
@@ -481,7 +480,8 @@ const centerAndShowBuilding = (buildingName: string) => {
     const intervalId = setInterval(updateLocation, 5000);
   
     campusToggleSheet.current?.show();
-    console.log("all locked and loaded");
+
+    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
@@ -494,7 +494,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isKeyboardVisible, isOriginYourLocation]);
+  }, [isKeyboardVisible, isOriginYourLocation, isZoomedIn]);
 
   return (
     <>
@@ -533,7 +533,6 @@ const centerAndShowBuilding = (buildingName: string) => {
               coordinates={routePolyline}
               /> 
           }
-
         </MapView>
 
         <View style={styles.topElements}>
@@ -561,10 +560,10 @@ const centerAndShowBuilding = (buildingName: string) => {
 
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
-        <LoyolaSGWToggleSheet
-          actionsheetref = {campusToggleSheet}
-          setSelectedCampus={CenterOnCampus}
-        />
+          <LoyolaSGWToggleSheet
+            actionsheetref = {campusToggleSheet}
+            setSelectedCampus={CenterOnCampus}
+          />
         )}
         
         {/* BUILDING INFO */}
@@ -615,7 +614,6 @@ const centerAndShowBuilding = (buildingName: string) => {
           />    
 
         </NavigationProvider>
-
       </GestureHandlerRootView>
     </>
   );

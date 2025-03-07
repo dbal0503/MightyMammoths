@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
+import {ActionSheetRef } from "react-native-actions-sheet";
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
     setSelectedCampus: (selected: string) => void;
@@ -50,7 +50,7 @@ function LoyolaSGWToggleSheet({
                 { label: "LOY", testID: "campus-option-loy" }
               ]}
               onToggle={(selected) => {
-                if (selected == "SGW") setSelectedCampus(selected);
+                if (selected === "SGW") setSelectedCampus(selected);
                 else setSelectedCampus(selected)
                 }
               }

@@ -4,7 +4,6 @@ import { isWithinRadius } from "@/utils/isWithinCampus";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
-import { fetchShuttleData } from "@/utils/getLiveShuttleData";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 
 import { suggestionResult } from "@/services/searchService";
@@ -80,15 +79,15 @@ const NavigationProvider = ({
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
-    if(name == "Your Location"){
+    if(name === "Your Location"){
       const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
       return `${loc.coords.latitude},${loc.coords.longitude}`
     }else{
-      let id = campusBuildingCoords.features.find((item) => item.properties.Building == name)?.properties.PlaceID
+      let id = campusBuildingCoords.features.find((item) => item.properties.Building === name)?.properties.PlaceID
       if(id){
         return `place_id:${id}`;
       }else{
-        id = searchSuggestions.find((item) => item.placePrediction.structuredFormat.mainText.text == name)?.placePrediction.placeId
+        id = searchSuggestions.find((item) => item.placePrediction.structuredFormat.mainText.text === name)?.placePrediction.placeId
         if(id){
           return `place_id:${id}`;
         }else{
@@ -146,8 +145,6 @@ const NavigationProvider = ({
           }
         }
         
-        console.log("Mode shuttle: ", estimates["shuttle"]);
-        console.log(estimates)
         setRouteEstimates(estimates);
       } catch (error) {
         console.error("Error fetching routes: ", error);

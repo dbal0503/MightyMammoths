@@ -1,7 +1,7 @@
 // components/RoutesSheet.tsx
 import React, {useState} from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
@@ -84,7 +84,7 @@ export function TransportChoice({
           <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
         </View>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+          <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.scrollContainer}>

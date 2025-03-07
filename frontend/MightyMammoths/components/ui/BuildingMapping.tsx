@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import MapView, { Marker, Polygon} from 'react-native-maps';
+import { Marker, Polygon} from 'react-native-maps';
 import { View, Text, StyleSheet,  } from 'react-native';
 import { fetchPlaceDetails} from '../../services/buildingsService';
 
@@ -34,12 +34,6 @@ interface BuildingMappingProps {
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarkerPress }) => {
   const [polygons, setPolygons] = useState<any[]>([]);
-  const [missingPolygonsState, setmissingPolygonsState] = useState<any[]>([]);
-
-  
-  
-  
-  
 
     const loadAllPolygons = async () => {
       const polygonData = await Promise.all(
@@ -56,14 +50,10 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       setPolygons(polygonData.filter(Boolean));
     };
 
- 
-  
     useEffect(() => {
       loadAllPolygons();
       //console.log('Polygons:', polygons);
     }, [geoJsonData]);
-
-  
 
   const renderMarkers = (geoJsonData: GeoJsonData) =>
     geoJsonData.features.map((feature) => {
@@ -89,10 +79,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       return null;
     });
 
-
-
-    
-    
     const renderPolygons = () =>
       polygons
         .filter((polygon) => polygon.coordinates && polygon.coordinates.length > 0) // Filter out invalid polygons
@@ -244,7 +230,6 @@ const missingPolygons = {
     { latitude: 45.4593367170147, longitude: -73.64265561103821 },
   ],
 };
-
 
 const isValidPolygon = (polygon: { coordinates: any[] }) => {
   return (
