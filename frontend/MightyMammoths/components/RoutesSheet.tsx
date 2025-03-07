@@ -125,17 +125,20 @@ export function TransportChoice({
           
           const steps = bestEstimate?.steps || [];
           const isSelected = selectedMode === mode;
+          const isDisabled = !estimates || estimates.length === 0;
           return (
             <TouchableOpacity
               key={mode}
-              style={[styles.modeItem, isSelected && styles.selectedMode]}
+              style={[styles.modeItem, isSelected && styles.selectedMode,  isDisabled && styles.disabledMode]}
               onPress={() => {
-                setSelectedMode(mode);
-                onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
-                onSetSteps(steps);
-                setBestEstimate(routeEstimates[mode][0])
+                if (!isDisabled) {
+                  setSelectedMode(mode);
+                  onSelectMode(mode);
+                  onSetSteps(steps);
+                  setBestEstimate(routeEstimates[mode][0]);
+                }
               }}
-              disabled={!bothSelected}
+              disabled={!bothSelected || isDisabled}
             >
               {modeIcons[mode]}
             </TouchableOpacity>
@@ -273,6 +276,10 @@ selectedMode:{
   width: 68,
   justifyContent: 'center',
   marginRight: 10
+},
+disabledMode: {
+  opacity: 0.5,
+  backgroundColor: "#ccc"
 }
 
 });

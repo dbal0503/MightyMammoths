@@ -68,7 +68,7 @@ function NavigationSheet({
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
-    
+
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
