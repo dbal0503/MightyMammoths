@@ -32,8 +32,6 @@ export function StartNavigation({
     }
 
     const setModeNull = () => {onBack();}
-    //console.log("Origin from StartNavigation: ", origin);
-    //console.log("OriginCoords from StartNavigation: ", originCoords);
     const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;

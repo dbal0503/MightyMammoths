@@ -1,5 +1,5 @@
 // components/RoutesSheet.tsx
-import React, {useState} from "react";
+import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";

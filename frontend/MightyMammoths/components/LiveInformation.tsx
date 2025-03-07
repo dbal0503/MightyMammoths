@@ -1,7 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useNavigation } from "@/components/NavigationProvider";
-
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);

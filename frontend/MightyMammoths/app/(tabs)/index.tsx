@@ -12,10 +12,7 @@ import mapStyle from "../../assets/map/map.json"; // Styling the map https://map
 import { DestinationChoices } from "@/components/Destinations";
 import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
-import polyline from "@mapbox/polyline";
 import { Image } from "react-native";
-import {NavigationInformation} from "@/components/NavigationInformation";
-import {StaticNavigationInformation} from "@/components/StaticNavigationInformation";
 // Context providers
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -84,7 +81,6 @@ export default function HomeScreen() {
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
   const [routePolyline, setRoutePolyline] = useState<LatLng[]>([]);
   const routePolylineRef = useRef<LatLng[]>([]);
-  const [navigationIsStarted, setNavigationIsStarted] = useState(false);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
 
@@ -148,7 +144,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   }
 
   const CenterOnLocation = async () => {
-    //console.log("Centering on location");
     const loc = await Location.getCurrentPositionAsync();
     const newRegion: Region = {
       latitude: loc.coords.latitude,
@@ -303,14 +298,10 @@ const centerAndShowBuilding = (buildingName: string) => {
   const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
 
   const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
-    //console.log("Origin Place Name: ", originPlaceName);
-    //console.log("Origin Place ID: ", originCoordsPlaceID);
     if (mapRef.current) {
       let targetRegion: Region | undefined;
-      //console.log("Origin Place Name: ", originPlaceName);
-      //console.log("Origin Place ID: ", originCoordsPlaceID);
   
-      if (originPlaceName == "Your Location" && myLocation) {
+      if (originPlaceName === "Your Location" && myLocation) {
         setIsOriginYourLocation(true);
         targetRegion = {
           latitude: myLocation.latitude,
@@ -350,8 +341,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
   
   const recenterToPolyline = (latitude: any, longitude: any) => {
-    //console.log("Longitude from recenter to polyline: ", longitude);
-    //console.log("Latitude from recenter to polyline: ", latitude);
     if (mapRef?.current !== null){
       mapRef.current.animateToRegion({
         latitude,
@@ -364,8 +353,6 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
   const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
-    //console.log("Destination Place Name: ", destinationPlaceName);
-    //console.log("Destination Place ID: ", destinationCoordsPlaceID);
     if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
       let targetRegion: Region | undefined;
   

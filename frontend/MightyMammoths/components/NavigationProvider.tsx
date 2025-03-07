@@ -107,13 +107,12 @@ const NavigationProvider = ({
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
     if (origin && destination && navigationMode) {
-      console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
+      //console.log(`fetching routes for origin: ${origin}, destination: ${destination}`)
       setLoadingRoutes(true);
       const estimates: { [mode: string]: RouteData[] } = {};
       try {
         
         //Fix only check if Your location is used and translate to coords otherwise use place id.
-        //const originCoords = await nameToPlaceID(origin)
         const originCoordsLocal = await nameToPlaceID(origin)
         setOriginCoords(originCoordsLocal)
         const destinationCoordsLocal = await nameToPlaceID(destination)
@@ -122,7 +121,7 @@ const NavigationProvider = ({
         console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
         for (const mode of transportModes) {
           const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-          console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+          //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
           if (routeMode) {
             estimates[mode] = [routeMode]; 
           }
@@ -130,17 +129,17 @@ const NavigationProvider = ({
         
         //await fetchShuttleData();
 
-        const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName == destination)?.properties.Campus ?? "";
+        const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName === destination)?.properties.Campus ?? "";
         
-        if (origin == "Your Location") {
+        if (origin === "Your Location") {
           const [userLatitude, userLongitude] = await parseCoordinates(originCoordsLocal);
           const nearestCampus = await isWithinRadius(userLatitude, userLongitude);
-          if (nearestCampus != destinationCampus && nearestCampus != "" && destinationCampus != "") {
+          if (nearestCampus !== destinationCampus && nearestCampus !== "" && destinationCampus !== "") {
             estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoordsLocal, nearestCampus); 
           }
         } else{
-          const originCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName == origin)?.properties.Campus ?? "";
-          if (originCampus != destinationCampus && originCampus != "" && destinationCampus != "") {
+          const originCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName === origin)?.properties.Campus ?? "";
+          if (originCampus !== destinationCampus && originCampus !== "" && destinationCampus !== "") {
             estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoords, originCampus); 
           }
         }
