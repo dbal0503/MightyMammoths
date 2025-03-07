@@ -11,6 +11,13 @@ interface TransportChoiceProps {
   bothSelected: boolean;
   onBack: () => void;
   onSetSteps: (steps: any[]) => void;
+  routesValid: boolean;
+  defPoly:()=>void;
+  starting: ()=> void;
+  onZoomIn?: ()=>void;
+  showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
+  routes: any
+  origin: string;
 }
 
 export function TransportChoice({
@@ -20,16 +27,28 @@ export function TransportChoice({
   bothSelected,
   onBack,
   onSetSteps,
+  routesValid,
+  defPoly,
+  starting,
+  onZoomIn,
+  showStepByStep,
+  routes,
+  origin
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
+  const yourLocationSet = true ? origin === "Your Location" : false;
+  const startNavigation = () => {starting(); defPoly(); if (onZoomIn && yourLocationSet) onZoomIn();}
+  const setStepByStepVisible = () => {
+    showStepByStep(true)
+}
 
   useEffect(() => {
     if (routeEstimates["driving"] && routeEstimates["driving"].length > 0) {
       setBestEstimate(routeEstimates["driving"][0]);
       onSetSteps(routeEstimates["driving"][0].steps);
     }
-  }, [routeEstimates, onSetSteps]);
+  }, [routesValid]); 
 
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
@@ -111,9 +130,10 @@ export function TransportChoice({
               key={mode}
               style={[styles.modeItem, isSelected && styles.selectedMode]}
               onPress={() => {
-                console.log(steps); // Log the mode when pressed
+                setSelectedMode(mode);
                 onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
                 onSetSteps(steps);
+                setBestEstimate(routeEstimates[mode][0])
               }}
               disabled={!bothSelected}
             >
@@ -132,6 +152,7 @@ export function TransportChoice({
         )}
         <TouchableOpacity
           style={styles.goButton}
+          onPress={()=>{startNavigation(); setStepByStepVisible();}}
         >
           <Text style={styles.goStyle}>Go</Text>
           </TouchableOpacity>          

@@ -37,7 +37,7 @@ function NavigationSheet({
     backgroundInteractionEnabled = true,
     closable = false,
     gestureEnabled = false,
-    initialSnapIndex = 2,
+    initialSnapIndex = 1,
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
@@ -56,16 +56,19 @@ function NavigationSheet({
         selectedBuilding, 
         twoBuildingsSelected,
         origin,
-        destination
+        destination,
+        routesValid,
     } = state;
     
     const { 
         setSelectedMode, 
         setSelectedRoute,
         setRouteEstimates,
+        setRoutesValid,
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+    
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
@@ -105,10 +108,12 @@ function NavigationSheet({
           }}
           >
             <View style={styles.centeredView}>
-                  {selectedMode === null ? (
+                  {selectedMode === null || startedSelectedRoute===false? (
                   <TransportChoice
                       onBack={()=>{
                         actionsheetref.current?.hide();
+                        setRoutesValid(false);
+                        
                       }}
                       routeEstimates={routeEstimates}
                       onSelectMode={(mode) => {
@@ -122,24 +127,19 @@ function NavigationSheet({
                       }}
                       destinationBuilding={selectedBuilding}
                       bothSelected={twoBuildingsSelected}
-                  />
-                  ) : (startedSelectedRoute===false? (
-                  <StartNavigation
+                      routesValid={routesValid}
                       showStepByStep ={setNavigationIsStarted}
-                      mode={selectedMode}
-                      routes={routeEstimates[selectedMode] || []}
-                      onSelectRoute={setSelectedRoute}
-                      onBack={() => {
-                        setSelectedMode(null);
-                        actionsheetref.current?.snapToIndex(2);
-                      }}
-                      destinationBuilding={selectedBuilding}
+                      routes={selectedMode && routeEstimates[selectedMode] ? routeEstimates[selectedMode] : []}
                       starting={()=> {
                         closeChooseDest(false)
                         setStartedSelectedRoute(true);
                         actionsheetref.current?.snapToIndex(0);
                       }}
-                      defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
+                      defPoly={() => {
+                        if (selectedMode && routeEstimates[selectedMode]?.length > 0) {
+                          setPoly(routeEstimates[selectedMode][0].polyline);
+                        }
+                      }}
                       onZoomIn={onZoomIn}
                       origin={origin}
                   />
@@ -156,7 +156,7 @@ function NavigationSheet({
                       isZoomedIn={isZoomedIn}
                     /> 
                   )
-                )}
+                }
             </View>
         </ActionSheet>
       </>
