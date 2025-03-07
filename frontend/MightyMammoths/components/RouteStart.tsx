@@ -1,6 +1,6 @@
 import React from "react";
 import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
     transportationChoice: string | null;
     setTransportationChoice: React.Dispatch<React.SetStateAction<string | null>>;
@@ -10,10 +10,10 @@ interface StartNavigationProps {
     routes: any
     starting: ()=> void;
     defPoly:()=>void;
-    onZoomIn?: ()=>void;
+    onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
     origin: string;
+    originCoords: string;
 }
-
 
 export function StartNavigation({
     onBack,
@@ -23,7 +23,8 @@ export function StartNavigation({
     routes,
     destinationBuilding,
     onZoomIn,
-    origin
+    origin,
+    originCoords
 }: StartNavigationProps) {
 
     const setStepByStepVisible = () => {
@@ -31,15 +32,14 @@ export function StartNavigation({
     }
 
     const setModeNull = () => {onBack();}
-    const yourLocationSet = true ? origin === "Your Location" : false;
-    const startNavigation = () => {starting(); defPoly(); if (onZoomIn && yourLocationSet) onZoomIn();}
+    const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
 
     return ( 
         <View style={styles.container}>
             <TouchableOpacity onPress={setModeNull}>
-                <IconSymbol name="arrow-back" size={50} color="black" style={styles.modeIcon}/>
+                <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="black" style={styles.modeIcon}/>
             </TouchableOpacity>
             <View style={styles.destinationInformation}>
                 <Text style={styles.routeHeading}>Routes to</Text>
