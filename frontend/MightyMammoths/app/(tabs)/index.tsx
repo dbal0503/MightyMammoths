@@ -424,11 +424,10 @@ const centerAndShowBuilding = (buildingName: string) => {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       };
-
+      setMyLocation(newLocation);
       if (!isZoomedIn) {
         return;
       }
-      setMyLocation(newLocation);
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
