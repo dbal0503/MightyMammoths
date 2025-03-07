@@ -163,7 +163,7 @@ const centerAndShowBuilding = (buildingName: string) => {
     setMyLocation(newRegion);
 
     if (mapRef.current) {
-      mapRef.current.animateToRegion(newRegion, 1000);
+      mapRef.current.animateToRegion(newRegion, 500);
     }
   };
   
@@ -307,14 +307,18 @@ const centerAndShowBuilding = (buildingName: string) => {
   }
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
-  // Zoom in: Use a smaller latitudeDelta/longitudeDelta to zoom in around the user’s location
+  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+
   const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
-    console.log("Origin Place Name: ", originPlaceName);
-    console.log("Origin Place ID: ", originCoordsPlaceID);
+    //console.log("Origin Place Name: ", originPlaceName);
+    //console.log("Origin Place ID: ", originCoordsPlaceID);
     if (mapRef.current) {
       let targetRegion: Region | undefined;
+      //console.log("Origin Place Name: ", originPlaceName);
+      //console.log("Origin Place ID: ", originCoordsPlaceID);
   
-      if (originPlaceName === "Your Location" && myLocation) {
+      if (originPlaceName == "Your Location" && myLocation) {
+        setIsOriginYourLocation(true);
         targetRegion = {
           latitude: myLocation.latitude,
           longitude: myLocation.longitude,
@@ -330,51 +334,82 @@ const centerAndShowBuilding = (buildingName: string) => {
           targetRegion = {
             latitude: buildingCoords[1],
             longitude: buildingCoords[0],
-            latitudeDelta: 0.001,
-            longitudeDelta: 0.001,
+            latitudeDelta: 0.003,
+            longitudeDelta: 0.003,
           };
         } else {
           const placeIdCoords = await getPlaceIdCoordinates(originCoordsPlaceID);
           targetRegion = {
             latitude: placeIdCoords.latitude,
             longitude: placeIdCoords.longitude,
-            latitudeDelta: 0.001,
-            longitudeDelta: 0.001,
+            latitudeDelta: 0.003,
+            longitudeDelta: 0.003,
           };
         }
       }
   
       if (targetRegion) {
         setZoomedRegion(targetRegion);
-        mapRef.current.animateToRegion(targetRegion, 1000);
+        mapRef.current.animateToRegion(targetRegion, 700);
         setIsZoomedIn(true);
       }
     }
   };
   
   const recenterToPolyline = (latitude: any, longitude: any) => {
+    console.log("Longitude from recenter to polyline: ", longitude);
+    console.log("Latitude from recenter to polyline: ", latitude);
     if (mapRef?.current !== null){
       mapRef.current.animateToRegion({
         latitude,
         longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
       },1000);
     }
   }
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
-  const zoomOut = () => {
-    if (mapRef.current) {
-      const originalRegion = {
-        latitude: myLocation.latitude,
-        longitude: myLocation.longitude,
-        latitudeDelta: 0.005,  // original delta
-        longitudeDelta: 0.005,
-      };
-      mapRef.current.animateToRegion(originalRegion, 1000);
-      setIsZoomedIn(false);
-      setRoutePolyline([]);
+  const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
+    if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
+      let targetRegion: Region | undefined;
+  
+      if (destinationPlaceName === "Your Location") {
+        targetRegion = {
+          latitude: myLocation.latitude,
+          longitude: myLocation.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        };
+      } else {
+        const buildingCoords = campusBuildingCoords.features.find(
+          feature => feature.properties.BuildingName === destinationPlaceName
+        )?.geometry.coordinates;
+  
+        if (buildingCoords) {
+          targetRegion = {
+            latitude: buildingCoords[1],
+            longitude: buildingCoords[0],
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          };
+        } else {
+          const placeIdCoords = await getPlaceIdCoordinates(destinationCoordsPlaceID);
+          targetRegion = {
+            latitude: placeIdCoords.latitude,
+            longitude: placeIdCoords.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          };
+        }
+      }
+
+      if (targetRegion) {
+        setZoomedRegion(null);
+        mapRef.current.animateToRegion(targetRegion, 1000);
+        setIsZoomedIn(false);
+        setIsOriginYourLocation(false);
+      }
     }
   };
 
@@ -408,27 +443,31 @@ const centerAndShowBuilding = (buildingName: string) => {
         longitudeDelta: 0.005,
       };
       setMyLocation(newLocation);
-      
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
-        let candidate: { latitude: number; longitude: number } | null = null;
-  
-        for (const point of routePolylineRef.current) {
-          const d = haversineDistance(newLocation, point);
-          if (d >= 5) {
-            candidate = point;
-            break;
-          }
-        }
-  
-        if (!candidate) {
-          candidate = routePolylineRef.current.reduce((prev, curr) => {
-            return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
-          }, routePolylineRef.current[0]);
-        }
+        if (isOriginYourLocation) {
+          CenterOnLocation();
 
-        const bearing = computeBearing(newLocation, candidate);
-        if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: bearing }, { duration: 1000 });
+          let candidate: { latitude: number; longitude: number } | null = null;
+    
+          for (const point of routePolylineRef.current) {
+            const d = haversineDistance(newLocation, point);
+            if (d >= 5) {
+              candidate = point;
+              break;
+            }
+          }
+    
+          if (!candidate) {
+            candidate = routePolylineRef.current.reduce((prev, curr) => {
+              return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
+            }, routePolylineRef.current[0]);
+          }
+
+          const bearing = computeBearing(newLocation, candidate);
+          console.log("Bearing: ", bearing);
+          if (mapRef.current) {
+            mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
+          }
         }
       } else {
         if (mapRef.current) {
@@ -439,7 +478,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   
     // Run updateLocation immediately and then every 3 seconds
     updateLocation();
-    const intervalId = setInterval(updateLocation, 3000);
+    const intervalId = setInterval(updateLocation, 5000);
   
     campusToggleSheet.current?.show();
     console.log("all locked and loaded");
@@ -455,7 +494,7 @@ const centerAndShowBuilding = (buildingName: string) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isKeyboardVisible]);
+  }, [isKeyboardVisible, isOriginYourLocation]);
 
   return (
     <>
@@ -565,6 +604,7 @@ const centerAndShowBuilding = (buildingName: string) => {
             setLatitudeStepByStep = {setLatitudeStepByStep}
             setLongitudeStepByStep = {setLongitudeStepByStep}
             isZoomedIn={isZoomedIn}
+            userLocation={myLocation}
           
           />
           <DestinationChoices

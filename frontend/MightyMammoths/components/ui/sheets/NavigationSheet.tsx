@@ -26,6 +26,7 @@ export type NavigationSheetProps = ActionSheetProps & {
     onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
     onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
     isZoomedIn: boolean;
+    userLocation: {latitude: number, longitude: number};
 }
 
 function NavigationSheet({
@@ -46,7 +47,8 @@ function NavigationSheet({
     onExtraClose,
     onZoomIn,
     onZoomOut,
-    isZoomedIn
+    isZoomedIn,
+    userLocation
 }: NavigationSheetProps) {
     const [navigationIsStarted, setNavigationIsStarted] = useState(false);
     const { state, functions } = useNavigation();
@@ -68,6 +70,7 @@ function NavigationSheet({
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+    const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
@@ -77,6 +80,13 @@ function NavigationSheet({
       onPolylineUpdate(decodedPoly);
     }
 
+    useEffect(() => {
+      if (origin){
+        setIsOriginYourLocation(origin === "Your Location");
+      }
+    }, [origin]);
+  
+
     return (
       <>
         {navigationIsStarted && selectedMode &&(
@@ -84,6 +94,8 @@ function NavigationSheet({
             routes={routeEstimates[selectedMode] || []}
             setLatitudeStepByStep = {setLatitudeStepByStep}
             setLongitudeStepByStep = {setLongitudeStepByStep}
+            userLocation = {userLocation}
+            isOriginYL = {isOriginYourLocation}
           />
         )}   
     
@@ -144,6 +156,7 @@ function NavigationSheet({
                       defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                       onZoomIn={onZoomIn}
                       origin={origin}
+                      originCoords={originCoords}
                   />
                   ) : (
                     <LiveInformation
@@ -152,10 +165,13 @@ function NavigationSheet({
                         actionsheetref.current?.hide();
                         setPoly("");
                         setStartedSelectedRoute(false);
+                        setIsOriginYourLocation(false);
                       }}
                       routes={routeEstimates[selectedMode] || []}
                       onZoomOut={onZoomOut}
                       isZoomedIn={isZoomedIn}
+                      destination={destination}
+                      destinationCoords={destinationCoords}
                     /> 
                   )
                 )}

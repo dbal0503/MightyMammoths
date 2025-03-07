@@ -5,6 +5,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol'; // Assuming you have th
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated';
 import { LatLng } from 'react-native-maps';
 import polyline from '@mapbox/polyline';
+import { haversineDistance } from '@/utils/haversineDistance';
 
 interface Polyline {
   points: string;
@@ -20,6 +21,8 @@ interface StaticNavigationInformationProps {
   routes: any;
   setLatitudeStepByStep: React.Dispatch<React.SetStateAction<number>>;
   setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
+  userLocation: {latitude: number, longitude: number};
+  isOriginYL: boolean;
 }
 
 export function StaticNavigationInformation(
@@ -27,7 +30,9 @@ export function StaticNavigationInformation(
     visible = true,
     routes,
     setLatitudeStepByStep,
-    setLongitudeStepByStep
+    setLongitudeStepByStep,
+    userLocation,
+    isOriginYL
 
   }: StaticNavigationInformationProps) {
   
@@ -59,6 +64,34 @@ export function StaticNavigationInformation(
       setLongitudeStepByStep(decodedPoly[0].longitude);
     }
   }, [currentStepIndex]); 
+
+  useEffect(() => {
+    //console.log("Origin: ", isOriginYL);
+    //console.log("Current Step Index: ", currentStepIndex);
+    //console.log("Steps Data: ", stepsData);
+    //console.log("Steps Data Length: ", stepsData.length);
+    //console.log("User Location: ", userLocation);
+    if (
+      !isOriginYL ||
+      currentStepIndex >= stepsData.length - 1 ||
+      !userLocation
+    ) {
+      //console.log("Returning");
+      return;
+    }
+    //console.log("Checking if user is within step radius");
+    const nextStep = stepsData[currentStepIndex + 1];
+    const decodedNextStep = polyline.decode(nextStep.polyline.points);
+    const nextStepCoord = {
+      latitude: decodedNextStep[0][0],
+      longitude: decodedNextStep[0][1],
+    };
+
+    const stepRadius = 15;
+    if (haversineDistance(userLocation, nextStepCoord) <= stepRadius) {
+      setCurrentStepIndex((prevIndex) => prevIndex + 1);
+    }
+  }, [userLocation, currentStepIndex, stepsData, isOriginYL]);
   
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -78,13 +111,15 @@ export function StaticNavigationInformation(
       {stepsText && (
         <View style={styles.container}>
           <View style={styles.directionInformation}>
-            <TouchableOpacity
-              style={styles.arrowButton}
-              onPress={goToPreviousStep}
-              disabled={currentStepIndex === 0}
-            >
-              <IconSymbol name="arrow-back" size={30} color="black" />
-            </TouchableOpacity>
+            <View style={styles.arrowContainer}>
+              {stepsText.length > 1 && !isOriginYL && currentStepIndex !== 0 ? (
+                <TouchableOpacity style={styles.arrowButton} onPress={goToPreviousStep}>
+                  <IconSymbol name="arrow-back" size={30} color="black" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.arrowButtonPlaceholder} />
+              )}
+            </View>
 
             <View style={styles.distanceInformation}>
               <Animated.Text style={[styles.nextStep, animatedStyle]}>
@@ -92,13 +127,15 @@ export function StaticNavigationInformation(
               </Animated.Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.arrowButton}
-              onPress={()=>{goToNextStep();}}
-              disabled={currentStepIndex === stepsText.length - 1}
-            >
-              <IconSymbol name="arrow-forward" size={30} color="black" />
-            </TouchableOpacity>
+            <View style={styles.arrowContainer}>
+              {stepsText.length > 1 && !isOriginYL && currentStepIndex !== stepsText.length - 1 ? (
+                <TouchableOpacity style={styles.arrowButton} onPress={goToNextStep}>
+                  <IconSymbol name="arrow-forward" size={30} color="black" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.arrowButtonPlaceholder} />
+              )}
+            </View>
 
           </View>
         </View>
@@ -151,6 +188,15 @@ const styles = StyleSheet.create({
     padding: 7,
     borderRadius: 40,
     backgroundColor: 'white',
+  },
+  arrowContainer: {
+    width: 50, 
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arrowButtonPlaceholder: {
+    width: 44, 
+    height: 44,
   },
 });
 

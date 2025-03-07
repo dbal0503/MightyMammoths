@@ -28,8 +28,6 @@ export function LiveInformation({
     destinationCoords
 }: LiveInformationProps) {
     const estimates = routes;
-    console.log("Destination from LiveInformation: ", destination);
-    console.log("DestinationCoords from LiveInformation: ", destinationCoords);
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
     const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
 
