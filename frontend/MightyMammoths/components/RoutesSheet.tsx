@@ -157,12 +157,17 @@ export function TransportChoice({
             <Text style={styles.distance}>{bestEstimate.distance}</Text>
           </View>
         )}
-        <TouchableOpacity
-          style={styles.goButton}
-          onPress={()=>{startNavigation(); setStepByStepVisible();}}
-        >
-          <Text style={styles.goStyle}>Go</Text>
-          </TouchableOpacity>          
+        {bothSelected && bestEstimate && (
+          <TouchableOpacity
+            style={styles.goButton}
+            onPress={() => {
+              startNavigation();
+              setStepByStepVisible();
+            }}
+          >
+            <Text style={styles.goStyle}>Go</Text>
+          </TouchableOpacity>
+        )}          
       </View>
     </View>
   );
