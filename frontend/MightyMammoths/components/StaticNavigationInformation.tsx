@@ -5,6 +5,7 @@ import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanima
 import { LatLng } from 'react-native-maps';
 import polyline from '@mapbox/polyline';
 import { haversineDistance } from '@/utils/haversineDistance';
+import campusBuildingCoords from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 interface Polyline {
   points: string;
@@ -13,6 +14,7 @@ interface Polyline {
 interface Step {
   html_instructions: string;
   polyline: Polyline;
+  instructions?: string;
 }
 
 interface StaticNavigationInformationProps {
@@ -40,26 +42,51 @@ export function StaticNavigationInformation(
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const translateX = useSharedValue(0);
 
+  const placeIdToBuildingName = campusBuildingCoords.features.reduce((map, feature) => {
+    map[feature.properties.PlaceID] = feature.properties.BuildingName;
+    return map;
+  }, {} as Record<string, string>);
+
   useEffect(() => {
     if (routes && routes.length > 0) {
       const bestEstimate = routes[0];
       const stepsData = bestEstimate?.steps || [];
-      setStepsText(stepsData.map((step: Step) => step.html_instructions.replace(/<[^>]*>/g, '')));
+      const updatedStepsText = stepsData.map((step: Step) => {
+        const stepText = step?.html_instructions 
+            ? step.html_instructions.replace(/<[^>]*>/g, '') 
+            : step?.instructions || '';  // Fallback for shuttle steps or undefined instructions
+
+        // Replace place_id references with building names
+        return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
+          placeIdToBuildingName[placeId] || 'Unknown Building'
+        );
+      });
+      setStepsText(updatedStepsText);
       setStepsData(stepsData);
     }
   }, [routes]);
   
   useEffect(() => {
     if (currentStepIndex < stepsData.length) {
-      const decodedPoly: LatLng[] = polyline.decode(stepsData[currentStepIndex].polyline.points).map(([latitude, longitude]) => ({
+      const currentStep = stepsData[currentStepIndex];
+      
+      // Null check for polyline data
+      if (!currentStep.polyline || !currentStep.polyline.points) {
+        console.warn(`Step ${currentStepIndex} has no valid polyline data.`);
+        return; // Exit early if polyline data is missing
+      }
+
+      const decodedPoly: LatLng[] = polyline.decode(currentStep.polyline.points).map(([latitude, longitude]) => ({
         latitude,
         longitude,
       }));
-      // (pls check index.tsx)
-      setLatitudeStepByStep(decodedPoly[0].latitude);
-      setLongitudeStepByStep(decodedPoly[0].longitude);
+
+      if (decodedPoly.length > 0) {
+        setLatitudeStepByStep(decodedPoly[0].latitude);
+        setLongitudeStepByStep(decodedPoly[0].longitude);
+      }
     }
-  }, [currentStepIndex]); 
+  }, [currentStepIndex, stepsData]); 
 
   useEffect(() => {
     if (
