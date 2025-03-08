@@ -1,7 +1,7 @@
 // components/RoutesSheet.tsx
 import React, {useState, useEffect} from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
@@ -14,10 +14,11 @@ interface TransportChoiceProps {
   routesValid: boolean;
   defPoly:()=>void;
   starting: ()=> void;
-  onZoomIn?: ()=>void;
+  onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
   showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
   routes: any
   origin: string;
+  originCoords: string;
 }
 
 export function TransportChoice({
@@ -33,12 +34,13 @@ export function TransportChoice({
   onZoomIn,
   showStepByStep,
   routes,
-  origin
+  origin,
+  originCoords
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
   const yourLocationSet = true ? origin === "Your Location" : false;
-  const startNavigation = () => {starting(); defPoly(); if (onZoomIn && yourLocationSet) onZoomIn();}
+  const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
   const setStepByStepVisible = () => {
     showStepByStep(true)
 }
@@ -115,7 +117,7 @@ export function TransportChoice({
           <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
         </View>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+          <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
         </TouchableOpacity>
       </View>
       <View style={styles.transportContainer}>

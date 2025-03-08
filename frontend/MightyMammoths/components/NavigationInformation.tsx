@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 
 interface navigationInformationProps {
     visible?: boolean;
@@ -13,7 +13,7 @@ export function NavigationInformation({ visible = true }: navigationInformationP
     const distance='240m';
     return (<View style={styles.container}>
                 <View style={styles.directionInformation}>
-                    <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+                    <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
                     <View style={styles.distanceInformation}>
                         <Text style={styles.nextStep}>{nextStep}</Text>
                         <Text style={styles.distance}>{distance}</Text>

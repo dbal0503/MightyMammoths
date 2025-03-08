@@ -1,7 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import { StyleSheet, View, Animated, Text, Pressable , Alert, Linking} from "react-native";
-import BuildingDropdown from "@/components/ui/input/BuildingDropdown";
+import { StyleSheet, View, Animated, Alert, Linking} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Location from "expo-location";
@@ -26,7 +25,6 @@ export function DestinationChoices({
     setDestination, 
     setSelectedBuilding, 
     setTwoBuildingsSelected,
-    fetchRoutes 
   } = functions;
 
   const {
@@ -148,17 +146,11 @@ export function DestinationChoices({
         }} />
       </View>
       <IconSymbol
-        name="more-vert"
+        name= {"more-vert" as IconSymbolName}
         size={30}
         color="black"
         style={styles.modeIcon}
       />
-      {/* <Pressable onPress={async ()=>{
-          await fetchRoutes();
-          console.log('fetching routes')
-        }}>
-        <Text style={{color: 'white', backgroundColor: 'green', width: 30, height: 30}}>Temp</Text>
-      </Pressable> */}
       <View style={styles.dropdownWrapper}>
       <AutoCompleteDropdown
         ref={bottomDropDownRef} // add the ref here
