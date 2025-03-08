@@ -47,6 +47,8 @@ export function TransportChoice({
 
   useEffect(() => {
     if (routeEstimates["driving"] && routeEstimates["driving"].length > 0) {
+      setSelectedMode("driving"); // Ensure "driving" is set
+      onSelectMode("driving");
       setBestEstimate(routeEstimates["driving"][0]);
       onSetSteps(routeEstimates["driving"][0].steps);
     }

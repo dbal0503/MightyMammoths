@@ -29,7 +29,7 @@ function NavigationSheet({
     setLongitudeStepByStep,
     onPolylineUpdate,
     isModal = false,
-    snapPoints = [30 ,50 ,100],
+    snapPoints = [25 ,50 ,100],
     backgroundInteractionEnabled = true,
     closable = false,
     gestureEnabled = false,

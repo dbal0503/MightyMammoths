@@ -124,7 +124,7 @@ const NavigationProvider = ({
         console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
         for (const mode of transportModes) {
           const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-          //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+          console.log("Mode: ", mode, "Shortest Route: ", routeMode);
           if (routeMode) {
             estimates[mode] = [routeMode]; 
           }
@@ -147,6 +147,8 @@ const NavigationProvider = ({
           }
         }
         
+        console.log(estimates['shuttle']);
+        console.log(estimates)
         setRouteEstimates(estimates);
         setRoutesValid(true);
       } catch (error) {
