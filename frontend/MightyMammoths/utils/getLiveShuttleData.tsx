@@ -82,7 +82,7 @@ export async function fetchShuttleData() {
     console.log("Cookies:", cachedCookies);
     console.log('Making POST request...');
     const data = await makePostRequest(cachedCookies);
-    if (data && data.d && data.d.Points && data.d.Points.length > 0) {
+    if (data?.d?.Points?.length > 0) {
       console.log('Shuttle data:', data.d);
       console.log('Valid shuttle data received:', data.d.Points);
       return data.d.Points;
