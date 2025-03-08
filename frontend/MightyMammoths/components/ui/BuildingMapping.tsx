@@ -52,7 +52,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
 
     useEffect(() => {
       loadAllPolygons();
-      //console.log('Polygons:', polygons);
     }, [geoJsonData]);
 
   const renderMarkers = (geoJsonData: GeoJsonData) =>
@@ -83,7 +82,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       polygons
         .filter((polygon) => polygon.coordinates && polygon.coordinates.length > 0) // Filter out invalid polygons
         .map((polygon, index) => {
-          //console.log('Polygon coordinates:', polygon.coordinates); 
           return (
             <Polygon
               key={`polygon-${index}`}
