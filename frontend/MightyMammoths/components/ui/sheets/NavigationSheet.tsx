@@ -160,6 +160,7 @@ function NavigationSheet({
                         setPoly("");
                         setStartedSelectedRoute(false);
                         setIsOriginYourLocation(false);
+                        setRoutesValid(false);
                       }}
                       routes={routeEstimates[selectedMode] || []}
                       onZoomOut={onZoomOut}
