@@ -54,7 +54,7 @@ export function StaticNavigationInformation(
       const updatedStepsText = stepsData.map((step: Step) => {
         const stepText = step?.html_instructions 
             ? step.html_instructions.replace(/<[^>]*>/g, '') 
-            : step?.instructions || '';  // Fallback for shuttle steps or undefined instructions
+            : step?.instructions || '';  
 
         // Replace place_id references with building names
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
@@ -73,7 +73,7 @@ export function StaticNavigationInformation(
       // Null check for polyline data
       if (!currentStep.polyline || !currentStep.polyline.points) {
         console.warn(`Step ${currentStepIndex} has no valid polyline data.`);
-        return; // Exit early if polyline data is missing
+        return;
       }
 
       const decodedPoly: LatLng[] = polyline.decode(currentStep.polyline.points).map(([latitude, longitude]) => ({
