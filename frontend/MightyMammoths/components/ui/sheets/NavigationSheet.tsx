@@ -135,9 +135,7 @@ function NavigationSheet({
                   ) : (startedSelectedRoute===false? (
                   <StartNavigation
                       showStepByStep ={setNavigationIsStarted}
-                      mode={selectedMode}
                       routes={routeEstimates[selectedMode] || []}
-                      onSelectRoute={setSelectedRoute}
                       onBack={() => {
                         setSelectedMode(null);
                         actionsheetref.current?.snapToIndex(2);
