@@ -10,7 +10,6 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
 
 export interface BuildingData {
@@ -114,10 +113,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     setSelected(placeName);
 
     if(placeName === "Your Location") {
-      onSelect(placeName);    
-      setIsOpen(false);
-      setSearchQuery("");
-      return;
+        onSelect(placeName);    
+        setIsOpen(false);
+        setSearchQuery("");
+        return;
     }
 
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
