@@ -19,7 +19,7 @@ import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
 import { computeBearing } from "@/utils/computeBearing";
 import { haversineDistance } from "@/utils/haversineDistance";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinates";
+import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
