@@ -450,7 +450,6 @@ const centerAndShowBuilding = (buildingName: string) => {
           }
 
           const bearing = computeBearing(newLocation, candidate);
-          //console.log("Bearing: ", bearing);
           if (mapRef.current) {
             mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
           }
@@ -468,7 +467,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   
     campusToggleSheet.current?.show();
 
-    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
