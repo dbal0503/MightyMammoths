@@ -1,5 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { useNavigation } from "@/components/NavigationProvider";
+
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);
@@ -11,23 +13,19 @@ const getUpdatedTime = (duration: string) => {
 interface LiveInformationProps {
     onStop: ()=> void;
     routes: any;
-    onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
+    onZoomOut?: ()=> void;
     isZoomedIn: boolean;
-    destination: string;
-    destinationCoords: string;
 }
 
 export function LiveInformation({
     onStop,
     routes,
     onZoomOut,
-    isZoomedIn,
-    destination,
-    destinationCoords
+    isZoomedIn
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
+    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut();}
 
     return (
     <>

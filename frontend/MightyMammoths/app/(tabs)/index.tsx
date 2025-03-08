@@ -1,25 +1,27 @@
 import React, {useRef, useState, useEffect, useCallback} from "react";
 import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ActionSheet from "react-native-actions-sheet"; //for some reason if I try to import it along ActionSheetRef it throws an error lol
 import { ActionSheetRef } from "react-native-actions-sheet";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng} from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/Destinations";
-import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
+import polyline from "@mapbox/polyline";
 import { Image } from "react-native";
+import {NavigationInformation} from "@/components/NavigationInformation";
+import {StaticNavigationInformation} from "@/components/StaticNavigationInformation";
 // Context providers
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
 import { computeBearing } from "@/utils/computeBearing";
-import { haversineDistance } from "@/utils/haversineDistance";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinates";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -70,24 +72,26 @@ export default function HomeScreen() {
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
+  const [selectedCampus, setSelectedCampus] = useState("SGW");
   const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [selectedBuildingName, setSelectedBuildingName] = useState<string | null>(null);
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
+  const [showNavigation, setShowNavigation] = useState(false);
   const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.BuildingName, placeID: properties.PlaceID || ""}));
-
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
   const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
-  const [routePolyline, setRoutePolyline] = useState<LatLng[]>([]);
-  const routePolylineRef = useRef<LatLng[]>([]);
+  const [polyline, setPolyline] = useState<LatLng[]>([]);
+  const [navigationIsStarted, setNavigationIsStarted] = useState(false);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
 
   const ChangeLocation = (area: string) => {
     let newRegion;
-    if (area === "SGW") newRegion = sgwRegion;
-    else if (area === "LOY") newRegion = loyolaRegion;
+    if (area == "SGW") newRegion = sgwRegion;
+    else if (area == "LOY") newRegion = loyolaRegion;
     else newRegion = myLocation;
     setRegion(newRegion);    
     if (mapRef.current) {
@@ -129,8 +133,8 @@ const centerAndShowBuilding = (buildingName: string) => {
 
   // 5. Show the building info sheet after a brief delay
   setTimeout(() => {
-      // If you also have a campusToggleSheet open, hide it:
-      campusToggleSheet.current?.hide();
+    // If you also have a campusToggleSheet open, hide it:
+    campusToggleSheet.current?.hide();
 
     // Then show the building sheet:
     if (buildingInfoSheet.current) {
@@ -140,25 +144,15 @@ const centerAndShowBuilding = (buildingName: string) => {
 };
 
   const CenterOnCampus = (campus:string) => {
+    setSelectedCampus(campus);
     ChangeLocation(campus);
   }
 
   const CenterOnLocation = async () => {
     const loc = await Location.getCurrentPositionAsync();
-    const newRegion: Region = {
-      latitude: loc.coords.latitude,
-      longitude: loc.coords.longitude,
-      latitudeDelta: isZoomedIn ? 0.001 : 0.005,
-      longitudeDelta: isZoomedIn ? 0.001 : 0.005,
-    };
-
-    setMyLocation(newRegion);
-
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(newRegion, 500);
-    }
+    setMyLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005})
+    ChangeLocation("my Location");
   };
-  
 
   useEffect(() => {
     if(latitudeStepByStep!==0 && longitudeStepByStep!==0){
@@ -234,9 +228,11 @@ const centerAndShowBuilding = (buildingName: string) => {
       }
   
       if (data.placePrediction.types.includes("building")) {
-          // Update the building state so that BuildingInfoSheet gets the correct info
+        // Update the building state so that BuildingInfoSheet gets the correct info
+        
           centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
           return;
+        
       }
   
       // For non-building suggestions, fetch details and create a waypoint as before
@@ -292,51 +288,21 @@ const centerAndShowBuilding = (buildingName: string) => {
     buildingInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
-  }
-  const [isZoomedIn, setIsZoomedIn] = useState(false);
-  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
-  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
 
-  const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
+    //have destination be set to the selected building
+  }
+  const [izZoomedIn, setIsZoomedIn] = useState(false);
+  // Zoom in: Use a smaller latitudeDelta/longitudeDelta to zoom in around the user’s location
+  const zoomIn = () => {
     if (mapRef.current) {
-      let targetRegion: Region | undefined;
-  
-      if (originPlaceName === "Your Location" && myLocation) {
-        setIsOriginYourLocation(true);
-        targetRegion = {
-          latitude: myLocation.latitude,
-          longitude: myLocation.longitude,
-          latitudeDelta: 0.001,
-          longitudeDelta: 0.001,
-        };
-      } else {
-        const buildingCoords = campusBuildingCoords.features.find(
-          feature => feature.properties.BuildingName === originPlaceName
-        )?.geometry.coordinates;
-  
-        if (buildingCoords) {
-          targetRegion = {
-            latitude: buildingCoords[1],
-            longitude: buildingCoords[0],
-            latitudeDelta: 0.003,
-            longitudeDelta: 0.003,
-          };
-        } else {
-          const placeIdCoords = await getPlaceIdCoordinates(originCoordsPlaceID);
-          targetRegion = {
-            latitude: placeIdCoords.latitude,
-            longitude: placeIdCoords.longitude,
-            latitudeDelta: 0.003,
-            longitudeDelta: 0.003,
-          };
-        }
-      }
-  
-      if (targetRegion) {
-        setZoomedRegion(targetRegion);
-        mapRef.current.animateToRegion(targetRegion, 700);
-        setIsZoomedIn(true);
-      }
+      const zoomedRegion = {
+        latitude: myLocation.latitude,
+        longitude: myLocation.longitude,
+        latitudeDelta: 0.001,  // more zoomed in
+        longitudeDelta: 0.001,
+      };
+      mapRef.current.animateToRegion(zoomedRegion, 1000);
+      setIsZoomedIn(true);
     }
   };
   
@@ -345,60 +311,28 @@ const centerAndShowBuilding = (buildingName: string) => {
       mapRef.current.animateToRegion({
         latitude,
         longitude,
-        latitudeDelta: 0.003,
-        longitudeDelta: 0.003,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
       },1000);
     }
   }
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
-  const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
-    if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
-      let targetRegion: Region | undefined;
-  
-      if (destinationPlaceName === "Your Location") {
-        targetRegion = {
-          latitude: myLocation.latitude,
-          longitude: myLocation.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        };
-      } else {
-        const buildingCoords = campusBuildingCoords.features.find(
-          feature => feature.properties.BuildingName === destinationPlaceName
-        )?.geometry.coordinates;
-  
-        if (buildingCoords) {
-          targetRegion = {
-            latitude: buildingCoords[1],
-            longitude: buildingCoords[0],
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          };
-        } else {
-          const placeIdCoords = await getPlaceIdCoordinates(destinationCoordsPlaceID);
-          targetRegion = {
-            latitude: placeIdCoords.latitude,
-            longitude: placeIdCoords.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          };
-        }
-      }
-
-      if (targetRegion) {
-        setIsOriginYourLocation(false);
-        setZoomedRegion(null);
-        mapRef.current.animateToRegion(targetRegion, 1000);
-        setIsZoomedIn(false);
-      }
+  const zoomOut = () => {
+    if (mapRef.current) {
+      const originalRegion = {
+        latitude: myLocation.latitude,
+        longitude: myLocation.longitude,
+        latitudeDelta: 0.005,  // original delta
+        longitudeDelta: 0.005,
+      };
+      mapRef.current.animateToRegion(originalRegion, 1000);
+      setIsZoomedIn(false);
+      setPolyline([]);
     }
   };
 
-  useEffect(() => {
-    routePolylineRef.current = routePolyline;
-  }, [routePolyline]);
-
+  
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -424,51 +358,35 @@ const centerAndShowBuilding = (buildingName: string) => {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       };
-
-      if (!isZoomedIn) {
-        return;
-      }
       setMyLocation(newLocation);
-      if (routePolylineRef.current && routePolylineRef.current.length > 0) {
-        if (isOriginYourLocation) {
-          CenterOnLocation();
 
-          let candidate: { latitude: number; longitude: number } | null = null;
-    
-          for (const point of routePolylineRef.current) {
-            const d = haversineDistance(newLocation, point);
-            if (d >= 5) {
-              candidate = point;
-              break;
-            }
-          }
-    
-          if (!candidate) {
-            candidate = routePolylineRef.current.reduce((prev, curr) => {
-              return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
-            }, routePolylineRef.current[0]);
-          }
+      console.log("Granted: ", granted);
+      console.log("Polyline: ", polyline[0]);
+      console.log("New Location: ", newLocation);
+      
 
-          const bearing = computeBearing(newLocation, candidate);
-          //console.log("Bearing: ", bearing);
-          if (mapRef.current) {
-            mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
-          }
-        }
-      } else {
+      if (granted && polyline && polyline.length > 0) {
+        const bearing = (computeBearing(newLocation, polyline[0])) + 215 % 360;
+        console.log("Bearing: ", bearing);
+        console.log("Polyline: ", polyline[0]);
+        console.log("New Location: ", newLocation);
         if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
+          mapRef.current.animateCamera({ heading: bearing}, {duration: 1000});
+        }
+      }
+      if (granted && !polyline){
+        if (mapRef.current) {
+          mapRef.current.animateCamera({ heading: 0}, {duration: 1000});
         }
       }
     };
   
     // Run updateLocation immediately and then every 3 seconds
     updateLocation();
-    const intervalId = setInterval(updateLocation, 5000);
+    const intervalId = setInterval(updateLocation, 3000);
   
     campusToggleSheet.current?.show();
-
-    //console.log("all locked and loaded");
+    console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
@@ -481,7 +399,9 @@ const centerAndShowBuilding = (buildingName: string) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isKeyboardVisible, isOriginYourLocation, isZoomedIn]);
+  }, []);
+  
+  
 
   return (
     <>
@@ -493,7 +413,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           ref={mapRef}
           rotateEnabled={true}
         >
-          {locationServicesEnabled && myLocation && (
+          {locationServicesEnabled && (
             <Marker coordinate={myLocation} title="My Location">
               <Image
                 source={require("../../assets/images/userLocationDot.png")}
@@ -513,13 +433,14 @@ const centerAndShowBuilding = (buildingName: string) => {
           />
 
 
-          {routePolyline && 
+          {polyline && 
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
-              coordinates={routePolyline}
+              coordinates={polyline}
               /> 
           }
+
         </MapView>
 
         <View style={styles.topElements}>
@@ -546,12 +467,10 @@ const centerAndShowBuilding = (buildingName: string) => {
         </View>
 
         {/* SGW & LOY TOGGLE */}
-        {(!isKeyboardVisible &&
-          <LoyolaSGWToggleSheet
-            actionsheetref = {campusToggleSheet}
-            setSelectedCampus={CenterOnCampus}
-          />
-        )}
+        <LoyolaSGWToggleSheet
+          actionsheetref = {campusToggleSheet}
+          setSelectedCampus={CenterOnCampus}
+        />
         
         {/* BUILDING INFO */}
         {selectedBuilding && (
@@ -581,16 +500,15 @@ const centerAndShowBuilding = (buildingName: string) => {
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
-            onPolylineUpdate={(poly) => setRoutePolyline(poly)}
+            onPolylineUpdate={(poly) => setPolyline(poly)}
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}
-            onZoomIn={zoomIn}
-            onZoomOut={zoomOut}
+            onZoomIn={locationServicesEnabled ? zoomIn : () => {}}
+            onZoomOut={locationServicesEnabled ? zoomOut : () => {}}
             setLatitudeStepByStep = {setLatitudeStepByStep}
             setLongitudeStepByStep = {setLongitudeStepByStep}
-            isZoomedIn={isZoomedIn}
-            userLocation={myLocation}
+            isZoomedIn={izZoomedIn}
           
           />
           <DestinationChoices
@@ -601,6 +519,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           />    
 
         </NavigationProvider>
+
       </GestureHandlerRootView>
     </>
   );

@@ -1,5 +1,5 @@
-import React from "react";
-import { Pressable, Animated, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Pressable, Animated, StyleSheet } from "react-native";
 
 interface RetroSwitchProps {
   value: boolean;

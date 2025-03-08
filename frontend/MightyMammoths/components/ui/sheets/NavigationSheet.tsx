@@ -1,9 +1,14 @@
-import { View, StyleSheet } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useState, useRef, act } from 'react';
+import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
+import ToggleSwitch from '../input/ToggleSwitch';
+import RetroSwitch from '../input/RetroSwitch';
+import { ActionSheetProps } from 'react-native-actions-sheet';
+import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
+import { getRoutes, RouteData } from "@/services/directionsService";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
 import polyline from "@mapbox/polyline"
@@ -18,10 +23,9 @@ export type NavigationSheetProps = ActionSheetProps & {
     setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
     onPolylineUpdate: (poly:LatLng[])=>void;
     onExtraClose?: () => void;
-    onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
-    onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
+    onZoomIn: () => void;
+    onZoomOut: () => void;
     isZoomedIn: boolean;
-    userLocation: {latitude: number, longitude: number};
 }
 
 function NavigationSheet({
@@ -42,8 +46,7 @@ function NavigationSheet({
     onExtraClose,
     onZoomIn,
     onZoomOut,
-    isZoomedIn,
-    userLocation
+    isZoomedIn
 }: NavigationSheetProps) {
     const [navigationIsStarted, setNavigationIsStarted] = useState(false);
     const { state, functions } = useNavigation();
@@ -54,9 +57,7 @@ function NavigationSheet({
         twoBuildingsSelected,
         origin,
         destination,
-        originCoords,
-        destinationCoords,
-        routesValid
+        routesValid,
     } = state;
     
     const { 
@@ -67,7 +68,7 @@ function NavigationSheet({
     } = functions;
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
-    const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
@@ -77,13 +78,6 @@ function NavigationSheet({
       onPolylineUpdate(decodedPoly);
     }
 
-    useEffect(() => {
-      if (origin){
-        setIsOriginYourLocation(origin === "Your Location");
-      }
-    }, [origin]);
-  
-
     return (
       <>
         {navigationIsStarted && selectedMode &&(
@@ -91,8 +85,6 @@ function NavigationSheet({
             routes={routeEstimates[selectedMode] || []}
             setLatitudeStepByStep = {setLatitudeStepByStep}
             setLongitudeStepByStep = {setLongitudeStepByStep}
-            userLocation = {userLocation}
-            isOriginYL = {isOriginYourLocation}
           />
         )}   
     
@@ -150,7 +142,6 @@ function NavigationSheet({
                       }}
                       onZoomIn={onZoomIn}
                       origin={origin}
-                      originCoords={originCoords}
                   />
                   ) : (
                     <LiveInformation
@@ -159,13 +150,10 @@ function NavigationSheet({
                         actionsheetref.current?.hide();
                         setPoly("");
                         setStartedSelectedRoute(false);
-                        setIsOriginYourLocation(false);
                       }}
                       routes={routeEstimates[selectedMode] || []}
                       onZoomOut={onZoomOut}
                       isZoomedIn={isZoomedIn}
-                      destination={destination}
-                      destinationCoords={destinationCoords}
                     /> 
                   )
                 }
