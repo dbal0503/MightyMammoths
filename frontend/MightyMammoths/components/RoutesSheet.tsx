@@ -75,6 +75,7 @@ export function TransportChoice({
   const modeIcons: { [key: string]: JSX.Element } = {
     driving: (
       <IconSymbol
+        testID="drivingIcon"
         name="car.fill"
         size={30}
         color="black"
@@ -83,6 +84,7 @@ export function TransportChoice({
     ),
     transit: (
       <IconSymbol
+        testID="transitIcon"
         name="bus.fill"
         size={30}
         color="black"
@@ -91,6 +93,7 @@ export function TransportChoice({
     ),
     bicycling: (
       <IconSymbol
+        testID="bicyclingIcon"
         name="bicycle"
         size={30}
         color="black"
@@ -99,6 +102,7 @@ export function TransportChoice({
     ),
     walking: (
       <IconSymbol
+        testID="walkingIcon"
         name="figure.walk"
         size={30}
         color="black"
@@ -129,7 +133,7 @@ export function TransportChoice({
           <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
         </View>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
+          <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon} testID="routesSheetBackButton"/>
         </TouchableOpacity>
       </View>
       <View style={styles.transportContainer}>
