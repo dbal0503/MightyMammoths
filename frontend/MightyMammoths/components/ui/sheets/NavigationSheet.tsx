@@ -81,12 +81,34 @@ function NavigationSheet({
       onPolylineUpdate(decodedPoly);
     }
 
+    const validateCoordinates = (coords: [number, number][]): [number, number][] => {
+      return coords.filter(([lat, lng]) => {
+        return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      });
+    };
+
+    const combinePolylines = (walk1: string, shuttle: string, walk2: string) => {
+      const walk1Coords = walk1 ? polyline.decode(walk1) : [];
+      const shuttleCoords = shuttle ? polyline.decode(shuttle) : [];
+      const walk2Coords = walk2 ? polyline.decode(walk2) : [];
+
+      const validWalk1Coords = validateCoordinates(walk1Coords);
+      const validShuttleCoords = validateCoordinates(shuttleCoords);
+      const validWalk2Coords = validateCoordinates(walk2Coords);
+
+      const combinedCoords = [...validWalk1Coords, ...validShuttleCoords, ...validWalk2Coords];
+
+      const combinedPoly = polyline.encode(combinedCoords);
+
+      return combinedPoly;
+    }
+
     useEffect(() => {
       if (origin){
         setIsOriginYourLocation(origin === "Your Location");
       }
     }, [origin]);
-  
+
 
     return (
       <>
@@ -137,24 +159,25 @@ function NavigationSheet({
                       onSetSteps={(steps) => {
                         console.log("Steps set: ", steps);
                         console.log(selectedMode)
-                        if (selectedMode === "shuttle") {
+                        if(selectedMode === "shuttle"){
                           const walkingBeforeShuttle = steps
                             .filter(step => step.mode === "WALKING" && step.polyline)
                             .map(step => step.polyline)
-                            .join('');
-                      
+                            .join(''); 
+
                           const shuttlePolyline = steps.find(step => step.mode === "BUS")?.polyline || '';
-                      
+
                           const walkingAfterShuttle = steps
                             .filter(step => step.mode === "WALKING" && step.polyline)
                             .slice(-1)
                             .map(step => step.polyline)
                             .join('');
-                          
-                          setWalk1Polyline(walkingBeforeShuttle)
+
+                          setWalk1Polyline(walkingBeforeShuttle);
                           setShuttlePolyline(shuttlePolyline);
-                          setWalk2Polyline(walkingAfterShuttle)
+                          setWalk2Polyline(walkingAfterShuttle);
                         }
+
                       }}
                       destinationBuilding={selectedBuilding}
                       bothSelected={twoBuildingsSelected}
@@ -170,9 +193,8 @@ function NavigationSheet({
                         if (selectedMode && routeEstimates[selectedMode]?.length > 0 && selectedMode!=='shuttle') {
                           setPoly(routeEstimates[selectedMode][0].polyline);
                         } else if(selectedMode==="shuttle" && routeEstimates[selectedMode]?.length > 0){
-                          setPoly(walk1Polyline);
-                          setPoly(shuttlePolyline);
-                          setPoly(walk2Polyline);
+                          const combinedPoly = combinePolylines(walk1Polyline, shuttlePolyline, walk2Polyline);
+                          setPoly(combinedPoly);
                         }
                       }}
                       onZoomIn={onZoomIn}
