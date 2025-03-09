@@ -1,0 +1,8 @@
+appId: com.anonymous.MightyMammoths
+---
+- tapOn:
+    id: "calendar-text"
+- assertVisible:
+    id: "google-calendar-button"
+- assertVisible:
+    text: "Connect to Google Calendar"
