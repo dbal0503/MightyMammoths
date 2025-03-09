@@ -203,6 +203,7 @@ function NavigationSheet({
                       onZoomIn={onZoomIn}
                       origin={origin}
                       originCoords={originCoords}
+                      destination={destination}
                   />
                   ) : (
                     <LiveInformation
