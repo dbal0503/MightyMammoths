@@ -31,10 +31,14 @@ interface GeoJsonData {
 interface BuildingMappingProps {
   geoJsonData: GeoJsonData;
   onMarkerPress: (buildingName: string) => void;
-  nearbyPlaces: suggestionResult[]
+  nearbyPlaces: suggestionResult[];
 }
 
-const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarkerPress }) => {
+const BuildingMapping: React.FC<BuildingMappingProps> = ({ 
+  geoJsonData, 
+  onMarkerPress,
+  nearbyPlaces 
+}) => {
   const [polygons, setPolygons] = useState<any[]>([]);
 
     const loadAllPolygons = async () => {
@@ -67,8 +71,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
           <Marker
             key={buildingName}
             coordinate={{ latitude, longitude }}
-            //title={buildingName}
-            //description={feature.properties.Address}
             onPress={() => onMarkerPress(buildingName)}
             testID={`marker-${buildingAccronym}`}
           >
@@ -80,6 +82,26 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       }
       return null;
     });
+
+    const renderNearbyMarkers = () => {
+      if (!nearbyPlaces || nearbyPlaces.length === 0) return null;
+      return nearbyPlaces.map((place, index) => {
+        const { latitude, longitude } = place.location;
+        const mainText = place.placePrediction.structuredFormat.mainText.text;
+  
+        return (
+          <Marker
+            key={`nearby-${index}`}
+            coordinate={{ latitude, longitude }}
+            title={mainText}
+          >
+            <View style={styles.nearbyMarker}>
+              <Text style={styles.text}>{mainText}</Text>
+            </View>
+          </Marker>
+        );
+      });
+    };
 
     const renderPolygons = () =>
       polygons

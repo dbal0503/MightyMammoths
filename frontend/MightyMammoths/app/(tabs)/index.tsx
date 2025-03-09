@@ -534,6 +534,7 @@ const centerAndShowBuilding = (buildingName: string) => {
                 setSearchSuggestions={setSearchSuggestions}
                 buildingData={buildingList}
                 onSelect={(selected) => handleSearch(selected)}
+                onNearbyResults={(results) => setNearbyPlaces(results)}
               />
             </View>
           )}

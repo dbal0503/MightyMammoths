@@ -28,6 +28,7 @@ interface AutoCompleteDropdownProps {
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
+  onNearbyResults: (results: suggestionResult[]) => void;
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -37,6 +38,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
+  onNearbyResults
 }, ref) => {
 
   //functions exposed through ref
@@ -96,8 +98,12 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }, [currentVal])
 
   const getNearbySuggestions = async (searchQuery: string) => {
+    try{
     const results = await nearbyPlacesSearch(searchQuery);
-    console.log(results)
+    onNearbyResults(results);}
+    catch (err) {
+      console.log(err)
+    }
   };
 
   const getSuggestions = async (searchQuery: string) => {
