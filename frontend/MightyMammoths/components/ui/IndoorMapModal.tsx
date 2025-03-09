@@ -1,24 +1,16 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, Modal, Text, Dimensions } from 'react-native';
-import { MiMapView } from '@mappedin/react-native-sdk';
+import { MiMapView, TMapViewRNOptions, TMiMapViewOptions } from '@mappedin/react-native-sdk';
 import { GeoJsonFeature } from "./BuildingMapping"; 
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { getVenue } from '@mappedin/react-native-sdk';
 
 //Our MappedIn credentials
-/*
-const options = {
-    clientId: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID,
-    clientSecret: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_SECRET,
-    venue: "",
-    perspective: "Website",
-}*/
 
-// Demo credentials from MappedIn
 const options = {
-  clientId: '5eab30aa91b055001a68e996',
-  clientSecret: 'RJyRXKcryCMy4erZqqCbuB1NbR66QTGNXVE0x3Pg6oCIlUR1',
-  venue: 'mappedin-demo-mall',
-  perspective: 'Website',
+  key: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID,
+  secret: process.env.EXPO_PUBLIC_MAPPEDIN_SECRET_KEY,
+  mapId: "677d8a736e2f5c000b8f3fa6",
 };
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
