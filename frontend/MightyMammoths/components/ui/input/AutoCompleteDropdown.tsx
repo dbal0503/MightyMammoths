@@ -140,12 +140,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    console.log("Performing nearby coffee shops search...");
-    // Call your Google Maps Nearby Search function here
+    getNearbySuggestions("Coffee");
   };
 
   const handleFindNearbyRestaurants = () => {
-    console.log("Performing nearby restaurants search...");
+    getNearbySuggestions("Resturants");
     // Call your Google Maps Nearby Search function here
   };
 
