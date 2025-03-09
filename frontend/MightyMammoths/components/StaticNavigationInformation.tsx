@@ -56,7 +56,6 @@ export function StaticNavigationInformation(
             ? step.html_instructions.replace(/<[^>]*>/g, '') 
             : step?.instructions || '';  
 
-        // Replace place_id references with building names
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
           placeIdToBuildingName[placeId] || 'Unknown Building'
         );
@@ -70,7 +69,7 @@ export function StaticNavigationInformation(
     if (currentStepIndex < stepsData.length) {
       const currentStep = stepsData[currentStepIndex];
       
-      // Null check for polyline data
+
       if (!currentStep.polyline || !currentStep.polyline.points) {
         console.warn(`Step ${currentStepIndex} has no valid polyline data.`);
         return;
