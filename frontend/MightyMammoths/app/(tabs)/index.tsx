@@ -83,6 +83,8 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
+  const [nearbyPlaces, setNearbyPlaces] = useState<suggestionResult[]>([]);
+
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -510,6 +512,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
+            nearbyPlaces={nearbyPlaces}
           />
 
 
