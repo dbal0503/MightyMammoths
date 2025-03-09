@@ -119,6 +119,10 @@ function NavigationSheet({
             setLongitudeStepByStep = {setLongitudeStepByStep}
             userLocation = {userLocation}
             isOriginYL = {isOriginYourLocation}
+            selectedMode={selectedMode}
+            walk1Polyline={walk1Polyline}
+            walk2Polyline={walk2Polyline}
+            shuttlePolyline={shuttlePolyline}
           />
         )}   
     

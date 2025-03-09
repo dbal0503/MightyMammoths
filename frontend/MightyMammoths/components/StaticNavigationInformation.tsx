@@ -24,6 +24,10 @@ interface StaticNavigationInformationProps {
   setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
   userLocation: {latitude: number, longitude: number};
   isOriginYL: boolean;
+  selectedMode?: string;
+  walk1Polyline: string;
+  walk2Polyline: string;
+  shuttlePolyline: string;
 }
 
 export function StaticNavigationInformation(
@@ -33,7 +37,11 @@ export function StaticNavigationInformation(
     setLatitudeStepByStep,
     setLongitudeStepByStep,
     userLocation,
-    isOriginYL
+    isOriginYL,
+    selectedMode,
+    walk1Polyline,
+    walk2Polyline,
+    shuttlePolyline,
 
   }: StaticNavigationInformationProps) {
   
@@ -51,6 +59,15 @@ export function StaticNavigationInformation(
     if (routes && routes.length > 0) {
       const bestEstimate = routes[0];
       const stepsData = bestEstimate?.steps || [];
+      let adjustedStepsData = stepsData;
+      if (selectedMode === 'shuttle') {
+        adjustedStepsData = [
+          { ...stepsData[0], polyline: { points: walk1Polyline } },
+          { ...stepsData[0], polyline: { points: shuttlePolyline } },
+          { ...stepsData[2], polyline: { points: shuttlePolyline } }, 
+          { ...stepsData[3], polyline: { points: walk2Polyline } },
+        ];
+      }
       const updatedStepsText = stepsData.map((step: Step) => {
         const stepText = step?.html_instructions 
             ? step.html_instructions.replace(/<[^>]*>/g, '') 
@@ -61,7 +78,7 @@ export function StaticNavigationInformation(
         );
       });
       setStepsText(updatedStepsText);
-      setStepsData(stepsData);
+      setStepsData(adjustedStepsData);
     }
   }, [routes]);
   
