@@ -1,0 +1,19 @@
+appId: com.anonymous.MightyMammoths
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5783
+- tapOn:
+    id: "marker-MB"
+- assertVisible:
+    id: "indoorMapButton"
+- assertVisible:
+    id: "buildingInformation"
+- assertVisible:
+    id: "buildingLongName"
+- assertVisible:
+    id: "buildingCampus"
+- assertVisible:
+    id: "buildingAddress"
+- assertVisible:
+    id: "setDestinationButton"

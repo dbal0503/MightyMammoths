@@ -509,7 +509,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             onMarkerPress={centerAndShowBuilding}
           />
 
-
           {routePolyline && 
             <Polyline
               strokeWidth={10}
@@ -523,6 +522,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           {!navigationMode && (
             <View style={styles.dropdownWrapper}>
               <AutoCompleteDropdown
+                testID="searchBarHomeSheet"
                 locked={false}
                 searchSuggestions={searchSuggestions}
                 setSearchSuggestions={setSearchSuggestions}
@@ -539,6 +539,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           <RoundButton
             imageSrc={require("@/assets/images/recenter-map.png")}
             onPress={CenterOnLocation}
+            testID="recenter-button"
           />)}
         </View>
 
