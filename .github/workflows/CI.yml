@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - dev
-      - maestro
+      - js/issue72
   pull_request:
 
 jobs:
@@ -126,6 +126,8 @@ jobs:
           cd ./frontend/MightyMammoths
           maestro test maestro/home-page-tests/main-tests.yaml
           maestro test maestro/home-page-sheet-tests/main-tests.yaml
+          maestro test maestro/navigation-tests/main-tests.yaml
+          maestro test maestro/building-marker-information-tests/main-tests.yaml
           maestro test maestro/google-calendar-tests/main-tests.yaml
       #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
 

@@ -144,7 +144,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   }
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync();
+    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
     const newRegion: Region = {
       latitude: loc.coords.latitude,
       longitude: loc.coords.longitude,
@@ -428,43 +428,40 @@ const centerAndShowBuilding = (buildingName: string) => {
       if (!granted) {
         return;
       }
-      const loc = await Location.getCurrentPositionAsync();
-      const newLocation = {
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      };
-
+      // const loc = await Location.getCurrentPositionAsync();
+      // const newLocation = {
+      //   latitude: loc.coords.latitude,
+      //   longitude: loc.coords.longitude,
+      //   latitudeDelta: 0.005,
+      //   longitudeDelta: 0.005,
+      // };
+      // setMyLocation(newLocation);
       if (!isZoomedIn) {
         return;
       }
-      setMyLocation(newLocation);
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
-
-          let candidate: { latitude: number; longitude: number } | null = null;
+          // let candidate: { latitude: number; longitude: number } | null = null;
+          // for (const point of routePolylineRef.current) {
+          //   const d = haversineDistance(newLocation, point);
+          //   if (d >= 5) {
+          //     candidate = point;
+          //     break;
+          //   }
+          // }
     
-          for (const point of routePolylineRef.current) {
-            const d = haversineDistance(newLocation, point);
-            if (d >= 5) {
-              candidate = point;
-              break;
-            }
-          }
-    
-          if (!candidate) {
-            candidate = routePolylineRef.current.reduce((prev, curr) => {
-              return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
-            }, routePolylineRef.current[0]);
-          }
+          // if (!candidate) {
+          //   candidate = routePolylineRef.current.reduce((prev, curr) => {
+          //     return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
+          //   }, routePolylineRef.current[0]);
+          // }
 
-          const bearing = computeBearing(newLocation, candidate);
-          //console.log("Bearing: ", bearing);
-          if (mapRef.current) {
-            mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
-          }
+          // const bearing = computeBearing(newLocation, candidate);
+          // //console.log("Bearing: ", bearing);
+          // if (mapRef.current) {
+          //   mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
+          // }
         }
       } else {
         if (mapRef.current) {
@@ -523,7 +520,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             onMarkerPress={centerAndShowBuilding}
           />
 
-
           {routePolyline && 
             <Polyline
               strokeWidth={10}
@@ -537,6 +533,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           {!navigationMode && (
             <View style={styles.dropdownWrapper}>
               <AutoCompleteDropdown
+                testID="searchBarHomeSheet"
                 locked={false}
                 searchSuggestions={searchSuggestions}
                 setSearchSuggestions={setSearchSuggestions}
@@ -553,6 +550,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           <RoundButton
             imageSrc={require("@/assets/images/recenter-map.png")}
             onPress={CenterOnLocation}
+            testID="recenter-button"
           />)}
         </View>
 

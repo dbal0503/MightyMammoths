@@ -1,0 +1,13 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "drivingIcon"
+
+- assertVisible:
+    id: "transitIcon"
+
+- assertVisible:
+    id: "bicyclingIcon"
+
+- assertVisible:
+    id: "walkingIcon"

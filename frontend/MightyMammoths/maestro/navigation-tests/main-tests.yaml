@@ -1,0 +1,9 @@
+appId: com.anonymous.MightyMammoths
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "CL-building-info-sheet.yaml"
+- runFlow: "back-button-tests.yaml"
+- runFlow: "CL-building-info-sheet.yaml"
+- runFlow: "routes-directions-tests.yaml"
+- runFlow: "routes-sheet-tests.yaml"

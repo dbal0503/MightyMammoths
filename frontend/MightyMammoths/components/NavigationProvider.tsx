@@ -140,7 +140,7 @@ const NavigationProvider = ({
         } else{
           const originCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName === origin)?.properties.Campus ?? "";
           if (originCampus !== destinationCampus && originCampus !== "" && destinationCampus !== "") {
-            estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoords, originCampus); 
+            estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoordsLocal, originCampus); 
           }
         }
         
