@@ -23,6 +23,7 @@ GoogleSignin.configure({
 
 type GoogleCalendarButtonProps = {
   navigateToRoutes: (destination: string) => void;
+  testID?: string;
 };
 
 const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes }) => {
@@ -156,7 +157,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable testID="google-calendar-button" style={styles.button} onPress={handleGoogleCalendarConnect}>
+        <Pressable style={styles.button} onPress={handleGoogleCalendarConnect}>
           <Image
             source={{
               uri: "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-03-512.png",

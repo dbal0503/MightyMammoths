@@ -61,7 +61,7 @@ function LoyolaSGWToggleSheet({
             />
           </View>
           <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
-          <GoogleCalendarButton navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
+          <GoogleCalendarButton testID="google-calendar-button" navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
             <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>

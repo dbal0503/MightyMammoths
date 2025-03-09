@@ -1,4 +1,4 @@
-appId: com.yourapp.bundleid
+appId: com.anonymous.MightyMammoths
 onFlowStart:
   - runFlow: "../launch-app.yaml"
 ---
