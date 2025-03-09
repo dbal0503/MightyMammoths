@@ -1,0 +1,17 @@
+appId: com.anonymous.MightyMammoths
+---
+
+- tapOn:
+    id: "transitIcon"
+
+- assertVisible:
+    id: "startButton"
+
+- assertVisible:
+    id: "timeInformation"
+
+- assertVisible:
+    id: "distanceInformation"
+
+- tapOn:
+    id: "startButton"

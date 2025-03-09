@@ -111,6 +111,7 @@ export function TransportChoice({
     ),
     shuttle: (
       <IconSymbol
+        testID="shuttleIcon"
         name="bus.fill"
         size={30}
         color="black"
@@ -167,12 +168,13 @@ export function TransportChoice({
       <View style={styles.informationContainer}>
         {bestEstimate && (
           <View style={styles.travelInformation}>
-            <Text style={styles.time}>{bestEstimate.duration}</Text>
-            <Text style={styles.distance}>{bestEstimate.distance}</Text>
+            <Text style={styles.time} testID="timeInformation">{bestEstimate.duration}</Text>
+            <Text style={styles.distance} testID="distanceInformation">{bestEstimate.distance}</Text>
           </View>
         )}
         {bothSelected && bestEstimate && (
           <TouchableOpacity
+            testID="startButton"
             style={styles.goButton}
             onPress={() => {
               startNavigation();
