@@ -60,7 +60,6 @@ function NavigationSheet({
     
     const { 
         setSelectedMode, 
-        setSelectedRoute,
         setRouteEstimates,
     } = functions;
 

@@ -5,12 +5,12 @@ import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
-  routeEstimates: { [mode: string]: RouteData[] };
-  onSelectMode: (mode: string) => void;
-  destinationBuilding: string | null;
-  bothSelected: boolean;
-  onBack: () => void;
-  onSetSteps: (steps: any[]) => void;
+  readonly routeEstimates: { [mode: string]: RouteData[] };
+  readonly onSelectMode: (mode: string) => void;
+  readonly destinationBuilding: string | null;
+  readonly bothSelected: boolean;
+  readonly onBack: () => void;
+  readonly onSetSteps: (steps: any[]) => void;
 }
 
 export function TransportChoice({
