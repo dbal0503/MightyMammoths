@@ -154,12 +154,32 @@ function NavigationSheet({
                         if(origin && destination){
                           setSelectedMode(mode);
                           actionsheetref.current?.snapToIndex(1)
+                          console.log("onselect mode"+mode);
                         }
                       }}
                       onSetSteps={(steps) => {
                         console.log("Steps set: ", steps);
-                        console.log(selectedMode)
-                        if(selectedMode === "shuttle"){
+                        console.log("steps mode"+selectedMode)
+
+                      }}
+                      destinationBuilding={selectedBuilding}
+                      bothSelected={twoBuildingsSelected}
+                      routesValid={routesValid}
+                      showStepByStep ={setNavigationIsStarted}
+                      routes={selectedMode && routeEstimates[selectedMode] ? routeEstimates[selectedMode] : []}
+                      starting={()=> {
+                        closeChooseDest(false)
+                        setStartedSelectedRoute(true);
+                        actionsheetref.current?.snapToIndex(0);
+                      }}
+                      defPoly={() => {
+                        console.log("defpoly"+selectedMode);
+                        if (selectedMode && routeEstimates[selectedMode]?.length > 0 && selectedMode!=='shuttle') {
+                          setPoly(routeEstimates[selectedMode][0].polyline);
+                        } else if(selectedMode==="shuttle" && routeEstimates[selectedMode]?.length > 0){
+                          console.log("mode is shuttle");
+                          console.log(routeEstimates[selectedMode][0].steps);
+                          let steps = routeEstimates[selectedMode][0].steps;
                           const walkingBeforeShuttle = steps
                             .filter(step => step.mode === "WALKING" && step.polyline)
                             .map(step => step.polyline)
@@ -176,23 +196,6 @@ function NavigationSheet({
                           setWalk1Polyline(walkingBeforeShuttle);
                           setShuttlePolyline(shuttlePolyline);
                           setWalk2Polyline(walkingAfterShuttle);
-                        }
-
-                      }}
-                      destinationBuilding={selectedBuilding}
-                      bothSelected={twoBuildingsSelected}
-                      routesValid={routesValid}
-                      showStepByStep ={setNavigationIsStarted}
-                      routes={selectedMode && routeEstimates[selectedMode] ? routeEstimates[selectedMode] : []}
-                      starting={()=> {
-                        closeChooseDest(false)
-                        setStartedSelectedRoute(true);
-                        actionsheetref.current?.snapToIndex(0);
-                      }}
-                      defPoly={() => {
-                        if (selectedMode && routeEstimates[selectedMode]?.length > 0 && selectedMode!=='shuttle') {
-                          setPoly(routeEstimates[selectedMode][0].polyline);
-                        } else if(selectedMode==="shuttle" && routeEstimates[selectedMode]?.length > 0){
                           const combinedPoly = combinePolylines(walk1Polyline, shuttlePolyline, walk2Polyline);
                           setPoly(combinedPoly);
                         }

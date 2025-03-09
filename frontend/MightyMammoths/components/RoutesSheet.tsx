@@ -19,6 +19,7 @@ interface TransportChoiceProps {
   routes: any
   origin: string;
   originCoords: string;
+  destination: string;
 }
 
 export function TransportChoice({
@@ -35,7 +36,8 @@ export function TransportChoice({
   showStepByStep,
   routes,
   origin,
-  originCoords
+  originCoords,
+  destination
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
@@ -53,6 +55,14 @@ export function TransportChoice({
       onSetSteps(routeEstimates["driving"][0].steps);
     }
   }, [routesValid]); 
+
+  useEffect(() => {
+    if (selectedMode && routeEstimates[selectedMode]?.length > 0) {
+      const updatedBestEstimate = routeEstimates[selectedMode][0];
+      setBestEstimate(updatedBestEstimate);
+      onSetSteps(updatedBestEstimate.steps);  // Update steps as well
+    }
+  }, [origin, destination, selectedMode, routeEstimates]);
 
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
