@@ -13,13 +13,19 @@ export interface suggestionRequest {
     }
 }
 export interface placesSearch {
-    location:{
-        latitude: number 
-        longitude: number
-    };
-    radius: number;
-    keyword: string
+    includedTypes: [string],
+    maxResultCount: number,
+    locationRestriction: {
+        circle:{
+            center:{
+                latitude: number
+                longitude: number}
+            radius: number;
+        }
+    }
 }
+    
+
 
 export interface suggestionResult {
     placePrediction: {
@@ -112,16 +118,22 @@ export async function nearbyPlacesSearch(
         console.log('failed loading google api key')
         return suggestionResults;
     }
-    const url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/output?parameters'
+    const url = 'https://places.googleapis.com/v1/places:searchNearby'
 
     const data: placesSearch = {
-        "keyword": searchString,
-        "location":{
-                    "latitude": 45.495376,
-                    "longitude": -73.577997
-                },
-                "radius": 500
-            }
+        "includedTypes": [searchString],
+    "maxResultCount": 10,
+    "locationRestriction":{
+        "circle":{
+            "center":{
+                "latitude":  45.495376,
+                "longitude": -73.577997
+            },           
+            "radius": 500}
+    }
+}
+    
+
         
 
     const config = {
@@ -129,18 +141,37 @@ export async function nearbyPlacesSearch(
         url: url,
         headers: {
             'Content-type': 'application/json',
-            'X-Goog-Api-Key': apiKey
-        },
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.location,places.formattedAddress',
+
+                    },
         data: JSON.stringify(data)
     }
 
     try {
-        const response = await axios(config)
-        //console.log(response.data.suggestions)
-        suggestionResults = response.data.suggestions
+        const response = await axios(config);
+        const places = response.data?.places;
+      
+        if (places) {
+          suggestionResults = places.map((p: any) => ({
+            placePrediction: {
+              place: p.id,
+              placeId: p.id,
+              text: { text: p.displayName, matches: [] },
+              structuredFormat: {
+                mainText: { text: p.displayName, matches: [] },
+                secondaryText: { text: p.formattedAddress ?? '' }
+              },
+              types: p.types ?? []
+            },
+            location: p.location // { latitude: number; longitude: number }
+          }));
+        }
     } catch (error) {
-        console.log(`Error getting search suggestion: ${error}`)
-    }finally {
+        console.log(`Error getting search suggestion: ${error}`);
+     //   console.log(`${error.response?.data}`);
+
+    } finally {
         return suggestionResults;
     }
 }

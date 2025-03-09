@@ -140,13 +140,12 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    getNearbySuggestions("Coffee");
+    getNearbySuggestions("cafe");
   };
 
   const handleFindNearbyRestaurants = () => {
-    getNearbySuggestions("Resturants");
-    // Call your Google Maps Nearby Search function here
-  };
+    getNearbySuggestions("restaurant");
+    };
 
   return (
     <View style={styles.container}>
