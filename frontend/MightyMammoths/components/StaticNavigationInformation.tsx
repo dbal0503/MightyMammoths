@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
+import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { LatLng } from 'react-native-maps';
 import polyline from '@mapbox/polyline';
@@ -105,7 +105,7 @@ export function StaticNavigationInformation(
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== 0 ? (
                 <TouchableOpacity style={styles.arrowButton} onPress={goToPreviousStep}>
-                  <IconSymbol name="arrow-back" size={30} color="black" />
+                  <IconSymbol name= {"arrow-back" as IconSymbolName} size={30} color="black" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.arrowButtonPlaceholder} />
@@ -121,7 +121,7 @@ export function StaticNavigationInformation(
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== stepsText.length - 1 ? (
                 <TouchableOpacity style={styles.arrowButton} onPress={goToNextStep}>
-                  <IconSymbol name="arrow-forward" size={30} color="black" />
+                  <IconSymbol name = {"arrow-forward" as IconSymbolName} size={30} color="black" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.arrowButtonPlaceholder} />

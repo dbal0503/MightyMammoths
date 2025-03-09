@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getShuttleBusRoute } from "../shuttleBusRoute";
+import { getShuttleBusRoute } from "../shuttleBusRouteService";
 import { RouteData } from "../directionsService";
 import { findNextBusTime } from "@/utils/getNextShuttleBus";
 

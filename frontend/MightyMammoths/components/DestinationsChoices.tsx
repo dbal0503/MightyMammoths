@@ -5,12 +5,13 @@ import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./u
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Location from "expo-location";
 import { useNavigation } from "@/components/NavigationProvider";
+import { IconSymbolName } from "@/components/ui/IconSymbol";
 
 interface DestinationChoicesProps {
-  buildingList: BuildingData[];
-  visible?: boolean;
-  destination: string;
-  locationServicesEnabled: boolean;
+  readonly buildingList: BuildingData[];
+  readonly visible?: boolean;
+  readonly destination: string;
+  readonly locationServicesEnabled: boolean;
 }
 
 export function DestinationChoices({
