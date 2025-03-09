@@ -1,0 +1,13 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "originNavigationDropdown"
+- assertVisible:
+    id: "destinationNavigationDropdown"
+- tapOn:
+    id: "originNavigationDropdown"
+- tapOn: "Your Location"
+- tapOn:
+    id: "destinationNavigationDropdown"
+- tapOn:
+    id: "destinationNavigationDropdown"

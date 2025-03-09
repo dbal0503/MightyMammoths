@@ -4,8 +4,8 @@ appId: com.anonymous.MightyMammoths
     latitude: 45.4954
     longitude: -73.5783
 - tapOn:
-    id: "campus-option-loy"
+    id: "marker-CL"
+- assertVisible:
+    id: "setDestinationButton"
 - tapOn:
-    id: "recenter-button"
-- assertVisible: 
-    id: "marker-EV"
+    id: "setDestinationButton"
