@@ -1,4 +1,4 @@
-appId: com.anonymous.MightyMammoths
+appId: com.yourapp.bundleid
 ---
 - tapOn:
     id: "calendar-text"

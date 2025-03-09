@@ -1,0 +1,5 @@
+appId: com.yourapp.bundleid
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "google-calendar-btn.yaml"
