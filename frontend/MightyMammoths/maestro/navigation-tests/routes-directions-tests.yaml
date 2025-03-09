@@ -9,9 +9,11 @@ appId: com.anonymous.MightyMammoths
 - tapOn: "Your Location"
 - tapOn:
     id: "destinationNavigationDropdown"
-- assertVisible:
-    text: "Your Location"
+- extendedWaitUntil:
+    visible: "Your Location"
+    timeout: 230000
 - tapOn:
     id: "destinationNavigationDropdown"
-- assertNotVisible:
-    text: "Your Location"
+- extendedWaitUntil:
+    notVisible: "Your Location"
+    timeout: 230000

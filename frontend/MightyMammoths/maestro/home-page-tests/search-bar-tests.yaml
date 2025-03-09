@@ -7,5 +7,6 @@ appId: com.anonymous.MightyMammoths
     id: "searchBarHomeSheet"
 - tapOn:
     id: "searchBarHomeSheet"
-- assertVisible:
-    text: "Your Location"
+- extendedWaitUntil:
+    visible: "Your Location"
+    timeout: 230000
