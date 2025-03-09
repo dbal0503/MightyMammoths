@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
 
 export interface BuildingData {
   buildingName: string;
@@ -18,7 +18,7 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; // Define the reset function for the ref
+  reset: () => void; 
 }
 
 interface AutoCompleteDropdownProps {
@@ -95,6 +95,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
+  const getNearbySuggestions = async (searchQuery: string) => {
+    const results = await nearbyPlacesSearch(searchQuery);
+    console.log(results)
+  };
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -133,6 +137,16 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
     setIsOpen(false);
     setSearchQuery("");
+  };
+
+  const handleFindNearbyCoffee = () => {
+    console.log("Performing nearby coffee shops search...");
+    // Call your Google Maps Nearby Search function here
+  };
+
+  const handleFindNearbyRestaurants = () => {
+    console.log("Performing nearby restaurants search...");
+    // Call your Google Maps Nearby Search function here
   };
 
   return (
@@ -184,10 +198,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
+      <View style={styles.buttonContainer}>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
+          <Text style={styles.buttonText}>Cafe</Text>
+        </Pressable>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
+          <Text style={styles.buttonText}>Restaurants</Text>
+        </Pressable>
+      </View>
       </Animated.View>
     </View>
   );
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
 const styles = StyleSheet.create({
   container: {
@@ -256,6 +279,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
+  },
+  actionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+  }
 });
 AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 

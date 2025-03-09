@@ -12,6 +12,14 @@ export interface suggestionRequest {
         }
     }
 }
+export interface placesSearch {
+    location:{
+        latitude: number 
+        longitude: number
+    };
+    radius: number;
+    keyword: string
+}
 
 export interface suggestionResult {
     placePrediction: {
@@ -71,6 +79,50 @@ export async function autoCompleteSearch(
             }
         }
     }
+
+    const config = {
+        method: 'post',
+        url: url,
+        headers: {
+            'Content-type': 'application/json',
+            'X-Goog-Api-Key': apiKey
+        },
+        data: JSON.stringify(data)
+    }
+
+    try {
+        const response = await axios(config)
+        //console.log(response.data.suggestions)
+        suggestionResults = response.data.suggestions
+    } catch (error) {
+        console.log(`Error getting search suggestion: ${error}`)
+    }finally {
+        return suggestionResults;
+    }
+}
+
+export async function nearbyPlacesSearch(
+    searchString: string
+): Promise<suggestionResult[]> {
+
+    let suggestionResults: suggestionResult[] = [];
+
+    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if(!apiKey){
+        console.log('failed loading google api key')
+        return suggestionResults;
+    }
+    const url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/output?parameters'
+
+    const data: placesSearch = {
+        "keyword": searchString,
+        "location":{
+                    "latitude": 45.495376,
+                    "longitude": -73.577997
+                },
+                "radius": 500
+            }
+        
 
     const config = {
         method: 'post',

@@ -144,7 +144,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   }
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync();
+    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest})
     const newRegion: Region = {
       latitude: loc.coords.latitude,
       longitude: loc.coords.longitude,
