@@ -1,5 +1,14 @@
 appId: com.anonymous.MightyMammoths
 ---
+- tapOn:
+    id: "originNavigationDropdown"
+    
+- inputText: "EV"
+
+- tapOn:
+    id: "destinationNavigationDropdown"
+
+- inputText: "AD"
 
 - tapOn:
     id: "transitIcon"
