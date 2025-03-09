@@ -27,8 +27,13 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
-          <string>com.anonymous.MightyMammoths</string>
+          <string>com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.1069237773869-lj16d9448a1unfds0k42ag37iu39nv62</string>
         </array>
       </dict>
     </array>
