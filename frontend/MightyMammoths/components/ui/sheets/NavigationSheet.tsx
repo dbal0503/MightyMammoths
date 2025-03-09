@@ -68,6 +68,10 @@ function NavigationSheet({
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
     const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+    const [shuttlePolyline, setShuttlePolyline] = useState('');
+    const [walk1Polyline, setWalk1Polyline] = useState('');
+    const [walk2Polyline, setWalk2Polyline] = useState('');
+
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
@@ -132,6 +136,25 @@ function NavigationSheet({
                       }}
                       onSetSteps={(steps) => {
                         console.log("Steps set: ", steps);
+                        console.log(selectedMode)
+                        if (selectedMode === "shuttle") {
+                          const walkingBeforeShuttle = steps
+                            .filter(step => step.mode === "WALKING" && step.polyline)
+                            .map(step => step.polyline)
+                            .join('');
+                      
+                          const shuttlePolyline = steps.find(step => step.mode === "BUS")?.polyline || '';
+                      
+                          const walkingAfterShuttle = steps
+                            .filter(step => step.mode === "WALKING" && step.polyline)
+                            .slice(-1)
+                            .map(step => step.polyline)
+                            .join('');
+                          
+                          setWalk1Polyline(walkingBeforeShuttle)
+                          setShuttlePolyline(shuttlePolyline);
+                          setWalk2Polyline(walkingAfterShuttle)
+                        }
                       }}
                       destinationBuilding={selectedBuilding}
                       bothSelected={twoBuildingsSelected}
@@ -144,8 +167,12 @@ function NavigationSheet({
                         actionsheetref.current?.snapToIndex(0);
                       }}
                       defPoly={() => {
-                        if (selectedMode && routeEstimates[selectedMode]?.length > 0) {
+                        if (selectedMode && routeEstimates[selectedMode]?.length > 0 && selectedMode!=='shuttle') {
                           setPoly(routeEstimates[selectedMode][0].polyline);
+                        } else if(selectedMode==="shuttle" && routeEstimates[selectedMode]?.length > 0){
+                          setPoly(walk1Polyline);
+                          setPoly(shuttlePolyline);
+                          setPoly(walk2Polyline);
                         }
                       }}
                       onZoomIn={onZoomIn}
