@@ -128,6 +128,7 @@ jobs:
           maestro test maestro/home-page-sheet-tests/main-tests.yaml
           maestro test maestro/navigation-tests/main-tests.yaml
           maestro test maestro/building-marker-information-tests/main-tests.yaml
+          maestro test maestro/google-calendar-tests/main-tests.yaml
       #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
 
       #- name: Upload Test Artifacts

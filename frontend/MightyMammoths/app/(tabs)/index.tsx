@@ -399,6 +399,17 @@ const centerAndShowBuilding = (buildingName: string) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
+
+  const navigateToRoutes = (destination: string) => {
+    setDestination(destination);
+    navigationSheet.current?.show();
+    placeInfoSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    setChooseDestVisible(true);
+    setNavigationMode(true);
+};
+
+
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -545,10 +556,13 @@ const centerAndShowBuilding = (buildingName: string) => {
 
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
-          <LoyolaSGWToggleSheet
-            actionsheetref = {campusToggleSheet}
-            setSelectedCampus={CenterOnCampus}
-          />
+
+        <LoyolaSGWToggleSheet
+          actionsheetref = {campusToggleSheet}
+          setSelectedCampus={CenterOnCampus}
+          navigateToRoutes={navigateToRoutes} 
+        />
+
         )}
         
         {/* BUILDING INFO */}

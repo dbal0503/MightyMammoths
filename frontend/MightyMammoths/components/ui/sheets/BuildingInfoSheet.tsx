@@ -4,12 +4,14 @@ import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
 
+
 export type BuildingInfoSheetProps = ActionSheetProps & {
-    actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-    building: GeoJsonFeature;
-    navigate: () => void;
-    onClose: () => void; 
+  actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+  building: GeoJsonFeature;
+  navigate: (destination: string) => void;
+  onClose: () => void; 
 }
+
 
 function BuildingInfoSheet({
     isModal = false,
@@ -47,7 +49,9 @@ function BuildingInfoSheet({
                 ]}>
             <Pressable onPress={navigate} testID='setDestinationButton'>
                 <Text style={styles.buttonText}>Set As Destination</Text>
-                </Pressable>
+            </Pressable>
+            
+
             </View>
             <View style={
                 [styles.button, styles.indoorMapButton]
