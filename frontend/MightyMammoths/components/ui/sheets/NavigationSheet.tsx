@@ -1,48 +1,65 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
-
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef, useSheetRef} from "react-native-actions-sheet";
-
 import { TransportChoice } from "@/components/RoutesSheet";
 import { StartNavigation } from "@/components/RouteStart";
 import { getRoutes, RouteData } from "@/services/directionsService";
-
 import { useNavigation } from "@/components/NavigationProvider"
+import { LiveInformation } from '@/components/LiveInformation';
+import polyline from "@mapbox/polyline"
+import { LatLng } from 'react-native-maps';
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
+    setNavigationMode: React.Dispatch<React.SetStateAction<boolean>>;
+    onPolylineUpdate: (poly:LatLng[])=>void;
 }
 
 function NavigationSheet({
+    onPolylineUpdate,
     isModal = false,
-    snapPoints = [100],
+    snapPoints = [50 ,100],
     backgroundInteractionEnabled = true,
-    closable = true,
-    gestureEnabled = true,
-    initialSnapIndex = 0,
+    closable = false,
+    gestureEnabled = false,
+    initialSnapIndex = 1,
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    closeChooseDest
+    closeChooseDest,
+    setNavigationMode
 }: NavigationSheetProps) {
     const { state, functions } = useNavigation();
     const { 
         routeEstimates, 
         selectedMode, 
         selectedBuilding, 
-        twoBuildingsSelected 
+        twoBuildingsSelected,
+        origin,
+        destination
     } = state;
     
     const { 
         setSelectedMode, 
-        setSelectedRoute 
+        setSelectedRoute,
+        setRouteEstimates,
     } = functions;
+
+    const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
+
+    const setPoly = (poly: string) => {
+      const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
+        latitude,
+        longitude,
+      }));
+      onPolylineUpdate(decodedPoly);
+    }
 
     return (
       <ActionSheet
@@ -56,30 +73,59 @@ function NavigationSheet({
         containerStyle={styles.root}
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
-        onClose={() =>{
-            closeChooseDest(false)
-            setSelectedMode(null)
+        onClose={() =>{ //cleanup 
+          setNavigationMode(false);
+          closeChooseDest(false);
+          setSelectedMode(null);
+          setRouteEstimates({});
         }}
         >
           <View style={styles.centeredView}>
                 {selectedMode === null ? (
                 // Show the transportation mode options
                 <TransportChoice
+                    onBack={()=>{
+                      actionsheetref.current?.hide();
+                    }}
                     routeEstimates={routeEstimates}
-                    onSelectMode={(mode) => setSelectedMode(mode)}
+                    onSelectMode={(mode) => {
+                      if(origin && destination){
+                        setSelectedMode(mode);
+                        actionsheetref.current?.snapToIndex(0)
+                      }
+                    }}
                     destinationBuilding={selectedBuilding}
                     bothSelected={twoBuildingsSelected}
                 />
-                ) : (
-                // Once a mode is selected, show alternative routes for that mode.
+                ) : (startedSelectedRoute===false? (
                 <StartNavigation
                     mode={selectedMode}
                     routes={routeEstimates[selectedMode] || []}
                     onSelectRoute={setSelectedRoute}
-                    onBack={() => setSelectedMode(null)}
+                    onBack={() => {
+                      setSelectedMode(null);
+                      actionsheetref.current?.snapToIndex(1);
+                    }}
                     destinationBuilding={selectedBuilding}
+                    starting={()=> {
+                      closeChooseDest(false)
+                      setStartedSelectedRoute(true);
+                    }}
+                    defPoly={() => setPoly(routeEstimates[selectedMode][0].polyline)}
                 />
-                )}
+                ) : (
+                  <LiveInformation
+                    onStop={()=>{
+                      actionsheetref.current?.hide();
+                      setPoly("");
+                      setStartedSelectedRoute(false);
+                    }}
+                    routes={routeEstimates[selectedMode] || []}
+                  /> 
+                )
+              )}
+
+
           </View>
       </ActionSheet>
     );
