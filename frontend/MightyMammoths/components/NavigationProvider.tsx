@@ -3,7 +3,7 @@ import { getRoutes, RouteData } from "@/services/directionsService";
 import { isWithinRadius } from "@/utils/isWithinCampus";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
-import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
+import { getShuttleBusRoute } from "@/services/shuttleBusRouteService";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 
 import { suggestionResult } from "@/services/searchService";

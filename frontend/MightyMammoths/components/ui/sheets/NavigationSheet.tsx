@@ -2,8 +2,8 @@ import { View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
-import { TransportChoice } from "@/components/RoutesSheet";
-import { StartNavigation } from "@/components/RouteStart";
+import { TransportChoice } from "@/components/TransportChoice";
+import { StartNavigation } from "@/components/StartNavigation";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
 import polyline from "@mapbox/polyline"
@@ -61,7 +61,6 @@ function NavigationSheet({
     
     const { 
         setSelectedMode, 
-        setSelectedRoute,
         setRouteEstimates,
         setRoutesValid,
     } = functions;
@@ -151,7 +150,6 @@ function NavigationSheet({
                       onBack={()=>{
                         actionsheetref.current?.hide();
                         setRoutesValid(false);
-                        
                       }}
                       routeEstimates={routeEstimates}
                       onSelectMode={(mode) => {
@@ -163,8 +161,7 @@ function NavigationSheet({
                       }}
                       onSetSteps={(steps) => {
                         console.log("Steps set: ", steps);
-                        console.log("steps mode"+selectedMode)
-
+                        console.log("steps mode: " + selectedMode)
                       }}
                       destinationBuilding={selectedBuilding}
                       bothSelected={twoBuildingsSelected}

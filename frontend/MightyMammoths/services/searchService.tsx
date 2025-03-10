@@ -46,7 +46,7 @@ export interface suggestionResult {
 
 export async function autoCompleteSearch(
     searchString: string
-): Promise<suggestionResult[]> {
+): Promise<suggestionResult[] | undefined> {
 
     let suggestionResults: suggestionResult[] = [];
 
@@ -84,12 +84,10 @@ export async function autoCompleteSearch(
 
     try {
         const response = await axios(config)
-        //console.log(response.data.suggestions)
-        suggestionResults = response.data.suggestions
+        return response.data.suggestions
     } catch (error) {
         console.log(`Error getting search suggestion: ${error}`)
-    }finally {
-        return suggestionResults;
+        return undefined;
     }
 }
 
@@ -124,11 +122,9 @@ export async function getPlaceDetails(
 
     try {
         const response = await axios(config)
-        details = response.data
-        //console.log(response.data)
+        return response.data;
     } catch (error) {
         console.log(`Error getting place location: ${error}`)
-    }finally {
-        return details;
+        return undefined;
     }
 }

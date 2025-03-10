@@ -4,9 +4,6 @@ const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
         console.log('failed loading google api key in building mapping')
     }
-    else {
-      //console.log("api key loaded building mapping")
-    }
 
     export const fetchPlaceDetails = async (placeId: string, buildingName: string) => {
       try {

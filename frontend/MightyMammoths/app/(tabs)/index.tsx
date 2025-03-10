@@ -9,7 +9,7 @@ import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
-import { DestinationChoices } from "@/components/Destinations";
+import { DestinationChoices } from "@/components/DestinationsChoices";
 import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import { Image } from "react-native";
@@ -17,9 +17,7 @@ import { Image } from "react-native";
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
-import { computeBearing } from "@/utils/computeBearing";
-import { haversineDistance } from "@/utils/haversineDistance";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinates";
+import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -476,7 +474,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   
     campusToggleSheet.current?.show();
 
-    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
