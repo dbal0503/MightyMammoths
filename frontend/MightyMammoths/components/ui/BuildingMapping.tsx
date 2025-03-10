@@ -86,7 +86,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
     const renderNearbyMarkers = () => {
       if (!nearbyPlaces || nearbyPlaces.length === 0) return null;
       return nearbyPlaces.map((place, index) => {
-        const { latitude, longitude } = place.location;
+        const { latitude, longitude } = place.;
         const mainText = place.placePrediction.structuredFormat.mainText.text;
   
         return (
