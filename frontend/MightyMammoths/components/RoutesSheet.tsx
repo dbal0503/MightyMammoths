@@ -1,7 +1,7 @@
 // components/RoutesSheet.tsx
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
@@ -10,6 +10,7 @@ interface TransportChoiceProps {
   destinationBuilding: string | null;
   bothSelected: boolean;
   onBack: () => void;
+  onSetSteps: (steps: any[]) => void;
 }
 
 export function TransportChoice({
@@ -17,18 +18,21 @@ export function TransportChoice({
   onSelectMode,
   destinationBuilding,
   bothSelected,
-  onBack
+  onBack,
+  onSetSteps,
 }: TransportChoiceProps) {
   const modeDisplayNames: { [key: string]: string } = {
     driving: "Drive",
     transit: "Public Transit",
     bicycling: "Bicycle",
     walking: "Walk",
+    shuttle: "Shuttle",
   };
 
   const modeIcons: { [key: string]: JSX.Element } = {
     driving: (
       <IconSymbol
+        testID="drivingIcon"
         name="car.fill"
         size={30}
         color="black"
@@ -37,6 +41,7 @@ export function TransportChoice({
     ),
     transit: (
       <IconSymbol
+        testID="transitIcon"
         name="bus.fill"
         size={30}
         color="black"
@@ -45,6 +50,7 @@ export function TransportChoice({
     ),
     bicycling: (
       <IconSymbol
+        testID="bicyclingIcon"
         name="bicycle"
         size={30}
         color="black"
@@ -53,7 +59,16 @@ export function TransportChoice({
     ),
     walking: (
       <IconSymbol
+        testID="walkingIcon"
         name="figure.walk"
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
+    ),
+    shuttle: (
+      <IconSymbol
+        name="bus.fill"
         size={30}
         color="black"
         style={styles.modeIcon}
@@ -73,43 +88,53 @@ export function TransportChoice({
           <Text style={styles.routeHeadingDestination}>{destinationBuilding}</Text>
         </View>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+          <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon} testID="routesSheetBackButton"/>
         </TouchableOpacity>
       </View>
-      {Object.keys(modeDisplayNames).map((mode) => {
-        const estimates = routeEstimates[mode];
-        const bestEstimate =
-          estimates && estimates.length > 0 ? estimates[0] : null;
-        return (
-          <TouchableOpacity
-            key={mode}
-            style={styles.modeItem}
-            onPress={() => onSelectMode(mode)}
-            disabled={!bothSelected}
-          >
-            {modeIcons[mode]}
-            <View style={styles.textInformation}>
+      <ScrollView style={styles.scrollContainer}>
+        {Object.keys(modeDisplayNames).map((mode) => {
+          const estimates = routeEstimates[mode];
+          if (mode === "shuttle" && (!estimates || estimates.length === 0)) {
+            return null;
+          }
+          const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+          
+          const steps = bestEstimate?.steps || [];
+          return (
+            <TouchableOpacity
+              key={mode}
+              style={styles.modeItem}
+              onPress={() => {
+                console.log(steps); // Log the mode when pressed
+                onSelectMode(mode); // Also call onSelectMode if you still want to select the mode
+                onSetSteps(steps);
+              }}
+              disabled={!bothSelected}
+            >
+              {modeIcons[mode]}
+              <View style={styles.textInformation}>
                 <Text style={styles.transportMode}>{modeDisplayNames[mode]}</Text>
                 <Text style={styles.subRouteHeadingDestination}>{destinationBuilding}</Text>
-            </View>
-            <View style={styles.travelInformation}>
+              </View>
+              <View style={styles.travelInformation}>
                 {bestEstimate && (
-                    <>
-                      <Text style={styles.time}>{bestEstimate.duration}</Text>
-                      <Text style={styles.distance}>{bestEstimate.distance}</Text>
-                    </>
+                  <>
+                    <Text style={styles.time}>{bestEstimate.duration}</Text>
+                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                  </>
                 )}
-            </View>
-          </TouchableOpacity>
-        );
-      })}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: '90%',
+    width: '100%',
     flex: 1,
     padding: 16,
     backgroundColor: 'black'
@@ -151,11 +176,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 0,
     color: 'white',
+    paddingLeft: 10,
   },
   routeHeadingDestination: {
     fontSize: 20,
     marginBottom: 20,
     color: 'white',
+    paddingLeft: 10,
   },
   textInformation:{
         
@@ -177,6 +204,9 @@ const styles = StyleSheet.create({
 distance:{
     marginLeft:'auto',
     fontSize:18,
+},
+scrollContainer: {
+  
 },
 
 });

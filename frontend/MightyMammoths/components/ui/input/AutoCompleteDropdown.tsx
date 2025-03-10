@@ -10,7 +10,6 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
 
 export interface BuildingData {
@@ -29,6 +28,7 @@ interface AutoCompleteDropdownProps {
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
+  testID?: string;
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -38,6 +38,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
+  testID
 }, ref) => {
 
   //functions exposed through ref
@@ -90,6 +91,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     ]);
   }, [searchSuggestions]);
 
+  useEffect(() => {
+    if (currentVal) {
+      setSelected(currentVal)
+    }
+  }, [currentVal])
+
+
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
     setSearchSuggestions(prevSuggestions => {
@@ -102,25 +110,20 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       return [...prevSuggestions, ...newResults];
     });
   };
-  useEffect(() => {
-    if (currentVal) {
-      setSelected(currentVal)
-    }
-  }, [currentVal])
 
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
 
-    if(placeName == "Your Location") {
-      onSelect(placeName);    
-      setIsOpen(false);
-      setSearchQuery("");
-      return;
+    if(placeName === "Your Location") {
+        onSelect(placeName);    
+        setIsOpen(false);
+        setSearchQuery("");
+        return;
     }
 
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
-      let building = buildingData.find((item) => item.buildingName == placeName);
+      let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
         console.log('AutoCompleteDropdown: failed to fetch data for selected location');
         return;
@@ -135,7 +138,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <Pressable style={styles.dropdownContainer} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>

@@ -3,9 +3,7 @@ appId: com.anonymous.MightyMammoths
 - setLocation:
     latitude: 45.4954
     longitude: -73.5783
+- assertVisible:
+    id: "searchBarHomeSheet"
 - tapOn:
-    id: "campus-option-loy"
-- tapOn:
-    id: "recenter-button"
-- assertVisible: 
-    id: "marker-EV"
+    id: "searchBarHomeSheet"

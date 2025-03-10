@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 const getUpdatedTime = (duration: string) => {
@@ -11,35 +11,48 @@ const getUpdatedTime = (duration: string) => {
 interface LiveInformationProps {
     onStop: ()=> void;
     routes: any;
+    onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
+    isZoomedIn: boolean;
+    destination: string;
+    destinationCoords: string;
 }
 
 export function LiveInformation({
     onStop,
     routes,
+    onZoomOut,
+    isZoomedIn,
+    destination,
+    destinationCoords
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+    const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
 
     return (
+    <>
     <View style={styles.container}>
         <View style={styles.destinationInformation}>
-            <Text style={styles.routeHeading}>ETA {getUpdatedTime(bestEstimate.duration)} </Text>
-            <Text style={styles.routeHeadingDestination}>{routes.bestEstimate}</Text>
+            <View style={styles.etaContainer}>
+                <Text style={styles.routeHeading}>ETA</Text>
+                <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
+            </View>
             <View style={styles.travelInformation}>
                 <Text style={styles.time}>{bestEstimate.duration}</Text>
                 <Text style={styles.distance}>{bestEstimate.distance}</Text>
-                <TouchableOpacity style={styles.startButton} onPress={onStop}>
+                <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
                     <Text style={styles.stop}>Stop</Text>
                 </TouchableOpacity>
             </View>
         </View>
     </View>
+    </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        height: '35%',
+        height: '30%',
         width: '100%',
         padding: 16,
         marginBottom:0,
@@ -108,4 +121,12 @@ const styles = StyleSheet.create({
         fontSize: 23,
         color: 'white',
     },
+    etaContainer:{
+        display: 'flex',
+        flexDirection: 'column'
+    },
+    destinationTime:{
+        color: 'white',
+        fontSize: 20
+    }
 });
