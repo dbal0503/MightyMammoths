@@ -9,8 +9,8 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { vexo } from 'vexo-analytics';
 
-vexo(process.env.EXPO_PUBLIC_VEXO_API_KEY || '');
-console.log('Vexo API Key:', process.env.EXPO_PUBLIC_VEXO_API_KEY);
+//vexo(process.env.EXPO_PUBLIC_VEXO_API_KEY || '');
+//console.log('Vexo API Key:', process.env.EXPO_PUBLIC_VEXO_API_KEY);
 
 
 

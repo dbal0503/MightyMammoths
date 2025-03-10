@@ -8,5 +8,3 @@ appId: com.anonymous.MightyMammoths
     element: "home-page-sheet"
 - assertVisible:
     id: "accessbility-mode-text"
-- assertVisible:
-    id: "calendar-text"

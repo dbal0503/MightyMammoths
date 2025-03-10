@@ -38,8 +38,10 @@ export function LiveInformation({
                 <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
             </View>
             <View style={styles.travelInformation}>
-                <Text style={styles.time}>{bestEstimate.duration}</Text>
-                <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                <View style={styles.travelText}>
+                    <Text style={styles.time}>{bestEstimate.duration}</Text>
+                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                </View>
                 <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
                     <Text style={styles.stop}>Stop</Text>
                 </TouchableOpacity>
@@ -103,15 +105,16 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     startButton:{
-        marginTop:0,
+        position: 'absolute',
         backgroundColor: 'red',
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 30,
+        marginLeft: 225,
         width:'40%',
         justifyContent: 'center',
+        marginTop: 100
     },
     navigationIcon: {
         paddingLeft: 10
@@ -128,5 +131,8 @@ const styles = StyleSheet.create({
     destinationTime:{
         color: 'white',
         fontSize: 20
+    },
+    travelText:{
+        marginTop:10
     }
 });

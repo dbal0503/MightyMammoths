@@ -7,3 +7,4 @@ onFlowStart:
 - runFlow: "CL-building-info-sheet.yaml"
 - runFlow: "routes-directions-tests.yaml"
 - runFlow: "routes-sheet-tests.yaml"
+- runFlow: "routes-select-test.yaml"
