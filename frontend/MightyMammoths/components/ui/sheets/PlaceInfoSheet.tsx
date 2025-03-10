@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef} from "react-native-actions-sheet";
+import ActionSheet, { ActionSheetProps, ActionSheetRef} from 'react-native-actions-sheet';
 import { placeDetails } from '@/services/searchService';
 
 export type PlaceInfoSheetProps = ActionSheetProps & {
