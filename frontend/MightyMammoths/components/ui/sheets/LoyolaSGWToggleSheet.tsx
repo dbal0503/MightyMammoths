@@ -99,7 +99,7 @@ function LoyolaSGWToggleSheet({
       accessibilityLabel: {
         color: "white",
         fontSize: 22,
-        paddingBottom: 40,
+        paddingBottom: 50,
       },
   });
    
