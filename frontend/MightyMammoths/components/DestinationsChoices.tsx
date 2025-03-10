@@ -8,10 +8,10 @@ import { useNavigation } from "@/components/NavigationProvider";
 import { IconSymbolName } from "@/components/ui/IconSymbol";
 
 interface DestinationChoicesProps {
-  readonly buildingList: BuildingData[];
-  readonly visible?: boolean;
-  readonly destination: string;
-  readonly locationServicesEnabled: boolean;
+  buildingList: BuildingData[];
+  visible?: boolean;
+  destination: string;
+  locationServicesEnabled: boolean;
 }
 
 export function DestinationChoices({

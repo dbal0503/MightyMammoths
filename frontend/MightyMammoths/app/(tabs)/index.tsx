@@ -17,8 +17,6 @@ import { Image } from "react-native";
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
-import { computeBearing } from "@/utils/computeBearing";
-import { haversineDistance } from "@/utils/haversineDistance";
 import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
 
 // Sheets

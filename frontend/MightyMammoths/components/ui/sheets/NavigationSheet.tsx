@@ -150,7 +150,6 @@ function NavigationSheet({
                       onBack={()=>{
                         actionsheetref.current?.hide();
                         setRoutesValid(false);
-                        
                       }}
                       routeEstimates={routeEstimates}
                       onSelectMode={(mode) => {
@@ -162,8 +161,7 @@ function NavigationSheet({
                       }}
                       onSetSteps={(steps) => {
                         console.log("Steps set: ", steps);
-                        console.log("steps mode"+selectedMode)
-
+                        console.log("steps mode: " + selectedMode)
                       }}
                       destinationBuilding={selectedBuilding}
                       bothSelected={twoBuildingsSelected}
