@@ -28,6 +28,7 @@ interface AutoCompleteDropdownProps {
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
+  testID?: string;
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -37,6 +38,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
+  testID
 }, ref) => {
 
   //functions exposed through ref
@@ -140,7 +142,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <Pressable style={styles.dropdownContainer} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>

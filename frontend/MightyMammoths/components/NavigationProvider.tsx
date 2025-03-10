@@ -27,6 +27,7 @@ interface NavigationState {
   sheetRef: React.RefObject<BottomSheet>;
   searchSuggestions: suggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  routesValid: boolean;
 }
 
 interface NavigationContextType {
@@ -43,6 +44,7 @@ interface NavigationContextType {
     setSelectedBuilding: (value: string | null) => void;
     setTwoBuildingsSelected: (value: boolean) => void;
     fetchRoutes: () => void;
+    setRoutesValid: (value: boolean) => void;
   };
 }
 
@@ -76,6 +78,7 @@ const NavigationProvider = ({
   const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+  const [routesValid, setRoutesValid] = useState<boolean>(false);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
@@ -181,6 +184,7 @@ const NavigationProvider = ({
           sheetRef,
           searchSuggestions,
           setSearchSuggestions,
+          routesValid,
         },
         functions: {
           setOrigin,
@@ -193,7 +197,8 @@ const NavigationProvider = ({
           setSelectedRoute,
           setSelectedBuilding,
           setTwoBuildingsSelected,
-          fetchRoutes
+          fetchRoutes,
+          setRoutesValid,
         },
       }}
     >

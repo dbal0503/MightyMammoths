@@ -13,14 +13,26 @@
       "buildConfiguration": "Release",
       "bundleIdentifier": "com.anonymous.MightyMammoths",
       "useFrameworks": "static",
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "infoPlist": {
+      "CFBundleURLTypes": [
+        {
+          "CFBundleURLSchemes": ["com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"]
+        }
+      ]
+    }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.MightyMammoths"
+      "package": "com.anonymous.MightyMammoths",
+      "config": {
+        "googleMaps": {
+          "apiKey": "API_KEY"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +54,12 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1069237773869-lj16d9448a1unfds0k42ag37iu39nv62"
         }
       ]
     ],

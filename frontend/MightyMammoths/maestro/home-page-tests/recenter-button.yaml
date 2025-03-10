@@ -6,5 +6,6 @@ appId: com.anonymous.MightyMammoths
 - tapOn:
     id: "campus-option-loy"
 - tapOn:
-    point: "90%,79%"
-- assertVisible: "EV"
+    id: "recenter-button"
+- assertVisible: 
+    id: "marker-EV"

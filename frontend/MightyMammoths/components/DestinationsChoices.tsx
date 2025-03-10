@@ -119,6 +119,7 @@ export function DestinationChoices({
     >
       <View style={styles.dropdownWrapper}>
         <AutoCompleteDropdown
+          testID="originNavigationDropdown"
           ref={topDropDownRef}
           locked={loadingRoutes}
           searchSuggestions={searchSuggestions}
@@ -154,6 +155,7 @@ export function DestinationChoices({
       />
       <View style={styles.dropdownWrapper}>
       <AutoCompleteDropdown
+        testID="destinationNavigationDropdown"
         ref={bottomDropDownRef} // add the ref here
         locked={loadingRoutes}
         searchSuggestions={searchSuggestions}
