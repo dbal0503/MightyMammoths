@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     position: "absolute",
     width: "100%",
-    bottom: "18%",
+    bottom: "22%",
     paddingRight: 20,
   },
   topElements: {
