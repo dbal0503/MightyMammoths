@@ -1,20 +1,21 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import {useState} from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef} from "react-native-actions-sheet";
 import { GeoJsonFeature } from '../BuildingMapping';
-import { navigate } from 'expo-router/build/global-state/routing';
+
 
 export type BuildingInfoSheetProps = ActionSheetProps & {
-    actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-    building: GeoJsonFeature;
-    navigate: () => void;
+  actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+  building: GeoJsonFeature;
+  navigate: (destination: string) => void;
+  onClose: () => void; 
 }
+
 
 function BuildingInfoSheet({
     isModal = false,
-    snapPoints = [80],
+    snapPoints = [65],
     backgroundInteractionEnabled = false,
     closable = true,
     gestureEnabled = true,
@@ -23,11 +24,9 @@ function BuildingInfoSheet({
     overdrawSize = 200,
     actionsheetref,
     building,
-    navigate
+    navigate,
+    onClose,
 }: BuildingInfoSheetProps) {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
     return (
       <ActionSheet
         ref={actionsheetref}
@@ -40,21 +39,24 @@ function BuildingInfoSheet({
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
         containerStyle={styles.root}
+        onClose={onClose}
         >
       <View style={styles.container}>
-    <Text style={styles.header}>{building?.properties['Building Long Name']}</Text>
+    <Text style={styles.header} testID='buildingLongName'>{building?.properties['Building Long Name']}</Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton
                 ]}>
-            <Pressable onPress={navigate}>
+            <Pressable onPress={navigate} testID='setDestinationButton'>
                 <Text style={styles.buttonText}>Set As Destination</Text>
-                </Pressable>
+            </Pressable>
+            
+
             </View>
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable>
+            <Pressable testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>
@@ -63,16 +65,16 @@ function BuildingInfoSheet({
     <Text style={styles.header}>Information:</Text>
     <View style={styles.buttonsContainer}>
         <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.BuildingName}</Text>
+            <Text style={styles.buttonText} testID='buildingInformation'>{building.properties.BuildingName}</Text>
         </View>
         <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.Campus}</Text>
+            <Text style={styles.buttonText} testID='buildingCampus'>{building.properties.Campus}</Text>
         </View>
     </View>
 
     <View style={styles.buttonsContainer}>
         <View style={styles.button}>
-            <Text style={styles.buttonText}>{building.properties.Address}</Text>
+            <Text style={styles.buttonText} testID='buildingAddress'>{building.properties.Address}</Text>
         </View>
     </View>
       </View>

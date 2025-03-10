@@ -1,28 +1,38 @@
 import axios from "axios";
 import { RouteData } from "@/services/directionsService";
 import { findNextBusTime } from "@/utils/getNextShuttleBus";
+import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json"
 
 export async function getShuttleBusRoute(
     origin: string,
     destination: string,
-    direction: string
-  ): Promise<RouteData[]> {
+    direction: string,
+    ): Promise<RouteData[]> {
   
-    let pickupLocation = "";
+    let pickupLocationString = '';
+    let pickupLocation = "7137 Sherbrooke St. W.";
     if (direction === "SGW") {
         pickupLocation = "45.497163,-73.578535";
+        pickupLocationString='1455 De Maisonneuve Blvd. W.';
     }else if (direction === "LOY") {
         pickupLocation = "45.458424,-73.638369";
+        pickupLocationString="7137 Sherbrooke St. W.";
     }
   
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
   
     try {
+      console.log(origin);
+      console.log(pickupLocation);
+      console.log('test',destination);
+      console.log(destination);
+      console.log(direction);
       // ─── STEP 1: WALKING LEG (Origin -> Pickup Location) ───────────────────────
       const walkingUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
         origin
       )}&destination=${encodeURIComponent(pickupLocation)}&mode=walking&key=${apiKey}`;
-  
+      
+      
       const walkingResponse = await axios.get<{ routes: any[] }>(walkingUrl);
       const walkingRoutes = walkingResponse.data.routes;
       if (walkingRoutes.length === 0) {
@@ -89,10 +99,13 @@ export async function getShuttleBusRoute(
     
         // ─── STEP 3: WALKING LEG (Dropoff Location -> Destination) ───────────────────
       let dropOffLocation = "";
+      let dropOffLocationString = ""
       if (direction === "SGW") {
         dropOffLocation = "45.458424,-73.638369";
+        dropOffLocationString = "7137 Sherbrooke St. W.";
       }else  {
         dropOffLocation = "45.497163,-73.578535";
+        dropOffLocationString = '1455 De Maisonneuve Blvd. W.';
       }
         
         const walkingUrlDropOff = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
@@ -132,7 +145,7 @@ export async function getShuttleBusRoute(
           polyline: walkingPolyline,
           duration: walkingDurationText,
           distance: walkingDistanceText,
-          instructions: `Walk from ${origin} to shuttle pickup at ${pickupLocation}`,
+          instructions: `Walk from ${origin} to shuttle pickup at ${pickupLocationString}`,
           steps: walkingSteps,
         },
         {
@@ -140,14 +153,14 @@ export async function getShuttleBusRoute(
           polyline: null, // No polyline since user just waiting
           duration: waitingTimeMinutes > 0 ? `${waitingTimeMinutes} mins` : "0 mins",
           distance: "N/A",
-          instructions: `Wait at ${pickupLocation} until shuttle departs (${nextBusTime})`,
+          instructions: `Wait at ${pickupLocationString} until shuttle departs (${nextBusTime})`,
         },
         {
           mode: "BUS",
           polyline: busPolyline,
           duration: busDurationText,
           distance: busDistanceText,
-          instructions: `Take the shuttle from ${pickupLocation} to ${destination}`,
+          instructions: `Take the shuttle from ${pickupLocationString} to ${destination}`,
           steps: busSteps,
         },
         {
@@ -155,7 +168,7 @@ export async function getShuttleBusRoute(
           polyline: walkingPolylineDropOff,
           duration: walkingDurationTextDropOff,
           distance: walkingDistanceTextDropOff,
-          instructions: `Walk from shuttle drop-off at ${dropOffLocation} to ${destination}`,
+          instructions: `Walk from shuttle drop-off at ${dropOffLocationString} to ${destination}`,
           steps: walkingStepsDropOff,
         },
       ];

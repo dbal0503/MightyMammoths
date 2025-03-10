@@ -10,7 +10,6 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
 
 export interface BuildingData {
@@ -29,6 +28,7 @@ interface AutoCompleteDropdownProps {
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
+  testID?: string;
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -38,6 +38,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
+  testID
 }, ref) => {
 
   //functions exposed through ref
@@ -49,8 +50,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }));
 
   const [selected, setSelected] = useState("Select a building");
-  const [options, setOptions] = useState(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item)=>item.buildingName)])
-  const [isOpen, setIsOpen] = useState(false);
+  const [options, setOptions] = useState([
+    "Your Location",
+    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+  ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
@@ -81,14 +84,12 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   }, [searchQuery, options]);
 
 
-  useEffect(()=>{
-    setOptions(["Your Location", ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text), ...buildingData.map((item) => item.buildingName)])
-  }, [searchSuggestions])
-
-  const getSuggestions = async (searchQuery: string) => {
-    const results = await autoCompleteSearch(searchQuery);
-    setSearchSuggestions(results);
-  }
+  useEffect(() => {
+    setOptions([
+      "Your Location",
+      ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+    ]);
+  }, [searchSuggestions]);
 
   useEffect(() => {
     if (currentVal) {
@@ -96,19 +97,37 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
+
+  const getSuggestions = async (searchQuery: string) => {
+    const results = await autoCompleteSearch(searchQuery);
+    if(results){
+      setSearchSuggestions(prevSuggestions => {
+        // Optionally filter out duplicates based on a unique property, e.g., placeId
+        const newResults = results.filter(newResult => 
+          !prevSuggestions.some(oldResult => 
+            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+          )
+        );
+        return [...prevSuggestions, ...newResults];
+      });
+    } else {
+      console.log("Failed to get search suggestions.")
+    }
+  };
+
   const handleSelect = (placeName: string) => {
     setSelected(placeName);
 
-    if(placeName == "Your Location") {
-      onSelect(placeName);    
-      setIsOpen(false);
-      setSearchQuery("");
-      return;
+    if(placeName === "Your Location") {
+        onSelect(placeName);    
+        setIsOpen(false);
+        setSearchQuery("");
+        return;
     }
 
     let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
     if(!selectedLocation){
-      let building = buildingData.find((item) => item.buildingName == placeName);
+      let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
         console.log('AutoCompleteDropdown: failed to fetch data for selected location');
         return;
@@ -123,7 +142,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <Pressable style={styles.dropdownContainer} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>
@@ -143,7 +162,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       </Pressable>
 
       <Animated.View
-        style={[styles.dropdownList, { height: dropdownHeight, display: isOpen ? "flex" : "none" }]}
+        style={[styles.dropdownList, { width:350, height: dropdownHeight, display: isOpen ? "flex" : "none" }]}
       >
         <TextInput
           ref={searchInputRef}
@@ -157,16 +176,20 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           }}
         />
         
-        <FlatList
-          data={filteredOptions}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          renderItem={({ item }) => (
+      <FlatList
+        data={filteredOptions}
+        keyExtractor={(item, index) => `${item}-${index}`}
+        renderItem={({ item }) => {
+          // Remove 'building' regardless of case and trim any extra whitespace
+          const cleanedItem = item.replace(/Building/g, '').trim();
+          return (
             <Pressable style={styles.option} onPress={() => handleSelect(item)}>
-              <Text style={styles.optionText}>{item}</Text>
+              <Text style={styles.optionText}>{cleanedItem}</Text>
             </Pressable>
-          )}
-          contentContainerStyle={{ paddingVertical: 5 }}
-        />
+          );
+        }}
+        contentContainerStyle={{ paddingVertical: 5 }}
+      />
       </Animated.View>
     </View>
   );
@@ -191,6 +214,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    width: 350
   },
   logo: {
     width: 30,
@@ -239,5 +263,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
+
 
 export default AutoCompleteDropdown;

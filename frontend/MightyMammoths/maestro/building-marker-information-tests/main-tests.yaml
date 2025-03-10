@@ -2,5 +2,4 @@ appId: com.anonymous.MightyMammoths
 onFlowStart:
   - runFlow: "../launch-app.yaml"
 ---
-- runFlow: "campus-toggle-tests.yaml"
-- runFlow: "recenter-button.yaml"
+- runFlow: "MB-building-info-sheet.yaml"

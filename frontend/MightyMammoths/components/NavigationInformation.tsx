@@ -1,26 +1,19 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 
-interface NavigationInformationProps {
-    destinationBuilding: string; // Accept destination as prop
+interface navigationInformationProps {
+    visible?: boolean;
 }
 
-export function NavigationInformation({ destinationBuilding }: NavigationInformationProps) {
-    const address='1550 De Maisonnneuve West';
+export function NavigationInformation({ visible = true }: navigationInformationProps) {
+    if (!visible) return null;
     const nextStep='Rue Sainte-Catherine O';
     const distance='240m';
     return (<View style={styles.container}>
-                <View style={styles.destinationInformation}>
-                    <IconSymbol name="flag" size={50} color="black" style={styles.modeIcon}/>
-                    <View style={styles.textInformation}>
-                        <Text style={styles.buildingName}>{destinationBuilding}</Text>
-                        <Text style={styles.address}>{address}</Text>
-                    </View>
-                </View>
                 <View style={styles.directionInformation}>
-                    <IconSymbol name="arrow-back" size={50} color="white" style={styles.modeIcon}/>
+                    <IconSymbol name={"arrow-back" as IconSymbolName} size={50} color="white" style={styles.modeIcon}/>
                     <View style={styles.distanceInformation}>
                         <Text style={styles.nextStep}>{nextStep}</Text>
                         <Text style={styles.distance}>{distance}</Text>
@@ -32,15 +25,18 @@ export function NavigationInformation({ destinationBuilding }: NavigationInforma
 
 const styles = StyleSheet.create({
     container: {
-        height: '23%',
-        width: '100%',
+        position: 'absolute', 
+        top: 0, 
+        left: 0,
+        right: 0,
         padding: 16,
-        marginBottom:0,
-        borderBottomLeftRadius:10,
-        borderBottomRightRadius:10,
+        marginBottom: 0,
         backgroundColor: 'black',
-        alignItems: 'center'
-      },
+        alignItems: 'center',
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        zIndex: 10, 
+    },
     dropdownWrapper: {
         alignItems: "center",
     },
