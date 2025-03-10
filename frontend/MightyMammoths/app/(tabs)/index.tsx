@@ -1,28 +1,24 @@
 import React, {useRef, useState, useEffect, useCallback} from "react";
-import {StyleSheet, View, Keyboard} from "react-native";
+import {StyleSheet, View, Keyboard, Image, Alert, Linking, AppState} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
-import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
+import {AutoCompleteDropdown, BuildingData} from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng} from 'react-native-maps';
 import * as Location from 'expo-location'
-import BuildingMapping from "@/components/ui/BuildingMapping"
+import BuildingMapping, {GeoJsonFeature} from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/DestinationsChoices";
 import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
-import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
-import { Image } from "react-native";
+
 // Context providers
-import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
-import { AppState } from 'react-native';
 import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
 import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
-import {GeoJsonFeature} from "@/components/ui/BuildingMapping"
 import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
@@ -282,7 +278,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, []);
   
   
-  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
@@ -426,40 +421,13 @@ const centerAndShowBuilding = (buildingName: string) => {
       if (!granted) {
         return;
       }
-      // const loc = await Location.getCurrentPositionAsync();
-      // const newLocation = {
-      //   latitude: loc.coords.latitude,
-      //   longitude: loc.coords.longitude,
-      //   latitudeDelta: 0.005,
-      //   longitudeDelta: 0.005,
-      // };
-      // setMyLocation(newLocation);
+
       if (!isZoomedIn) {
         return;
       }
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
-          // let candidate: { latitude: number; longitude: number } | null = null;
-          // for (const point of routePolylineRef.current) {
-          //   const d = haversineDistance(newLocation, point);
-          //   if (d >= 5) {
-          //     candidate = point;
-          //     break;
-          //   }
-          // }
-    
-          // if (!candidate) {
-          //   candidate = routePolylineRef.current.reduce((prev, curr) => {
-          //     return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
-          //   }, routePolylineRef.current[0]);
-          // }
-
-          // const bearing = computeBearing(newLocation, candidate);
-          // //console.log("Bearing: ", bearing);
-          // if (mapRef.current) {
-          //   mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
-          // }
         }
       } else {
         if (mapRef.current) {
