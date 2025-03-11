@@ -70,8 +70,7 @@ export function StaticNavigationInformation(
       }
       const updatedStepsText = stepsData.map((step: Step) => {
         const stepText = step?.html_instructions 
-            //? step.html_instructions.replace(/<[^>]*>/g, '') 
-            ? step.html_instructions
+            ? step.html_instructions.replace(/<[^>]*>/g, "") 
             : step?.instructions || '';  
 
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
