@@ -476,9 +476,9 @@ const centerAndShowBuilding = (buildingName: string) => {
     updateLocation();
     const intervalId = setInterval(updateLocation, 5000);
     
-    if (!(buildingInfoSheet.current) && !(routePolyline)){
-        campusToggleSheet.current?.show();
-      }
+    if (!(buildingInfoSheet.current)){
+      campusToggleSheet.current?.show();
+    }
 
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -596,7 +596,10 @@ const centerAndShowBuilding = (buildingName: string) => {
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
-            onPolylineUpdate={(poly) => setRoutePolyline(poly)}
+            onPolylineUpdate={(poly) => {
+                setRoutePolyline(poly)
+              }
+            }
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}

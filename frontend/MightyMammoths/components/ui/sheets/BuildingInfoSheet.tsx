@@ -54,24 +54,14 @@ function BuildingInfoSheet({
             </View>
 
             <View style={
-                [styles.button, styles.destinationButton]
-                }>
-            <Pressable>
-                <Text style={styles.buttonText}>Start</Text>
-                </Pressable>
-            </View>
-            
-    </View>
-    <View style={styles.buttonsContainer}>
-            <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
             <Pressable testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
-            </View>   
+            </View>  
     </View>
-
+    
     <Text style={styles.header2}>Information</Text>
     <View style={styles.buttonsContainer}>
         <View style={[styles.button, {flexDirection:'row', alignItems:'center', justifyContent:"center"}]}>
