@@ -407,6 +407,9 @@ const centerAndShowBuilding = (buildingName: string) => {
     setNavigationMode(true);
 };
 
+  useEffect(()=>{
+    campusToggleSheet.current?.show();
+  },[])
 
   useEffect(() => {
     (async () => {
@@ -471,8 +474,10 @@ const centerAndShowBuilding = (buildingName: string) => {
     // Run updateLocation immediately and then every 3 seconds
     updateLocation();
     const intervalId = setInterval(updateLocation, 5000);
-  
-    campusToggleSheet.current?.show();
+    
+    if (!(buildingInfoSheet.current) && !(routePolyline)){
+        campusToggleSheet.current?.show();
+      }
 
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
