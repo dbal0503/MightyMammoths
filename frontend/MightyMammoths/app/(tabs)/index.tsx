@@ -94,6 +94,7 @@ export default function HomeScreen() {
   };
 
 const centerAndShowBuilding = (buildingName: string) => {
+  if (isZoomedIn)return;
   // 1. Find the building in your GeoJSON
   const buildingFeature = campusBuildingCoords.features.find(
     (feature: GeoJsonFeature) => 
