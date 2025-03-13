@@ -282,8 +282,18 @@ const centerAndShowBuilding = (buildingName: string) => {
       subscription.remove();
     };
   }, []);
+
+const handleNearbyPlacePress = (place: suggestionResult) => {
+  if (!place.placePrediction) {
+    console.log('Index.tsx: nearby place has no prediction data');
+    return;
+  }
   
+  const placeName = place.placePrediction.structuredFormat.mainText.text;
   
+  navigateToRoutes(placeName);
+};
+
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
@@ -518,6 +528,7 @@ const centerAndShowBuilding = (buildingName: string) => {
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
             nearbyPlaces={nearbyPlaces}
+            onNearbyPlacePress={handleNearbyPlacePress}
           />
 
           {routePolyline && 

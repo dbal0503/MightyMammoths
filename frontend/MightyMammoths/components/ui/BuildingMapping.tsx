@@ -32,12 +32,15 @@ interface BuildingMappingProps {
   geoJsonData: GeoJsonData;
   onMarkerPress: (buildingName: string) => void;
   nearbyPlaces: suggestionResult[];
+  onNearbyPlacePress?: (place: suggestionResult) => void;
+
 }
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ 
   geoJsonData, 
   onMarkerPress,
-  nearbyPlaces 
+  nearbyPlaces,
+  onNearbyPlacePress,
 }) => {
   const [polygons, setPolygons] = useState<any[]>([]);
 
@@ -95,6 +98,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
             key={`nearby-${index}`}
             coordinate={{ latitude, longitude }}
             title={mainText}
+            onPress={() => onNearbyPlacePress && onNearbyPlacePress(place)}
           >
             <View style={styles.nearbyMarker}>
               <Text style={styles.text}>{mainText}</Text>
