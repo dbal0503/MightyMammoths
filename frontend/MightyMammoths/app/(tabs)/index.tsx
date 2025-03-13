@@ -284,14 +284,51 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, []);
 
 const handleNearbyPlacePress = (place: suggestionResult) => {
-  if (!place.placePrediction) {
-    console.log('Index.tsx: nearby place has no prediction data');
-    return;
+  try {
+    if (!place.location || !place.placePrediction) {
+      console.log('Index.tsx: nearby place has no location data');
+      return;
+    }
+
+    //Region for the place
+    const placeRegion: Region = {
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005
+    };
+
+    setSearchMarkerLocation(placeRegion);
+    setRegion(placeRegion);
+    setDestination(place.placePrediction.structuredFormat.mainText.text);
+    setSearchMarkerVisible(true);
+
+    // Fetching the place details
+    if (place.placePrediction.placeId) {
+      getPlaceDetails(place.placePrediction.placeId)
+        .then(details => {
+          if (details) {
+            setCurrentPlace(details);
+          }
+        })
+        .catch(error => console.log(`Error getting place details: ${error}`));
+    }
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(placeRegion, 1000);
+    }
+
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    if (placeInfoSheet.current) {
+      placeInfoSheet.current.show();
+    } else {
+      console.log('Index.tsx: place info sheet ref is not defined');
+    }
+  } catch (error) {
+    console.log(`Index.tsx: Error handling nearby place: ${error}`);
   }
-  
-  const placeName = place.placePrediction.structuredFormat.mainText.text;
-  
-  navigateToRoutes(placeName);
 };
 
   // TODO: have destination be set to the selected building
