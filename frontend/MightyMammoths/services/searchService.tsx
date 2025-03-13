@@ -157,7 +157,7 @@ export async function nearbyPlacesSearch(
               placeId: p.id,
               text: { text: p.displayName, matches: [] },
               structuredFormat: {
-                mainText: { text: p.displayName, matches: [] },
+                mainText: { text: p.displayName.text, matches: [] },
                 secondaryText: { text: p.formattedAddress ?? '' }
               },
               types: p.types ?? []
