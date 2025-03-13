@@ -3,8 +3,9 @@ appId: com.anonymous.MightyMammoths
 - setLocation:
     latitude: 45.4954
     longitude: -73.5783
-- swipe:
-    direction: "up"
-    element: "home-page-sheet"
+- tapOn:
+    id: "marker-CL"
 - assertVisible:
-    id: "accessbility-mode-text"
+    id: "setDestinationButton"
+- tapOn:
+    id: "setDestinationButton"

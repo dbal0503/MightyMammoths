@@ -1,0 +1,8 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "routesSheetBackButton"
+- tapOn:
+    id: "routesSheetBackButton"
+- assertVisible:
+    id: "searchBarHomeSheet"

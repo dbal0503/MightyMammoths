@@ -28,6 +28,7 @@ interface AutoCompleteDropdownProps {
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
+  testID?: string;
   onNearbyResults: (results: suggestionResult[]) => void;
 }
 
@@ -38,6 +39,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
+  testID,
   onNearbyResults
 }, ref) => {
 
@@ -108,15 +110,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
-    setSearchSuggestions(prevSuggestions => {
-      // Optionally filter out duplicates based on a unique property, e.g., placeId
-      const newResults = results.filter(newResult => 
-        !prevSuggestions.some(oldResult => 
-          oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-        )
-      );
-      return [...prevSuggestions, ...newResults];
-    });
+    if(results){
+      setSearchSuggestions(prevSuggestions => {
+        // Optionally filter out duplicates based on a unique property, e.g., placeId
+        const newResults = results.filter(newResult => 
+          !prevSuggestions.some(oldResult => 
+            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+          )
+        );
+        return [...prevSuggestions, ...newResults];
+      });
+    } else {
+      console.log("Failed to get search suggestions.")
+    }
   };
 
   const handleSelect = (placeName: string) => {
@@ -154,7 +160,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <Pressable style={styles.dropdownContainer} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>

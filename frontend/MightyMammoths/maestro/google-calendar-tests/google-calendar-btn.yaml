@@ -7,4 +7,4 @@ appId: com.anonymous.MightyMammoths
     direction: "up"
     element: "home-page-sheet"
 - assertVisible:
-    id: "accessbility-mode-text"
+    id: "google-calendar-button"

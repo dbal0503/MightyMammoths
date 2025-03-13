@@ -1,0 +1,5 @@
+appId: com.anonymous.MightyMammoths
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "google-calendar-btn.yaml"

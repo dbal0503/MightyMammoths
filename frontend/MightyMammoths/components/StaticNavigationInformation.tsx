@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
+import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { LatLng } from 'react-native-maps';
 import polyline from '@mapbox/polyline';
 import { haversineDistance } from '@/utils/haversineDistance';
+import campusBuildingCoords from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 interface Polyline {
   points: string;
@@ -13,6 +14,7 @@ interface Polyline {
 interface Step {
   html_instructions: string;
   polyline: Polyline;
+  instructions?: string;
 }
 
 interface StaticNavigationInformationProps {
@@ -22,6 +24,10 @@ interface StaticNavigationInformationProps {
   setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
   userLocation: {latitude: number, longitude: number};
   isOriginYL: boolean;
+  selectedMode?: string;
+  walk1Polyline: string;
+  walk2Polyline: string;
+  shuttlePolyline: string;
 }
 
 export function StaticNavigationInformation(
@@ -31,7 +37,11 @@ export function StaticNavigationInformation(
     setLatitudeStepByStep,
     setLongitudeStepByStep,
     userLocation,
-    isOriginYL
+    isOriginYL,
+    selectedMode,
+    walk1Polyline,
+    walk2Polyline,
+    shuttlePolyline,
 
   }: StaticNavigationInformationProps) {
   
@@ -40,26 +50,60 @@ export function StaticNavigationInformation(
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const translateX = useSharedValue(0);
 
+  const placeIdToBuildingName = campusBuildingCoords.features.reduce((map, feature) => {
+    map[feature.properties.PlaceID] = feature.properties.BuildingName;
+    return map;
+  }, {} as Record<string, string>);
+
   useEffect(() => {
     if (routes && routes.length > 0) {
       const bestEstimate = routes[0];
       const stepsData = bestEstimate?.steps || [];
-      setStepsText(stepsData.map((step: Step) => step.html_instructions.replace(/<[^>]*>/g, '')));
-      setStepsData(stepsData);
+      let adjustedStepsData = stepsData;
+      if (selectedMode === 'shuttle') {
+        adjustedStepsData = [
+          { ...stepsData[0], polyline: { points: walk1Polyline } },
+          { ...stepsData[0], polyline: { points: shuttlePolyline } },
+          { ...stepsData[2], polyline: { points: shuttlePolyline } }, 
+          { ...stepsData[3], polyline: { points: walk2Polyline } },
+        ];
+      }
+      const updatedStepsText = stepsData.map((step: Step) => {
+        const stepText = step?.html_instructions 
+            //? step.html_instructions.replace(/<[^>]*>/g, '') 
+            ? step.html_instructions
+            : step?.instructions || '';  
+
+        return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
+          placeIdToBuildingName[placeId] || 'Unknown Building'
+        );
+      });
+      setStepsText(updatedStepsText);
+      setStepsData(adjustedStepsData);
     }
   }, [routes]);
   
   useEffect(() => {
     if (currentStepIndex < stepsData.length) {
-      const decodedPoly: LatLng[] = polyline.decode(stepsData[currentStepIndex].polyline.points).map(([latitude, longitude]) => ({
+      const currentStep = stepsData[currentStepIndex];
+      
+
+      if (!currentStep.polyline || !currentStep.polyline.points) {
+        console.warn(`Step ${currentStepIndex} has no valid polyline data.`);
+        return;
+      }
+
+      const decodedPoly: LatLng[] = polyline.decode(currentStep.polyline.points).map(([latitude, longitude]) => ({
         latitude,
         longitude,
       }));
-      // (pls check index.tsx)
-      setLatitudeStepByStep(decodedPoly[0].latitude);
-      setLongitudeStepByStep(decodedPoly[0].longitude);
+
+      if (decodedPoly.length > 0) {
+        setLatitudeStepByStep(decodedPoly[0].latitude);
+        setLongitudeStepByStep(decodedPoly[0].longitude);
+      }
     }
-  }, [currentStepIndex]); 
+  }, [currentStepIndex, stepsData]); 
 
   useEffect(() => {
     if (
@@ -105,7 +149,7 @@ export function StaticNavigationInformation(
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== 0 ? (
                 <TouchableOpacity style={styles.arrowButton} onPress={goToPreviousStep}>
-                  <IconSymbol name="arrow-back" size={30} color="black" />
+                  <IconSymbol name= {"arrow-back" as IconSymbolName} size={30} color="black" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.arrowButtonPlaceholder} />
@@ -121,7 +165,7 @@ export function StaticNavigationInformation(
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== stepsText.length - 1 ? (
                 <TouchableOpacity style={styles.arrowButton} onPress={goToNextStep}>
-                  <IconSymbol name="arrow-forward" size={30} color="black" />
+                  <IconSymbol name = {"arrow-forward" as IconSymbolName} size={30} color="black" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.arrowButtonPlaceholder} />

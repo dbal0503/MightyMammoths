@@ -9,9 +9,11 @@ import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef } from "react-native-actions-sheet";
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
-    setSelectedCampus: (selected: string) => void;
-    actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-}
+  setSelectedCampus: (selected: string) => void;
+  actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+  navigateToRoutes: (destination: string) => void;
+};
+
 
 function LoyolaSGWToggleSheet({
     isModal = false,
@@ -24,9 +26,11 @@ function LoyolaSGWToggleSheet({
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    zIndex = 300
+    zIndex = 300,
+    navigateToRoutes,
 }: LoyolaSGWToggleSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
+
 
     return (
       <ActionSheet
@@ -57,7 +61,7 @@ function LoyolaSGWToggleSheet({
             />
           </View>
           <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
-          <GoogleCalendarButton />
+          <GoogleCalendarButton testID="google-calendar-button" navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
             <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>
@@ -95,7 +99,7 @@ function LoyolaSGWToggleSheet({
       accessibilityLabel: {
         color: "white",
         fontSize: 22,
-        paddingBottom: 40,
+        paddingBottom: 50,
       },
   });
    

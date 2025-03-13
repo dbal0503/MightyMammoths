@@ -5,6 +5,9 @@ appId: com.anonymous.MightyMammoths
     longitude: -73.5783
 - tapOn:
     id: "campus-option-loy"
+- assertVisible: 
+    id: "recenter-button"
 - tapOn:
-    point: "90%,79%"
-- assertVisible: "EV"
+    id: "recenter-button"
+- assertVisible: 
+    id: "marker-EV"

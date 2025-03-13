@@ -114,6 +114,7 @@ PODS:
     - React-RCTText (= 0.76.7)
     - React-RCTVibration (= 0.76.7)
   - React-callinvoker (0.76.7)
+  - React-Codegen (0.1.0)
   - React-Core (0.76.7):
     - glog
     - hermes-engine
@@ -1694,6 +1695,28 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNGoogleSignin (13.2.0):
+    - DoubleConversion
+    - glog
+    - GoogleSignIn (~> 7.1)
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNReanimated (3.16.7):
     - DoubleConversion
     - glog
@@ -1869,7 +1892,16 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNVexoAnalytics (1.4.6):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - ReactCommon/turbomodule/core
+    - VexoAnalytics (= 0.4.0)
   - SocketRocket (0.7.1)
+  - VexoAnalytics (0.4.0)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1959,9 +1991,11 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - RNVexoAnalytics (from `../node_modules/vexo-analytics`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1970,7 +2004,9 @@ SPEC REPOS:
     - GoogleSignIn
     - GTMAppAuth
     - GTMSessionFetcher
+    - React-Codegen
     - SocketRocket
+    - VexoAnalytics
 
 EXTERNAL SOURCES:
   boost:
@@ -2142,12 +2178,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNGoogleSignin:
+    :path: "../node_modules/@react-native-google-signin/google-signin"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNVexoAnalytics:
+    :path: "../node_modules/vexo-analytics"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2185,6 +2225,7 @@ SPEC CHECKSUMS:
   RCTTypeSafety: cfe499e127eda6dd46e5080e12d80d0bfe667228
   React: 1f3737a983fdd26fb3d388ddbca41a26950fe929
   React-callinvoker: 5c15ac628eab5468fe0b4dc453495f4742761f00
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: e467bf49f10da6fe92d915d2311cd0fd9bfbe052
   React-CoreModules: 0299b3c0782edd3b37c8445ba07bf18ceb73812d
   React-cxxreact: 54e253030b3b82b05575f19a1fb0e25c049f30ba
@@ -2240,10 +2281,13 @@ SPEC CHECKSUMS:
   ReactCodegen: e1c019dc68733dd2c5d3b263b4a6dc72002c0045
   ReactCommon: 81e0744ee33adfd6d586141b927024f488bc49ea
   RNGestureHandler: 16ef3dc2d7ecb09f240f25df5255953c4098819b
+  RNGoogleSignin: f57ee39074735c97813454e0ff874659df67e302
   RNReanimated: a2692304a6568bc656c04c8ffea812887d37436e
   RNScreens: 351f431ef2a042a1887d4d90e1c1024b8ae9d123
   RNSVG: 030717ff82ea8f2117347c2fcf52a2d1eafba9ba
+  RNVexoAnalytics: c7a5398807350c807fe44d18627f4071e49d74dd
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  VexoAnalytics: 6c3ecb0681b1cf78f43e343eb56b886e596197de
   Yoga: 90d80701b27946c4b23461c00a7207f300a6ff71
 
 PODFILE CHECKSUM: d93f8b806564d57eb72ab929b0acd76af0d45e36

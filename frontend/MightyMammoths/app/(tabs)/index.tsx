@@ -9,7 +9,7 @@ import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
-import { DestinationChoices } from "@/components/Destinations";
+import { DestinationChoices } from "@/components/DestinationsChoices";
 import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import { Image } from "react-native";
@@ -17,9 +17,7 @@ import { Image } from "react-native";
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
 import { AppState } from 'react-native';
-import { computeBearing } from "@/utils/computeBearing";
-import { haversineDistance } from "@/utils/haversineDistance";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinates";
+import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -146,7 +144,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   }
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest})
+    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
     const newRegion: Region = {
       latitude: loc.coords.latitude,
       longitude: loc.coords.longitude,
@@ -401,6 +399,17 @@ const centerAndShowBuilding = (buildingName: string) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
+
+  const navigateToRoutes = (destination: string) => {
+    setDestination(destination);
+    navigationSheet.current?.show();
+    placeInfoSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    setChooseDestVisible(true);
+    setNavigationMode(true);
+};
+
+
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -419,43 +428,40 @@ const centerAndShowBuilding = (buildingName: string) => {
       if (!granted) {
         return;
       }
-      const loc = await Location.getCurrentPositionAsync();
-      const newLocation = {
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      };
-
+      // const loc = await Location.getCurrentPositionAsync();
+      // const newLocation = {
+      //   latitude: loc.coords.latitude,
+      //   longitude: loc.coords.longitude,
+      //   latitudeDelta: 0.005,
+      //   longitudeDelta: 0.005,
+      // };
+      // setMyLocation(newLocation);
       if (!isZoomedIn) {
         return;
       }
-      setMyLocation(newLocation);
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
-
-          let candidate: { latitude: number; longitude: number } | null = null;
+          // let candidate: { latitude: number; longitude: number } | null = null;
+          // for (const point of routePolylineRef.current) {
+          //   const d = haversineDistance(newLocation, point);
+          //   if (d >= 5) {
+          //     candidate = point;
+          //     break;
+          //   }
+          // }
     
-          for (const point of routePolylineRef.current) {
-            const d = haversineDistance(newLocation, point);
-            if (d >= 5) {
-              candidate = point;
-              break;
-            }
-          }
-    
-          if (!candidate) {
-            candidate = routePolylineRef.current.reduce((prev, curr) => {
-              return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
-            }, routePolylineRef.current[0]);
-          }
+          // if (!candidate) {
+          //   candidate = routePolylineRef.current.reduce((prev, curr) => {
+          //     return haversineDistance(newLocation, curr) > haversineDistance(newLocation, prev) ? curr : prev;
+          //   }, routePolylineRef.current[0]);
+          // }
 
-          const bearing = computeBearing(newLocation, candidate);
-          //console.log("Bearing: ", bearing);
-          if (mapRef.current) {
-            mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
-          }
+          // const bearing = computeBearing(newLocation, candidate);
+          // //console.log("Bearing: ", bearing);
+          // if (mapRef.current) {
+          //   mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
+          // }
         }
       } else {
         if (mapRef.current) {
@@ -470,7 +476,6 @@ const centerAndShowBuilding = (buildingName: string) => {
   
     campusToggleSheet.current?.show();
 
-    //console.log("all locked and loaded");
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
     });
@@ -515,7 +520,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             nearbyPlaces={nearbyPlaces}
           />
 
-
           {routePolyline && 
             <Polyline
               strokeWidth={10}
@@ -529,6 +533,7 @@ const centerAndShowBuilding = (buildingName: string) => {
           {!navigationMode && (
             <View style={styles.dropdownWrapper}>
               <AutoCompleteDropdown
+                testID="searchBarHomeSheet"
                 locked={false}
                 searchSuggestions={searchSuggestions}
                 setSearchSuggestions={setSearchSuggestions}
@@ -546,15 +551,19 @@ const centerAndShowBuilding = (buildingName: string) => {
           <RoundButton
             imageSrc={require("@/assets/images/recenter-map.png")}
             onPress={CenterOnLocation}
+            testID="recenter-button"
           />)}
         </View>
 
         {/* SGW & LOY TOGGLE */}
         {(!isKeyboardVisible &&
-          <LoyolaSGWToggleSheet
-            actionsheetref = {campusToggleSheet}
-            setSelectedCampus={CenterOnCampus}
-          />
+
+        <LoyolaSGWToggleSheet
+          actionsheetref = {campusToggleSheet}
+          setSelectedCampus={CenterOnCampus}
+          navigateToRoutes={navigateToRoutes} 
+        />
+
         )}
         
         {/* BUILDING INFO */}
@@ -639,7 +648,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     position: "absolute",
     width: "100%",
-    bottom: "18%",
+    bottom: "22%",
     paddingRight: 20,
   },
   topElements: {

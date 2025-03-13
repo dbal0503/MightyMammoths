@@ -3,7 +3,7 @@ import { getRoutes, RouteData } from "@/services/directionsService";
 import { isWithinRadius } from "@/utils/isWithinCampus";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
-import { getShuttleBusRoute } from "@/services/shuttleBusRoute";
+import { getShuttleBusRoute } from "@/services/shuttleBusRouteService";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 
 import { suggestionResult } from "@/services/searchService";
@@ -27,6 +27,7 @@ interface NavigationState {
   sheetRef: React.RefObject<BottomSheet>;
   searchSuggestions: suggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  routesValid: boolean;
 }
 
 interface NavigationContextType {
@@ -43,6 +44,7 @@ interface NavigationContextType {
     setSelectedBuilding: (value: string | null) => void;
     setTwoBuildingsSelected: (value: boolean) => void;
     fetchRoutes: () => void;
+    setRoutesValid: (value: boolean) => void;
   };
 }
 
@@ -76,6 +78,7 @@ const NavigationProvider = ({
   const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
+  const [routesValid, setRoutesValid] = useState<boolean>(false);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
@@ -121,7 +124,7 @@ const NavigationProvider = ({
         console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
         for (const mode of transportModes) {
           const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-          //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+          console.log("Mode: ", mode, "Shortest Route: ", routeMode);
           if (routeMode) {
             estimates[mode] = [routeMode]; 
           }
@@ -140,11 +143,14 @@ const NavigationProvider = ({
         } else{
           const originCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName === origin)?.properties.Campus ?? "";
           if (originCampus !== destinationCampus && originCampus !== "" && destinationCampus !== "") {
-            estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoords, originCampus); 
+            estimates["shuttle"] = await getShuttleBusRoute(originCoordsLocal, destinationCoordsLocal, originCampus); 
           }
         }
         
+        console.log(estimates['shuttle']);
+        console.log(estimates)
         setRouteEstimates(estimates);
+        setRoutesValid(true);
       } catch (error) {
         console.error("Error fetching routes: ", error);
       } finally {
@@ -179,6 +185,7 @@ const NavigationProvider = ({
           sheetRef,
           searchSuggestions,
           setSearchSuggestions,
+          routesValid,
         },
         functions: {
           setOrigin,
@@ -191,7 +198,8 @@ const NavigationProvider = ({
           setSelectedRoute,
           setSelectedBuilding,
           setTwoBuildingsSelected,
-          fetchRoutes
+          fetchRoutes,
+          setRoutesValid,
         },
       }}
     >
