@@ -29,32 +29,32 @@ export interface placesSearch {
 
 export interface suggestionResult {
     placePrediction: {
-        place: string,
-        placeId: string,
-        text: {
+      place: string,
+      placeId: string,
+      text: {
+        text: string,
+        matches: {
+          startOffset: number,
+          endOffset: number
+        }[]
+      },
+      structuredFormat: {
+        mainText: {
           text: string,
-          matches: [
-            {
-              startOffset: number,
-              endOffset: number
-            }
-          ]
+          matches: {
+            startOffset: number,
+            endOffset: number
+          }[]
         },
-        structuredFormat: {
-          mainText: {
-            text: string,
-            matches: [
-              {
-                startOffset: number,
-                endOffset: number
-              }
-            ]
-          },
-          secondaryText: {
-            text: string
-          }
-        },
-        types: string[]
+        secondaryText: {
+          text: string
+        }
+      },
+      types: string[]
+    },
+    location?: { 
+      latitude: number,
+      longitude: number
     }
   }
 
@@ -170,6 +170,7 @@ export async function nearbyPlacesSearch(
      //   console.log(`${error.response?.data}`);
 
     } finally {
+        console.log(suggestionResults);
         return suggestionResults;
     }
 }
@@ -186,7 +187,7 @@ export async function getPlaceDetails(
     placeID: string
 ): Promise<placeDetails | undefined> {
 
-    let details;
+
 
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){

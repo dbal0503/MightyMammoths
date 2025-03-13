@@ -85,9 +85,11 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
     const renderNearbyMarkers = () => {
       if (!nearbyPlaces || nearbyPlaces.length === 0) return null;
       return nearbyPlaces.map((place, index) => {
-        const { latitude, longitude } = place.;
-        const mainText = place.placePrediction.structuredFormat.mainText.text;
-  
+        if (!place.location) return null;
+        const { latitude, longitude } = {latitude: place.location?.latitude, longitude: place.location?.longitude};
+        const mainText = place.placePrediction.structuredFormat.mainText.text.text;
+        console.log(mainText);
+
         return (
           <Marker
             key={`nearby-${index}`}
@@ -135,6 +137,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
   {renderMarkers(geoJsonData)}
   {renderPolygons()}
   {rendermissingPolygons()}
+  {renderNearbyMarkers()}
   </>;
 };
 
@@ -269,6 +272,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nearbyMarker: {
+    backgroundColor: 'green', 
+    padding: 6,
+    borderRadius: 10,
   },
   text: {
     color: 'white',
