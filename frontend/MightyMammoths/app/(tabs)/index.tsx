@@ -283,11 +283,19 @@ const centerAndShowBuilding = (buildingName: string) => {
     };
   }, []);
 
-const handleNearbyPlacePress = (place: suggestionResult) => {
+const handleNearbyPlacePress = async(place: suggestionResult) => {
   try {
     if (!place.location || !place.placePrediction) {
       console.log('Index.tsx: nearby place has no location data');
       return;
+    }
+
+    const placeExists = searchSuggestions.some(
+      (suggestion) => suggestion.placePrediction.placeId === place.placePrediction.placeId
+    );
+
+    if (!placeExists) {
+      setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
     }
 
     //Region for the place
@@ -300,19 +308,20 @@ const handleNearbyPlacePress = (place: suggestionResult) => {
 
     setSearchMarkerLocation(placeRegion);
     setRegion(placeRegion);
-    setDestination(place.placePrediction.structuredFormat.mainText.text);
     setSearchMarkerVisible(true);
+    //setDestination(place.placePrediction.structuredFormat.mainText.text);
 
     // Fetching the place details
     if (place.placePrediction.placeId) {
-      getPlaceDetails(place.placePrediction.placeId)
-        .then(details => {
-          if (details) {
-            setCurrentPlace(details);
-          }
-        })
-        .catch(error => console.log(`Error getting place details: ${error}`));
+      const details = await getPlaceDetails(place.placePrediction.placeId);
+      if (details) {
+        setCurrentPlace(details);
+        //setDestination(place.placePrediction.placeId);
+        setDestination(place.placePrediction.structuredFormat.mainText.text);
+      }
     }
+
+    
 
     if (mapRef.current) {
       mapRef.current.animateToRegion(placeRegion, 1000);
