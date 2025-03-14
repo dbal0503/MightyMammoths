@@ -45,21 +45,11 @@ export function DestinationChoices({
   };
 
   useEffect(() => {
-    const checkAndSetLocation = async () => {
-      const { status } = await Location.getForegroundPermissionsAsync();
-      if (status === "granted") {
-        setSelectedStart("Your Location");
-        setOrigin("Your Location");
-        setSelectedBuilding("Your Location");
-        checkSelection("Your Location", selectedDestination);
-      } else {
-        setSelectedStart("Select a building");
-        setOrigin("Select a building");
-      }
-    };
-
-    checkAndSetLocation();
-  }, []);
+    if (destination && destination !== "Select a building") {
+      setOrigin("Your Location");
+      topDropDownRef.current?.setValue("Your Location");
+    }
+  }, [destination]);
 
   useEffect(() => {
     if (visible) {
@@ -218,6 +208,7 @@ export function DestinationChoices({
                 setDestination("Select a building");
                 setSelectedBuilding("Select a building");
                 setSelectedDestination("Select a building");
+                
               }
             );
           } else {
