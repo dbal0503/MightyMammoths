@@ -126,8 +126,7 @@ export function DestinationChoices({
           locked={loadingRoutes}
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
-          buildingData={buildingList}
-          currentVal={origin} 
+          buildingData={buildingList} 
           onSelect={(selected) => {
             if(!selected) return;
             if (selected === "Your Location") {
