@@ -65,7 +65,6 @@ export default function HomeScreen() {
   const placeInfoSheet = useRef<ActionSheetRef>(null);
   const [currentPlace, setCurrentPlace] = useState<placeDetails| undefined>(undefined)
   const [destination, setDestination] = useState<string>("")
-  const [origin, setOrigin] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
@@ -573,7 +572,6 @@ const centerAndShowBuilding = (buildingName: string) => {
               campusToggleSheet.current?.show();
               setSelectedBuilding(null);
             }}
-            navigateStart={startNavigation}
           />
         )}
 
@@ -608,7 +606,6 @@ const centerAndShowBuilding = (buildingName: string) => {
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
-            origin={origin}
             locationServicesEnabled={locationServicesEnabled}
           />    
 

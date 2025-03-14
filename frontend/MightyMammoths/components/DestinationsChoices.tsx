@@ -12,15 +12,13 @@ interface DestinationChoicesProps {
   visible?: boolean;
   destination: string;
   locationServicesEnabled: boolean;
-  origin: string;
 }
 
 export function DestinationChoices({
   buildingList,
   visible,
   destination,
-  locationServicesEnabled,
-  origin
+  locationServicesEnabled
 }: DestinationChoicesProps) {
   const { state, functions } = useNavigation();
   const { 
