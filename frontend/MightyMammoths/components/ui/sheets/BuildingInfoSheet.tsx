@@ -10,6 +10,7 @@ export type BuildingInfoSheetProps = ActionSheetProps & {
   building: GeoJsonFeature;
   navigate: (destination: string) => void;
   onClose: () => void; 
+  navigateStart: (origin: string) => void;
 }
 
 
@@ -26,6 +27,7 @@ function BuildingInfoSheet({
     building,
     navigate,
     onClose,
+    navigateStart,
 }: BuildingInfoSheetProps) {
     return (
       <ActionSheet
@@ -43,25 +45,32 @@ function BuildingInfoSheet({
         >
       <View style={styles.container}>
     <Text style={styles.header} testID='buildingLongName'>{building?.properties['Building Long Name']}</Text>
-    <View style={styles.buttonsContainer}>
+    <View style={styles.buttons1Container}>
+        <View style={styles.navigationButtons}>
             <View style={[
-                styles.button, styles.destinationButton
-                ]}>
-            <Pressable onPress={navigate} testID='setDestinationButton'>
-                <Text style={styles.buttonText}>Set As Destination</Text>
-            </Pressable>
-            
-
+                    styles.button, styles.destinationButton
+                    ]}>
+                <Pressable onPress={navigate} testID='setDestinationButton'>
+                    <Text style={styles.buttonText}>Set As Destination</Text>
+                </Pressable>
             </View>
-            <View style={
-                [styles.button, styles.indoorMapButton]
+            <View style={[
+                    styles.button, styles.destinationButton
+                    ]}>
+                <Pressable onPress={navigateStart} testID='setStartButton'>
+                    <Text style={styles.buttonText}>Set As Start</Text>
+                </Pressable>
+            </View>
+                
+        </View>
+        <View style={
+                 styles.indoorMapButton
                 }>
             <Pressable testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
-            </View>
-    </View>
-
+        </View>
+    </View>           
     <Text style={styles.header}>Information:</Text>
     <View style={styles.buttonsContainer}>
         <View style={styles.button}>
@@ -106,12 +115,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-    paddingBlock: 8
+    paddingBlock: 8,
+  },
+  buttons1Container: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingBlock: 8,
+    width: 370,
+  },
+  navigationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingBlock: 8,
   },
   indoorMapButton: {
     backgroundColor: '#800000', 
     fontWeight: 'bold',
-    fontSize: 20
+    fontSize: 20,
+    width: 170,
+    height: 45,
+    borderRadius: 8,
+    alignItems: 'center',
+    padding: 10,
+    marginLeft: 95,
 },
 buttonText: {
   color: 'white',
