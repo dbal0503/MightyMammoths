@@ -19,6 +19,7 @@ export interface BuildingData {
 
 export interface AutoCompleteDropdownRef {
   reset: () => void; // Define the reset function for the ref
+  setValue: (value: string) => void;
 }
 
 interface AutoCompleteDropdownProps {
@@ -46,6 +47,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     reset: () => {
       setSelected("Select a building");
       setIsOpen(false);
+    },
+    setValue: (value: string) => {
+      setSelected(value);
     },
   }));
 
