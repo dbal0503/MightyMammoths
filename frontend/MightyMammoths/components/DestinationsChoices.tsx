@@ -1,6 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import { StyleSheet, View, Animated, Alert, Linking, TouchableOpacity} from "react-native";
+import { StyleSheet, View, Animated, Alert, Linking} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Location from "expo-location";
@@ -106,21 +106,6 @@ export function DestinationChoices({
       onSuccess();
     }
   };
-
-  const swapBuildings = () => {
-    if (selectedStart && selectedDestination) {
-      setSelectedStart(selectedDestination);
-      setSelectedDestination(selectedStart);
-  
-      setOrigin(selectedDestination);
-      setDestination(selectedStart);
-      setSelectedBuilding(selectedStart);
-  
-      // Reset dropdowns with new values
-      topDropDownRef.current?.setValue(selectedDestination);
-      bottomDropDownRef.current?.setValue(selectedStart);
-    }
-  };
       
 
   return (
@@ -162,22 +147,12 @@ export function DestinationChoices({
             }
         }} />
       </View>
-      <View style={styles.buttonContainer}>
-        <IconSymbol
-          name= {"more-vert" as IconSymbolName}
-          size={30}
-          color="black"
-          style={styles.modeIcon}
-        />
-        <TouchableOpacity onPress={swapBuildings} style={styles.swapButton}>
-          <IconSymbol
-            name={"swap-vert" as IconSymbolName}
-            size={30}
-            color="black"
-            style={styles.swapIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <IconSymbol
+        name= {"more-vert" as IconSymbolName}
+        size={30}
+        color="black"
+        style={styles.modeIcon}
+      />
       <View style={styles.dropdownWrapper}>
       <AutoCompleteDropdown
         testID="destinationNavigationDropdown"
@@ -239,19 +214,4 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 5,
   },
-  buttonContainer:{
-    display:'flex',
-    flexDirection: 'row',
-    
-    width: 220,
-    marginLeft: 195,
-  },
-  swapIcon: {
-    alignItems: "center",
-    color: "white",
-    padding: 5,
-  },
-  swapButton:{
-    marginLeft: 'auto',
-  }
 });
