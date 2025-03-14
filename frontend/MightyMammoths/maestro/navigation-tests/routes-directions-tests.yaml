@@ -3,6 +3,10 @@ appId: com.anonymous.MightyMammoths
 - assertVisible:
     id: "originNavigationDropdown"
 - assertVisible:
+    id: "more-vert"
+- assertVisible:
+    id: "swap-vert"
+- assertVisible:
     id: "destinationNavigationDropdown"
 - tapOn:
     id: "originNavigationDropdown"
