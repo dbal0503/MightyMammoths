@@ -48,7 +48,7 @@ function BuildingInfoSheet({
                 styles.button, styles.destinationButton
                 ]}>
             <Pressable onPress={navigate} testID='setDestinationButton'>
-                <Text style={styles.buttonText}>Set as Destination</Text>
+                <Text style={styles.buttonText}>Set As Destination</Text>
             </Pressable>
             </View>
 
