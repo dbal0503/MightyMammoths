@@ -174,6 +174,7 @@ export function DestinationChoices({
           size={30}
           color="black"
           style={styles.modeIcon}
+          testID="more-vert"
         />
         <TouchableOpacity onPress={swapBuildings} style={styles.swapButton}>
           <IconSymbol
@@ -181,6 +182,7 @@ export function DestinationChoices({
             size={30}
             color="black"
             style={styles.swapIcon}
+            testID="swap-vert"
           />
         </TouchableOpacity>
       </View>
