@@ -116,7 +116,6 @@ export function DestinationChoices({
       setDestination(selectedStart);
       setSelectedBuilding(selectedStart);
   
-      // Reset dropdowns with new values
       topDropDownRef.current?.setValue(selectedDestination);
       bottomDropDownRef.current?.setValue(selectedStart);
     }
