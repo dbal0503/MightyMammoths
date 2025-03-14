@@ -43,13 +43,12 @@ function BuildingInfoSheet({
         >
       <View style={styles.container}>
     <Text style={styles.header1} testID='buildingLongName'>{building?.properties['Building Long Name']}</Text>
-    <Text style={{color:'white',fontSize: 20,marginTop: 10}}> Set As </Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton
                 ]}>
             <Pressable onPress={navigate} testID='setDestinationButton'>
-                <Text style={styles.buttonText}>Destination</Text>
+                <Text style={styles.buttonText}>Set as Destination</Text>
             </Pressable>
             </View>
 
