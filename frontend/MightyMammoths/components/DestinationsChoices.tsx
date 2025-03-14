@@ -45,6 +45,23 @@ export function DestinationChoices({
   };
 
   useEffect(() => {
+    const checkAndSetLocation = async () => {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if (status === "granted") {
+        setSelectedStart("Your Location");
+        setOrigin("Your Location");
+        setSelectedBuilding("Your Location");
+        checkSelection("Your Location", selectedDestination);
+      } else {
+        setSelectedStart("Select a building");
+        setOrigin("Select a building");
+      }
+    };
+
+    checkAndSetLocation();
+  }, []);
+
+  useEffect(() => {
     if (visible) {
       Animated.spring(slideAnim, {
         toValue: 0,
