@@ -23,7 +23,7 @@ const options = {
   key: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID,
   secret: process.env.EXPO_PUBLIC_MAPPEDIN_SECRET_KEY,
   mapId: "677d8a736e2f5c000b8f3fa6",
-  labelAllLocationsOnInit: false,
+  labelAllLocationsOnInit: true,
 };
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -42,6 +42,13 @@ const IndoorMapModal = ({
   const mapView = React.useRef<MiMapView>(null);
   const [currentFloor, setCurrentFloor] = React.useState("First Floor");
   const [levels, setLevels] = React.useState<MappedinMap[]>([]);
+  const [departure, setDeparture] = React.useState<
+    MappedinLocation | undefined
+  >(undefined);
+  const [destination, setDestination] = React.useState<
+    MappedinLocation | undefined
+  >(undefined);
+
   const [selectedMapId, setSelectedMapId] = React.useState<string | undefined>(
     undefined
   );
@@ -85,6 +92,37 @@ const IndoorMapModal = ({
     setMap();
   }, [selectedMapId]);
 
+  React.useEffect(() => {
+    async function drawDirections() {
+      if (!departure || !destination) return;
+      const directions = await departure.directionsTo(destination);
+      mapView.current?.Journey.draw(directions);
+    }
+    drawDirections();
+  }, [departure, destination]);
+
+  React.useEffect(() => {
+    const updateLocation = () => {
+      const locationFAKE = {
+        timestamp: Date.now(), // update timestamp for freshness
+        coords: {
+          accuracy: 5,
+          latitude: -73.57864527,
+          longitude: 45.49716388,
+          floorLevel: 1,
+        },
+        type: 0,
+      };
+      mapView.current?.overrideLocation(locationFAKE);
+    };
+
+    // Update location every 3 seconds (adjust as needed)
+    const intervalId = setInterval(updateLocation, 3000);
+
+    // Clean up on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <Modal
       animationType="slide"
@@ -117,7 +155,13 @@ const IndoorMapModal = ({
 
         <View style={styles.mapWrapper}>
           <MiMapView
-            ref={mapView as React.RefObject<any>}
+            onBlueDotStateChanged={(state) => {
+              console.log("BlueDot state changed:", state); //trying to get blue do tto work
+            }}
+            ref={(ref) => {
+              mapView.current = ref;
+              console.log("MapView ref:", ref);
+            }}
             style={styles.mapView}
             key="mappedin"
             options={options}
@@ -125,21 +169,37 @@ const IndoorMapModal = ({
               setSelectedMapId(mapView.current?.currentMap?.id);
               setLevels(mapView.current?.venueData?.maps || []);
 
-              const locationFAKE = {
-                //Fake location for testing Blue dot
-                timestamp: Date.now(),
-                coords: {
-                  accuracy: 5,
-                  latitude: 73.579,
-                  longitude: 45.4973,
-                  floorLevel: 0,
-                },
-                type: 0,
-              };
+              console.log(
+                "Current Map Georeference:",
+                mapView.current?.currentMap?.georeference
+              );
 
               mapView.current?.BlueDot.enable(); //Blue dot not working need to fix
-              mapView.current?.overrideLocation(locationFAKE); //Blue dot not working need to fix
-              mapView.current?.FlatLabels.labelAllLocations(); //Labels not working need to fix
+              // mapView.current?.FloatingLabels.labelAllLocations({
+              //   appearance: {
+              //     marker: {
+              //       size: 16,
+              //     },
+              //     text: {
+              //       size: 16,
+              //       foregroundColor: "#ffb702",
+              //       backgroundColor: "#0a0a0a",
+              //     },
+              //   },
+              // });
+            }}
+            // Wayfinding: set departure/destination on polygon click
+            onClick={({ polygons }) => {
+              if (polygons && polygons.length > 0) {
+                // Use the first polygon from the clicked polygons array.
+                const polygon = polygons[0];
+                if (!departure) {
+                  setDeparture(polygon.locations[0]);
+                  mapView.current?.setPolygonColor(polygon, "green");
+                } else {
+                  setDestination(polygon.locations[0]);
+                }
+              }
             }}
             onMapChanged={({ map }) => {
               setSelectedMapId(map.id);
