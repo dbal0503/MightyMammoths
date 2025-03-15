@@ -120,19 +120,23 @@ jobs:
 
       - name: E2E Tests with Recording
         env: 
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000  
         run: | 
           cd ./frontend/MightyMammoths
           mkdir -p test-videos
           
           run_test_with_recording() {
             local test_file=$1
-            local filename=$(basename "$test_file" .yaml)
+            local filename=$(basename "$test_file" .yaml | sed 's/\//-/g')
             echo "Running test with recording: $test_file"
             
             for attempt in {1..3}; do
               echo "Attempt $attempt for $test_file"
-              if maestro test --record-video "./test-videos/${filename}.mp4" "$test_file"; then
+              
+              maestro record "$test_file" --local "./test-videos/${filename}-attempt${attempt}.mp4"
+              local test_status=$?
+              
+              if [ $test_status -eq 0 ]; then
                 echo "Test passed on attempt $attempt"
                 return 0
               else
@@ -141,6 +145,7 @@ jobs:
                   echo "Test failed after 3 attempts"
                   return 1
                 fi
+                # Wait before retrying
                 sleep 10
               fi
             done
@@ -153,7 +158,7 @@ jobs:
               overall_status=1
             fi
           done
-
+          
           exit $overall_status
         
       - name: Upload Test Artifacts
