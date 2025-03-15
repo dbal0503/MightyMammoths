@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image} from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { LatLng } from 'react-native-maps';
@@ -140,6 +140,23 @@ export function StaticNavigationInformation(
 
   if (!visible) return null;
 
+  const verifyStep = () => {
+    const stepText = stepsText[currentStepIndex];
+    let symbol;
+    switch (true) {
+      case stepText.includes("right"):
+        symbol = require("../assets/images/right.png");
+        break;
+      case stepText.includes("left"):
+        symbol = require("../assets/images/left.png");
+        break;
+      case stepText.includes("north"):
+        symbol = require("../assets/images/up.png");
+        break;
+    }
+    return symbol;
+  };
+
   return (
     <>
       {stepsText && (
@@ -159,7 +176,14 @@ export function StaticNavigationInformation(
               <Animated.Text style={[styles.nextStep, animatedStyle]}>
                 {stepsText[currentStepIndex]}
               </Animated.Text>
+            </View> 
+
+            {/*RIGHT*/}
+            {stepsText[currentStepIndex] && (
+            <View>
+              <Image source={verifyStep()} style={{ width: 55, height: 60, marginLeft:0 }} />
             </View>
+            )}
 
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== stepsText.length - 1 ? (
@@ -205,8 +229,11 @@ const styles = StyleSheet.create({
   },
   distanceInformation: {
     overflow: 'hidden',
-    width: 300,
+    width: 225,
     alignItems: 'center',
+    marginRight:0,
+    marginLeft:0,
+    paddingRight:0,
   },
   nextStep: {
     fontSize: 17,
@@ -219,9 +246,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   arrowButton: {
-    padding: 7,
-    borderRadius: 40,
-    backgroundColor: 'white',
+    padding: 1,
+    borderRadius: 80,
+    backgroundColor: 'grey',
   },
   arrowContainer: {
     width: 50, 
