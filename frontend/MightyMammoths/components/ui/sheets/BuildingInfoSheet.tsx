@@ -8,14 +8,14 @@ import { GeoJsonFeature } from '../BuildingMapping';
 export type BuildingInfoSheetProps = ActionSheetProps & {
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
   building: GeoJsonFeature;
-  navigate: (destination: string) => void;
+  navigate: () => void;
   onClose: () => void; 
 }
 
 
 function BuildingInfoSheet({
     isModal = false,
-    snapPoints = [65],
+    snapPoints = [80],
     backgroundInteractionEnabled = false,
     closable = true,
     gestureEnabled = true,
@@ -42,7 +42,7 @@ function BuildingInfoSheet({
         onClose={onClose}
         >
       <View style={styles.container}>
-    <Text style={styles.header} testID='buildingLongName'>{building?.properties['Building Long Name']}</Text>
+    <Text style={styles.header1} testID='buildingLongName'>{building?.properties['Building Long Name']}</Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton
@@ -50,24 +50,21 @@ function BuildingInfoSheet({
             <Pressable onPress={navigate} testID='setDestinationButton'>
                 <Text style={styles.buttonText}>Set As Destination</Text>
             </Pressable>
-            
-
             </View>
+
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
             <Pressable testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
-            </View>
+            </View>  
     </View>
-
-    <Text style={styles.header}>Information:</Text>
+    
+    <Text style={styles.header2}>Information</Text>
     <View style={styles.buttonsContainer}>
-        <View style={styles.button}>
-            <Text style={styles.buttonText} testID='buildingInformation'>{building.properties.BuildingName}</Text>
-        </View>
-        <View style={styles.button}>
+        <View style={[styles.button, {flexDirection:'row', alignItems:'center', justifyContent:"center"}]}>
+            <Text style={styles.buttonText} testID='buildingInformation'>{building.properties.BuildingName} @</Text>
             <Text style={styles.buttonText} testID='buildingCampus'>{building.properties.Campus}</Text>
         </View>
     </View>
@@ -106,7 +103,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-    paddingBlock: 8
+    marginBottom:0,
+    paddingBottom:2,
   },
   indoorMapButton: {
     backgroundColor: '#800000', 
@@ -118,16 +116,21 @@ buttonText: {
   fontSize: 16,
 },
 destinationButton: {
-  backgroundColor: '#007AFF', 
+  backgroundColor: '#4b54ad', 
   fontWeight: 'bold',
-  fontSize: 20
-  
+  fontSize: 10
 },
-  header: {
-    fontSize: 20,
+  header1: {
+    fontSize: 25,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
+  },
+  header2: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    marginTop:20,
   }
 });
 

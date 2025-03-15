@@ -101,13 +101,13 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
-          xcrun simctl boot "iPhone 15 Pro" || true
+          xcrun simctl boot "iPhone 16 Pro" || true
           xcrun simctl list devices | grep Booted
       
       - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx expo run:ios --device "iPhone 15 Pro" &
+          npx expo run:ios --device "iPhone 16 Pro" &
           while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths data >/dev/null 2>&1; do
             sleep 5
           done
@@ -118,23 +118,24 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: E2E Tests
-        env : 
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
+      - name: E2E Tests with Recording
+        env: 
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000  
         run: | 
           cd ./frontend/MightyMammoths
-          maestro test maestro/home-page-tests/main-tests.yaml
+          mkdir -p e2e-videos
           maestro test maestro/home-page-sheet-tests/main-tests.yaml
           maestro test maestro/navigation-tests/main-tests.yaml
+          maestro test maestro/home-page-tests/main-tests.yaml
           maestro test maestro/building-marker-information-tests/main-tests.yaml
           maestro test maestro/google-calendar-tests/main-tests.yaml
-      #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
-
-      #- name: Upload Test Artifacts
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: test-videos
-      #    path: LOYButtonTest.mp4
+        
+      - name: Upload Test Artifacts
+        if: always()  
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-videos
+          path: ./frontend/MightyMammoths/e2e-videos/*.mp4
 
   lint:
     runs-on: ubuntu-latest
