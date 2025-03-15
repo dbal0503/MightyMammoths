@@ -118,16 +118,50 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: E2E Tests
-        env : 
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
-        run: | 
-          cd ./frontend/MightyMammoths
-          maestro test maestro/home-page-tests/main-tests.yaml
-          maestro test maestro/home-page-sheet-tests/main-tests.yaml
-          maestro test maestro/navigation-tests/main-tests.yaml
-          maestro test maestro/building-marker-information-tests/main-tests.yaml
-          maestro test maestro/google-calendar-tests/main-tests.yaml
+          - name: E2E Tests with Recording
+          env: 
+            MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
+          run: | 
+            cd ./frontend/MightyMammoths
+            mkdir -p test-videos
+            
+            run_test_with_recording() {
+              local test_file=$1
+              local filename=$(basename "$test_file" .yaml)
+              echo "Running test with recording: $test_file"
+              
+              for attempt in {1..3}; do
+                echo "Attempt $attempt for $test_file"
+                if maestro test --record-video "./test-videos/${filename}.mp4" "$test_file"; then
+                  echo "Test passed on attempt $attempt"
+                  return 0
+                else
+                  echo "Test failed on attempt $attempt"
+                  if [ $attempt -eq 3 ]; then
+                    echo "Test failed after 3 attempts"
+                    return 1
+                  fi
+                  sleep 10
+                fi
+              done
+            }
+            
+            overall_status=0
+            
+            for test_file in maestro/home-page-tests/main-tests.yaml maestro/home-page-sheet-tests/main-tests.yaml maestro/navigation-tests/main-tests.yaml maestro/building-marker-information-tests/main-tests.yaml maestro/google-calendar-tests/main-tests.yaml; do
+              if ! run_test_with_recording "$test_file"; then
+                overall_status=1
+              fi
+            done
+
+            exit $overall_status
+        
+      - name: Upload Test Artifacts
+        if: always()  
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-videos
+          path: ./frontend/MightyMammoths/test-videos/*.mp4
       #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
 
       #- name: Upload Test Artifacts
