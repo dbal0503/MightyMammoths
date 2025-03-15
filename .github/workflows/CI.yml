@@ -125,9 +125,10 @@ jobs:
           cd ./frontend/MightyMammoths
           mkdir -p e2e-videos
           
-          maestro record maestro/navigation-tests/main-tests.yaml --local "./e2e-videos/navigation-tests.mp4"
+          maestro record maestro/launch-app.yaml --local "./e2e-videos/navigation-tests.mp4"
 
           maestro test maestro/home-page-sheet-tests/main-tests.yaml
+          maestro test maestro/navigation-tests/main-tests.yaml
           maestro test maestro/home-page-tests/main-tests.yaml
           maestro test maestro/building-marker-information-tests/main-tests.yaml
           maestro test maestro/google-calendar-tests/main-tests.yaml
