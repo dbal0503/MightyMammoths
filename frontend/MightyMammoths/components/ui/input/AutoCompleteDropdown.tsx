@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { BoundingBox } from "react-native-maps";
 
 export interface BuildingData {
   buildingName: string;
@@ -30,6 +31,7 @@ interface AutoCompleteDropdownProps {
   locked: boolean;
   testID?: string;
   onNearbyResults: (results: suggestionResult[]) => void;
+  boundaries: BoundingBox | undefined
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -40,7 +42,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   setSearchSuggestions,
   locked,
   testID,
-  onNearbyResults
+  onNearbyResults,
+  boundaries
 }, ref) => {
 
   //functions exposed through ref
@@ -99,13 +102,43 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
-  const getNearbySuggestions = async (searchQuery: string) => {
+  function toRadians(degrees: number) {
+    return degrees * Math.PI / 180;
+  }
+  
+  function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371e3; // Earth's radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function getRadiusFromBoundingBox(boundingBox: BoundingBox) {
+    const { northEast, southWest } = boundingBox;
+    // Calculate center of bounding box
+    const centerLat = (northEast.latitude + southWest.latitude) / 2;
+    const centerLng = (northEast.longitude + southWest.longitude) / 2;
+  
+    // Calculate radius from center to northEast
+    const radius = haversineDistance(centerLat, centerLng, northEast.latitude, northEast.longitude);
+    return radius;
+  }
+
+  const getNearbySuggestions = async (searchQuery: string, boundaries: BoundingBox | undefined) => {
+    if (boundaries){
+      const radius = getRadiusFromBoundingBox(boundaries)
+
     try{
-    const results = await nearbyPlacesSearch(searchQuery);
+    const results = await nearbyPlacesSearch(searchQuery, radius);
     onNearbyResults(results);}
     catch (err) {
       console.log(err)
-    }
+    }}
   };
 
   const getSuggestions = async (searchQuery: string) => {
@@ -152,11 +185,12 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    getNearbySuggestions("cafe");
+    
+    getNearbySuggestions("cafe", boundaries);
   };
 
   const handleFindNearbyRestaurants = () => {
-    getNearbySuggestions("restaurant");
+    getNearbySuggestions("restaurant", boundaries);
     };
 
   return (

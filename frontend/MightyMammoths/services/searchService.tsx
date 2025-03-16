@@ -106,8 +106,17 @@ export async function autoCompleteSearch(
 }
 
 export async function nearbyPlacesSearch(
-    searchString: string
+    searchString: string,
+    radius: number
 ): Promise<suggestionResult[]> {
+    console.log("radius", radius)
+    if(radius> 50000){
+        radius = 50000;
+    }
+    let maxresultcount = 10
+    if(radius > 1000){
+        maxresultcount = 20}
+    
 
     let suggestionResults: suggestionResult[] = [];
 
@@ -120,14 +129,14 @@ export async function nearbyPlacesSearch(
 
     const data: placesSearch = {
         "includedTypes": [searchString],
-    "maxResultCount": 10,
+    "maxResultCount": maxresultcount,
     "locationRestriction":{
         "circle":{
             "center":{
                 "latitude":  45.495376,
                 "longitude": -73.577997
             },           
-            "radius": 500}
+            "radius": radius}
     }
 }
     
@@ -170,7 +179,7 @@ export async function nearbyPlacesSearch(
      //   console.log(`${error.response?.data}`);
 
     } finally {
-        console.log(suggestionResults);
+        //console.log(suggestionResults);
         return suggestionResults;
     }
 }
