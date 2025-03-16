@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import { TransportChoice } from "@/components/TransportChoice";
-import { StartNavigation } from "@/components/StartNavigation";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';
 import polyline from "@mapbox/polyline"

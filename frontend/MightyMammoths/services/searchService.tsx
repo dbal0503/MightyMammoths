@@ -103,8 +103,6 @@ export async function getPlaceDetails(
     placeID: string
 ): Promise<placeDetails | undefined> {
 
-    let details;
-
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
         console.log('failed loading google api key')

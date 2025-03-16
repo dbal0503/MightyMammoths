@@ -41,7 +41,6 @@ export function TransportChoice({
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
-  const yourLocationSet = true ? origin === "Your Location" : false;
   const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
   const setStepByStepVisible = () => {
     showStepByStep(true)
