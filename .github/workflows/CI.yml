@@ -60,7 +60,7 @@ jobs:
           verbose: true
             
   e2e-test:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     env:
       EXPO_NO_INTERACTIVE: 1
