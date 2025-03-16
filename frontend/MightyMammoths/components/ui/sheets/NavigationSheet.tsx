@@ -122,6 +122,7 @@ function NavigationSheet({
             walk1Polyline={walk1Polyline}
             walk2Polyline={walk2Polyline}
             shuttlePolyline={shuttlePolyline}
+            destination={destination}
           />
         )}   
     

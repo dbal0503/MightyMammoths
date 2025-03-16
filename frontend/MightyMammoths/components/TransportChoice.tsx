@@ -1,6 +1,6 @@
 // components/RoutesSheet.tsx
 import React, {useState, useEffect} from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
@@ -110,12 +110,10 @@ export function TransportChoice({
       />
     ),
     shuttle: (
-      <IconSymbol
+      <Image
         testID="shuttleIcon"
-        name="bus.fill"
-        size={30}
-        color="black"
-        style={styles.modeIcon}
+        source={require("@/assets/images/ShuttleBusIcon.png")}
+        style={styles.shuttleBusIconStyling}
       />
     ),
   };
@@ -221,6 +219,11 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth: 2,
     borderRadius: 16
+  },
+  shuttleBusIconStyling:{
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
   },
   textContainer: {},
   modeText: {
