@@ -104,7 +104,7 @@ const IndoorMapModal = ({
   React.useEffect(() => {
     const updateLocation = () => {
       const locationFAKE = {
-        timestamp: Date.now(), // update timestamp for freshness
+        timestamp: Date.now(),
         coords: {
           accuracy: 5,
           latitude: -73.57864527,
@@ -116,10 +116,8 @@ const IndoorMapModal = ({
       mapView.current?.overrideLocation(locationFAKE);
     };
 
-    // Update location every 3 seconds (adjust as needed)
     const intervalId = setInterval(updateLocation, 3000);
 
-    // Clean up on unmount
     return () => clearInterval(intervalId);
   }, []);
 
@@ -160,7 +158,7 @@ const IndoorMapModal = ({
             }}
             ref={(ref) => {
               mapView.current = ref;
-              console.log("MapView ref:", ref);
+              //console.log("MapView ref:", ref);
             }}
             style={styles.mapView}
             key="mappedin"
