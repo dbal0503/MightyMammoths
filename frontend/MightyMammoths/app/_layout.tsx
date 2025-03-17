@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { vexo } from 'vexo-analytics';
+//import { vexo } from 'vexo-analytics';
 
 //vexo(process.env.EXPO_PUBLIC_VEXO_API_KEY || '');
 //console.log('Vexo API Key:', process.env.EXPO_PUBLIC_VEXO_API_KEY);

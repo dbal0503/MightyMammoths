@@ -60,7 +60,7 @@ jobs:
           verbose: true
             
   e2e-test:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     env:
       EXPO_NO_INTERACTIVE: 1
@@ -101,13 +101,14 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
-          xcrun simctl boot "iPhone 16 Pro" || true
+          xcrun simctl list devices
+          xcrun simctl boot "iPhone 15 Pro" || true
           xcrun simctl list devices | grep Booted
       
       - name: Build App
         run: |
           cd ./frontend/MightyMammoths
-          npx expo run:ios --device "iPhone 16 Pro" &
+          npx expo run:ios --device "iPhone 15 Pro" &
           while ! xcrun simctl get_app_container booted com.anonymous.MightyMammoths data >/dev/null 2>&1; do
             sleep 5
           done

@@ -29,6 +29,7 @@ interface StaticNavigationInformationProps {
   walk1Polyline: string;
   walk2Polyline: string;
   shuttlePolyline: string;
+  destination: string;
 }
 
 export function StaticNavigationInformation(
@@ -43,6 +44,7 @@ export function StaticNavigationInformation(
     walk1Polyline,
     walk2Polyline,
     shuttlePolyline,
+    destination,
 
   }: StaticNavigationInformationProps) {
   
@@ -51,10 +53,17 @@ export function StaticNavigationInformation(
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const translateX = useSharedValue(0);
 
-  const placeIdToBuildingName = campusBuildingCoords.features.reduce((map, feature) => {
-    map[feature.properties.PlaceID] = feature.properties.BuildingName;
-    return map;
-  }, {} as Record<string, string>);
+  const getBuildingName = (placeId: string): string => {
+    const matchingBuildings = campusBuildingCoords.features.filter(
+      (feature: any) => feature.properties.PlaceID === placeId
+    );
+    if (matchingBuildings.length === 0) return 'Unknown Building';
+    const destinationMatch = matchingBuildings.find(
+      (feature: any) => feature.properties.BuildingName === destination
+    );
+    if (destinationMatch) return destinationMatch.properties.BuildingName;
+    return matchingBuildings[0].properties.BuildingName;
+  };
 
   useEffect(() => {
     if (routes && routes.length > 0) {
@@ -70,12 +79,15 @@ export function StaticNavigationInformation(
         ];
       }
       const updatedStepsText = stepsData.map((step: Step) => {
-        const stepText = step?.html_instructions 
-            ? step.html_instructions.replace(/<[^>]*>/g, "") 
-            : step?.instructions || '';  
+        let stepText = step?.html_instructions
+          ? step.html_instructions
+              .replace(/<\/div>/g, ". ")
+              .replace(/<[^>]*>/g, "")
+          : step?.instructions || '';
+        stepText = stepText.replace(/(\w)(Destination)/g, '$1. $2');
 
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
-          placeIdToBuildingName[placeId] || 'Unknown Building'
+          getBuildingName(placeId)
         );
       });
       setStepsText(updatedStepsText);
