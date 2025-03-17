@@ -49,8 +49,12 @@ export function DestinationChoices({
       if (destination && destination !== "Select a building") {
         const { status } = await Location.getForegroundPermissionsAsync();
         if (status === "granted") {
+          console.log("granted permissions");
           setOrigin("Your Location");
           topDropDownRef.current?.setValue("Your Location");
+        } else {
+          setOrigin("");
+          topDropDownRef.current?.setValue("");
         }
       }
     };
