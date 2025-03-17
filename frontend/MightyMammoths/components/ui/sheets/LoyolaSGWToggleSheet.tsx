@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
@@ -7,6 +7,7 @@ import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
 import { ActionSheetProps } from 'react-native-actions-sheet';
 import {ActionSheetRef } from "react-native-actions-sheet";
+import SmartPlannerModal from '../SmartPlannerModal';
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
   setSelectedCampus: (selected: string) => void;
@@ -30,9 +31,10 @@ function LoyolaSGWToggleSheet({
     navigateToRoutes,
 }: LoyolaSGWToggleSheetProps) {
     const [isEnabled, setIsEnabled] = useState(false);
-
+    const [smartPlannerVisible, setSmartPlannerVisible] = useState(false);
 
     return (
+      <>
       <ActionSheet
         ref={actionsheetref}
         testID="home-page-sheet"
@@ -62,6 +64,9 @@ function LoyolaSGWToggleSheet({
           </View>
           <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton testID="google-calendar-button" navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
+          <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={() => setSmartPlannerVisible(true)}>
+              <Text style={styles.smartPlannerButtonText}>Smart Planner</Text>
+          </TouchableOpacity>
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
             <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>
@@ -70,6 +75,11 @@ function LoyolaSGWToggleSheet({
             }} />
           </View>
       </ActionSheet>
+      <SmartPlannerModal
+          visible={smartPlannerVisible}
+          onClose={() => setSmartPlannerVisible(false)}
+        />
+      </>
     );
   }
 
@@ -100,6 +110,19 @@ function LoyolaSGWToggleSheet({
         color: "white",
         fontSize: 22,
         paddingBottom: 45,
+      },
+      smartPlannerButton: {
+        marginLeft: 40,
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: '#2c2c38',
+        borderRadius: 8,
+        width: '80%',
+        alignItems: 'center',
+      },
+      smartPlannerButtonText: {
+        color: 'white',
+        fontSize: 16,
       },
   });
    
