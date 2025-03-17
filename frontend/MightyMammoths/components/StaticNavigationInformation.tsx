@@ -15,6 +15,7 @@ interface Step {
   html_instructions: string;
   polyline: Polyline;
   instructions?: string;
+  maneuver: string;
 }
 
 interface StaticNavigationInformationProps {
@@ -141,7 +142,10 @@ export function StaticNavigationInformation(
   if (!visible) return null;
 
   const verifyStep = () => {
-    const stepText = stepsText[currentStepIndex];
+    const stepText = stepsData[currentStepIndex].maneuver? 
+    stepsData[currentStepIndex].maneuver  : 
+    stepsData[currentStepIndex].html_instructions;
+
     let symbol;
     switch (true) {
       case stepText.includes("right"):
