@@ -59,15 +59,16 @@ export interface suggestionResult {
   }
 
 export async function autoCompleteSearch(
-    searchString: string
+    searchString: string,
+    apiKeyOverride?: string
 ): Promise<suggestionResult[] | undefined> {
 
     let suggestionResults: suggestionResult[] = [];
 
-    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
         console.log('failed loading google api key')
-        return suggestionResults;
+        return undefined;
     }
     const url = 'https://places.googleapis.com/v1/places:autocomplete'
 
@@ -107,7 +108,8 @@ export async function autoCompleteSearch(
 
 export async function nearbyPlacesSearch(
     searchString: string,
-    radius: number
+    radius: number,
+    apiKeyOverride?: string
 ): Promise<suggestionResult[]> {
     console.log("radius", radius)
     if(radius> 50000){
@@ -120,7 +122,7 @@ export async function nearbyPlacesSearch(
 
     let suggestionResults: suggestionResult[] = [];
 
-    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
         console.log('failed loading google api key')
         return suggestionResults;
@@ -166,7 +168,7 @@ export async function nearbyPlacesSearch(
               placeId: p.id,
               text: { text: p.displayName, matches: [] },
               structuredFormat: {
-                mainText: { text: p.displayName.text, matches: [] },
+                mainText: { text: p.displayName?.text, matches: [] },
                 secondaryText: { text: p.formattedAddress ?? '' }
               },
               types: p.types ?? []
@@ -193,12 +195,13 @@ export interface placeDetails {
 }
 
 export async function getPlaceDetails(
-    placeID: string
+    placeID: string,
+    apiKeyOverride?: string
 ): Promise<placeDetails | undefined> {
 
 
 
-    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     if(!apiKey){
         console.log('failed loading google api key')
         return undefined;
