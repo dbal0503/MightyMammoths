@@ -1,6 +1,6 @@
 // components/RoutesSheet.tsx
 import React, {useState, useEffect} from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
@@ -41,7 +41,6 @@ export function TransportChoice({
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
-  const yourLocationSet = true ? origin === "Your Location" : false;
   const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
   const setStepByStepVisible = () => {
     showStepByStep(true)
@@ -110,12 +109,10 @@ export function TransportChoice({
       />
     ),
     shuttle: (
-      <IconSymbol
+      <Image
         testID="shuttleIcon"
-        name="bus.fill"
-        size={30}
-        color="black"
-        style={styles.modeIcon}
+        source={require("@/assets/images/ShuttleBusIcon.png")}
+        style={styles.shuttleBusIconStyling}
       />
     ),
   };
@@ -221,6 +218,11 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth: 2,
     borderRadius: 16
+  },
+  shuttleBusIconStyling:{
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
   },
   textContainer: {},
   modeText: {

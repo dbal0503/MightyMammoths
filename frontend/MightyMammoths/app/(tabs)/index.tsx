@@ -101,6 +101,7 @@ export default function HomeScreen() {
   };
 
 const centerAndShowBuilding = (buildingName: string) => {
+  if (isZoomedIn)return;
   // 1. Find the building in your GeoJSON
   const buildingFeature = campusBuildingCoords.features.find(
     (feature: GeoJsonFeature) => 
@@ -490,6 +491,9 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
     setNavigationMode(true);
 };
 
+  useEffect(()=>{
+    campusToggleSheet.current?.show();
+  },[])
 
   useEffect(() => {
     (async () => {
@@ -554,8 +558,10 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
     // Run updateLocation immediately and then every 3 seconds
     updateLocation();
     const intervalId = setInterval(updateLocation, 5000);
-  
-    campusToggleSheet.current?.show();
+    
+    if (!(buildingInfoSheet.current)){
+      campusToggleSheet.current?.show();
+    }
 
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -679,7 +685,10 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
             closeChooseDest={setChooseDestVisible}
-            onPolylineUpdate={(poly) => setRoutePolyline(poly)}
+            onPolylineUpdate={(poly) => {
+                setRoutePolyline(poly)
+              }
+            }
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}

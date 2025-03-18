@@ -201,7 +201,9 @@ export async function getPlaceDetails(
 
 
 
+
     const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
     if(!apiKey){
         console.log('failed loading google api key')
         return undefined;

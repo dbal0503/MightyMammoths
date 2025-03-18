@@ -1,7 +1,6 @@
 import axios from "axios";
 import { RouteData } from "@/services/directionsService";
 import { findNextBusTime } from "@/utils/getNextShuttleBus";
-import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json"
 
 export async function getShuttleBusRoute(
     origin: string,

@@ -54,13 +54,12 @@ export function LiveInformation({
 
 const styles = StyleSheet.create({
     container: {
-        height: '30%',
+        position: 'absolute',
+        top: -30,
         width: '100%',
-        padding: 16,
-        marginBottom:0,
-        flexDirection: 'row',
-        borderBottomLeftRadius:10,
-        borderBottomRightRadius:10,
+        height: 500,
+        paddingBottom: 30,
+        marginBottom: '100%',
         backgroundColor: 'black',
       },
     dropdownWrapper: {
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
         height:'22%'
     },
     routeHeading: {
+        paddingTop: 20,
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 0,
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         height: 60,
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 225,
+        marginLeft: 230,
         width:'40%',
         justifyContent: 'center',
         marginTop: 100
