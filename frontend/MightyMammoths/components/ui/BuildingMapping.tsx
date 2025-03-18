@@ -260,15 +260,6 @@ const missingPolygons = {
   ],
 };
 
-const isValidPolygon = (polygon: { coordinates: any[] }) => {
-  return (
-    polygon.coordinates &&
-    Array.isArray(polygon.coordinates) &&
-    polygon.coordinates.length > 0 &&
-    polygon.coordinates.every(isValidCoordinate)
-  );
-};
-
 const styles = StyleSheet.create({
   marker: {
     backgroundColor: 'maroon',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image} from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol'; // Assuming you have this for the arrow icons
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { LatLng } from 'react-native-maps';
@@ -15,6 +15,7 @@ interface Step {
   html_instructions: string;
   polyline: Polyline;
   instructions?: string;
+  maneuver: string;
 }
 
 interface StaticNavigationInformationProps {
@@ -28,6 +29,7 @@ interface StaticNavigationInformationProps {
   walk1Polyline: string;
   walk2Polyline: string;
   shuttlePolyline: string;
+  destination: string;
 }
 
 export function StaticNavigationInformation(
@@ -42,6 +44,7 @@ export function StaticNavigationInformation(
     walk1Polyline,
     walk2Polyline,
     shuttlePolyline,
+    destination,
 
   }: StaticNavigationInformationProps) {
   
@@ -50,10 +53,17 @@ export function StaticNavigationInformation(
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const translateX = useSharedValue(0);
 
-  const placeIdToBuildingName = campusBuildingCoords.features.reduce((map, feature) => {
-    map[feature.properties.PlaceID] = feature.properties.BuildingName;
-    return map;
-  }, {} as Record<string, string>);
+  const getBuildingName = (placeId: string): string => {
+    const matchingBuildings = campusBuildingCoords.features.filter(
+      (feature: any) => feature.properties.PlaceID === placeId
+    );
+    if (matchingBuildings.length === 0) return 'Unknown Building';
+    const destinationMatch = matchingBuildings.find(
+      (feature: any) => feature.properties.BuildingName === destination
+    );
+    if (destinationMatch) return destinationMatch.properties.BuildingName;
+    return matchingBuildings[0].properties.BuildingName;
+  };
 
   useEffect(() => {
     if (routes && routes.length > 0) {
@@ -69,13 +79,15 @@ export function StaticNavigationInformation(
         ];
       }
       const updatedStepsText = stepsData.map((step: Step) => {
-        const stepText = step?.html_instructions 
-            //? step.html_instructions.replace(/<[^>]*>/g, '') 
-            ? step.html_instructions
-            : step?.instructions || '';  
+        let stepText = step?.html_instructions
+          ? step.html_instructions
+              .replace(/<\/div>/g, ". ")
+              .replace(/<[^>]*>/g, "")
+          : step?.instructions || '';
+        stepText = stepText.replace(/(\w)(Destination)/g, '$1. $2');
 
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
-          placeIdToBuildingName[placeId] || 'Unknown Building'
+          getBuildingName(placeId)
         );
       });
       setStepsText(updatedStepsText);
@@ -141,6 +153,26 @@ export function StaticNavigationInformation(
 
   if (!visible) return null;
 
+  const verifyStep = () => {
+    const stepText = stepsData[currentStepIndex].maneuver? 
+    stepsData[currentStepIndex].maneuver  : 
+    stepsData[currentStepIndex].html_instructions;
+
+    let symbol;
+    switch (true) {
+      case stepText.includes("right"):
+        symbol = require("../assets/images/right.png");
+        break;
+      case stepText.includes("left"):
+        symbol = require("../assets/images/left.png");
+        break;
+      case stepText.includes("north"):
+        symbol = require("../assets/images/up.png");
+        break;
+    }
+    return symbol;
+  };
+
   return (
     <>
       {stepsText && (
@@ -160,7 +192,14 @@ export function StaticNavigationInformation(
               <Animated.Text style={[styles.nextStep, animatedStyle]}>
                 {stepsText[currentStepIndex]}
               </Animated.Text>
+            </View> 
+
+            {/*RIGHT*/}
+            {stepsText[currentStepIndex] && (
+            <View>
+              <Image source={verifyStep()} style={{ width: 55, height: 60, marginLeft:0 }} />
             </View>
+            )}
 
             <View style={styles.arrowContainer}>
               {stepsText.length > 1 && !isOriginYL && currentStepIndex !== stepsText.length - 1 ? (
@@ -206,8 +245,11 @@ const styles = StyleSheet.create({
   },
   distanceInformation: {
     overflow: 'hidden',
-    width: 300,
+    width: 225,
     alignItems: 'center',
+    marginRight:0,
+    marginLeft:0,
+    paddingRight:0,
   },
   nextStep: {
     fontSize: 17,
@@ -220,9 +262,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   arrowButton: {
-    padding: 7,
-    borderRadius: 40,
-    backgroundColor: 'white',
+    padding: 1,
+    borderRadius: 80,
+    backgroundColor: 'grey',
   },
   arrowContainer: {
     width: 50, 

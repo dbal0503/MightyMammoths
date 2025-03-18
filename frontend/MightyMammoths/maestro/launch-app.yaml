@@ -3,6 +3,8 @@ appId: com.anonymous.MightyMammoths
 - launchApp:
     permissions: {all: allow}
     clearState: false
+- tapOn:
+    point: "50%,58%"
 - extendedWaitUntil:
     visible: "LOY"
     timeout: 230000
