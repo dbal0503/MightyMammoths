@@ -673,6 +673,7 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
+          mainsheet={campusToggleSheet}
           placeDetails={currentPlace}
         />
 

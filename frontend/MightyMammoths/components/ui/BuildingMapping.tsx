@@ -91,7 +91,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
         if (!place.location) return null;
         const { latitude, longitude } = {latitude: place.location?.latitude, longitude: place.location?.longitude};
         const mainText = place.placePrediction.structuredFormat.mainText.text;
-        console.log(mainText);
 
         return (
           <Marker

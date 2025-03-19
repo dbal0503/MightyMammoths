@@ -271,6 +271,10 @@ export async function getPlaceDetails(
     placeID: string,
     apiKeyOverride?: string
 ): Promise<placeDetails | undefined> {
+
+
+
+
     const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     
     if (!apiKey) {
