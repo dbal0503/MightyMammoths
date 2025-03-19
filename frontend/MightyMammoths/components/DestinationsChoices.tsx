@@ -47,8 +47,7 @@ export function DestinationChoices({
   useEffect(() => {
     const checkAndSetOrigin = async () => {
       if (destination && destination !== "Select a building") {
-        const { status } = await Location.getForegroundPermissionsAsync();
-        if (status === "granted") {
+        if (locationServicesEnabled) {
           console.log("granted permissions");
           setOrigin("Your Location");
           topDropDownRef.current?.setValue("Your Location");
