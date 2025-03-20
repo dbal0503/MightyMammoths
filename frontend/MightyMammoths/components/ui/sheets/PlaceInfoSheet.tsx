@@ -6,22 +6,24 @@ import { placeDetails } from '@/services/searchService';
 
 export type PlaceInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
+    mainsheet: React.MutableRefObject<ActionSheetRef | null>;
     placeDetails?: placeDetails;
     navigate: () => void;
 }
 
 function PlaceInfoSheet({
     isModal = false,
-    snapPoints = [80],
+    snapPoints = [40],
     backgroundInteractionEnabled = false,
     closable = true,
-    gestureEnabled = true,
+    gestureEnabled = false,
     initialSnapIndex = 0,
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
     placeDetails,
-    navigate
+    navigate,
+    mainsheet
 }: PlaceInfoSheetProps) {
 
     return (
@@ -36,6 +38,7 @@ function PlaceInfoSheet({
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
         containerStyle={styles.root}
+        onClose={()=>mainsheet.current?.show()}
         >
       <View style={styles.container}>
     <Text style={styles.header}>{placeDetails?.shortFormattedAddress || ""}</Text>
@@ -49,7 +52,6 @@ function PlaceInfoSheet({
             </View>
     </View>
 
-    <Text style={styles.header}>Information:</Text>
       </View>
     </ActionSheet>
     );
