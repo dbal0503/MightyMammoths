@@ -147,15 +147,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSearchSuggestions(prevSuggestions => {
         // Optionally filter out duplicates based on a unique property, e.g., placeId
         const newResults = results.filter(newResult => 
-          !prevSuggestions.some(oldResult => 
-            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-          )
+          mergeUniqueResults(prevSuggestions, newResult)
         );
         return [...prevSuggestions, ...newResults];
       });
     } else {
       console.log("Failed to get search suggestions.")
     }
+  };
+
+  const mergeUniqueResults = (prevSuggestions: suggestionResult[], newResult: suggestionResult) => {
+    return !prevSuggestions.some(oldResult => 
+      oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+    )
   };
 
   const handleSelect = (placeName: string) => {
