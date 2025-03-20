@@ -8,22 +8,23 @@ import {
   Dimensions,
 } from "react-native";
 import {
+  MapViewStore,
+  MappedinLocation,
+  MappedinMap,
   MiMapView,
-  TMapViewRNOptions,
   TMiMapViewOptions,
 } from "@mappedin/react-native-sdk";
 import { GeoJsonFeature } from "./BuildingMapping";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { getVenue } from "@mappedin/react-native-sdk";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { Picker } from "@react-native-picker/picker";
 
 //Our MappedIn credentials
 
-const options = {
-  key: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID,
-  secret: process.env.EXPO_PUBLIC_MAPPEDIN_SECRET_KEY,
-  mapId: "677d8a736e2f5c000b8f3fa6",
-  labelAllLocationsOnInit: true,
+const options: TMiMapViewOptions = {
+  key: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID || "",
+  secret: process.env.EXPO_PUBLIC_MAPPEDIN_SECRET_KEY || "",
+  mapId: "67ce4fb362a8ae000b0e68d0",
+  labelAllLocationsOnInit: false,
 };
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -39,7 +40,7 @@ const IndoorMapModal = ({
   onClose,
   building,
 }: IndoorMapModalProps) => {
-  const mapView = React.useRef<MiMapView>(null);
+  const mapView = React.useRef<MapViewStore>(null);
   const [currentFloor, setCurrentFloor] = React.useState("First Floor");
   const [levels, setLevels] = React.useState<MappedinMap[]>([]);
   const [departure, setDeparture] = React.useState<
@@ -132,7 +133,7 @@ const IndoorMapModal = ({
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.backButton}>
             <IconSymbol
-              name="arrow-back"
+              name={ "arrow-back" as IconSymbolName}
               size={28}
               color="white"
               style={styles.modeIcon}
@@ -154,37 +155,30 @@ const IndoorMapModal = ({
         <View style={styles.mapWrapper}>
           <MiMapView
             onBlueDotStateChanged={(state) => {
-              console.log("BlueDot state changed:", state); //trying to get blue do tto work
+              //console.log("BlueDot state changed:", state); //trying to get blue do tto work
             }}
-            ref={(ref) => {
-              mapView.current = ref;
-              //console.log("MapView ref:", ref);
-            }}
+            ref={mapView}
             style={styles.mapView}
             key="mappedin"
             options={options}
-            onFirstMapLoaded={() => {
+            onFirstMapLoaded={async () => {
               setSelectedMapId(mapView.current?.currentMap?.id);
               setLevels(mapView.current?.venueData?.maps || []);
+              
+              await mapView.current?.FloatingLabels.labelAllLocations({
+                appearance: {
+                  marker: {
+                    size: 16,
+                  },
+                  text: {
+                    size: 16,
+                    foregroundColor: '#ffb702',
+                    backgroundColor: '#0a0a0a',
+                  },
+                },
+              });
 
-              console.log(
-                "Current Map Georeference:",
-                mapView.current?.currentMap?.georeference
-              );
-
-              mapView.current?.BlueDot.enable(); //Blue dot not working need to fix
-              // mapView.current?.FloatingLabels.labelAllLocations({
-              //   appearance: {
-              //     marker: {
-              //       size: 16,
-              //     },
-              //     text: {
-              //       size: 16,
-              //       foregroundColor: "#ffb702",
-              //       backgroundColor: "#0a0a0a",
-              //     },
-              //   },
-              // });
+              await mapView.current?.BlueDot.enable(); //Blue dot not working need to fix
             }}
             // Wayfinding: set departure/destination on polygon click
             onClick={({ polygons }) => {
