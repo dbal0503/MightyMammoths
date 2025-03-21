@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useState } from 'react';
 
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
@@ -65,6 +65,7 @@ function LoyolaSGWToggleSheet({
           <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
           <GoogleCalendarButton testID="google-calendar-button" navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
           <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={() => setSmartPlannerVisible(true)}>
+              <Image source={require('../../../assets/images/smart-planner-logo.png')}/>
               <Text style={styles.smartPlannerButtonText}>Smart Planner</Text>
           </TouchableOpacity>
           <Text style={styles.subTitleText}>Accessibility</Text>
@@ -115,14 +116,18 @@ function LoyolaSGWToggleSheet({
         marginLeft: 40,
         marginTop: 20,
         padding: 10,
-        backgroundColor: '#2c2c38',
+        backgroundColor: '#122F92',
         borderRadius: 8,
         width: '80%',
+        height: 50,
         alignItems: 'center',
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'row',
       },
       smartPlannerButtonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 18,
       },
   });
    
