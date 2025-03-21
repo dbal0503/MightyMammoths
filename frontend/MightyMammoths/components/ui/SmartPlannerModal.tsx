@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import PlanBuilderModal from './PlanBuilderModal';
@@ -91,6 +92,8 @@ export default function SmartPlannerModal({
       visible={visible}
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent={true}
+      onDismiss={Keyboard.dismiss}
       transparent
     >
     <KeyboardAvoidingView

@@ -9,6 +9,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
@@ -72,7 +73,9 @@ export default function TaskViewModal({
       visible={visible}
       transparent
       animationType="slide"
+      statusBarTranslucent={true}
       onRequestClose={onClose}
+      onDismiss={Keyboard.dismiss}
     >
      <KeyboardAvoidingView
      style={{ flex: 1 }}

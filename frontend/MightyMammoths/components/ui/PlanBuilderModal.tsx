@@ -8,6 +8,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
@@ -57,6 +58,8 @@ export default function PlanBuilderModal({
       visible={visible}
       transparent
       animationType="slide"
+      statusBarTranslucent={true}
+      onDismiss={Keyboard.dismiss}
       onRequestClose={onClose}
     >
     <KeyboardAvoidingView
