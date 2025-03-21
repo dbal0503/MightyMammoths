@@ -48,7 +48,10 @@ function LoyolaSGWToggleSheet({
         overdrawEnabled={overdrawEnabled}
         overdrawSize={overdrawSize}
         zIndex={zIndex}
-        >
+        keyboardHandlerEnabled
+        closeOnTouchBackdrop={false}
+        closeOnPressBack={false}
+      >
           <View style={styles.centeredView}>
             <ToggleSwitch
               options={[
@@ -56,30 +59,40 @@ function LoyolaSGWToggleSheet({
                 { label: "LOY", testID: "campus-option-loy" }
               ]}
               onToggle={(selected) => {
-                if (selected === "SGW") setSelectedCampus(selected);
-                else setSelectedCampus(selected)
-                }
-              }
+                setSelectedCampus(selected);
+              }}
             />
           </View>
           <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
-          <GoogleCalendarButton testID="google-calendar-button" navigateToRoutes={(destination: string) => navigateToRoutes(destination)} />
-          <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={() => setSmartPlannerVisible(true)}>
+          <GoogleCalendarButton
+            testID="google-calendar-button"
+            navigateToRoutes={(destination: string) => navigateToRoutes(destination)}
+          />
+          <TouchableOpacity
+            testID="smart-planner-button"
+            style={styles.smartPlannerButton}
+            onPress={() => setSmartPlannerVisible(true)}
+          >
               <Image source={require('../../../assets/images/smart-planner-logo.png')}/>
               <Text style={styles.smartPlannerButtonText}>Smart Planner</Text>
           </TouchableOpacity>
           <Text style={styles.subTitleText}>Accessibility</Text>
           <View style={styles.accessibilityContainer}>
-            <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>Accessibility mode</Text>
-            <RetroSwitch value={isEnabled} onValueChange={(value)=>{
-                setIsEnabled(value)        
-            }} />
+            <Text testID="accessbility-mode-text" style={styles.accessibilityLabel}>
+              Accessibility mode
+            </Text>
+            <RetroSwitch
+              value={isEnabled}
+              onValueChange={(value)=> setIsEnabled(value)}
+            />
           </View>
       </ActionSheet>
+
+      {/* Updated SmartPlannerModal that no longer uses <Modal> */}
       <SmartPlannerModal
-          visible={smartPlannerVisible}
-          onClose={() => setSmartPlannerVisible(false)}
-        />
+        visible={smartPlannerVisible}
+        onClose={() => setSmartPlannerVisible(false)}
+      />
       </>
     );
   }

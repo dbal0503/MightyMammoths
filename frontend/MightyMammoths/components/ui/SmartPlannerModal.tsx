@@ -1,172 +1,222 @@
-import React from 'react';
-import {Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView,} from 'react-native';
-import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import React, { useState } from 'react';
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
+import PlanBuilderModal from './PlanBuilderModal';
+import TaskViewModal from './TaskViewModal';
+import { Task } from './types';
 
 type SmartPlannerModalProps = {
   visible: boolean;
   onClose: () => void;
 };
 
-const SmartPlannerModal = ({ visible, onClose }: SmartPlannerModalProps) => {
+export default function SmartPlannerModal({
+  visible,
+  onClose,
+}: SmartPlannerModalProps) {
+  const [hasPlan, setHasPlan] = useState(false);
+  const [planName, setPlanName] = useState('');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  
+  // Controls for nested modals
+  const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
+  const [taskViewVisible, setTaskViewVisible] = useState(false);
+
+  const handleCreatePlan = () => {
+    setPlanBuilderVisible(true);
+  };
+
+  const handleSavePlan = () => {
+    if (planName.trim()) {
+      setHasPlan(true);
+    }
+  };
+
+  const handleDeletePlan = () => {
+    setHasPlan(false);
+    setPlanName('');
+    setTasks([]);
+    setTaskViewVisible(false);
+  };
+
+  const renderNoPlan = () => (
+    <View style={styles.modalContentContainer}>
+      <Text style={styles.planTitle}>Smart Planner</Text>
+      <Text style={styles.noPlanText}>No current plan</Text>
+      <TouchableOpacity
+        style={styles.createPlanButton}
+        onPress={handleCreatePlan}
+      >
+        <Text style={styles.createPlanButtonText}>Create Plan</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHasPlan = () => (
+    <View style={styles.modalContentContainer}>
+      <Text style={styles.planTitle}>{planName}</Text>
+      {tasks.length > 0 ? (
+        <>
+          <Text style={styles.nextTaskLabel}>Next Task</Text>
+          <TouchableOpacity style={styles.nextTaskDirectionsButton}>
+            <Text style={{ color: 'white' }}>Get Directions</Text>
+          </TouchableOpacity>
+          <Text style={styles.taskItemText}>{tasks[0].name}</Text>
+          <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
+          <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
+        </>
+      ) : (
+        <Text style={styles.noPlanText}>No tasks yet</Text>
+      )}
+      <TouchableOpacity
+        style={styles.viewPlanButton}
+        onPress={() => setTaskViewVisible(true)}
+      >
+        <Text style={styles.viewPlanButtonText}>View Plan</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <Modal
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
-      presentationStyle="fullScreen"
+      transparent
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-
-          <TouchableOpacity onPress={onClose}>
-            <IconSymbol name={"arrow-back" as IconSymbolName} size={40} color="white" style={styles.modeIcon} testID="smart-planner-back-button"/>
+    <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <SafeAreaView style={styles.mainContainer}>
+        <View style={styles.modalContainer}>
+          {/* Close Icon */}
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <IconSymbol name={'close' as IconSymbolName} size={30} color="white" />
           </TouchableOpacity>
 
-          <Text style={styles.title}>Smart Planner</Text>
-          <View style={{ width: 60 }} />
+          {/* Conditional Content */}
+          {!hasPlan ? renderNoPlan() : renderHasPlan()}
         </View>
 
-        <View style={styles.chatBubble}>
-          <Text style={styles.chatBubbleText}>
-            Hi there! I'm your Smart Planner assistant. 
-            Set your current location and add tasks to create a plan for your day.
-          </Text>
-          <Text style={styles.timestamp}>02:41 PM</Text>
-        </View>
+        {/* Plan Builder Modal */}
+        <PlanBuilderModal
+          visible={planBuilderVisible}
+          onClose={() => setPlanBuilderVisible(false)}
+          planName={planName}
+          setPlanName={setPlanName}
+          tasks={tasks}
+          setTasks={setTasks}
+          onSavePlan={() => {
+            handleSavePlan();
+            setPlanBuilderVisible(false);
+          }}
+          openTaskView={() => {
+            setTaskViewVisible(true);
+            setPlanBuilderVisible(false);
+          }}
+        />
 
-        <View style={styles.footer}>
-          <View style={styles.inputRow}>
-            <TextInput
-              style={styles.input}
-              placeholder="Type your message..."
-              placeholderTextColor="#b2b3b8"
-            />
-            <TouchableOpacity style={styles.sendButton}>
-                <IconSymbol name={"paperplane.fill" as IconSymbolName} size={18} color="white" style={styles.sendIcon} testID="smart-planne-send-button"/>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Set Location</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Add Task</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Add Class</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Task View Modal */}
+        <TaskViewModal
+          visible={taskViewVisible}
+          onClose={() => setTaskViewVisible(false)}
+          planName={planName}
+          tasks={tasks}
+          setTasks={setTasks}
+          deletePlan={handleDeletePlan}
+          openPlanBuilder={() => {
+            setPlanBuilderVisible(true);
+            setTaskViewVisible(false);
+          }}
+        />
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </Modal>
   );
-};
-
-export default SmartPlannerModal;
+}
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    backgroundColor: '#010213',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2c2c38',
-  },
-  backButton: {
-    width: 60,
-    padding: 8,
-  },
-  modeIcon: {
-    marginRight: 10,
-    marginLeft: 10,
-    alignItems: 'center',
-    borderColor: 'white',
-    borderWidth: 2,
-    borderRadius: 16,
-  },
-  sendIcon: {
-    marginRight: 10,
-    marginLeft: 10,
-    alignItems: 'center',
-    borderColor: 'white',
-  },
-  backButtonText: {
-    color: '#b2b3b8',
-    fontSize: 16,
-  },
-  title: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  chatBubble: {
-    margin: 16,
-    padding: 16,
-    backgroundColor: '#111111',
-    borderRadius: 8,
-  },
-  chatBubbleText: {
-    color: 'white',
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  timestamp: {
-    color: '#b2b3b8',
-    fontSize: 12,
-    textAlign: 'left',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 25,
-    left: 0,
-    right: 0,
-    backgroundColor: '#010213',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#2c2c38',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#2c2c38',
-    borderRadius: 8,
-    color: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 8,
-  },
-  sendButton: {
-    backgroundColor: '#3a3a4d',
-    borderRadius: 8,
-    padding: 8,
-    alignItems: 'center',
+    backgroundColor: 'rgba(1,2,19,0.8)',
     justifyContent: 'center',
   },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  modalContainer: {
+    margin: 20,
+    backgroundColor: '#010213',
+    borderRadius: 10,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
   },
-  actionButton: {
-    flex: 1,
-    backgroundColor: '#2c2c38',
-    borderRadius: 8,
+  closeButton: {
+    alignSelf: 'flex-end',
+  },
+  planTitle: {
+    fontSize: 20,
+    color: 'white',
+    marginBottom: 16,
+    alignSelf: 'center',
+  },
+  noPlanText: {
+    fontSize: 16,
+    color: '#b2b3b8',
+    textAlign: 'center',
+    marginVertical: 8,
+  },
+  createPlanButton: {
+    backgroundColor: '#122F92',
     padding: 12,
-    marginHorizontal: 4,
+    borderRadius: 8,
+    marginTop: 20,
+    alignSelf: 'center',
+    width: '80%',
     alignItems: 'center',
   },
-  actionButtonText: {
+  createPlanButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  modalContentContainer: {
+    alignItems: 'center',
+  },
+  nextTaskLabel: {
+    color: '#b2b3b8',
+    fontSize: 16,
+    marginTop: 8,
+  },
+  nextTaskDirectionsButton: {
+    backgroundColor: '#122F92',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 8,
+  },
+  taskItemText: {
     color: 'white',
     fontSize: 14,
+  },
+  taskItemSubText: {
+    color: '#b2b3b8',
+    fontSize: 12,
+  },
+  viewPlanButton: {
+    backgroundColor: '#122F92',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 16,
+  },
+  viewPlanButtonText: {
+    color: 'white',
   },
 });
