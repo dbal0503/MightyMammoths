@@ -3,7 +3,7 @@ import {StyleSheet, View, Keyboard} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng} from 'react-native-maps';
+import MapView, { Marker, Polyline, LatLng, BoundingBox} from 'react-native-maps';
 import * as Location from 'expo-location'
 import BuildingMapping from "@/components/ui/BuildingMapping"
 import RoundButton from "@/components/ui/buttons/RoundButton";
@@ -81,6 +81,13 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
+  const [nearbyPlaces, setNearbyPlaces] = useState<suggestionResult[]>([]);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
+  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
+  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+  const [boundaries, setBoundaries] = useState<BoundingBox>();
+ 
+
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -157,7 +164,38 @@ const centerAndShowBuilding = (buildingName: string) => {
       mapRef.current.animateToRegion(newRegion, 500);
     }
   };
+
+  const recenterToPolyline = (latitude: number, longitude: number) => {
+    if (mapRef?.current !== null){
+      mapRef.current.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      },1000);
+    }
+  }
+  const fetchBoundaries = async () => {
+    if (mapRef.current) {
+      try {
+        const bounds = await mapRef.current.getMapBoundaries();
+        // Perform a shallow comparison or a more robust deep comparison if needed.
+        if (
+          !boundaries ||
+          boundaries.northEast.latitude !== bounds.northEast.latitude ||
+          boundaries.northEast.longitude !== bounds.northEast.longitude ||
+          boundaries.southWest.latitude !== bounds.southWest.latitude ||
+          boundaries.southWest.longitude !== bounds.southWest.longitude
+        ) {
+          setBoundaries(bounds);
+        }
+      } catch (error) {
+        console.error("Error fetching boundaries:", error);
+      }
+    }
+  };
   
+
 
   useEffect(() => {
     if(latitudeStepByStep!==0 && longitudeStepByStep!==0){
@@ -281,8 +319,65 @@ const centerAndShowBuilding = (buildingName: string) => {
       subscription.remove();
     };
   }, []);
-  
-  
+
+
+const handleNearbyPlacePress = async(place: suggestionResult) => {
+  try {
+    if (!place.location || !place.placePrediction) {
+      console.log('Index.tsx: nearby place has no location data');
+      return;
+    }
+
+    const placeExists = searchSuggestions.some(
+      (suggestion) => suggestion.placePrediction.placeId === place.placePrediction.placeId
+    );
+
+    if (!placeExists) {
+      setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
+    }
+
+    //Region for the place
+    const placeRegion: Region = {
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005
+    };
+
+    setSearchMarkerLocation(placeRegion);
+    setRegion(placeRegion);
+    setSearchMarkerVisible(true);
+    //setDestination(place.placePrediction.structuredFormat.mainText.text);
+
+    // Fetching the place details
+    if (place.placePrediction.placeId) {
+      const details = await getPlaceDetails(place.placePrediction.placeId);
+      if (details) {
+        setCurrentPlace(details);
+        //setDestination(place.placePrediction.placeId);
+        setDestination(place.placePrediction.structuredFormat.mainText.text);
+      }
+    }
+
+    
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(placeRegion, 1000);
+    }
+
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    if (placeInfoSheet.current) {
+      placeInfoSheet.current.show();
+    } else {
+      console.log('Index.tsx: place info sheet ref is not defined');
+    }
+  } catch (error) {
+    console.log(`Index.tsx: Error handling nearby place: ${error}`);
+  }
+};
+
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
@@ -292,9 +387,7 @@ const centerAndShowBuilding = (buildingName: string) => {
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   }
-  const [isZoomedIn, setIsZoomedIn] = useState(false);
-  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
-  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+
 
   const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
     if (mapRef.current) {
@@ -339,16 +432,6 @@ const centerAndShowBuilding = (buildingName: string) => {
     }
   };
   
-  const recenterToPolyline = (latitude: any, longitude: any) => {
-    if (mapRef?.current !== null){
-      mapRef.current.animateToRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.003,
-        longitudeDelta: 0.003,
-      },1000);
-    }
-  }
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
   const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
@@ -503,6 +586,8 @@ const centerAndShowBuilding = (buildingName: string) => {
           customMapStyle={mapStyle}
           ref={mapRef}
           rotateEnabled={true}
+          onRegionChangeComplete={fetchBoundaries}
+          onMapReady={fetchBoundaries}
         >
           {locationServicesEnabled && myLocation && (
             <Marker coordinate={myLocation} title="My Location">
@@ -521,6 +606,8 @@ const centerAndShowBuilding = (buildingName: string) => {
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
+            nearbyPlaces={nearbyPlaces}
+            onNearbyPlacePress={handleNearbyPlacePress}
           />
 
           {routePolyline && 
@@ -542,6 +629,8 @@ const centerAndShowBuilding = (buildingName: string) => {
                 setSearchSuggestions={setSearchSuggestions}
                 buildingData={buildingList}
                 onSelect={(selected) => handleSearch(selected)}
+                onNearbyResults={(results) => setNearbyPlaces(results)}
+                boundaries = {boundaries}
               />
             </View>
           )}
@@ -584,6 +673,7 @@ const centerAndShowBuilding = (buildingName: string) => {
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
+          mainsheet={campusToggleSheet}
           placeDetails={currentPlace}
         />
 

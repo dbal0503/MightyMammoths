@@ -10,7 +10,8 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { BoundingBox } from "react-native-maps";
 
 export interface BuildingData {
   buildingName: string;
@@ -18,8 +19,7 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; // Define the reset function for the ref
-  setValue: (value: string) => void;
+  reset: () => void; 
 }
 
 interface AutoCompleteDropdownProps {
@@ -30,6 +30,8 @@ interface AutoCompleteDropdownProps {
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
+  onNearbyResults: (results: suggestionResult[]) => void;
+  boundaries: BoundingBox | undefined
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -39,7 +41,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
-  testID
+  testID,
+  onNearbyResults,
+  boundaries
 }, ref) => {
 
   //functions exposed through ref
@@ -101,6 +105,44 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
+  function toRadians(degrees: number) {
+    return degrees * Math.PI / 180;
+  }
+  
+  function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371e3; // Earth's radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function getRadiusFromBoundingBox(boundingBox: BoundingBox) {
+    const { northEast, southWest } = boundingBox;
+    // Calculate center of bounding box
+    const centerLat = (northEast.latitude + southWest.latitude) / 2;
+    const centerLng = (northEast.longitude + southWest.longitude) / 2;
+  
+    // Calculate radius from center to northEast
+    const radius = haversineDistance(centerLat, centerLng, northEast.latitude, northEast.longitude);
+    return radius;
+  }
+
+  const getNearbySuggestions = async (searchQuery: string, boundaries: BoundingBox | undefined) => {
+    if (boundaries){
+      const radius = getRadiusFromBoundingBox(boundaries)
+
+    try{
+    const results = await nearbyPlacesSearch(searchQuery, radius);
+    onNearbyResults(results);}
+    catch (err) {
+      console.log(err)
+    }}
+  };
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -144,6 +186,15 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     setIsOpen(false);
     setSearchQuery("");
   };
+
+  const handleFindNearbyCoffee = () => {
+    
+    getNearbySuggestions("cafe", boundaries);
+  };
+
+  const handleFindNearbyRestaurants = () => {
+    getNearbySuggestions("restaurant", boundaries);
+    };
 
   return (
     <View style={styles.container} testID={testID}>
@@ -194,10 +245,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
+      <View style={styles.buttonContainer}>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
+          <Text style={styles.buttonText}>Cafe</Text>
+        </Pressable>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
+          <Text style={styles.buttonText}>Restaurants</Text>
+        </Pressable>
+      </View>
       </Animated.View>
     </View>
   );
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
 const styles = StyleSheet.create({
   container: {
@@ -266,6 +326,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
+  },
+  actionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+  }
 });
 AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
