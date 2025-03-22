@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,26 +6,15 @@ import {
   Modal,
   Text,
   Dimensions,
+  ActivityIndicator,
+  BackHandler,
 } from "react-native";
-import {
-  MapViewStore,
-  MappedinLocation,
-  MappedinMap,
-  MiMapView,
-  TMiMapViewOptions,
-} from "@mappedin/react-native-sdk";
+import { WebView } from "react-native-webview";
 import { GeoJsonFeature } from "./BuildingMapping";
-import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
-import { Picker } from "@react-native-picker/picker";
+import { IconSymbol } from "../../components/ui/IconSymbol";
 
-//Our MappedIn credentials
-
-const options: TMiMapViewOptions = {
-  key: process.env.EXPO_PUBLIC_MAPPEDIN_CLIENT_ID || "",
-  secret: process.env.EXPO_PUBLIC_MAPPEDIN_SECRET_KEY || "",
-  mapId: "67ce4fb362a8ae000b0e68d0",
-  labelAllLocationsOnInit: false,
-};
+// MappedIn map ID
+const MAP_ID = "677d8a736e2f5c000b8f3fa6";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -40,87 +29,29 @@ const IndoorMapModal = ({
   onClose,
   building,
 }: IndoorMapModalProps) => {
-  const mapView = React.useRef<MapViewStore>(null);
-  const [currentFloor, setCurrentFloor] = React.useState("First Floor");
-  const [levels, setLevels] = React.useState<MappedinMap[]>([]);
-  const [departure, setDeparture] = React.useState<
-    MappedinLocation | undefined
-  >(undefined);
-  const [destination, setDestination] = React.useState<
-    MappedinLocation | undefined
-  >(undefined);
-
-  const [selectedMapId, setSelectedMapId] = React.useState<string | undefined>(
-    undefined
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const webViewRef = useRef<WebView>(null);
   const buildingName = building?.properties?.BuildingName || "Hall";
+  
+  // Use the direct embedded iframe URL from Mappedin
+  const mappedinEmbedUrl = `https://app.mappedin.com/map/${MAP_ID}?embedded=true`;
 
-  // //TODO implement the handleNextFloor function
-  // const handleNextFloor = () => {
-  //   console.log("Next floor");
-  // };
-  // //TODO implement the handleNextFloor function
-  // const handlePrevFloor = () => {
-  //   console.log("Previous floor");
-  // };
-
-  // Level selector component
-  const MapPicker = () => {
-    if (!levels || levels.length === 0) return null;
-    return (
-      <Picker
-        mode="dialog"
-        selectedValue={selectedMapId}
-        style={styles.picker}
-        dropdownIconColor="#fff"
-        onValueChange={(mapId) => {
-          setSelectedMapId(mapId);
-        }}
-      >
-        {levels.map((m) => (
-          <Picker.Item key={m.id} label={m.name} value={m.id} />
-        ))}
-      </Picker>
-    );
-  };
-
-  React.useEffect(() => {
-    async function setMap() {
-      if (selectedMapId && selectedMapId !== mapView.current?.currentMap?.id) {
-        await mapView.current?.setMap(selectedMapId);
-      }
-    }
-    setMap();
-  }, [selectedMapId]);
-
-  React.useEffect(() => {
-    async function drawDirections() {
-      if (!departure || !destination) return;
-      const directions = await departure.directionsTo(destination);
-      mapView.current?.Journey.draw(directions);
-    }
-    drawDirections();
-  }, [departure, destination]);
-
-  React.useEffect(() => {
-    const updateLocation = () => {
-      const locationFAKE = {
-        timestamp: Date.now(),
-        coords: {
-          accuracy: 5,
-          latitude: -73.57864527,
-          longitude: 45.49716388,
-          floorLevel: 1,
-        },
-        type: 0,
-      };
-      mapView.current?.overrideLocation(locationFAKE);
-    };
-
-    const intervalId = setInterval(updateLocation, 3000);
-
-    return () => clearInterval(intervalId);
-  }, []);
+  // Simplest possible HTML wrapping the iframe
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+          body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #010213; }
+          iframe { border: 0; width: 100%; height: 100%; }
+        </style>
+      </head>
+      <body>
+        <iframe src="${mappedinEmbedUrl}" allow="geolocation" allowfullscreen></iframe>
+      </body>
+    </html>
+  `;
 
   return (
     <Modal
@@ -133,98 +64,35 @@ const IndoorMapModal = ({
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.backButton}>
             <IconSymbol
-              name={ "arrow-back" as IconSymbolName}
+              name="arrow.left"
               size={28}
               color="white"
               style={styles.modeIcon}
             />
           </Pressable>
-          <Text style={styles.headerTitle}>Building Name • Floor level</Text>
+          <Text style={styles.headerTitle}>{buildingName} • Indoor Map</Text>
         </View>
 
-        <View style={styles.dropdownContainer}>
-          <Pressable style={styles.dropdown}>
-            <Text style={styles.dropdownLabel}>Origin</Text>
-          </Pressable>
-
-          <Pressable style={styles.dropdown}>
-            <Text style={styles.dropdownLabel}>Destination</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.mapWrapper}>
-          <MiMapView
-            onBlueDotStateChanged={(state) => {
-              //console.log("BlueDot state changed:", state); //trying to get blue do tto work
-            }}
-            ref={mapView}
-            style={styles.mapView}
-            key="mappedin"
-            options={options}
-            onFirstMapLoaded={async () => {
-              setSelectedMapId(mapView.current?.currentMap?.id);
-              setLevels(mapView.current?.venueData?.maps || []);
-              
-              await mapView.current?.FloatingLabels.labelAllLocations({
-                appearance: {
-                  marker: {
-                    size: 16,
-                  },
-                  text: {
-                    size: 16,
-                    foregroundColor: '#ffb702',
-                    backgroundColor: '#0a0a0a',
-                  },
-                },
-              });
-
-              await mapView.current?.BlueDot.enable(); //Blue dot not working need to fix
-            }}
-            // Wayfinding: set departure/destination on polygon click
-            onClick={({ polygons }) => {
-              if (polygons && polygons.length > 0) {
-                // Use the first polygon from the clicked polygons array.
-                const polygon = polygons[0];
-                if (!departure) {
-                  setDeparture(polygon.locations[0]);
-                  mapView.current?.setPolygonColor(polygon, "green");
-                } else {
-                  setDestination(polygon.locations[0]);
-                }
-              }
-            }}
-            onMapChanged={({ map }) => {
-              setSelectedMapId(map.id);
-            }}
+        <View style={styles.webViewContainer}>
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#FFFFFF" />
+              <Text style={styles.loadingText}>Loading map...</Text>
+            </View>
+          )}
+          
+          <WebView
+            ref={webViewRef}
+            source={{ html: htmlContent }}
+            style={styles.webView}
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            allowsFullscreenVideo={true}
+            originWhitelist={['*']}
+            onError={(error) => console.error('WebView error:', error)}
           />
-
-          {/* <View style={styles.floorButtonsContainer}>
-            <Pressable style={styles.floorButton} onPress={handlePrevFloor}>
-              <IconSymbol
-                name="arrow-back"
-                size={20}
-                color="white"
-                style={styles.modeIcon}
-              />
-              <Text style={styles.floorButtonText}>Prev floor</Text>
-            </Pressable>
-
-
-            <Pressable style={styles.floorButton} onPress={handleNextFloor}>
-              <Text style={styles.floorButtonText}>Next floor</Text>
-              <IconSymbol
-                name="arrow.forward"
-                size={20}
-                color="white"
-                style={styles.modeIcon}
-              />
-            </Pressable>
-          </View> */}
-
-          {/* Level Selector */}
-          <View style={styles.levelSelectorContainer}>
-            <MapPicker />
-          </View>
         </View>
       </View>
     </Modal>
@@ -252,53 +120,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 16,
   },
-  dropdownContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  dropdown: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dropdownLabel: {
-    fontSize: 16,
-    color: "#333",
-  },
-  mapWrapper: {
+  webViewContainer: {
     flex: 1,
     position: "relative",
   },
-  mapView: {
+  webView: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  loadingContainer: {
     ...StyleSheet.absoluteFillObject,
-  },
-  floorButtonsContainer: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-  floorButton: {
-    backgroundColor: "#010213",
-    borderRadius: 24,
-    paddingVertical: 17,
-    paddingHorizontal: 15,
-    flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(1, 2, 19, 0.8)",
+    zIndex: 10,
   },
-  floorButtonText: {
-    color: "white",
-    marginHorizontal: 8,
+  loadingText: {
+    color: "#FFFFFF",
     fontSize: 16,
+    marginTop: 16,
   },
   modeIcon: {
     marginRight: 10,
@@ -307,27 +147,6 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 2,
     borderRadius: 16,
-  },
-  levelSelectorContainer: {
-    position: "absolute",
-    bottom: 20,
-    alignSelf: "center",
-    width: "90%",
-    backgroundColor: "#010213",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  picker: {
-    color: "#fff", // White text
-    fontSize: 16,
   },
 });
 

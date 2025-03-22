@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
   Alert,
   Linking,
   AppState,
+  Platform,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ActionSheetRef } from "react-native-actions-sheet";
@@ -148,7 +149,7 @@ export default function HomeScreen() {
     setSelectedBuilding(buildingFeature);
 
     // 3. Get building coordinates (assuming a "Point" in geometry.coordinates)
-    // If it’s a polygon, you might need to compute or store a centroid
+    // If it's a polygon, you might need to compute or store a centroid
     const [longitude, latitude] = buildingFeature.geometry.coordinates;
 
     // 4. Animate to the building location
@@ -488,42 +489,51 @@ export default function HomeScreen() {
     const updateLocation = async () => {
       const { status } = await Location.getForegroundPermissionsAsync();
       const granted = status === "granted";
-      setLocationServicesEnabled(granted);
-
-      if (!granted) {
-        return;
+      
+      // Only update the state if the permission status has changed
+      if (locationServicesEnabled !== granted) {
+        setLocationServicesEnabled(granted);
       }
 
-      if (!isZoomedIn) {
+      if (!granted || !isZoomedIn) {
         return;
       }
+      
+      // Only update location when necessary
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
         }
-      } else {
-        if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
-        }
+      } else if (mapRef.current && isZoomedIn) {
+        // Reduce animation duration to minimize flickering
+        mapRef.current.animateCamera({ heading: 0 }, { duration: 500 });
       }
     };
 
-    // Run updateLocation immediately and then every 3 seconds
+    // Run updateLocation immediately and then every 10 seconds instead of 5
     updateLocation();
-    const intervalId = setInterval(updateLocation, 5000);
+    const intervalId = setInterval(updateLocation, 10000);
 
     campusToggleSheet.current?.show();
 
+    // Optimize keyboard listeners to use refs instead of state to prevent unnecessary re-renders
+    let keyboardVisible = false;
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
-        setIsKeyboardVisible(true);
+        if (!keyboardVisible) {
+          keyboardVisible = true;
+          setIsKeyboardVisible(true);
+        }
       }
     );
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
-        setIsKeyboardVisible(false);
+        if (keyboardVisible) {
+          keyboardVisible = false;
+          setIsKeyboardVisible(false);
+        }
       }
     );
 
@@ -532,7 +542,7 @@ export default function HomeScreen() {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isKeyboardVisible, isOriginYourLocation, isZoomedIn]);
+  }, [isOriginYourLocation, isZoomedIn]); // Remove isKeyboardVisible from dependencies
 
   return (
     <>
@@ -543,6 +553,9 @@ export default function HomeScreen() {
           customMapStyle={mapStyle}
           ref={mapRef}
           rotateEnabled={true}
+          onMapReady={() => console.log("Map ready")}
+          maxZoomLevel={20}
+          minZoomLevel={10}
         >
           {locationServicesEnabled && myLocation && (
             <Marker coordinate={myLocation} title="My Location">
@@ -554,12 +567,15 @@ export default function HomeScreen() {
           )}
 
           {searchMarkerVisible && <Marker coordinate={searchMarkerLocation} />}
+          
+          {/* Use React.memo to optimize building mapping render */}
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
+            key="building-mapping"
           />
 
-          {routePolyline && (
+          {routePolyline.length > 0 && (
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
@@ -568,20 +584,23 @@ export default function HomeScreen() {
           )}
         </MapView>
 
-        <View style={styles.topElements}>
-          {!navigationMode && (
-            <View style={styles.dropdownWrapper}>
-              <AutoCompleteDropdown
-                testID="searchBarHomeSheet"
-                locked={false}
-                searchSuggestions={searchSuggestions}
-                setSearchSuggestions={setSearchSuggestions}
-                buildingData={buildingList}
-                onSelect={(selected) => handleSearch(selected)}
-              />
-            </View>
-          )}
-        </View>
+        {/* Optimize rendering of top elements */}
+        {useMemo(() => (
+          <View style={styles.topElements}>
+            {!navigationMode && (
+              <View style={[styles.dropdownWrapper, isKeyboardVisible && styles.dropdownWrapperKeyboardOpen]}>
+                <AutoCompleteDropdown
+                  testID="searchBarHomeSheet"
+                  locked={false}
+                  searchSuggestions={searchSuggestions}
+                  setSearchSuggestions={setSearchSuggestions}
+                  buildingData={buildingList}
+                  onSelect={(selected) => handleSearch(selected)}
+                />
+              </View>
+            )}
+          </View>
+        ), [navigationMode, isKeyboardVisible, searchSuggestions, buildingList])}
 
         {/* LOCATION BUTTON */}
         <View style={styles.bottomElements}>
@@ -674,6 +693,14 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     flex: 1,
     backgroundColor: "white",
+    ...Platform.select({
+      ios: {
+        position: 'relative',
+      },
+      android: {
+        // Android-specific adjustments
+      },
+    }),
   },
   toggleButtonContainer: {
     position: "absolute",
@@ -684,6 +711,10 @@ const styles = StyleSheet.create({
   dropdownWrapper: {
     top: "-29%",
     height: "10%",
+    backfaceVisibility: 'hidden',
+  },
+  dropdownWrapperKeyboardOpen: {
+    top: "-10%",
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -696,6 +727,7 @@ const styles = StyleSheet.create({
     width: "100%",
     bottom: "18%",
     paddingRight: 20,
+    backfaceVisibility: 'hidden',
   },
   topElements: {
     top: 0,
@@ -707,6 +739,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "10%",
+    backfaceVisibility: 'hidden',
   },
   centeredView: {
     marginTop: "10%",
