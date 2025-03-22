@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 type PlanBuilderModalProps = {
   visible: boolean;
@@ -37,6 +38,8 @@ export default function PlanBuilderModal({
   const [tempTaskName, setTempTaskName] = React.useState('');
   const [tempTaskLocation, setTempTaskLocation] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
+  const [date, setDate] = React.useState(new Date());
+  const [showTimePicker, setShowTimePicker] = React.useState(false);
 
   const addTask = () => {
     if (tempTaskName.trim()) {
@@ -51,6 +54,31 @@ export default function PlanBuilderModal({
       setTempTaskLocation('');
       setTempTaskTime('');
     }
+  };
+
+  const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (event.type === 'dismissed') {
+      setShowTimePicker(false);
+      return;
+    }
+    
+    const currentDate = selectedDate || date;
+    
+    if (Platform.OS === 'android') {
+      setShowTimePicker(false);
+    }
+    
+    setDate(currentDate);
+    
+    // Format the time to display
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+    
+    setTempTaskTime(formattedTime);
   };
 
   return (
@@ -68,11 +96,12 @@ export default function PlanBuilderModal({
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-            <IconSymbol name={'close' as IconSymbolName} size={32} color="white" />
+          <TouchableOpacity onPress={onClose} style={styles.backIcon}>
+            <IconSymbol name={'arrow-back' as IconSymbolName} size={32} color="white" />
           </TouchableOpacity>
 
           <Text style={styles.title}>Smart Planner</Text>
+          <View style={styles.underlineBox} />
           <TextInput
             style={styles.planNameInput}
             placeholder="New Plan 1"
@@ -80,20 +109,28 @@ export default function PlanBuilderModal({
             value={planName}
             onChangeText={setPlanName}
           />
+          <View style={styles.underlineBox} />
 
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={{ color: 'white' }}>Set Location</Text>
+              <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={{ color: 'white' }}>Add Class</Text>
+              <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={openTaskView}>
-              <Text style={{ color: 'white' }}>View Tasks</Text>
+          </View>
+
+          <View style={styles.underlineBox} />
+          
+          <View style={styles.taskHeaderRow}>
+            <Text style={styles.addTaskTitle}>Add Task</Text>
+            <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
+              <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.addTaskContainer}>
+            <Text style={styles.addTaskHeader}>Task Name</Text>
             <TextInput
               style={styles.taskInput}
               placeholder="Enter task name..."
@@ -101,27 +138,31 @@ export default function PlanBuilderModal({
               value={tempTaskName}
               onChangeText={setTempTaskName}
             />
+            <Text style={styles.addTaskHeader}>Location</Text>
             <TextInput
               style={styles.taskInput}
-              placeholder="Search building..."
+              placeholder="Search location..."
               placeholderTextColor="#b2b3b8"
               value={tempTaskLocation}
               onChangeText={setTempTaskLocation}
             />
-            <TextInput
-              style={styles.taskInput}
-              placeholder="Pick Time"
-              placeholderTextColor="#b2b3b8"
-              value={tempTaskTime}
-              onChangeText={setTempTaskTime}
-            />
+            <Text style={styles.addTaskHeader}>Time</Text>
+            <DateTimePicker
+                value={date}
+                mode="time"
+                is24Hour={false}
+                display="default"
+                onChange={onTimeChange}
+                themeVariant="dark"
+              />
+
             <TouchableOpacity style={styles.addTaskButton} onPress={addTask}>
-              <Text style={{ color: 'white' }}>Add Task</Text>
+              <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={onSavePlan}>
-            <Text style={{ color: 'white' }}>Save</Text>
+            <Text style={{ color: 'white' , fontSize: 17}}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -137,19 +178,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   container: {
-    margin: 20,
+    margin: 15,
+    height: '78%',
     backgroundColor: '#010213',
     borderRadius: 10,
     padding: 16,
   },
-  closeIcon: {
-    alignSelf: 'flex-end',
+  backIcon: {
+    alignSelf: 'flex-start',
   },
   title: {
-    fontSize: 18,
+    fontSize: 22,
     color: 'white',
-    marginBottom: 16,
+    marginBottom: 8,
     alignSelf: 'center',
+  },
+  addTaskTitle: {
+    fontSize: 20,
+    color: 'white',
+    alignSelf: 'flex-start',
+  },
+  addTaskHeader: {
+    fontSize: 17,
+    color: 'white',
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+  },
+  taskHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  viewTasksButton: {
+    backgroundColor: '#2c2c38',
+    borderRadius: 8,
+    padding: 8,
+    paddingHorizontal: 12,
   },
   planNameInput: {
     backgroundColor: '#2c2c38',
@@ -158,6 +223,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 12,
+    fontSize: 17,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -182,18 +248,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginVertical: 4,
+    fontSize: 17,
+    marginBottom: 12,
   },
   addTaskButton: {
     backgroundColor: '#122F92',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 16,
   },
   saveButton: {
     backgroundColor: '#A30000',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
+  },
+  underlineBox: {
+    height: 1,                
+    backgroundColor: '#808080', 
+    width: '100%',              
+    alignSelf: 'center',       
+    marginBottom: 16,          
   },
 });

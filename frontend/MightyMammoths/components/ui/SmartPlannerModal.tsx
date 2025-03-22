@@ -165,13 +165,13 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   planTitle: {
-    fontSize: 20,
+    fontSize: 22,
     color: 'white',
     marginBottom: 16,
     alignSelf: 'center',
   },
   noPlanText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#b2b3b8',
     textAlign: 'center',
     marginVertical: 8,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   createPlanButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
   },
   modalContentContainer: {
     alignItems: 'center',
