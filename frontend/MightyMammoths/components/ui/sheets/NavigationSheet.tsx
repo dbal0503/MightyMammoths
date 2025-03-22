@@ -1,7 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
-import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
+import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import { TransportChoice } from "@/components/TransportChoice";
 import { useNavigation } from "@/components/NavigationProvider"
 import { LiveInformation } from '@/components/LiveInformation';

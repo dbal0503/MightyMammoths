@@ -1,10 +1,9 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useState } from 'react';
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
-import ActionSheet from 'react-native-actions-sheet';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
-import { ActionSheetProps, ActionSheetRef } from "react-native-actions-sheet";
+import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import SmartPlannerModal from '../SmartPlannerModal';
 
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
