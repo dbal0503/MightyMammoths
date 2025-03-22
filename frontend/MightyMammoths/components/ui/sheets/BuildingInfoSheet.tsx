@@ -8,7 +8,8 @@ import { GeoJsonFeature } from '../BuildingMapping';
 export type BuildingInfoSheetProps = ActionSheetProps & {
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
   building: GeoJsonFeature;
-  navigate: () => void;
+  navigate: (destination: string) => void;
+    navigateIndoor: () => void;
   onClose: () => void; 
 }
 
@@ -25,6 +26,7 @@ function BuildingInfoSheet({
     actionsheetref,
     building,
     navigate,
+    navigateIndoor,
     onClose,
 }: BuildingInfoSheetProps) {
     return (
@@ -55,7 +57,7 @@ function BuildingInfoSheet({
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable testID='indoorMapButton'>
+            <Pressable onPress={navigateIndoor}>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>  

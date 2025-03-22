@@ -2,10 +2,9 @@
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import { StyleSheet, View, Animated, Alert, Linking} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Location from "expo-location";
 import { useNavigation } from "@/components/NavigationProvider";
-import { IconSymbolName } from "@/components/ui/IconSymbol";
+import { IconSymbolName, IconSymbol } from "@/components/ui/IconSymbol";
 
 interface DestinationChoicesProps {
   buildingList: BuildingData[];
