@@ -18,7 +18,7 @@ import {
   AutoCompleteDropdown,
   BuildingData,
 } from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng } from "react-native-maps";
+import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
   GeoJsonFeature,
@@ -438,9 +438,7 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   };
-  const [isZoomedIn, setIsZoomedIn] = useState(false);
-  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
-  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+
 
   const zoomIn = async (
     originCoordsPlaceID: string,
