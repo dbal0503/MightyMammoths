@@ -26,6 +26,11 @@ const MAPPING = {
   'arrow-up-right' : 'arrow-up-right',
   'close': 'close',
   'search': 'search',
+  'info': 'info',
+  'location': 'location-pin',
+  'clock': 'access-time',
+  'trash': 'delete',
+  'pencil': 'edit',
 
 } as Partial<
   Record<

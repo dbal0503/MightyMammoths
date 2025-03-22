@@ -27,6 +27,7 @@ export default function SmartPlannerModal({
   const [hasPlan, setHasPlan] = useState(false);
   const [planName, setPlanName] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
   
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
@@ -52,28 +53,45 @@ export default function SmartPlannerModal({
   const renderNoPlan = () => (
     <View style={styles.modalContentContainer}>
       <Text style={styles.planTitle}>Smart Planner</Text>
+      <View style={styles.underlineBox} />
       <Text style={styles.noPlanText}>No current plan</Text>
+      <View style={styles.underlineBox} />
       <TouchableOpacity
         style={styles.createPlanButton}
         onPress={handleCreatePlan}
       >
-        <Text style={styles.createPlanButtonText}>Create Plan</Text>
+        <Text style={styles.createPlanButtonText}>Create New Plan</Text>
       </TouchableOpacity>
     </View>
   );
 
   const renderHasPlan = () => (
     <View style={styles.modalContentContainer}>
-      <Text style={styles.planTitle}>{planName}</Text>
+      <Text style={styles.smartPlannerTitle}>Smart Planner</Text>
+      <View style={styles.underlineBox} />
+      <Text style={styles.planTitle}>Current Plan: {planName}</Text>
       {tasks.length > 0 ? (
         <>
-          <Text style={styles.nextTaskLabel}>Next Task</Text>
-          <TouchableOpacity style={styles.nextTaskDirectionsButton}>
-            <Text style={{ color: 'white' }}>Get Directions</Text>
-          </TouchableOpacity>
-          <Text style={styles.taskItemText}>{tasks[0].name}</Text>
-          <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
-          <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
+          <View style={styles.taskHeaderRow}>
+            <Text style={styles.nextTaskLabel}>Next Task</Text>
+            <TouchableOpacity style={styles.nextTaskDirectionsButton}>
+              <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.iconTextRow}>
+            <IconSymbol name={'info' as IconSymbolName} size={30} color="white" />
+            <Text style={styles.taskItemSubText}>{tasks[0].name}</Text>
+          </View>
+
+          <View style={styles.iconTextRow}>
+            <IconSymbol name={'location' as IconSymbolName} size={30} color="white" />
+            <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
+          </View>
+
+          <View style={styles.iconTextRow}>
+            <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" />
+            <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
+          </View>
         </>
       ) : (
         <Text style={styles.noPlanText}>No tasks yet</Text>
@@ -83,6 +101,13 @@ export default function SmartPlannerModal({
         onPress={() => setTaskViewVisible(true)}
       >
         <Text style={styles.viewPlanButtonText}>View Plan</Text>
+      </TouchableOpacity>
+      <View style={styles.underlineBox} />
+      <TouchableOpacity
+        style={styles.createPlanButton}
+        onPress={handleCreatePlan}
+      >
+        <Text style={styles.createPlanButtonText}>Create New Plan</Text>
       </TouchableOpacity>
     </View>
   );
@@ -101,7 +126,10 @@ export default function SmartPlannerModal({
     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <SafeAreaView style={styles.mainContainer}>
-        <View style={styles.modalContainer}>
+        <View style={[
+            styles.modalContainer,
+            { height: hasPlan ? '63%' : '35%' }, 
+          ]}>
           {/* Close Icon */}
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <IconSymbol name={'close' as IconSymbolName} size={30} color="white" />
@@ -126,13 +154,21 @@ export default function SmartPlannerModal({
           openTaskView={() => {
             setTaskViewVisible(true);
             setPlanBuilderVisible(false);
+            setTaskViewFromEditor(true);
           }}
         />
 
         {/* Task View Modal */}
         <TaskViewModal
           visible={taskViewVisible}
-          onClose={() => setTaskViewVisible(false)}
+          onClose={() => {
+            setTaskViewVisible(false);
+
+            if (taskViewFromEditor) {
+              setPlanBuilderVisible(true);
+              setTaskViewFromEditor(false);
+            }
+          }}
           planName={planName}
           tasks={tasks}
           setTasks={setTasks}
@@ -160,6 +196,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 24,
     paddingHorizontal: 16,
+    height: '80%',
   },
   closeButton: {
     alignSelf: 'flex-end',
@@ -167,8 +204,10 @@ const styles = StyleSheet.create({
   planTitle: {
     fontSize: 22,
     color: 'white',
-    marginBottom: 16,
-    alignSelf: 'center',
+    marginBottom: 8,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    marginLeft: 16,
   },
   noPlanText: {
     fontSize: 18,
@@ -193,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextTaskLabel: {
-    color: '#b2b3b8',
+    color: 'white',
     fontSize: 16,
     marginTop: 8,
   },
@@ -202,24 +241,57 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    marginTop: 8,
   },
   taskItemText: {
     color: 'white',
     fontSize: 14,
   },
+  iconTextRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginVertical: 4,
+    marginLeft: 50,
+  },
+  
   taskItemSubText: {
-    color: '#b2b3b8',
-    fontSize: 12,
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 8,
   },
   viewPlanButton: {
     backgroundColor: '#122F92',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginTop: 16,
+    marginTop: 8,
+    marginBottom: 8,
   },
   viewPlanButtonText: {
     color: 'white',
+    fontSize: 18,
+  },
+  underlineBox: {
+    height: 1,                
+    backgroundColor: '#808080', 
+    width: '90%',              
+    alignSelf: 'center',       
+    marginBottom: 8,  
+    marginTop: 8,        
+  },
+  smartPlannerTitle:{
+    fontSize: 22,
+    color: 'white',
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+    marginLeft: 16,
+  },
+  taskHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
 });

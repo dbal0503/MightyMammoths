@@ -84,6 +84,11 @@ export default function PlanBuilderModal({
     setTempTaskTime(formattedTime);
   };
 
+  const isAddTaskDisabled =
+  !tempTaskName.trim() || !tempTaskLocation.trim();
+
+  const isSaveDisabled = !planName.trim() || tasks.length < 1;
+
   return (
     <Modal
       visible={visible}
@@ -151,40 +156,47 @@ export default function PlanBuilderModal({
             />
             <Text style={styles.addTaskHeader}>Time</Text>
             {Platform.OS === 'ios' ? (
-    <DateTimePicker
-      value={date}
-      mode="time"
-      is24Hour={false}
-      display="default"
-      onChange={onTimeChange}
-      themeVariant="dark"
-    />
-  ) : (
-  <TouchableOpacity
-    onPress={() => {
-      DateTimePickerAndroid.open({
-        value: date,
-        mode: 'time',
-        is24Hour: false,
-        display: 'default',
-        onChange: onTimeChange,
-      });
-    }}
-    style={styles.taskInput}
-  >
-    <Text style={{ color: 'white', fontSize: 17 }}>
-      {tempTaskTime || 'Select Time'}
-    </Text>
-  </TouchableOpacity>
-)}
+                <DateTimePicker
+                  value={date}
+                  mode="time"
+                  is24Hour={false}
+                  display="default"
+                  onChange={onTimeChange}
+                  themeVariant="dark"
+                />
+              ) : (
+              <TouchableOpacity
+                onPress={() => {
+                  DateTimePickerAndroid.open({
+                    value: date,
+                    mode: 'time',
+                    is24Hour: false,
+                    display: 'default',
+                    onChange: onTimeChange,
+                  });
+                }}
+                style={styles.taskInput}
+              >
+                <Text style={{ color: 'white', fontSize: 17 }}>
+                  {tempTaskTime || 'Select Time'}
+                </Text>
+              </TouchableOpacity>
+            )}
 
-
-            <TouchableOpacity style={styles.addTaskButton} onPress={addTask}>
+            <TouchableOpacity
+              style={[styles.addTaskButton, isAddTaskDisabled && styles.disabledButton]}
+              onPress={addTask}
+              disabled={isAddTaskDisabled}
+            >
               <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={onSavePlan}>
+          <TouchableOpacity
+              style={[styles.saveButton, isSaveDisabled && styles.disabledButton]}
+              onPress={onSavePlan}
+              disabled={isSaveDisabled}
+            >
             <Text style={{ color: 'white' , fontSize: 17}}>Save</Text>
           </TouchableOpacity>
         </View>
@@ -215,6 +227,10 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 8,
     alignSelf: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#555', 
+    opacity: 0.7,
   },
   addTaskTitle: {
     fontSize: 20,
