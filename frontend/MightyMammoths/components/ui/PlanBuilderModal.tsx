@@ -13,6 +13,9 @@ import {
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+
+
 
 type PlanBuilderModalProps = {
   visible: boolean;
@@ -147,14 +150,34 @@ export default function PlanBuilderModal({
               onChangeText={setTempTaskLocation}
             />
             <Text style={styles.addTaskHeader}>Time</Text>
-            <DateTimePicker
-                value={date}
-                mode="time"
-                is24Hour={false}
-                display="default"
-                onChange={onTimeChange}
-                themeVariant="dark"
-              />
+            {Platform.OS === 'ios' ? (
+    <DateTimePicker
+      value={date}
+      mode="time"
+      is24Hour={false}
+      display="default"
+      onChange={onTimeChange}
+      themeVariant="dark"
+    />
+  ) : (
+  <TouchableOpacity
+    onPress={() => {
+      DateTimePickerAndroid.open({
+        value: date,
+        mode: 'time',
+        is24Hour: false,
+        display: 'default',
+        onChange: onTimeChange,
+      });
+    }}
+    style={styles.taskInput}
+  >
+    <Text style={{ color: 'white', fontSize: 17 }}>
+      {tempTaskTime || 'Select Time'}
+    </Text>
+  </TouchableOpacity>
+)}
+
 
             <TouchableOpacity style={styles.addTaskButton} onPress={addTask}>
               <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
