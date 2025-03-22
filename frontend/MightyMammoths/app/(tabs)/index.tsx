@@ -121,6 +121,13 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
+  const [nearbyPlaces, setNearbyPlaces] = useState<suggestionResult[]>([]);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
+  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
+  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+  const [boundaries, setBoundaries] = useState<BoundingBox>();
+ 
+
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -198,6 +205,38 @@ export default function HomeScreen() {
       mapRef.current.animateToRegion(newRegion, 500);
     }
   };
+
+  const recenterToPolyline = (latitude: number, longitude: number) => {
+    if (mapRef?.current !== null){
+      mapRef.current.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      },1000);
+    }
+  }
+  const fetchBoundaries = async () => {
+    if (mapRef.current) {
+      try {
+        const bounds = await mapRef.current.getMapBoundaries();
+        // Perform a shallow comparison or a more robust deep comparison if needed.
+        if (
+          !boundaries ||
+          boundaries.northEast.latitude !== bounds.northEast.latitude ||
+          boundaries.northEast.longitude !== bounds.northEast.longitude ||
+          boundaries.southWest.latitude !== bounds.southWest.latitude ||
+          boundaries.southWest.longitude !== bounds.southWest.longitude
+        ) {
+          setBoundaries(bounds);
+        }
+      } catch (error) {
+        console.error("Error fetching boundaries:", error);
+      }
+    }
+  };
+  
+
 
   useEffect(() => {
     if (latitudeStepByStep !== 0 && longitudeStepByStep !== 0) {
@@ -332,6 +371,65 @@ export default function HomeScreen() {
     };
   }, []);
 
+
+const handleNearbyPlacePress = async(place: suggestionResult) => {
+  try {
+    if (!place.location || !place.placePrediction) {
+      console.log('Index.tsx: nearby place has no location data');
+      return;
+    }
+
+    const placeExists = searchSuggestions.some(
+      (suggestion) => suggestion.placePrediction.placeId === place.placePrediction.placeId
+    );
+
+    if (!placeExists) {
+      setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
+    }
+
+    //Region for the place
+    const placeRegion: Region = {
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005
+    };
+
+    setSearchMarkerLocation(placeRegion);
+    setRegion(placeRegion);
+    setSearchMarkerVisible(true);
+    //setDestination(place.placePrediction.structuredFormat.mainText.text);
+
+    // Fetching the place details
+    if (place.placePrediction.placeId) {
+      const details = await getPlaceDetails(place.placePrediction.placeId);
+      if (details) {
+        setCurrentPlace(details);
+        //setDestination(place.placePrediction.placeId);
+        setDestination(place.placePrediction.structuredFormat.mainText.text);
+      }
+    }
+
+    
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(placeRegion, 1000);
+    }
+
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    if (placeInfoSheet.current) {
+      placeInfoSheet.current.show();
+    } else {
+      console.log('Index.tsx: place info sheet ref is not defined');
+    }
+  } catch (error) {
+    console.log(`Index.tsx: Error handling nearby place: ${error}`);
+  }
+};
+
+  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
@@ -389,20 +487,6 @@ export default function HomeScreen() {
         mapRef.current.animateToRegion(targetRegion, 700);
         setIsZoomedIn(true);
       }
-    }
-  };
-
-  const recenterToPolyline = (latitude: any, longitude: any) => {
-    if (mapRef?.current !== null) {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.003,
-          longitudeDelta: 0.003,
-        },
-        1000
-      );
     }
   };
 
@@ -553,6 +637,8 @@ export default function HomeScreen() {
           customMapStyle={mapStyle}
           ref={mapRef}
           rotateEnabled={true}
+          onRegionChangeComplete={fetchBoundaries}
+          onMapReady={fetchBoundaries}
           onMapReady={() => console.log("Map ready")}
           maxZoomLevel={20}
           minZoomLevel={10}
@@ -572,7 +658,8 @@ export default function HomeScreen() {
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
-            key="building-mapping"
+            nearbyPlaces={nearbyPlaces}
+            onNearbyPlacePress={handleNearbyPlacePress}
           />
 
           {routePolyline.length > 0 && (
@@ -596,7 +683,9 @@ export default function HomeScreen() {
                   setSearchSuggestions={setSearchSuggestions}
                   buildingData={buildingList}
                   onSelect={(selected) => handleSearch(selected)}
-                />
+                  onNearbyResults={(results) => setNearbyPlaces(results)}
+                boundaries = {boundaries}
+              />
               </View>
             )}
           </View>
@@ -649,6 +738,7 @@ export default function HomeScreen() {
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
+          mainsheet={campusToggleSheet}
           placeDetails={currentPlace}
         />
 
