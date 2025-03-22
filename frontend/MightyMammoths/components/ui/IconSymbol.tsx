@@ -24,6 +24,8 @@ const MAPPING = {
   'play' : 'play-circle-outline',
   'flag' : 'flag-circle',
   'arrow-up-right' : 'arrow-up-right',
+  'close': 'close',
+  'search': 'search',
 
 } as Partial<
   Record<

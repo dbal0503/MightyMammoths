@@ -28,7 +28,7 @@ function NavigationSheet({
     onPolylineUpdate,
     isModal = false,
     snapPoints = [25 ,50 ,100],
-    backgroundInteractionEnabled = true,
+    backgroundInteractionEnabled,
     closable = false,
     gestureEnabled = false,
     initialSnapIndex = 1,
@@ -68,7 +68,7 @@ function NavigationSheet({
     const [shuttlePolyline, setShuttlePolyline] = useState('');
     const [walk1Polyline, setWalk1Polyline] = useState('');
     const [walk2Polyline, setWalk2Polyline] = useState('');
-
+    const [isBackgroundInteractionEnabled, setIsBackgroundInteractionEnabled]=useState(false);
 
     const setPoly = (poly: string) => {
       const decodedPoly: LatLng[] = polyline.decode(poly).map(([latitude, longitude]) => ({
@@ -120,6 +120,7 @@ function NavigationSheet({
             walk1Polyline={walk1Polyline}
             walk2Polyline={walk2Polyline}
             shuttlePolyline={shuttlePolyline}
+            destination={destination}
           />
         )}   
     
@@ -127,7 +128,7 @@ function NavigationSheet({
           ref={actionsheetref}
           isModal={isModal} 
           snapPoints={snapPoints} 
-          backgroundInteractionEnabled={backgroundInteractionEnabled}
+          backgroundInteractionEnabled={isBackgroundInteractionEnabled}
           closable={closable}
           gestureEnabled={gestureEnabled}
           initialSnapIndex={initialSnapIndex}
@@ -170,6 +171,7 @@ function NavigationSheet({
                         closeChooseDest(false)
                         setStartedSelectedRoute(true);
                         actionsheetref.current?.snapToIndex(0);
+                        setIsBackgroundInteractionEnabled(true);
                       }}
                       defPoly={() => {
                         console.log("defpoly"+selectedMode);
@@ -213,6 +215,7 @@ function NavigationSheet({
                         setStartedSelectedRoute(false);
                         setIsOriginYourLocation(false);
                         setRoutesValid(false);
+                        setIsBackgroundInteractionEnabled(false);
                       }}
                       routes={routeEstimates[selectedMode] || []}
                       onZoomOut={onZoomOut}

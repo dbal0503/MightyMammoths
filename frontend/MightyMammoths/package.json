@@ -22,6 +22,7 @@
     "@gorhom/bottom-sheet": "^5.0.6",
     "@mapbox/polyline": "^1.2.1",
     "@mappedin/react-native-sdk": "^5.41.8",
+    "@react-native-community/datetimepicker": "^8.3.0",
     "@react-native-google-signin/google-signin": "^13.2.0",
     "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.2.0",

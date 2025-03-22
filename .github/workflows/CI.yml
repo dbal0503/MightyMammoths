@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - dev
-      - js/issue72
   pull_request:
 
 jobs:
@@ -63,7 +62,7 @@ jobs:
           verbose: true
 
   e2e-test:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     env:
       EXPO_NO_INTERACTIVE: 1
@@ -106,6 +105,7 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
+          xcrun simctl list devices
           xcrun simctl boot "iPhone 15 Pro" || true
           xcrun simctl list devices | grep Booted
 
@@ -123,23 +123,24 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: E2E Tests
-        env:
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
-        run: |
+      - name: E2E Tests with Recording
+        env: 
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000  
+        run: | 
           cd ./frontend/MightyMammoths
-          maestro test maestro/home-page-tests/main-tests.yaml
+          mkdir -p e2e-videos
           maestro test maestro/home-page-sheet-tests/main-tests.yaml
           maestro test maestro/navigation-tests/main-tests.yaml
+          maestro test maestro/home-page-tests/main-tests.yaml
           maestro test maestro/building-marker-information-tests/main-tests.yaml
           maestro test maestro/google-calendar-tests/main-tests.yaml
-      #    maestro record maestro/LOY-button-test.yaml --local LOYButtonTest.mp4
-
-      #- name: Upload Test Artifacts
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: test-videos
-      #    path: LOYButtonTest.mp4
+        
+      - name: Upload Test Artifacts
+        if: always()  
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-videos
+          path: ./frontend/MightyMammoths/e2e-videos/*.mp4
 
   lint:
     runs-on: ubuntu-latest
