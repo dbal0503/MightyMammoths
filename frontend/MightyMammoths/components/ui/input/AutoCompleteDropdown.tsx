@@ -19,7 +19,8 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; 
+  reset: () => void;
+  setValue: (value: string) => void; 
 }
 
 interface AutoCompleteDropdownProps {

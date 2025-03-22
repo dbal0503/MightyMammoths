@@ -45,7 +45,7 @@ export function DestinationChoices({
   };
 
   useEffect(() => {
-    const checkAndSetOrigin = async () => {
+    const checkAndSetOrigin =  () => {
       if (destination && destination !== "Select a building") {
         if (locationServicesEnabled) {
           console.log("granted permissions");
