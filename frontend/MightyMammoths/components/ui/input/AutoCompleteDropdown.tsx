@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, SuggestionResult, PlacesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
 import { BoundingBox } from "react-native-maps";
 
 export interface BuildingData {
