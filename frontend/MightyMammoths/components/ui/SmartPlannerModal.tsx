@@ -27,7 +27,9 @@ export default function SmartPlannerModal({
   const [hasPlan, setHasPlan] = useState(false);
   const [planName, setPlanName] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [generatedPlan, setGeneratedPlan] = useState<Task[]>([]);
   const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
@@ -40,6 +42,16 @@ export default function SmartPlannerModal({
   const handleSavePlan = () => {
     if (planName.trim()) {
       setHasPlan(true);
+      setIsLoading(true);
+      console.log('Saved plan:', planName, tasks);
+      
+      
+      //let distanceDurationArr = [];
+
+      //TODO Functions to generate the plan and display it 
+      // After generating the plan, set isLoading to false
+      // Store the generated plan in the generatedPlan state
+      setIsLoading(false);
     }
   };
 
@@ -48,6 +60,7 @@ export default function SmartPlannerModal({
     setPlanName('');
     setTasks([]);
     setTaskViewVisible(false);
+    setGeneratedPlan([]);
   };
 
   const renderNoPlan = () => (
@@ -69,33 +82,38 @@ export default function SmartPlannerModal({
     <View style={styles.modalContentContainer}>
       <Text style={styles.smartPlannerTitle}>Smart Planner</Text>
       <View style={styles.underlineBox} />
-      <Text style={styles.planTitle}>Current Plan: {planName}</Text>
-      {tasks.length > 0 ? (
+      {isLoading && <Text style={styles.planTitle}>Generating {planName} plan ...</Text>}
+      {!isLoading && (
         <>
-          <View style={styles.taskHeaderRow}>
-            <Text style={styles.nextTaskLabel}>Next Task</Text>
-            <TouchableOpacity style={styles.nextTaskDirectionsButton}>
-              <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.iconTextRow}>
-            <IconSymbol name={'info' as IconSymbolName} size={30} color="white" />
-            <Text style={styles.taskItemSubText}>{tasks[0].name}</Text>
-          </View>
-
-          <View style={styles.iconTextRow}>
-            <IconSymbol name={'location' as IconSymbolName} size={30} color="white" />
-            <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
-          </View>
-
-          <View style={styles.iconTextRow}>
-            <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" />
-            <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
-          </View>
+          <Text style={styles.planTitle}>Current Plan: {planName}</Text>
+          {tasks.length > 0 ? (
+            <>
+              <View style={styles.taskHeaderRow}>
+                <Text style={styles.nextTaskLabel}>Next Task</Text>
+                <TouchableOpacity style={styles.nextTaskDirectionsButton}>
+                  <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.iconTextRow}>
+                <IconSymbol name={'info' as IconSymbolName} size={30} color="white" />
+                {/* TODO Get the task from generatedPlan */}
+                <Text style={styles.taskItemSubText}>{tasks[0].name}</Text> 
+              </View>
+              <View style={styles.iconTextRow}>
+                <IconSymbol name={'location' as IconSymbolName} size={30} color="white" />
+                <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
+              </View>
+              <View style={styles.iconTextRow}>
+                <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" />
+                <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
+              </View>
+            </>
+          ) : (
+            <Text style={styles.noPlanText}>No tasks yet</Text>
+          )}
         </>
-      ) : (
-        <Text style={styles.noPlanText}>No tasks yet</Text>
       )}
+
       <TouchableOpacity
         style={styles.viewPlanButton}
         onPress={() => setTaskViewVisible(true)}

@@ -43,6 +43,7 @@ export default function PlanBuilderModal({
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
   const [showTimePicker, setShowTimePicker] = React.useState(false);
+  const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
 
   const addTask = () => {
     if (tempTaskName.trim()) {
@@ -51,8 +52,25 @@ export default function PlanBuilderModal({
         name: tempTaskName,
         location: tempTaskLocation,
         time: tempTaskTime,
+        type: 'task',
       };
       setTasks([...tasks, newTask]);
+      setTempTaskName('');
+      setTempTaskLocation('');
+      setTempTaskTime('');
+    }
+  };
+
+  const addOriginLocation = () => {
+    if (tempTaskLocation.trim()) {
+      const newOriginLocation: Task = {
+        id: Date.now(),
+        name: "Start Location",
+        location: tempTaskLocation,
+        time: '',
+        type: 'location',
+      };
+      setTasks([...tasks, newOriginLocation]);
       setTempTaskName('');
       setTempTaskLocation('');
       setTempTaskTime('');
@@ -87,6 +105,8 @@ export default function PlanBuilderModal({
   const isAddTaskDisabled =
   !tempTaskName.trim() || !tempTaskLocation.trim();
 
+  const isOriginLocationDisabled = !tempTaskLocation.trim();
+
   const isSaveDisabled = !planName.trim() || tasks.length < 1;
 
   return (
@@ -118,78 +138,119 @@ export default function PlanBuilderModal({
           />
           <View style={styles.underlineBox} />
 
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.underlineBox} />
-          
-          <View style={styles.taskHeaderRow}>
-            <Text style={styles.addTaskTitle}>Add Task</Text>
-            <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
-              <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.addTaskContainer}>
-            <Text style={styles.addTaskHeader}>Task Name</Text>
-            <TextInput
-              style={styles.taskInput}
-              placeholder="Enter task name..."
-              placeholderTextColor="#b2b3b8"
-              value={tempTaskName}
-              onChangeText={setTempTaskName}
-            />
-            <Text style={styles.addTaskHeader}>Location</Text>
-            <TextInput
-              style={styles.taskInput}
-              placeholder="Search location..."
-              placeholderTextColor="#b2b3b8"
-              value={tempTaskLocation}
-              onChangeText={setTempTaskLocation}
-            />
-            <Text style={styles.addTaskHeader}>Time</Text>
-            {Platform.OS === 'ios' ? (
-                <DateTimePicker
-                  value={date}
-                  mode="time"
-                  is24Hour={false}
-                  display="default"
-                  onChange={onTimeChange}
-                  themeVariant="dark"
-                />
-              ) : (
-              <TouchableOpacity
-                onPress={() => {
-                  DateTimePickerAndroid.open({
-                    value: date,
-                    mode: 'time',
-                    is24Hour: false,
-                    display: 'default',
-                    onChange: onTimeChange,
-                  });
-                }}
-                style={styles.taskInput}
-              >
-                <Text style={{ color: 'white', fontSize: 17 }}>
-                  {tempTaskTime || 'Select Time'}
-                </Text>
+          {isStartLocationButton === false ? (
+            <>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(true)}>
+                <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
               </TouchableOpacity>
-            )}
+              <TouchableOpacity style={styles.actionButton}>
+                <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.addTaskButton, isAddTaskDisabled && styles.disabledButton]}
-              onPress={addTask}
-              disabled={isAddTaskDisabled}
-            >
-              <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.underlineBox} />
+              <View style={styles.taskHeaderRow}>
+                <Text style={styles.addTaskTitle}>Add Task</Text>
+                <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
+                  <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
+                </TouchableOpacity>
+              </View>
+
+            <View style={styles.addTaskContainer}>
+              <Text style={styles.addTaskHeader}>Task Name</Text>
+              <TextInput
+                style={styles.taskInput}
+                placeholder="Enter task name..."
+                placeholderTextColor="#b2b3b8"
+                value={tempTaskName}
+                onChangeText={setTempTaskName}
+              />
+              <Text style={styles.addTaskHeader}>Location</Text>
+              <TextInput
+                style={styles.taskInput}
+                placeholder="Search location..."
+                placeholderTextColor="#b2b3b8"
+                value={tempTaskLocation}
+                onChangeText={setTempTaskLocation}
+              />
+              <Text style={styles.addTaskHeader}>Time</Text>
+              {Platform.OS === 'ios' ? (
+                  <DateTimePicker
+                    value={date}
+                    mode="time"
+                    is24Hour={false}
+                    display="default"
+                    onChange={onTimeChange}
+                    themeVariant="dark"
+                  />
+                ) : (
+                <TouchableOpacity
+                  onPress={() => {
+                    DateTimePickerAndroid.open({
+                      value: date,
+                      mode: 'time',
+                      is24Hour: false,
+                      display: 'default',
+                      onChange: onTimeChange,
+                    });
+                  }}
+                  style={styles.taskInput}
+                >
+                  <Text style={{ color: 'white', fontSize: 17 }}>
+                    {tempTaskTime || 'Select Time'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={[styles.addTaskButton, isAddTaskDisabled && styles.disabledButton]}
+                onPress={addTask}
+                disabled={isAddTaskDisabled}
+              >
+                <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
+              </TouchableOpacity>
+            </View> 
+          </>
+          ) : (
+            <>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(false)}>
+                <Text style={{ color: 'white', fontSize: 15 }}>Add Task</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton}>
+                <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.underlineBox} />
+            <View style={styles.taskHeaderRow}>
+              <Text style={styles.addTaskTitle}>Start Location</Text>
+              <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
+                <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.addTaskContainer}>
+              <Text style={styles.addTaskHeader}>Location</Text>
+              <TextInput
+                style={styles.taskInput}
+                placeholder="Search location..."
+                placeholderTextColor="#b2b3b8"
+                value={tempTaskLocation}
+                onChangeText={setTempTaskLocation}
+              />
+
+              <TouchableOpacity
+                style={[styles.addTaskButton, isOriginLocationDisabled && styles.disabledButton]}
+                onPress={addOriginLocation}
+                disabled={isOriginLocationDisabled}
+              >
+                <Text style={{ color: 'white', fontSize: 17 }}>Add Start Location</Text>
+              </TouchableOpacity>
+            </View> 
+            </>)}
+          
 
           <TouchableOpacity
               style={[styles.saveButton, isSaveDisabled && styles.disabledButton]}
@@ -213,7 +274,7 @@ const styles = StyleSheet.create({
   },
   container: {
     margin: 15,
-    height: '78%',
+    maxHeight: '80%',
     backgroundColor: '#010213',
     borderRadius: 10,
     padding: 16,

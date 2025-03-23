@@ -3,5 +3,5 @@ export type Task = {
     name: string;
     location: string;
     time: string;
+    type: string;
   };
-  
