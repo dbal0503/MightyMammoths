@@ -151,15 +151,17 @@ export default function SmartPlannerModal({
           ) : (
             <Text style={styles.noPlanText}>No tasks yet</Text>
           )}
+        
+      
+
+        <TouchableOpacity
+          style={styles.viewPlanButton}
+          onPress={() => setTaskViewVisible(true)}
+        >
+          <Text style={styles.viewPlanButtonText}>View Plan</Text>
+        </TouchableOpacity>
         </>
       )}
-
-      <TouchableOpacity
-        style={styles.viewPlanButton}
-        onPress={() => setTaskViewVisible(true)}
-      >
-        <Text style={styles.viewPlanButtonText}>View Plan</Text>
-      </TouchableOpacity>
       <View style={styles.underlineBox} />
       <TouchableOpacity
         style={styles.createPlanButton}

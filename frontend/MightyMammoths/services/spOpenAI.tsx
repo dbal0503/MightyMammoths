@@ -86,7 +86,7 @@ export const generatePlanFromChatGPT = async (
         const data = await response.json();
         const messageContent = data.choices[0].message.content;
         const cleanedContent = messageContent.replace(/```json\s*|\s*```/g, '').trim();
-        console.log('Cleaned content:', cleanedContent);
+        //console.log('Cleaned content:', cleanedContent);
 
         const taskPlan: TaskPlan[] = JSON.parse(cleanedContent);
         return taskPlan;
