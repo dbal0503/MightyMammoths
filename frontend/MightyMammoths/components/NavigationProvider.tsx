@@ -159,8 +159,12 @@ const NavigationProvider = ({
   }
 
   useEffect(() => {
-    async()=>{await Location.requestForegroundPermissionsAsync()};
-  })
+    const requestPermission = async () => {
+      await Location.requestForegroundPermissionsAsync();
+    };
+  
+    requestPermission();
+  }, [])
 
   useEffect(() => {
     fetchRoutes();
