@@ -92,6 +92,8 @@ export default function HomeScreen() {
   const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
   const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
   const [boundaries, setBoundaries] = useState<BoundingBox>();
+  const [showCafes, setShowCafes] = useState(false);
+  const [showRestaurants, setShowRestaurants] = useState(false);
  
 
 
@@ -620,6 +622,8 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
             onMarkerPress={centerAndShowBuilding}
             nearbyPlaces={nearbyPlaces}
             onNearbyPlacePress={handleNearbyPlacePress}
+            showCafes={showCafes} 
+            showRestaurants={showRestaurants} 
           />
 
           {routePolyline && 
@@ -643,6 +647,10 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
                 onSelect={(selected) => handleSearch(selected)}
                 onNearbyResults={(results) => setNearbyPlaces(results)}
                 boundaries = {boundaries}
+                showCafes={showCafes} 
+                showRestaurants={showRestaurants} 
+                setShowCafes={setShowCafes}
+                setShowRestaurants={setShowRestaurants}
               />
             </View>
           )}
