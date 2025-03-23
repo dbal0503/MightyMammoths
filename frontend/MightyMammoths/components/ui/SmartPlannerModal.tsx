@@ -15,6 +15,10 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import PlanBuilderModal from './PlanBuilderModal';
 import TaskViewModal from './TaskViewModal';
 import { Task } from './types';
+import {calculateAllPairsDistances} from '@/services/smartPlannerDistancePairs';
+import { generatePlanFromChatGPT, TaskPlan } from '@/services/spOpenAI';
+import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 type SmartPlannerModalProps = {
   visible: boolean;
@@ -28,7 +32,7 @@ export default function SmartPlannerModal({
   const [hasPlan, setHasPlan] = useState(false);
   const [planName, setPlanName] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [generatedPlan, setGeneratedPlan] = useState<Task[]>([]);
+  const [generatedPlan, setGeneratedPlan] = useState<TaskPlan[]>([]);
   const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -59,19 +63,25 @@ export default function SmartPlannerModal({
   };
   
 
-  const handleSavePlan = () => {
+  const handleSavePlan = async () => {
     if (planName.trim()) {
       setHasPlan(true);
       setIsLoading(true);
+      
       console.log('Saved plan:', planName, tasks);
-      
-      
-      //let distanceDurationArr = [];
 
-      //TODO Functions to generate the plan and display it 
-      // After generating the plan, set isLoading to false
-      // Store the generated plan in the generatedPlan state
-      setIsLoading(false);
+      try {
+        let distanceDurationArr = await calculateAllPairsDistances(tasks);
+        console.log('Distance Duration array:', distanceDurationArr);
+        console.log(getBuildingsByCampus()['SGW']);
+        setGeneratedPlan(await generatePlanFromChatGPT(tasks, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']));
+
+      } catch (error) {
+        console.error("Error in handleSavePlan: ", error);
+
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
