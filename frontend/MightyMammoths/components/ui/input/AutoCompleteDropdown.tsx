@@ -145,8 +145,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   return (
-    <View style={styles.container} testID={testID}>
-      <Pressable style={{ ...styles.dropdownContainer, backgroundColor: darkTheme ? '#2c2c38' : "white", borderColor: darkTheme ? '#2c2c38' : '#d1d1d1' }} onPress={() => {
+    <View style={{...styles.container, width: darkTheme ? 5 : 280}} testID={testID}>
+      <Pressable style={{ ...styles.dropdownContainer, 
+                backgroundColor: darkTheme ? '#2c2c38' : "white", 
+                borderColor: darkTheme ? '#2c2c38' : '#d1d1d1',
+              borderRadius: darkTheme ? 8 : 25 }} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>
         <Image
@@ -200,7 +203,6 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     position: "relative",
     alignSelf: "center",
   },

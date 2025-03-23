@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -9,10 +9,17 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
+  Linking,
+  Alert
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
+import * as Location from "expo-location";
+import { buildingList } from '@/utils/getBuildingList';
+import { suggestionResult } from '@/services/searchService';
+import AutoCompleteDropdown, { BuildingData } from './input/AutoCompleteDropdown';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 
 type TaskViewModalProps = {
   visible: boolean;
@@ -36,8 +43,11 @@ export default function TaskViewModal({
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [tempTaskName, setTempTaskName] = useState('');
   const [tempTaskLocation, setTempTaskLocation] = useState('');
+  const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = useState('');
   const [tempTaskTime, setTempTaskTime] = useState('');
   const [editingTask, setEditingTask] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
+  const [date, setDate] = React.useState(new Date());
 
   const markDone = (id: number) => {
     // Optionally handle "Done" state here
@@ -52,24 +62,124 @@ export default function TaskViewModal({
     setEditingTaskId(task.id);
     setTempTaskName(task.name);
     setTempTaskLocation(task.location);
+    setTempTaskLocationPlaceId(task.locationPlaceID);
     setTempTaskTime(task.time);
   };
 
+  //! If a task is edited and saved, we need to regenerate the plan again
   const saveTaskEdit = () => {
     if (!editingTaskId) return;
     setTasks((prev) =>
       prev.map((t) =>
         t.id === editingTaskId
-          ? { ...t, name: tempTaskName, location: tempTaskLocation, time: tempTaskTime }
+          ? { ...t, name: tempTaskName, location: tempTaskLocation, locationPlaceID: tempTaskLocationPlaceId, time: tempTaskTime }
           : t
       )
     );
     setEditingTaskId(null);
     setTempTaskName('');
     setTempTaskLocation('');
+    setTempTaskLocationPlaceId('');
     setTempTaskTime('');
     setEditingTask(false);
   };
+
+  const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+      const currentDate = selectedDate || date;
+
+      setDate(currentDate);
+      
+      // Format the time to display
+      const hours = currentDate.getHours();
+      const minutes = currentDate.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+      const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+      
+      setTempTaskTime(formattedTime);
+    };
+
+  const buildingListPlusMore: BuildingData[] = [
+      { buildingName: "Any SGW campus building", placeID: "" },
+      { buildingName: "Any LOY campus building", placeID: "" },
+      { buildingName: "Any campus building", placeID: "" },
+      { buildingName: "Any location", placeID: "" },
+      ...buildingList, 
+    ];
+
+  useEffect(() => {
+      const buildingResults: suggestionResult[] = buildingListPlusMore.map(
+        (building) => ({
+          placePrediction: {
+            place: building.buildingName,
+            placeId: building.placeID,
+            text: {
+              text: building.buildingName,
+              matches: [
+                { startOffset: 0, endOffset: building.buildingName.length },
+              ],
+            },
+            structuredFormat: {
+              mainText: {
+                text: building.buildingName,
+                matches: [
+                  { startOffset: 0, endOffset: building.buildingName.length },
+                ],
+              },
+              secondaryText: {
+                text: "",
+              },
+            },
+            types: ["building"],
+          },
+        })
+      );
+      setSearchSuggestions(buildingResults);
+      }, []);
+
+    const _openAppSetting = useCallback(async () => {
+          await Linking.openSettings();
+        }, []);
+    
+      const handleSearch = async (placeName: string) => {
+          if (placeName === "Your Location") {
+            const { status } = await Location.getForegroundPermissionsAsync();
+            if (status !== "granted") {
+              Alert.alert(
+                "Location Services Disabled",
+                "Please enable location services to use this feature.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Enable",
+                    onPress: () => {
+                      _openAppSetting();
+                    },
+                  },
+                ]
+              );
+              return;
+            }
+          }
+          try {
+            const data = searchSuggestions.find(
+              (place) =>
+                place.placePrediction.structuredFormat.mainText.text === placeName
+            );
+            if (data === undefined) {
+              console.log("Index.tsx: selected place is undefined");
+              return;
+            }
+            setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
+            setTempTaskLocationPlaceId(data.placePrediction.placeId);
+          } catch (error) {
+            console.log(`Index.tsx: Error selecting place: ${error}`);
+          }
+        };
 
   return (
     <Modal
@@ -120,19 +230,45 @@ export default function TaskViewModal({
                       </View>
                       <Text style={styles.addTaskHeader}>Location</Text>
                       <View style={styles.inputRow}>
-                        <TextInput
-                          style={styles.editTaskInput}
-                          value={tempTaskLocation}
-                          onChangeText={setTempTaskLocation}
+                        <AutoCompleteDropdown
+                          testID="locationSmartPlannerDropdown"
+                          locked={false}
+                          searchSuggestions={searchSuggestions}
+                          setSearchSuggestions={setSearchSuggestions}
+                          buildingData={buildingListPlusMore}
+                          onSelect={(selected) => handleSearch(selected)}
+                          darkTheme={true}
                         />
                       </View>
                       <Text style={styles.addTaskHeader}>Time</Text>
                       <View style={styles.inputRow}>
-                        <TextInput
-                          style={styles.editTaskInput}
-                          value={tempTaskTime}
-                          onChangeText={setTempTaskTime}
-                        />
+                      {Platform.OS === 'ios' ? (
+                          <DateTimePicker
+                            value={date}
+                            mode="time"
+                            is24Hour={false}
+                            display="default"
+                            onChange={onTimeChange}
+                            themeVariant="dark"
+                          />
+                        ) : (
+                        <TouchableOpacity
+                          onPress={() => {
+                            DateTimePickerAndroid.open({
+                              value: date,
+                              mode: 'time',
+                              is24Hour: false,
+                              display: 'default',
+                              onChange: onTimeChange,
+                            });
+                          }}
+                          style={styles.taskInput}
+                        >
+                          <Text style={{ color: 'white', fontSize: 17 }}>
+                            {tempTaskTime || 'Select Time'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
                       </View>
                       <View style={styles.saveButtonRow}>
                         <TouchableOpacity style={styles.doneButton} onPress={saveTaskEdit}>
@@ -292,6 +428,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 6,
     marginHorizontal: 4,
+  },
+  taskInput: {
+    backgroundColor: '#2c2c38',
+    borderRadius: 8,
+    color: 'white',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginVertical: 4,
+    fontSize: 17,
+    marginBottom: 12,
   },
   footer: {
     flexDirection: 'row',

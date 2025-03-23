@@ -8,7 +8,6 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
   Linking,
   Alert,
 
@@ -49,7 +48,6 @@ export default function PlanBuilderModal({
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
-  const [showTimePicker, setShowTimePicker] = React.useState(false);
   const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
   const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
 
@@ -91,16 +89,8 @@ export default function PlanBuilderModal({
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (event.type === 'dismissed') {
-      setShowTimePicker(false);
-      return;
-    }
     
     const currentDate = selectedDate || date;
-    
-    if (Platform.OS === 'android') {
-      setShowTimePicker(false);
-    }
     
     setDate(currentDate);
     
