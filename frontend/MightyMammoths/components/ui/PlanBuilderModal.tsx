@@ -95,7 +95,6 @@ export default function PlanBuilderModal({
       transparent
       animationType="slide"
       statusBarTranslucent={true}
-      onDismiss={Keyboard.dismiss}
       onRequestClose={onClose}
     >
     <KeyboardAvoidingView

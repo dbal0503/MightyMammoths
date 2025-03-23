@@ -118,7 +118,6 @@ export default function SmartPlannerModal({
       animationType="fade"
       onRequestClose={onClose}
       statusBarTranslucent={true}
-      onDismiss={Keyboard.dismiss}
       transparent
     >
     <KeyboardAvoidingView

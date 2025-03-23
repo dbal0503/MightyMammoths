@@ -78,7 +78,6 @@ export default function TaskViewModal({
       animationType="slide"
       statusBarTranslucent={true}
       onRequestClose={onClose}
-      onDismiss={Keyboard.dismiss}
     >
      <KeyboardAvoidingView
      style={{ flex: 1 }}

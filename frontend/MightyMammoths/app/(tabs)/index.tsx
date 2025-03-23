@@ -614,13 +614,11 @@ export default function HomeScreen() {
         </View>
 
         {/* SGW & LOY TOGGLE */}
-        {!isKeyboardVisible && (
           <LoyolaSGWToggleSheet
             actionsheetref={campusToggleSheet}
             setSelectedCampus={CenterOnCampus}
             navigateToRoutes={navigateToRoutes}
           />
-        )}
 
         {/* BUILDING INFO */}
         {selectedBuilding && (
