@@ -74,6 +74,7 @@ export default function PlanBuilderModal({
       setTempTaskName('');
       setTempTaskLocation('');
       setTempTaskTime('');
+      setIsStartLocationButton(false);
     }
   };
 
@@ -174,7 +175,7 @@ export default function PlanBuilderModal({
                 value={tempTaskLocation}
                 onChangeText={setTempTaskLocation}
               />
-              <Text style={styles.addTaskHeader}>Time</Text>
+              <Text style={styles.addTaskHeader}>Time (Optional)</Text>
               {Platform.OS === 'ios' ? (
                   <DateTimePicker
                     value={date}

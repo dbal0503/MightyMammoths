@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Alert,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import PlanBuilderModal from './PlanBuilderModal';
@@ -36,8 +37,27 @@ export default function SmartPlannerModal({
   const [taskViewVisible, setTaskViewVisible] = useState(false);
 
   const handleCreatePlan = () => {
+    if(hasPlan) {
+    Alert.alert(
+      'Confirm New Plan',
+      'Are you sure you want to create a new plan? This will delete the current plan.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Yes',
+          onPress: () => {
+            handleDeletePlan();
+            setPlanBuilderVisible(true);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  } else {
     setPlanBuilderVisible(true);
+  }
   };
+  
 
   const handleSavePlan = () => {
     if (planName.trim()) {
