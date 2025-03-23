@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
   Alert,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
@@ -18,7 +17,6 @@ import { Task } from './types';
 import {calculateAllPairsDistances} from '@/services/smartPlannerDistancePairs';
 import { generatePlanFromChatGPT, TaskPlan } from '@/services/spOpenAI';
 import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
 type SmartPlannerModalProps = {
@@ -79,10 +77,14 @@ export default function SmartPlannerModal({
       console.log('Saved plan:', planName, tasks);
 
       try {
+        //! DO NOT UNCOMMENT THE LINE BELOW OR YOU WILL MAKE 2K API CALLS
+        //calculateAllCampusPairsDistas();
+
         let distanceDurationArr = await calculateAllPairsDistances(tasks);
-        console.log('Distance Duration array:', distanceDurationArr);
-        console.log(getBuildingsByCampus()['SGW']);
+        //console.log('Distance Duration array:', distanceDurationArr);
+        
         setGeneratedPlan(await generatePlanFromChatGPT(tasks, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']));
+        //console.log('Generated Plan:', generatedPlan);
 
       } catch (error) {
         console.error("Error in handleSavePlan: ", error);
@@ -135,15 +137,15 @@ export default function SmartPlannerModal({
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'info' as IconSymbolName} size={30} color="white" />
                 {/* TODO Get the task from generatedPlan */}
-                <Text style={styles.taskItemSubText}>{tasks[0].name}</Text> 
+                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskName}</Text> 
               </View>
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'location' as IconSymbolName} size={30} color="white" />
-                <Text style={styles.taskItemSubText}>{tasks[0].location}</Text>
+                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskLocation}</Text>
               </View>
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" />
-                <Text style={styles.taskItemSubText}>{tasks[0].time}</Text>
+                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
               </View>
             </>
           ) : (
