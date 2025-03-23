@@ -204,6 +204,20 @@ export default function PlanBuilderModal({
         Alert.alert("No next event found in your Google Calendar.");
         return;
       }
+    
+      // Check if the exact same event is already in the tasks array
+      const alreadyExists = tasks.some(
+        (task) =>
+          task.name === nextEvent.name &&
+          task.location === nextEvent.location &&
+          task.time === nextEvent.time
+      );
+    
+      if (alreadyExists) {
+        Alert.alert("This class is already in your plan.");
+        return;
+      }
+    
       const newTask: Task = {
         id: Date.now(),
         name: nextEvent.name,
@@ -214,6 +228,7 @@ export default function PlanBuilderModal({
       };
       setTasks([...tasks, newTask]);
     };
+    
   
 
   return (
