@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
 import { BoundingBox } from "react-native-maps";
 
+
 export interface BuildingData {
   buildingName: string;
   placeID: string;
@@ -63,6 +64,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
+  const [showCafes, setShowCafes] = useState(false);
+  const [showRestaurants, setShowRestaurants] = useState(false);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
@@ -185,12 +188,23 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    
-    getNearbySuggestions("cafe", boundaries);
+    setShowCafes(prevState => !prevState);
+    if (!showCafes) {
+      console.log("Showing Cafes");
+      getNearbySuggestions("cafe", boundaries);
+    } else {
+      console.log("Hiding Cafes");
+    }
   };
 
   const handleFindNearbyRestaurants = () => {
-    getNearbySuggestions("restaurant", boundaries);
+    setShowRestaurants(prevState => !prevState);
+    if (!showRestaurants) {
+      console.log("Showing Restaurants");
+      getNearbySuggestions("restaurant", boundaries);
+    } else {
+      console.log("Hiding Restaurants");
+    }
     };
 
   return (
@@ -244,10 +258,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       />
       <View style={styles.buttonContainer}>
         <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
-          <Text style={styles.buttonText}>Cafe</Text>
+          <Text style={styles.buttonText}>Show Cafes</Text>
         </Pressable>
         <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
-          <Text style={styles.buttonText}>Restaurants</Text>
+          <Text style={styles.buttonText}>Show Restaurants</Text>
         </Pressable>
       </View>
       </Animated.View>
@@ -331,10 +345,13 @@ const styles = StyleSheet.create({
     borderTopColor: "#ddd"
   },
   actionButton: {
+    width: "45%",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    backgroundColor: "#007bff",
-    borderRadius: 8,
+    backgroundColor: "darkblue",
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   buttonText: {
     color: "#fff",
