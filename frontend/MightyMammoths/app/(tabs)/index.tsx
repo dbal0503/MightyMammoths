@@ -548,10 +548,8 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
           //   mapRef.current.animateCamera({ heading: bearing }, { duration: 500 });
           // }
         }
-      } else {
-        if (mapRef.current) {
-          mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
-        }
+      }else if (mapRef.current){
+        mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
     };
   
