@@ -129,8 +129,6 @@ const NavigationProvider = ({
           estimates[mode] = [routeMode]; 
         }
       } 
-      
-      //await fetchShuttleData();
 
       const destinationCampus = campusBuildingCoords.features.find((item) => item.properties.BuildingName === destination)?.properties.Campus ?? "";
       
