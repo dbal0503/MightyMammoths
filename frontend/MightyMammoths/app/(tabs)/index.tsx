@@ -10,7 +10,7 @@ import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/DestinationsChoices";
-import { suggestionResult, getPlaceDetails, placeDetails } from "@/services/searchService";
+import { SuggestionResult, getPlaceDetails, PlaceDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import { Image } from "react-native";
 // Context providers
@@ -60,10 +60,10 @@ export default function HomeScreen() {
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
-  const [currentPlace, setCurrentPlace] = useState<placeDetails| undefined>(undefined)
+  const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
   const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
@@ -81,7 +81,7 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
-  const [nearbyPlaces, setNearbyPlaces] = useState<suggestionResult[]>([]);
+  const [nearbyPlaces, setNearbyPlaces] = useState<SuggestionResult[]>([]);
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
   const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
@@ -204,7 +204,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, [latitudeStepByStep, longitudeStepByStep]);
  
   useEffect(() => {
-    const buildingResults: suggestionResult[] = buildingList.map((building) => ({
+    const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
         place: building.buildingName,
         placeId: building.placeID,
@@ -321,7 +321,7 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, []);
 
 
-const handleNearbyPlacePress = async(place: suggestionResult) => {
+const handleNearbyPlacePress = async(place: SuggestionResult) => {
   try {
     if (!place.location || !place.placePrediction) {
       console.log('Index.tsx: nearby place has no location data');
@@ -672,7 +672,7 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
           mainsheet={campusToggleSheet}
-          placeDetails={currentPlace}
+          PlaceDetails={currentPlace}
         />
 
         <NavigationProvider

@@ -6,7 +6,7 @@ import * as Location from "expo-location";
 import { getShuttleBusRoute } from "@/services/shuttleBusRouteService";
 import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
 
-import { suggestionResult } from "@/services/searchService";
+import { SuggestionResult } from "@/services/searchService";
 // Constants can be exported from the same file
 export const transportModes = ["driving", "transit", "bicycling", "walking"];
 
@@ -25,8 +25,8 @@ interface NavigationState {
   twoBuildingsSelected: boolean;
   snapPoints: string[];
   sheetRef: React.RefObject<BottomSheet>;
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   routesValid: boolean;
 }
 
@@ -52,8 +52,8 @@ const NavigationContext = createContext<NavigationContextType | null>(null);
 
 export interface NavigationProviderProps {
   children: ReactNode;
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   navigationMode: boolean;
 }
 

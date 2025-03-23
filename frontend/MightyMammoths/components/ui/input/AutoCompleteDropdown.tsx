@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, PlacesSearch, nearbyPlacesSearch } from "@/services/searchService";
 import { BoundingBox } from "react-native-maps";
 
 export interface BuildingData {
@@ -25,12 +25,12 @@ export interface AutoCompleteDropdownRef {
 interface AutoCompleteDropdownProps {
   currentVal?: string;
   buildingData: BuildingData[];
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
-  onNearbyResults: (results: suggestionResult[]) => void;
+  onNearbyResults: (results: SuggestionResult[]) => void;
   boundaries: BoundingBox | undefined
 }
 
@@ -156,7 +156,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   };
 
-  const mergeUniqueResults = (prevSuggestions: suggestionResult[], newResult: suggestionResult) => {
+  const mergeUniqueResults = (prevSuggestions: SuggestionResult[], newResult: SuggestionResult) => {
     return !prevSuggestions.some(oldResult => 
       oldResult.placePrediction.placeId === newResult.placePrediction.placeId
     )
