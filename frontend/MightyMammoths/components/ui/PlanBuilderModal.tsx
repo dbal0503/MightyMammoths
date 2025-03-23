@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -9,12 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Linking,
+  Alert,
+
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-
+import AutoCompleteDropdown, { BuildingData } from './input/AutoCompleteDropdown';
+import * as Location from "expo-location";
+import { buildingList } from '@/utils/getBuildingList';
+import { suggestionResult } from '@/services/searchService';
 
 
 type PlanBuilderModalProps = {
@@ -40,10 +46,12 @@ export default function PlanBuilderModal({
 }: PlanBuilderModalProps) {
   const [tempTaskName, setTempTaskName] = React.useState('');
   const [tempTaskLocation, setTempTaskLocation] = React.useState('');
+  const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
   const [showTimePicker, setShowTimePicker] = React.useState(false);
   const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
+  const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
 
   const addTask = () => {
     if (tempTaskName.trim()) {
@@ -51,12 +59,14 @@ export default function PlanBuilderModal({
         id: Date.now(),
         name: tempTaskName,
         location: tempTaskLocation,
+        locationPlaceID: tempTaskLocationPlaceId,
         time: tempTaskTime,
         type: 'task',
       };
       setTasks([...tasks, newTask]);
       setTempTaskName('');
       setTempTaskLocation('');
+      setTempTaskLocationPlaceId('');
       setTempTaskTime('');
     }
   };
@@ -67,12 +77,14 @@ export default function PlanBuilderModal({
         id: Date.now(),
         name: "Start Location",
         location: tempTaskLocation,
+        locationPlaceID: tempTaskLocationPlaceId,
         time: '',
         type: 'location',
       };
       setTasks([...tasks, newOriginLocation]);
       setTempTaskName('');
       setTempTaskLocation('');
+      setTempTaskLocationPlaceId('');
       setTempTaskTime('');
       setIsStartLocationButton(false);
     }
@@ -103,12 +115,93 @@ export default function PlanBuilderModal({
     setTempTaskTime(formattedTime);
   };
 
+  useEffect(() => {
+    const buildingResults: suggestionResult[] = buildingListPlusMore.map(
+      (building) => ({
+        placePrediction: {
+          place: building.buildingName,
+          placeId: building.placeID,
+          text: {
+            text: building.buildingName,
+            matches: [
+              { startOffset: 0, endOffset: building.buildingName.length },
+            ],
+          },
+          structuredFormat: {
+            mainText: {
+              text: building.buildingName,
+              matches: [
+                { startOffset: 0, endOffset: building.buildingName.length },
+              ],
+            },
+            secondaryText: {
+              text: "",
+            },
+          },
+          types: ["building"],
+        },
+      })
+    );
+    setSearchSuggestions(buildingResults);
+    }, []);
+
   const isAddTaskDisabled =
   !tempTaskName.trim() || !tempTaskLocation.trim();
+
+  const buildingListPlusMore: BuildingData[] = [
+    { buildingName: "Any SGW campus building", placeID: "" },
+    { buildingName: "Any LOY campus building", placeID: "" },
+    { buildingName: "Any campus building", placeID: "" },
+    { buildingName: "Any location", placeID: "" },
+    ...buildingList, 
+  ];
 
   const isOriginLocationDisabled = !tempTaskLocation.trim();
 
   const isSaveDisabled = !planName.trim() || tasks.length < 1;
+
+  const _openAppSetting = useCallback(async () => {
+      await Linking.openSettings();
+    }, []);
+
+  const handleSearch = async (placeName: string) => {
+      if (placeName === "Your Location") {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Location Services Disabled",
+            "Please enable location services to use this feature.",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: "Enable",
+                onPress: () => {
+                  _openAppSetting();
+                },
+              },
+            ]
+          );
+          return;
+        }
+      }
+      try {
+        const data = searchSuggestions.find(
+          (place) =>
+            place.placePrediction.structuredFormat.mainText.text === placeName
+        );
+        if (data === undefined) {
+          console.log("Index.tsx: selected place is undefined");
+          return;
+        }
+        setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
+        setTempTaskLocationPlaceId(data.placePrediction.placeId);
+      } catch (error) {
+        console.log(`Index.tsx: Error selecting place: ${error}`);
+      }
+    };
 
   return (
     <Modal
@@ -168,13 +261,17 @@ export default function PlanBuilderModal({
                 onChangeText={setTempTaskName}
               />
               <Text style={styles.addTaskHeader}>Location</Text>
-              <TextInput
-                style={styles.taskInput}
-                placeholder="Search location..."
-                placeholderTextColor="#b2b3b8"
-                value={tempTaskLocation}
-                onChangeText={setTempTaskLocation}
-              />
+              <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
+                <AutoCompleteDropdown
+                  testID="locationSmartPlannerDropdown"
+                  locked={false}
+                  searchSuggestions={searchSuggestions}
+                  setSearchSuggestions={setSearchSuggestions}
+                  buildingData={buildingListPlusMore}
+                  onSelect={(selected) => handleSearch(selected)}
+                  darkTheme={true}
+                />
+              </View>
               <Text style={styles.addTaskHeader}>Time (Optional)</Text>
               {Platform.OS === 'ios' ? (
                   <DateTimePicker
@@ -234,13 +331,17 @@ export default function PlanBuilderModal({
 
             <View style={styles.addTaskContainer}>
               <Text style={styles.addTaskHeader}>Location</Text>
-              <TextInput
-                style={styles.taskInput}
-                placeholder="Search location..."
-                placeholderTextColor="#b2b3b8"
-                value={tempTaskLocation}
-                onChangeText={setTempTaskLocation}
-              />
+              <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
+                <AutoCompleteDropdown
+                  testID="locationSmartPlannerDropdown"
+                  locked={false}
+                  searchSuggestions={searchSuggestions}
+                  setSearchSuggestions={setSearchSuggestions}
+                  buildingData={buildingListPlusMore}
+                  onSelect={(selected) => handleSearch(selected)}
+                  darkTheme={true}
+                />
+              </View>
 
               <TouchableOpacity
                 style={[styles.addTaskButton, isOriginLocationDisabled && styles.disabledButton]}

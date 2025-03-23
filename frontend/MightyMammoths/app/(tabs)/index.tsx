@@ -45,6 +45,7 @@ import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
 import IndoorMapModal from "@/components/ui/IndoorMapModal";
+import { buildingList } from "@/utils/getBuildingList";
 
 export default function HomeScreen() {
   interface Region {
@@ -101,12 +102,6 @@ export default function HomeScreen() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-  const buildingList: BuildingData[] = campusBuildingCoords.features.map(
-    ({ properties }) => ({
-      buildingName: properties.BuildingName,
-      placeID: properties.PlaceID || "",
-    })
-  );
 
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({

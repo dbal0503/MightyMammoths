@@ -118,7 +118,7 @@ export default function TaskViewModal({
                           onChangeText={setTempTaskName}
                         />
                       </View>
-                      <Text style={styles.addTaskHeader}>Task Name</Text>
+                      <Text style={styles.addTaskHeader}>Location</Text>
                       <View style={styles.inputRow}>
                         <TextInput
                           style={styles.editTaskInput}
@@ -126,7 +126,7 @@ export default function TaskViewModal({
                           onChangeText={setTempTaskLocation}
                         />
                       </View>
-                      <Text style={styles.addTaskHeader}>Task Name</Text>
+                      <Text style={styles.addTaskHeader}>Time</Text>
                       <View style={styles.inputRow}>
                         <TextInput
                           style={styles.editTaskInput}
