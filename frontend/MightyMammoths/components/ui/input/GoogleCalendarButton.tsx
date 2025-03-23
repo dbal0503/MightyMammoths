@@ -23,10 +23,11 @@ GoogleSignin.configure({
 
 type GoogleCalendarButtonProps = {
   navigateToRoutes: (destination: string) => void;
+  onNextEvent: (eventData: any) => void;
   testID?: string;
 };
 
-const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes, testID }) => {
+const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes, onNextEvent, testID }) => {
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [calendars, setCalendars] = useState<any[]>([]);
@@ -112,15 +113,18 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
           timeRange = `${startStr} - ${endStr}`;
         }
 
-        // Take the class from description only
-        setNextEvent({
+        const nextEventData = {
           name: eventName,
           description: description,
           location: location,
           time: timeRange,
-        });
+        };
+
+        setNextEvent(nextEventData);
+        onNextEvent(nextEventData); // notify parent component
       } else {
         setNextEvent(null);
+        onNextEvent(null); // notify parent no event found
       }
     } catch {
       Alert.alert("Error fetching events");

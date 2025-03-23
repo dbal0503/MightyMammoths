@@ -29,10 +29,15 @@ type PlanBuilderModalProps = {
   setPlanName: Dispatch<SetStateAction<string>>;
   tasks: Task[];
   setTasks: Dispatch<SetStateAction<Task[]>>;
-  onSavePlan: () => void; // callback from parent
+  onSavePlan: () => void;
   openTaskView: () => void;
+  nextEvent?: {
+    name: string;
+    description: string;
+    location: string;
+    time: string;
+  } | null;
 };
-
 export default function PlanBuilderModal({
   visible,
   onClose,
@@ -41,6 +46,7 @@ export default function PlanBuilderModal({
   tasks,
   setTasks,
   onSavePlan,
+  nextEvent,
   openTaskView,
 }: PlanBuilderModalProps) {
   const [tempTaskName, setTempTaskName] = React.useState('');
@@ -193,6 +199,23 @@ export default function PlanBuilderModal({
       }
     };
 
+    const handleAddNextClass = () => {
+      if (!nextEvent) {
+        Alert.alert("No next event found in your Google Calendar.");
+        return;
+      }
+      const newTask: Task = {
+        id: Date.now(),
+        name: nextEvent.name,
+        location: nextEvent.location,
+        locationPlaceID: "",
+        time: nextEvent.time,
+        type: "task",
+      };
+      setTasks([...tasks, newTask]);
+    };
+  
+
   return (
     <Modal
       visible={visible}
@@ -228,7 +251,7 @@ export default function PlanBuilderModal({
               <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(true)}>
                 <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()}>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>

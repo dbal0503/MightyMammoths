@@ -28,6 +28,7 @@ function LoyolaSGWToggleSheet({
 }: LoyolaSGWToggleSheetProps) {
   const [isEnabled, setIsEnabled] = useState(false);
   const [smartPlannerVisible, setSmartPlannerVisible] = useState(false);
+  const [nextEvent, setNextEvent] = useState<any | null>(null);
 
   const openSmartPlanner = () => {
     actionsheetref.current?.hide();
@@ -71,6 +72,7 @@ function LoyolaSGWToggleSheet({
         <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
         <GoogleCalendarButton
           testID="google-calendar-button"
+          onNextEvent={(eventData) => setNextEvent(eventData)}
           navigateToRoutes={(destination: string) => navigateToRoutes(destination)}
         />
         <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={openSmartPlanner}>
@@ -86,6 +88,7 @@ function LoyolaSGWToggleSheet({
       <SmartPlannerModal
         visible={smartPlannerVisible}
         onClose={closeSmartPlanner}
+        nextEvent={nextEvent}
       />
     </>
   );

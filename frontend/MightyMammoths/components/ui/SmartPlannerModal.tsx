@@ -20,14 +20,22 @@ import { generatePlanFromChatGPT, TaskPlan } from '@/services/spOpenAI';
 import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
+
 type SmartPlannerModalProps = {
   visible: boolean;
   onClose: () => void;
+  nextEvent?: {
+    name: string;
+    description: string;
+    location: string;
+    time: string;
+  } | null;
 };
 
 export default function SmartPlannerModal({
   visible,
   onClose,
+  nextEvent,
 }: SmartPlannerModalProps) {
   const [hasPlan, setHasPlan] = useState(false);
   const [planName, setPlanName] = useState('');
@@ -194,6 +202,7 @@ export default function SmartPlannerModal({
           setPlanName={setPlanName}
           tasks={tasks}
           setTasks={setTasks}
+          nextEvent={nextEvent}
           onSavePlan={() => {
             handleSavePlan();
             setPlanBuilderVisible(false);
