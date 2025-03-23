@@ -79,7 +79,6 @@ const TutorialHowTo: React.FC<TutorialHowToProps> = ({
   ];
 
   return (
-    <>
       <Modal transparent={true}>
         <View style={styles.overlap}>
           <View style={modals[modalIndex].style}>
@@ -96,7 +95,6 @@ const TutorialHowTo: React.FC<TutorialHowToProps> = ({
           </View>
         </View>
       </Modal>
-    </>
   );
 };
 
