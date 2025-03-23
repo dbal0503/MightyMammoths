@@ -1,6 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import { StyleSheet, View, Animated, Alert, Linking} from "react-native";
+import { StyleSheet, View, Animated, Alert, Linking, TouchableOpacity} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Location from "expo-location";
@@ -43,6 +43,23 @@ export function DestinationChoices({
   const checkSelection = (start: string | null, destination: string | null) => {
     setTwoBuildingsSelected(start !== null && destination !== null);
   };
+
+  useEffect(() => {
+    const checkAndSetOrigin =  () => {
+      if (destination && destination !== "Select a building") {
+        if (locationServicesEnabled) {
+          console.log("granted permissions");
+          setOrigin("Your Location");
+          topDropDownRef.current?.setValue("Your Location");
+        } else {
+          setOrigin("");
+          topDropDownRef.current?.setValue("");
+        }
+      }
+    };
+  
+    checkAndSetOrigin();
+  }, [destination]);
 
   useEffect(() => {
     if (visible) {
@@ -106,6 +123,20 @@ export function DestinationChoices({
       onSuccess();
     }
   };
+
+  const swapBuildings = () => {
+    if (selectedStart && selectedDestination) {
+      setSelectedStart(selectedDestination);
+      setSelectedDestination(selectedStart);
+  
+      setOrigin(selectedDestination);
+      setDestination(selectedStart);
+      setSelectedBuilding(selectedStart);
+  
+      topDropDownRef.current?.setValue(selectedDestination);
+      bottomDropDownRef.current?.setValue(selectedStart);
+    }
+  };
       
 
   return (
@@ -147,12 +178,24 @@ export function DestinationChoices({
             }
         }} />
       </View>
-      <IconSymbol
-        name= {"more-vert" as IconSymbolName}
-        size={30}
-        color="black"
-        style={styles.modeIcon}
-      />
+      <View style={styles.buttonContainer}>
+        <IconSymbol
+          name= {"more-vert" as IconSymbolName}
+          size={30}
+          color="black"
+          style={styles.modeIcon}
+          testID="more-vert"
+        />
+        <TouchableOpacity onPress={swapBuildings} style={styles.swapButton}>
+          <IconSymbol
+            name={"swap-vert" as IconSymbolName}
+            size={30}
+            color="black"
+            style={styles.swapIcon}
+            testID="swap-vert"
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.dropdownWrapper}>
       <AutoCompleteDropdown
         testID="destinationNavigationDropdown"
@@ -177,6 +220,7 @@ export function DestinationChoices({
                 setDestination("Select a building");
                 setSelectedBuilding("Select a building");
                 setSelectedDestination("Select a building");
+                
               }
             );
           } else {
@@ -214,4 +258,19 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 5,
   },
+  buttonContainer:{
+    display:'flex',
+    flexDirection: 'row',
+    
+    width: 220,
+    marginLeft: 195,
+  },
+  swapIcon: {
+    alignItems: "center",
+    color: "white",
+    padding: 5,
+  },
+  swapButton:{
+    marginLeft: 'auto',
+  }
 });
