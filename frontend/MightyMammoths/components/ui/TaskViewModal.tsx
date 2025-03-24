@@ -46,11 +46,23 @@ export default function TaskViewModal({
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = useState('');
   const [tempTaskTime, setTempTaskTime] = useState('');
   const [editingTask, setEditingTask] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
-  const [date, setDate] = React.useState(new Date());
+  const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
+  const [date, setDate] = useState(new Date());
+
+  // Whenever the modal closes, reset any editing state so it won't remain in edit mode
+  useEffect(() => {
+    if (!visible) {
+      setEditingTask(false);
+      setEditingTaskId(null);
+      setTempTaskName('');
+      setTempTaskLocation('');
+      setTempTaskLocationPlaceId('');
+      setTempTaskTime('');
+    }
+  }, [visible]);
 
   const markDone = (id: number) => {
-    // Optionally handle "Done" state here
+    // Handle "Done" state if needed
   };
 
   const deleteTask = (id: number) => {
@@ -66,13 +78,18 @@ export default function TaskViewModal({
     setTempTaskTime(task.time);
   };
 
-  //! If a task is edited and saved, we need to regenerate the plan again
   const saveTaskEdit = () => {
     if (!editingTaskId) return;
     setTasks((prev) =>
       prev.map((t) =>
         t.id === editingTaskId
-          ? { ...t, name: tempTaskName, location: tempTaskLocation, locationPlaceID: tempTaskLocationPlaceId, time: tempTaskTime }
+          ? {
+              ...t,
+              name: tempTaskName,
+              location: tempTaskLocation,
+              locationPlaceID: tempTaskLocationPlaceId,
+              time: tempTaskTime,
+            }
           : t
       )
     );
@@ -85,101 +102,90 @@ export default function TaskViewModal({
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-      const currentDate = selectedDate || date;
+    const currentDate = selectedDate || date;
+    setDate(currentDate);
 
-      setDate(currentDate);
-      
-      // Format the time to display
-      const hours = currentDate.getHours();
-      const minutes = currentDate.getMinutes();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-      const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-      
-      setTempTaskTime(formattedTime);
-    };
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+    
+    setTempTaskTime(formattedTime);
+  };
 
   const buildingListPlusMore: BuildingData[] = [
-      { buildingName: "Any SGW campus building", placeID: "" },
-      { buildingName: "Any LOY campus building", placeID: "" },
-      { buildingName: "Any campus building", placeID: "" },
-      { buildingName: "Any location", placeID: "" },
-      ...buildingList, 
-    ];
+    { buildingName: "Any SGW campus building", placeID: "" },
+    { buildingName: "Any LOY campus building", placeID: "" },
+    { buildingName: "Any campus building", placeID: "" },
+    { buildingName: "Any location", placeID: "" },
+    ...buildingList,
+  ];
 
   useEffect(() => {
-      const buildingResults: suggestionResult[] = buildingListPlusMore.map(
-        (building) => ({
-          placePrediction: {
-            place: building.buildingName,
-            placeId: building.placeID,
-            text: {
+    const buildingResults: suggestionResult[] = buildingListPlusMore.map(
+      (building) => ({
+        placePrediction: {
+          place: building.buildingName,
+          placeId: building.placeID,
+          text: {
+            text: building.buildingName,
+            matches: [
+              { startOffset: 0, endOffset: building.buildingName.length },
+            ],
+          },
+          structuredFormat: {
+            mainText: {
               text: building.buildingName,
               matches: [
                 { startOffset: 0, endOffset: building.buildingName.length },
               ],
             },
-            structuredFormat: {
-              mainText: {
-                text: building.buildingName,
-                matches: [
-                  { startOffset: 0, endOffset: building.buildingName.length },
-                ],
-              },
-              secondaryText: {
-                text: "",
-              },
+            secondaryText: {
+              text: "",
             },
-            types: ["building"],
           },
-        })
-      );
-      setSearchSuggestions(buildingResults);
-      }, []);
+          types: ["building"],
+        },
+      })
+    );
+    setSearchSuggestions(buildingResults);
+  }, []);
 
-    const _openAppSetting = useCallback(async () => {
-          await Linking.openSettings();
-        }, []);
-    
-      const handleSearch = async (placeName: string) => {
-          if (placeName === "Your Location") {
-            const { status } = await Location.getForegroundPermissionsAsync();
-            if (status !== "granted") {
-              Alert.alert(
-                "Location Services Disabled",
-                "Please enable location services to use this feature.",
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Enable",
-                    onPress: () => {
-                      _openAppSetting();
-                    },
-                  },
-                ]
-              );
-              return;
-            }
-          }
-          try {
-            const data = searchSuggestions.find(
-              (place) =>
-                place.placePrediction.structuredFormat.mainText.text === placeName
-            );
-            if (data === undefined) {
-              console.log("Index.tsx: selected place is undefined");
-              return;
-            }
-            setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
-            setTempTaskLocationPlaceId(data.placePrediction.placeId);
-          } catch (error) {
-            console.log(`Index.tsx: Error selecting place: ${error}`);
-          }
-        };
+  const _openAppSetting = useCallback(async () => {
+    await Linking.openSettings();
+  }, []);
+
+  const handleSearch = async (placeName: string) => {
+    if (placeName === "Your Location") {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Location Services Disabled",
+          "Please enable location services to use this feature.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Enable", onPress: () => { _openAppSetting(); } },
+          ]
+        );
+        return;
+      }
+    }
+    try {
+      const data = searchSuggestions.find(
+        (place) => place.placePrediction.structuredFormat.mainText.text === placeName
+      );
+      if (data === undefined) {
+        console.log("Selected place is undefined");
+        return;
+      }
+      setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
+      setTempTaskLocationPlaceId(data.placePrediction.placeId);
+    } catch (error) {
+      console.log(`Error selecting place: ${error}`);
+    }
+  };
 
   return (
     <Modal
@@ -187,173 +193,197 @@ export default function TaskViewModal({
       transparent
       animationType="slide"
       statusBarTranslucent={true}
-      onRequestClose={onClose}
+      onRequestClose={() => {
+        onClose();
+      }}
     >
-     <KeyboardAvoidingView
-     style={{ flex: 1 }}
-     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-     >
-      <View style={styles.overlay}>
-        <View style={[
-          styles.container, 
-          {height: editingTask ? '70%' : '40%'},
-          ]}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Tasks for {planName}</Text>
-            <TouchableOpacity onPress={() => {
-                onClose();
-                setEditingTask(false);
-              }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.overlay}>
+          {/* Make the container tall so more tasks are visible */}
+          <View style={[styles.container, { height: '85%' }]}>
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Tasks for {planName}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  onClose();
+                }}
+              >
+                <IconSymbol name={'close' as IconSymbolName} size={32} color="white" />
+              </TouchableOpacity>
+            </View>
 
-              <IconSymbol name={'close' as IconSymbolName} size={32} color="white" />
-            </TouchableOpacity>
+            <FlatList
+              data={tasks}
+              keyExtractor={(item) => item.id.toString()}
+              style={{ maxHeight: '75%' }}
+              renderItem={({ item }) => {
+                const isEditing = editingTaskId === item.id;
+                return (
+                  <View style={styles.taskRow}>
+                    {isEditing ? (
+                      <>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.addTaskHeader}>Task Name</Text>
+                          <View style={styles.inputRow}>
+                            <TextInput
+                              style={styles.editTaskInput}
+                              value={tempTaskName}
+                              onChangeText={setTempTaskName}
+                            />
+                          </View>
+
+                          <Text style={styles.addTaskHeader}>Location</Text>
+                          <View style={styles.inputRow}>
+                            <AutoCompleteDropdown
+                              testID="locationSmartPlannerDropdown"
+                              locked={false}
+                              searchSuggestions={searchSuggestions}
+                              setSearchSuggestions={setSearchSuggestions}
+                              buildingData={buildingListPlusMore}
+                              onSelect={(selected) => handleSearch(selected)}
+                              darkTheme={true}
+                            />
+                          </View>
+
+                          <Text style={styles.addTaskHeader}>Time</Text>
+                          <View style={styles.inputRow}>
+                            {Platform.OS === 'ios' ? (
+                              <DateTimePicker
+                                value={date}
+                                mode="time"
+                                is24Hour={false}
+                                display="default"
+                                onChange={onTimeChange}
+                                themeVariant="dark"
+                              />
+                            ) : (
+                              <TouchableOpacity
+                                onPress={() => {
+                                  DateTimePickerAndroid.open({
+                                    value: date,
+                                    mode: 'time',
+                                    is24Hour: false,
+                                    display: 'default',
+                                    onChange: onTimeChange,
+                                  });
+                                }}
+                                style={styles.taskInput}
+                              >
+                                <Text style={{ color: 'white', fontSize: 17 }}>
+                                  {tempTaskTime || 'Select Time'}
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+
+                          <View style={styles.saveButtonRow}>
+                            <TouchableOpacity
+                              style={styles.doneButton}
+                              onPress={saveTaskEdit}
+                            >
+                              <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </>
+                    ) : (
+                      <>
+                        <View style={styles.taskRow}>
+                          <View style={{ flex: 1 }}>
+                            <View style={styles.taskNameRow}>
+                              <Text style={styles.taskItemText}>{item.name}</Text>
+                              <View style={styles.iconButtonsRow}>
+                                <TouchableOpacity
+                                  style={styles.editButton}
+                                  onPress={() => editTask(item)}
+                                >
+                                  <IconSymbol
+                                    name={'pencil' as IconSymbolName}
+                                    size={20}
+                                    color="white"
+                                  />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                  style={styles.deleteButton}
+                                  onPress={() => deleteTask(item.id)}
+                                >
+                                  <IconSymbol
+                                    name={'trash' as IconSymbolName}
+                                    size={20}
+                                    color="white"
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+
+                            <View style={styles.iconRow}>
+                              <IconSymbol
+                                name={'location' as IconSymbolName}
+                                size={16}
+                                color="#b2b3b8"
+                              />
+                              <Text style={styles.taskItemSubText}>{item.location}</Text>
+                            </View>
+                            <View style={styles.iconRow}>
+                              <IconSymbol
+                                name={'clock' as IconSymbolName}
+                                size={16}
+                                color="#b2b3b8"
+                              />
+                              <Text style={styles.taskItemSubText}>{item.time}</Text>
+                            </View>
+
+                            <View style={styles.buttonRow}>
+                              <TouchableOpacity
+                                style={styles.directionsButton}
+                                onPress={() => {}}
+                              >
+                                <Text style={{ color: 'white', fontSize: 16 }}>
+                                  Directions
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={styles.doneButton}
+                                onPress={() => markDone(item.id)}
+                              >
+                                <Text style={{ color: 'white', fontSize: 16 }}>
+                                  Done
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                );
+              }}
+            />
+
+            {/* If not editing, show plan builder & delete plan buttons */}
+            {!editingTask && (
+              <View style={styles.footer}>
+                <TouchableOpacity
+                  style={styles.planBuilderButton}
+                  onPress={openPlanBuilder}
+                >
+                  <Text style={{ color: 'white', fontSize: 16 }}>Plan Builder</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deletePlanButton}
+                  onPress={deletePlan}
+                >
+                  <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-
-          <FlatList
-            data={tasks}
-            keyExtractor={(item) => item.id.toString()}
-            style={{ maxHeight: '63%' }}
-            renderItem={({ item }) => {
-              const isEditing = editingTaskId === item.id;
-              return (
-                <View style={styles.taskRow}>
-                  {isEditing ? (
-                    <>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.addTaskHeader}>Task Name</Text>
-                      <View style={styles.inputRow}>
-                        <TextInput
-                          style={styles.editTaskInput}
-                          value={tempTaskName}
-                          onChangeText={setTempTaskName}
-                        />
-                      </View>
-                      <Text style={styles.addTaskHeader}>Location</Text>
-                      <View style={styles.inputRow}>
-                        <AutoCompleteDropdown
-                          testID="locationSmartPlannerDropdown"
-                          locked={false}
-                          searchSuggestions={searchSuggestions}
-                          setSearchSuggestions={setSearchSuggestions}
-                          buildingData={buildingListPlusMore}
-                          onSelect={(selected) => handleSearch(selected)}
-                          darkTheme={true}
-                        />
-                      </View>
-                      <Text style={styles.addTaskHeader}>Time</Text>
-                      <View style={styles.inputRow}>
-                      {Platform.OS === 'ios' ? (
-                          <DateTimePicker
-                            value={date}
-                            mode="time"
-                            is24Hour={false}
-                            display="default"
-                            onChange={onTimeChange}
-                            themeVariant="dark"
-                          />
-                        ) : (
-                        <TouchableOpacity
-                          onPress={() => {
-                            DateTimePickerAndroid.open({
-                              value: date,
-                              mode: 'time',
-                              is24Hour: false,
-                              display: 'default',
-                              onChange: onTimeChange,
-                            });
-                          }}
-                          style={styles.taskInput}
-                        >
-                          <Text style={{ color: 'white', fontSize: 17 }}>
-                            {tempTaskTime || 'Select Time'}
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                      </View>
-                      <View style={styles.saveButtonRow}>
-                        <TouchableOpacity style={styles.doneButton} onPress={saveTaskEdit}>
-                          <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    </>
-                  ) : (
-                    <>
-                      <View style={styles.taskRow}>
-                      <View style={{ flex: 1 }}>
-                      <View style={styles.taskNameRow}>
-                        <Text style={styles.taskItemText}>{item.name}</Text>
-                        <View style={styles.iconButtonsRow}>
-                          <TouchableOpacity
-                            style={styles.editButton}
-                            onPress={() => editTask(item)}
-                          >
-                            <IconSymbol
-                              name={'pencil' as IconSymbolName}
-                              size={20}
-                              color="white"
-                            />
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => deleteTask(item.id)}
-                          >
-                            <IconSymbol
-                              name={'trash' as IconSymbolName}
-                              size={20}
-                              color="white"
-                            />
-                        </TouchableOpacity>
-                        </View>
-                      </View>
-                        <View style={styles.iconRow}>
-                          <IconSymbol name={'location' as IconSymbolName} size={16} color="#b2b3b8" />
-                          <Text style={styles.taskItemSubText}>{item.location}</Text>
-                        </View>
-                        <View style={styles.iconRow}>
-                          <IconSymbol name={'clock' as IconSymbolName} size={16} color="#b2b3b8" />
-                          <Text style={styles.taskItemSubText}>{item.time}</Text>
-                        </View>
-
-                        <View style={styles.buttonRow}>
-                        <TouchableOpacity
-                            style={styles.directionsButton}
-                            onPress={() => {}}
-                          >
-                            <Text style={{ color: 'white', fontSize: 16 }}>Directions</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            style={styles.doneButton}
-                            onPress={() => markDone(item.id)}
-                          >
-                            <Text style={{ color: 'white', fontSize: 16 }}>Done</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </View>
-                    </>
-                  )}
-                </View>
-              );
-            }}
-          />
-          {!editingTask && (
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={styles.planBuilderButton}
-              onPress={openPlanBuilder}
-            >
-              <Text style={{ color: 'white', fontSize: 16 }}>Plan Builder</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.deletePlanButton} onPress={deletePlan}>
-              <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
-            </TouchableOpacity>
-          </View>)}
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -369,7 +399,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#010213',
     borderRadius: 10,
     padding: 16,
-    maxHeight: '80%',
+    // We let the inline style set height: '85%' to make it taller.
   },
   addTaskHeader: {
     fontSize: 17,
@@ -504,9 +534,5 @@ const styles = StyleSheet.create({
     padding: 12,
     marginHorizontal: 4,
     alignItems: 'center',
-  },
-  iconButton: {
-    padding: 6,
-    marginHorizontal: 4,
   },
 });
