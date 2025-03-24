@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
 import { BoundingBox } from "react-native-maps";
 
 
@@ -27,12 +27,12 @@ export interface AutoCompleteDropdownRef {
 interface AutoCompleteDropdownProps {
   currentVal?: string;
   buildingData: BuildingData[];
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
-  onNearbyResults: (results: suggestionResult[]) => void;
+  onNearbyResults: (results: SuggestionResult[]) => void;
   boundaries: BoundingBox | undefined
 }
 
@@ -154,15 +154,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSearchSuggestions(prevSuggestions => {
         // Optionally filter out duplicates based on a unique property, e.g., placeId
         const newResults = results.filter(newResult => 
-          !prevSuggestions.some(oldResult => 
-            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-          )
+          mergeUniqueResults(prevSuggestions, newResult)
         );
         return [...prevSuggestions, ...newResults];
       });
     } else {
       console.log("Failed to get search suggestions.")
     }
+  };
+
+  const mergeUniqueResults = (prevSuggestions: SuggestionResult[], newResult: SuggestionResult) => {
+    return !prevSuggestions.some(oldResult => 
+      oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+    )
   };
 
   const handleSelect = (placeName: string) => {
