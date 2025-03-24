@@ -1,0 +1,48 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertNotVisible:
+    id: "set-start-location-button"
+
+- assertVisible:
+    id: "plan-name-input"
+
+- assertVisible:
+    id: "add-next-class-button"
+
+- assertVisible:
+    id: "view-current-tasks-button"
+
+- assertVisible:
+    id: "add-task-button"
+
+- assertNotVisible:
+    id: "save-add-task-button"
+
+- assertNotVisible:
+    id: "task-name-input"
+
+- assertNotVisible:
+    id: "time-picker"
+
+- assertVisible:
+    id: "locationSmartPlannerDropdown"
+
+- assertVisible:
+    id: "locationSmartPlannerDropdown"
+
+- tapOn:
+    id: "locationSmartPlannerDropdown"
+
+- inputText: "EV"
+
+- tapOn:
+    point: "87%,89%"
+
+- tapOn:
+    point: "50%,72%"
+
+- assertVisible:
+    id: "add-start-location-button"
+
+- tapOn:
+    id: "add-start-location-button"

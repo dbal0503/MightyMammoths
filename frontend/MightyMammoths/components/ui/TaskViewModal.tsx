@@ -20,6 +20,7 @@ import { suggestionResult } from '@/services/searchService';
 import AutoCompleteDropdown, { BuildingData } from './input/AutoCompleteDropdown';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { TaskPlan } from '@/services/spOpenAI';
 
 type TaskViewModalProps = {
   visible: boolean;
@@ -27,6 +28,10 @@ type TaskViewModalProps = {
   planName: string;
   tasks: Task[];
   setTasks: Dispatch<SetStateAction<Task[]>>;
+  isStartLocationSet: boolean;
+  setIsStartLocationSet: Dispatch<SetStateAction<boolean>>;
+  generatedPlan: TaskPlan[];
+  setGeneratedPlan: Dispatch<SetStateAction<TaskPlan[]>>;
   deletePlan: () => void;
   openPlanBuilder: () => void;
 };
@@ -37,6 +42,10 @@ export default function TaskViewModal({
   planName,
   tasks,
   setTasks,
+  isStartLocationSet,
+  setIsStartLocationSet,
+  generatedPlan,
+  setGeneratedPlan,
   deletePlan,
   openPlanBuilder,
 }: TaskViewModalProps) {
@@ -66,8 +75,16 @@ export default function TaskViewModal({
   };
 
   const deleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-  };
+    setTasks((prev) => {
+      const taskToDelete = prev.find((t) => t.id === id);
+  
+      if (taskToDelete?.name === "Start Location") {
+        setIsStartLocationSet(false);
+      }
+  
+      return prev.filter((t) => t.id !== id);
+    });
+  };  
 
   const editTask = (task: Task) => {
     setEditingTask(true);
@@ -232,19 +249,20 @@ export default function TaskViewModal({
                               style={styles.editTaskInput}
                               value={tempTaskName}
                               onChangeText={setTempTaskName}
+                              testID='task-name-input-edit-task'
                             />
                           </View>
 
                           <Text style={styles.addTaskHeader}>Location</Text>
                           <View style={styles.inputRow}>
                             <AutoCompleteDropdown
-                              testID="locationSmartPlannerDropdown"
                               locked={false}
                               searchSuggestions={searchSuggestions}
                               setSearchSuggestions={setSearchSuggestions}
                               buildingData={buildingListPlusMore}
                               onSelect={(selected) => handleSearch(selected)}
                               darkTheme={true}
+                              testID='location-dropdown-edit-task'
                             />
                           </View>
 
@@ -258,6 +276,7 @@ export default function TaskViewModal({
                                 display="default"
                                 onChange={onTimeChange}
                                 themeVariant="dark"
+                                testID='time-picker-edit-task'
                               />
                             ) : (
                               <TouchableOpacity
@@ -283,6 +302,7 @@ export default function TaskViewModal({
                             <TouchableOpacity
                               style={styles.doneButton}
                               onPress={saveTaskEdit}
+                              testID='save-button-task'
                             >
                               <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
                             </TouchableOpacity>
@@ -304,6 +324,7 @@ export default function TaskViewModal({
                                     name={'pencil' as IconSymbolName}
                                     size={20}
                                     color="white"
+                                    testID='edit-icon-task'
                                   />
                                 </TouchableOpacity>
 
@@ -315,6 +336,7 @@ export default function TaskViewModal({
                                     name={'trash' as IconSymbolName}
                                     size={20}
                                     color="white"
+                                    testID='delete-icon-task'
                                   />
                                 </TouchableOpacity>
                               </View>
@@ -325,6 +347,7 @@ export default function TaskViewModal({
                                 name={'location' as IconSymbolName}
                                 size={16}
                                 color="#b2b3b8"
+                                testID='location-icon-task'
                               />
                               <Text style={styles.taskItemSubText}>{item.location}</Text>
                             </View>
@@ -333,6 +356,7 @@ export default function TaskViewModal({
                                 name={'clock' as IconSymbolName}
                                 size={16}
                                 color="#b2b3b8"
+                                testID='time-icon-task'
                               />
                               <Text style={styles.taskItemSubText}>{item.time}</Text>
                             </View>
@@ -341,6 +365,7 @@ export default function TaskViewModal({
                               <TouchableOpacity
                                 style={styles.directionsButton}
                                 onPress={() => {}}
+                                testID='directions-button-task'
                               >
                                 <Text style={{ color: 'white', fontSize: 16 }}>
                                   Directions
@@ -349,6 +374,7 @@ export default function TaskViewModal({
                               <TouchableOpacity
                                 style={styles.doneButton}
                                 onPress={() => markDone(item.id)}
+                                testID='done-button-task'
                               >
                                 <Text style={{ color: 'white', fontSize: 16 }}>
                                   Done
@@ -370,12 +396,14 @@ export default function TaskViewModal({
                 <TouchableOpacity
                   style={styles.planBuilderButton}
                   onPress={openPlanBuilder}
+                  testID='plan-builder-button'
                 >
                   <Text style={{ color: 'white', fontSize: 16 }}>Plan Builder</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.deletePlanButton}
                   onPress={deletePlan}
+                  testID='delete-plan-button'
                 >
                   <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
                 </TouchableOpacity>

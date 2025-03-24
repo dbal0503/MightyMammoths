@@ -1,0 +1,7 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "delete-plan-button"
+
+- tapOn:
+    id: "delete-plan-button"

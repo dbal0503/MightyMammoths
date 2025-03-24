@@ -41,6 +41,8 @@ export default function SmartPlannerModal({
   const [generatedPlan, setGeneratedPlan] = useState<TaskPlan[]>([]);
   const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStartLocationSet, setIsStartLocationSet] = useState(false);
+  const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
   
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
@@ -64,6 +66,7 @@ export default function SmartPlannerModal({
       { cancelable: true }
     );
   } else {
+    setIsStartLocationSet(false);
     setPlanBuilderVisible(true);
   }
   };
@@ -77,9 +80,6 @@ export default function SmartPlannerModal({
       console.log('Saved plan:', planName, tasks);
 
       try {
-        //! DO NOT UNCOMMENT THE LINE BELOW OR YOU WILL MAKE 2K API CALLS
-        //calculateAllCampusPairsDistas();
-
         let distanceDurationArr = await calculateAllPairsDistances(tasks);
         //console.log('Distance Duration array:', distanceDurationArr);
         
@@ -97,6 +97,7 @@ export default function SmartPlannerModal({
 
   const handleDeletePlan = () => {
     setHasPlan(false);
+    setIsStartLocationSet(false);
     setPlanName('');
     setTasks([]);
     setTaskViewVisible(false);
@@ -112,6 +113,7 @@ export default function SmartPlannerModal({
       <TouchableOpacity
         style={styles.createPlanButton}
         onPress={handleCreatePlan}
+        testID='create-plan-button'
       >
         <Text style={styles.createPlanButtonText}>Create New Plan</Text>
       </TouchableOpacity>
@@ -130,21 +132,21 @@ export default function SmartPlannerModal({
             <>
               <View style={styles.taskHeaderRow}>
                 <Text style={styles.nextTaskLabel}>Next Task</Text>
-                <TouchableOpacity style={styles.nextTaskDirectionsButton}>
+                <TouchableOpacity style={styles.nextTaskDirectionsButton} testID='get-directions-button-main-modal'>
                   <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.iconTextRow}>
-                <IconSymbol name={'info' as IconSymbolName} size={30} color="white" />
+                <IconSymbol name={'info' as IconSymbolName} size={30} color="white" testID='info-icon-main-modal'/>
                 {/* TODO Get the task from generatedPlan */}
                 <Text style={styles.taskItemSubText}>{generatedPlan[1].taskName}</Text> 
               </View>
               <View style={styles.iconTextRow}>
-                <IconSymbol name={'location' as IconSymbolName} size={30} color="white" />
+                <IconSymbol name={'location' as IconSymbolName} size={30} color="white" testID='location-icon-main-modal'/>
                 <Text style={styles.taskItemSubText}>{generatedPlan[1].taskLocation}</Text>
               </View>
               <View style={styles.iconTextRow}>
-                <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" />
+                <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" testID='clock-icon-main-modal' />
                 <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
               </View>
             </>
@@ -157,6 +159,7 @@ export default function SmartPlannerModal({
         <TouchableOpacity
           style={styles.viewPlanButton}
           onPress={() => setTaskViewVisible(true)}
+          testID='view-plan-button'
         >
           <Text style={styles.viewPlanButtonText}>View Plan</Text>
         </TouchableOpacity>
@@ -166,6 +169,7 @@ export default function SmartPlannerModal({
       <TouchableOpacity
         style={styles.createPlanButton}
         onPress={handleCreatePlan}
+        testID='create-plan-button'
       >
         <Text style={styles.createPlanButtonText}>Create New Plan</Text>
       </TouchableOpacity>
@@ -191,7 +195,7 @@ export default function SmartPlannerModal({
           ]}>
           {/* Close Icon */}
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <IconSymbol name={'close' as IconSymbolName} size={30} color="white" />
+            <IconSymbol name={'close' as IconSymbolName} size={30} color="white" testID='close-icon-main-modal' />
           </TouchableOpacity>
 
           {/* Conditional Content */}
@@ -201,12 +205,16 @@ export default function SmartPlannerModal({
         {/* Plan Builder Modal */}
         <PlanBuilderModal
           visible={planBuilderVisible}
-          onClose={() => setPlanBuilderVisible(false)}
+          onClose={() => {setPlanBuilderVisible(false), setIsStartLocationButton(false)}}
           planName={planName}
           setPlanName={setPlanName}
           tasks={tasks}
           setTasks={setTasks}
           nextEvent={nextEvent}
+          isStartLocationButton={isStartLocationButton}
+          setIsStartLocationButton={setIsStartLocationButton}
+          isStartLocationSet={isStartLocationSet}
+          setIsStartLocationSet={setIsStartLocationSet}
           onSavePlan={() => {
             handleSavePlan();
             setPlanBuilderVisible(false);
@@ -232,6 +240,10 @@ export default function SmartPlannerModal({
           planName={planName}
           tasks={tasks}
           setTasks={setTasks}
+          isStartLocationSet={isStartLocationSet}
+          setIsStartLocationSet={setIsStartLocationSet}
+          generatedPlan={generatedPlan}
+          setGeneratedPlan={setGeneratedPlan}
           deletePlan={handleDeletePlan}
           openPlanBuilder={() => {
             setPlanBuilderVisible(true);

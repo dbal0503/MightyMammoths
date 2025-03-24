@@ -7,7 +7,9 @@ export type TaskPlan = {
     taskTime?: string;
     taskType: string;
     origin?: string;
+    originPlaceID?: string;
     destination?: string;
+    destinationPlaceID?: string;
     order: number;
     completed?: boolean;
   }
@@ -62,7 +64,9 @@ export const generatePlanFromChatGPT = async (
             - taskTime (the scheduled time for the task)
             - taskType (as provided in the input)
             - origin
+            - originPlaceID
             - destination
+            - destinationPlaceID
             - completed (a boolean indicating whether the task has been completed but set this to false for all tasks)`;
 
     try {

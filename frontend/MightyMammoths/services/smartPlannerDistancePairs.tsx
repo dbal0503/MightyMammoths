@@ -110,69 +110,6 @@ export async function getDistanceAndDuration(
     }
   }
 
-
-  export const calculateAllCampusPairsDistances = async (): Promise<DistanceResult[]> => {
-    // Assuming each building in campusBuildingCoords has "buildingName" and "placeID" properties.
-    const campusData = campusBuildingCoords as CampusBuildingCollection;
-    const campusBuildings = campusData.features.map((feature) => ({
-      buildingName: feature.properties.BuildingName,
-      placeID: feature.properties.PlaceID,
-    }));
-    let count = 0;
-  
-    for (let i = 0; i < campusBuildings.length; i++) {
-      for (let j = 0; j < campusBuildings.length; j++) {
-        //if (count >= 5) {
-        //  break;
-        //}
-        if (i !== j) {
-          const buildingA = campusBuildings[i];
-          const buildingB = campusBuildings[j];
-  
-          const pairTuple: Tuple = [buildingA.buildingName, buildingB.buildingName];
-  
-          if (!hasTuple(pairTuple, buildingSet)) {
-            try {
-              const distanceResult = await getDistanceAndDuration(
-                buildingA.buildingName,
-                buildingA.placeID,
-                buildingB.buildingName,
-                buildingB.placeID
-              );
-  
-              if (distanceResult !== null) {
-                buildingResults.push(distanceResult);
-                addTuple(pairTuple, buildingSet);
-                count++;
-                console.log(`Origin: ${buildingA.buildingName}, Destination: ${buildingB.buildingName}`);
-              } else {
-                console.warn(`No distance result for ${buildingA.buildingName} → ${buildingB.buildingName}`);
-              }
-            } catch (error) {
-              console.error(`Error processing ${buildingA.buildingName} → ${buildingB.buildingName}: ${error}`);
-            }
-          }
-        }
-      }
-    }
-    console.log('Building Set:', buildingSet);
-    console.log("Distance Results:", buildingResults);
-    try {
-      await FileSystem.writeAsStringAsync(
-        FileSystem.documentDirectory + "buildingSet.json",
-        JSON.stringify(Array.from(buildingSet), null, 2)
-      );
-      await FileSystem.writeAsStringAsync(
-        FileSystem.documentDirectory + "buildingResults.json",
-        JSON.stringify(buildingResults, null, 2)
-      );
-      console.log("Files saved to:", FileSystem.documentDirectory);
-    } catch (e) {
-      console.error("Error saving files:", e);
-    }
-    return buildingResults;
-  };
-
   //TODO Cover the case when the user puts 'Any SGW campus building' or 'LOY campus building' or 'Any campus building' as the location, need to calculate for all buildings within the campus
 export const calculateAllPairsDistances = async (
     locations: Location[]
@@ -216,4 +153,3 @@ export const calculateAllPairsDistances = async (
     }
     return results;
   };
-  

@@ -29,6 +29,10 @@ type PlanBuilderModalProps = {
   setPlanName: Dispatch<SetStateAction<string>>;
   tasks: Task[];
   setTasks: Dispatch<SetStateAction<Task[]>>;
+  isStartLocationSet: boolean;
+  setIsStartLocationSet: Dispatch<SetStateAction<boolean>>;
+  isStartLocationButton: boolean;
+  setIsStartLocationButton: Dispatch<SetStateAction<boolean>>;
   onSavePlan: () => void;
   openTaskView: () => void;
   nextEvent?: {
@@ -45,6 +49,10 @@ export default function PlanBuilderModal({
   setPlanName,
   tasks,
   setTasks,
+  isStartLocationButton,
+  setIsStartLocationButton,
+  isStartLocationSet,
+  setIsStartLocationSet,
   onSavePlan,
   nextEvent,
   openTaskView,
@@ -54,7 +62,6 @@ export default function PlanBuilderModal({
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
-  const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
   const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
 
   const addTask = () => {
@@ -85,6 +92,7 @@ export default function PlanBuilderModal({
         time: '',
         type: 'location',
       };
+      setIsStartLocationSet(true);
       setTasks([...tasks, newOriginLocation]);
       setTempTaskName('');
       setTempTaskLocation('');
@@ -246,7 +254,7 @@ export default function PlanBuilderModal({
       <View style={styles.overlay}>
         <View style={styles.container}>
           <TouchableOpacity onPress={onClose} style={styles.backIcon}>
-            <IconSymbol name={'arrow-back' as IconSymbolName} size={32} color="white" />
+            <IconSymbol name={'arrow-back' as IconSymbolName} size={32} color="white" testID='back-button-editor-modal'/>
           </TouchableOpacity>
 
           <Text style={styles.title}>Smart Planner</Text>
@@ -257,16 +265,17 @@ export default function PlanBuilderModal({
             placeholderTextColor="#b2b3b8"
             value={planName}
             onChangeText={setPlanName}
+            testID='plan-name-input'
           />
           <View style={styles.underlineBox} />
 
           {isStartLocationButton === false ? (
             <>
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(true)}>
+              <TouchableOpacity style={{...styles.actionButton, backgroundColor: isStartLocationSet ? '#2c2c38' : '#122F92'}} onPress={() => setIsStartLocationButton(true)} disabled={isStartLocationSet} testID='set-start-location-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()} testID='add-next-class-button'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -274,7 +283,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
               <View style={styles.taskHeaderRow}>
                 <Text style={styles.addTaskTitle}>Add Task</Text>
-                <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
+                <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView} testID='view-current-tasks-button'>
                   <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
                 </TouchableOpacity>
               </View>
@@ -287,6 +296,7 @@ export default function PlanBuilderModal({
                 placeholderTextColor="#b2b3b8"
                 value={tempTaskName}
                 onChangeText={setTempTaskName}
+                testID='task-name-input'
               />
               <Text style={styles.addTaskHeader}>Location</Text>
               <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
@@ -309,6 +319,7 @@ export default function PlanBuilderModal({
                     display="default"
                     onChange={onTimeChange}
                     themeVariant="dark"
+                    testID='time-picker'
                   />
                 ) : (
                 <TouchableOpacity
@@ -333,6 +344,7 @@ export default function PlanBuilderModal({
                 style={[styles.addTaskButton, isAddTaskDisabled && styles.disabledButton]}
                 onPress={addTask}
                 disabled={isAddTaskDisabled}
+                testID='save-add-task-button'
               >
                 <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
               </TouchableOpacity>
@@ -341,10 +353,10 @@ export default function PlanBuilderModal({
           ) : (
             <>
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(false)}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(false)} testID='add-task-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Add Task</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()} testID='add-next-class-button'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -352,7 +364,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
             <View style={styles.taskHeaderRow}>
               <Text style={styles.addTaskTitle}>Start Location</Text>
-              <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView}>
+              <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView} testID='view-current-tasks-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
               </TouchableOpacity>
             </View>
@@ -375,6 +387,7 @@ export default function PlanBuilderModal({
                 style={[styles.addTaskButton, isOriginLocationDisabled && styles.disabledButton]}
                 onPress={addOriginLocation}
                 disabled={isOriginLocationDisabled}
+                testID='add-start-location-button'
               >
                 <Text style={{ color: 'white', fontSize: 17 }}>Add Start Location</Text>
               </TouchableOpacity>
@@ -386,6 +399,7 @@ export default function PlanBuilderModal({
               style={[styles.saveButton, isSaveDisabled && styles.disabledButton]}
               onPress={onSavePlan}
               disabled={isSaveDisabled}
+              testID='save-plan-button'
             >
             <Text style={{ color: 'white' , fontSize: 17}}>Save</Text>
           </TouchableOpacity>
@@ -461,7 +475,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#2c2c38',
+    backgroundColor: '#122F92',
     borderRadius: 8,
     padding: 12,
     marginHorizontal: 4,

@@ -1,0 +1,11 @@
+appId: com.anonymous.MightyMammoths
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5783
+
+- assertVisible:
+    id: "close-icon-main-modal"
+
+- tapOn:
+    id: "close-icon-main-modal"

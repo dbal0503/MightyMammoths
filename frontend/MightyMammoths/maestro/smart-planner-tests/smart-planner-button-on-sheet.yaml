@@ -1,0 +1,7 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "smart-planner-button"
+    
+- tapOn:
+    id: "smart-planner-button"
