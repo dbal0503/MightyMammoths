@@ -48,11 +48,13 @@ export function DestinationChoices({
     const checkAndSetOrigin =  () => {
       if (destination && destination !== "Select a building") {
         if (locationServicesEnabled) {
-          console.log("granted permissions");
           setOrigin("Your Location");
+          setSelectedStart("Your Location");
           topDropDownRef.current?.setValue("Your Location");
         } else {
           setOrigin("");
+          setSelectedStart(""); 
+          setSelectedDestination(state.destination); 
           topDropDownRef.current?.setValue("");
         }
       }

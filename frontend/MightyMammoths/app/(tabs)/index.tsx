@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect, useCallback} from "react";
-import {StyleSheet, View, Keyboard} from "react-native";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {StyleSheet, View, Keyboard, Modal} from "react-native";
+import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox} from 'react-native-maps';
@@ -13,6 +13,10 @@ import { DestinationChoices } from "@/components/DestinationsChoices";
 import { SuggestionResult, getPlaceDetails, PlaceDetails } from "@/services/searchService";
 import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
 import { Image } from "react-native";
+import { useFirstLaunch } from '../../hooks/useFirstLaunch'
+import TutorialHowTo from "@/components/TutorialHowTo";
+
+
 // Context providers
 import { Alert, Linking } from 'react-native';
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -56,6 +60,8 @@ export default function HomeScreen() {
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
+  const isFirstLaunch = useFirstLaunch();
+  const [showTutorialHowTo, setShowTutorialHowTo] = useState(true);
 
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
@@ -578,6 +584,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        {/* HOW TO guide */}
+        {isFirstLaunch && showTutorialHowTo &&
+          <TutorialHowTo 
+            onClose={()=>setShowTutorialHowTo(false)}
+          />
+        }
         <MapView
           style={styles.map}
           initialRegion={regionMap}
