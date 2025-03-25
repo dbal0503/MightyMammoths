@@ -26,7 +26,7 @@ type GoogleCalendarButtonProps = {
   testID?: string;
 };
 
-const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes }) => {
+const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes, testID }) => {
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [calendars, setCalendars] = useState<any[]>([]);
@@ -145,7 +145,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <View style={styles.dateContainer}>
         <Text style={styles.dateText}>
           {new Date().toLocaleDateString("en-US", {

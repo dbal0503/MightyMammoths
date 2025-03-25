@@ -10,7 +10,9 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
+import { BoundingBox } from "react-native-maps";
+
 
 export interface BuildingData {
   buildingName: string;
@@ -18,17 +20,20 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; // Define the reset function for the ref
+  reset: () => void;
+  setValue: (value: string) => void; 
 }
 
 interface AutoCompleteDropdownProps {
   currentVal?: string;
   buildingData: BuildingData[];
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
+  onNearbyResults: (results: SuggestionResult[]) => void;
+  boundaries: BoundingBox | undefined
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -38,7 +43,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
-  testID
+  testID,
+  onNearbyResults,
+  boundaries
 }, ref) => {
 
   //functions exposed through ref
@@ -46,6 +53,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     reset: () => {
       setSelected("Select a building");
       setIsOpen(false);
+    },
+    setValue: (value: string) => {
+      setSelected(value);
     },
   }));
 
@@ -58,6 +68,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
+  const [showCafes, setShowCafes] = useState(false);
+  const [showRestaurants, setShowRestaurants] = useState(false);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
@@ -97,6 +109,44 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
+  function toRadians(degrees: number) {
+    return degrees * Math.PI / 180;
+  }
+  
+  function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371e3; // Earth's radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function getRadiusFromBoundingBox(boundingBox: BoundingBox) {
+    const { northEast, southWest } = boundingBox;
+    // Calculate center of bounding box
+    const centerLat = (northEast.latitude + southWest.latitude) / 2;
+    const centerLng = (northEast.longitude + southWest.longitude) / 2;
+  
+    // Calculate radius from center to northEast
+    const radius = haversineDistance(centerLat, centerLng, northEast.latitude, northEast.longitude);
+    return radius;
+  }
+
+  const getNearbySuggestions = async (searchQuery: string, boundaries: BoundingBox | undefined) => {
+    if (boundaries){
+      const radius = getRadiusFromBoundingBox(boundaries)
+
+    try{
+    const results = await nearbyPlacesSearch(searchQuery, radius);
+    onNearbyResults(results);}
+    catch (err) {
+      console.log(err)
+    }}
+  };
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -104,15 +154,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSearchSuggestions(prevSuggestions => {
         // Optionally filter out duplicates based on a unique property, e.g., placeId
         const newResults = results.filter(newResult => 
-          !prevSuggestions.some(oldResult => 
-            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-          )
+          mergeUniqueResults(prevSuggestions, newResult)
         );
         return [...prevSuggestions, ...newResults];
       });
     } else {
       console.log("Failed to get search suggestions.")
     }
+  };
+
+  const mergeUniqueResults = (prevSuggestions: SuggestionResult[], newResult: SuggestionResult) => {
+    return !prevSuggestions.some(oldResult => 
+      oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+    )
   };
 
   const handleSelect = (placeName: string) => {
@@ -140,6 +194,26 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     setIsOpen(false);
     setSearchQuery("");
   };
+
+  const handleFindNearbyCoffee = () => {
+    setShowCafes(prevState => !prevState);
+    if (!showCafes) {
+      console.log("Showing Cafes");
+      getNearbySuggestions("cafe", boundaries);
+    } else {
+      console.log("Hiding Cafes");
+    }
+  };
+
+  const handleFindNearbyRestaurants = () => {
+    setShowRestaurants(prevState => !prevState);
+    if (!showRestaurants) {
+      console.log("Showing Restaurants");
+      getNearbySuggestions("restaurant", boundaries);
+    } else {
+      console.log("Hiding Restaurants");
+    }
+    };
 
   return (
     <View style={styles.container} testID={testID}>
@@ -190,10 +264,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
+      <View style={styles.buttonContainer}>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
+          <Text style={styles.buttonText}>Show Cafes</Text>
+        </Pressable>
+        <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
+          <Text style={styles.buttonText}>Show Restaurants</Text>
+        </Pressable>
+      </View>
       </Animated.View>
     </View>
   );
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
 const styles = StyleSheet.create({
   container: {
@@ -262,6 +345,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
+  },
+  actionButton: {
+    width: "45%",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "darkblue",
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+  }
 });
 AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
