@@ -34,7 +34,7 @@ function LoyolaSGWToggleSheet({
     actionsheetref.current?.hide();
     setTimeout(() => setSmartPlannerVisible(true), 300);
   };
-  
+
 
   const closeSmartPlanner = () => {
     setSmartPlannerVisible(false);
@@ -89,6 +89,7 @@ function LoyolaSGWToggleSheet({
         visible={smartPlannerVisible}
         onClose={closeSmartPlanner}
         nextEvent={nextEvent}
+        navigateToRoutes={navigateToRoutes}
       />
     </>
   );

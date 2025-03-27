@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef } from 'react';
 import {
   Modal,
   View,
@@ -17,7 +17,7 @@ import { Task } from './types';
 import * as Location from "expo-location";
 import { buildingList } from '@/utils/getBuildingList';
 import { suggestionResult } from '@/services/searchService';
-import AutoCompleteDropdown, { BuildingData } from './input/AutoCompleteDropdown';
+import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from './input/AutoCompleteDropdown';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { TaskPlan } from '@/services/spOpenAI';
@@ -34,6 +34,7 @@ type TaskViewModalProps = {
   setGeneratedPlan: Dispatch<SetStateAction<TaskPlan[]>>;
   deletePlan: () => void;
   openPlanBuilder: () => void;
+  onRegeneratePlan: (updatedTasks: Task[]) => Promise<void>;
 };
 
 export default function TaskViewModal({
@@ -48,6 +49,7 @@ export default function TaskViewModal({
   setGeneratedPlan,
   deletePlan,
   openPlanBuilder,
+  onRegeneratePlan,
 }: TaskViewModalProps) {
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [tempTaskName, setTempTaskName] = useState('');
@@ -57,6 +59,7 @@ export default function TaskViewModal({
   const [editingTask, setEditingTask] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
   const [date, setDate] = useState(new Date());
+  const editLocationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
 
   // Whenever the modal closes, reset any editing state so it won't remain in edit mode
   useEffect(() => {
@@ -71,20 +74,28 @@ export default function TaskViewModal({
   }, [visible]);
 
   const markDone = (id: number) => {
-    // Handle "Done" state if needed
+    // TODO: Implement "Done" state visually or functionally if needed
+     Alert.alert("Mark as Done", "Functionality not yet implemented.");
   };
 
-  const deleteTask = (id: number) => {
+  const deleteTask = async (id: number) => {
+    let newTasks: Task[] = [];
     setTasks((prev) => {
       const taskToDelete = prev.find((t) => t.id === id);
-  
+
       if (taskToDelete?.name === "Start Location") {
         setIsStartLocationSet(false);
       }
-  
-      return prev.filter((t) => t.id !== id);
+
+      newTasks = prev.filter((t) => t.id !== id);
+      return newTasks;
     });
-  };  
+
+     // Trigger regeneration after state update completes (using newTasks)
+     if (onRegeneratePlan) {
+        await onRegeneratePlan(newTasks);
+     }
+  };
 
   const editTask = (task: Task) => {
     setEditingTask(true);
@@ -93,12 +104,17 @@ export default function TaskViewModal({
     setTempTaskLocation(task.location);
     setTempTaskLocationPlaceId(task.locationPlaceID);
     setTempTaskTime(task.time);
+  
+    setDate(new Date()); 
+    editLocationDropdownRef.current?.reset(); 
   };
 
-  const saveTaskEdit = () => {
+  const saveTaskEdit = async () => {
     if (!editingTaskId) return;
-    setTasks((prev) =>
-      prev.map((t) =>
+
+    let updatedTasks: Task[] = [];
+    setTasks((prev) => {
+      updatedTasks = prev.map((t) =>
         t.id === editingTaskId
           ? {
               ...t,
@@ -108,14 +124,20 @@ export default function TaskViewModal({
               time: tempTaskTime,
             }
           : t
-      )
-    );
-    setEditingTaskId(null);
-    setTempTaskName('');
-    setTempTaskLocation('');
-    setTempTaskLocationPlaceId('');
-    setTempTaskTime('');
-    setEditingTask(false);
+      );
+      return updatedTasks;
+    });
+
+     setEditingTaskId(null);
+     setTempTaskName('');
+     setTempTaskLocation('');
+     setTempTaskLocationPlaceId('');
+     setTempTaskTime('');
+     setEditingTask(false);
+
+     if (onRegeneratePlan) {
+        await onRegeneratePlan(updatedTasks);
+     }
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -128,7 +150,7 @@ export default function TaskViewModal({
     const formattedHours = hours % 12 || 12;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-    
+
     setTempTaskTime(formattedTime);
   };
 
@@ -182,9 +204,9 @@ export default function TaskViewModal({
           "Location Services Disabled",
           "Please enable location services to use this feature.",
           [
-            { text: "Cancel", style: "cancel" },
-            { text: "Enable", onPress: () => { _openAppSetting(); } },
-          ]
+             { text: "Cancel", style: "cancel", onPress: () => editLocationDropdownRef.current?.reset() },
+             { text: "Enable", onPress: () => { _openAppSetting(); editLocationDropdownRef.current?.reset(); } },
+           ]
         );
         return;
       }
@@ -195,14 +217,37 @@ export default function TaskViewModal({
       );
       if (data === undefined) {
         console.log("Selected place is undefined");
+        setTempTaskLocation(''); 
+        setTempTaskLocationPlaceId('');
         return;
       }
       setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
       setTempTaskLocationPlaceId(data.placePrediction.placeId);
     } catch (error) {
       console.log(`Error selecting place: ${error}`);
+       setTempTaskLocation('');
+       setTempTaskLocationPlaceId('');
     }
   };
+
+   const handleDeletePlanPress = () => {
+      Alert.alert(
+        'Confirm Delete',
+        'Are you sure you want to delete this entire plan?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              deletePlan();
+              onClose();
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+    };
 
   return (
     <Modal
@@ -210,9 +255,7 @@ export default function TaskViewModal({
       transparent
       animationType="slide"
       statusBarTranslucent={true}
-      onRequestClose={() => {
-        onClose();
-      }}
+      onRequestClose={onClose} 
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -222,54 +265,46 @@ export default function TaskViewModal({
           {/* Make the container tall so more tasks are visible */}
           <View style={[styles.container, { height: '85%' }]}>
             <View style={styles.header}>
-              <Text style={styles.headerTitle}>Tasks for {planName}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  onClose();
-                }}
-              >
-                <IconSymbol name={'close' as IconSymbolName} size={32} color="white" />
+              <Text style={styles.headerTitle}>{editingTask ? 'Edit Task' : `Plan: ${planName}`}</Text>
+              <TouchableOpacity onPress={onClose}>
+                <IconSymbol name={'close' as IconSymbolName} size={32} color="white" testID="close-task-view-button"/>
               </TouchableOpacity>
             </View>
 
-            <FlatList
-              data={tasks}
-              keyExtractor={(item) => item.id.toString()}
-              style={{ maxHeight: '75%' }}
-              renderItem={({ item }) => {
-                const isEditing = editingTaskId === item.id;
-                return (
-                  <View style={styles.taskRow}>
-                    {isEditing ? (
-                      <>
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.addTaskHeader}>Task Name</Text>
-                          <View style={styles.inputRow}>
-                            <TextInput
-                              style={styles.editTaskInput}
-                              value={tempTaskName}
-                              onChangeText={setTempTaskName}
-                              testID='task-name-input-edit-task'
-                            />
-                          </View>
+             {editingTask ? (
+               <View style={styles.editTaskContainer}>
+                <Text style={styles.addTaskHeader}>Task Name</Text>
+                <TextInput
+                    style={styles.editTaskInput}
+                    value={tempTaskName}
+                    onChangeText={setTempTaskName}
+                    placeholder="Enter task name..."
+                    placeholderTextColor="#b2b3b8"
+                    testID='task-name-input-edit-task'
+                    editable={editingTaskId !== null && tasks.find(t => t.id === editingTaskId)?.name !== 'Start Location'}
+                />
 
-                          <Text style={styles.addTaskHeader}>Location</Text>
-                          <View style={styles.inputRow}>
-                            <AutoCompleteDropdown
-                              locked={false}
-                              searchSuggestions={searchSuggestions}
-                              setSearchSuggestions={setSearchSuggestions}
-                              buildingData={buildingListPlusMore}
-                              onSelect={(selected) => handleSearch(selected)}
-                              darkTheme={true}
-                              testID='location-dropdown-edit-task'
-                            />
-                          </View>
+                <Text style={styles.addTaskHeader}>Location</Text>
+                <View style={{ alignSelf: 'stretch', marginBottom: 12, marginTop: 4}}>
+                    <AutoCompleteDropdown
+                        ref={editLocationDropdownRef}
+                        locked={false}
+                        searchSuggestions={searchSuggestions}
+                        setSearchSuggestions={setSearchSuggestions}
+                        buildingData={buildingListPlusMore}
+                        onSelect={(selected) => handleSearch(selected)}
+                        darkTheme={true}
+                        currentVal={tempTaskLocation} // Show current temp location
+                        testID='location-dropdown-edit-task'
+                    />
+                </View>
 
-                          <Text style={styles.addTaskHeader}>Time</Text>
-                          <View style={styles.inputRow}>
-                            {Platform.OS === 'ios' ? (
-                              <DateTimePicker
+                 {/* Only show time picker if it's not the Start Location task */}
+                 {editingTaskId !== null && tasks.find(t => t.id === editingTaskId)?.name !== 'Start Location' && (
+                     <>
+                        <Text style={styles.addTaskHeader}>Time (Optional)</Text>
+                        {Platform.OS === 'ios' ? (
+                            <DateTimePicker
                                 value={date}
                                 mode="time"
                                 is24Hour={false}
@@ -277,137 +312,153 @@ export default function TaskViewModal({
                                 onChange={onTimeChange}
                                 themeVariant="dark"
                                 testID='time-picker-edit-task'
-                              />
-                            ) : (
-                              <TouchableOpacity
+                            />
+                        ) : (
+                            <TouchableOpacity
                                 onPress={() => {
-                                  DateTimePickerAndroid.open({
+                                    DateTimePickerAndroid.open({
                                     value: date,
                                     mode: 'time',
                                     is24Hour: false,
                                     display: 'default',
                                     onChange: onTimeChange,
-                                  });
+                                    });
                                 }}
                                 style={styles.taskInput}
-                              >
+                                testID='time-picker-android-edit-task'
+                                >
                                 <Text style={{ color: 'white', fontSize: 17 }}>
-                                  {tempTaskTime || 'Select Time'}
+                                    {tempTaskTime || 'Select Time'}
                                 </Text>
-                              </TouchableOpacity>
-                            )}
-                          </View>
-
-                          <View style={styles.saveButtonRow}>
-                            <TouchableOpacity
-                              style={styles.doneButton}
-                              onPress={saveTaskEdit}
-                              testID='save-button-task'
-                            >
-                              <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
                             </TouchableOpacity>
-                          </View>
-                        </View>
-                      </>
-                    ) : (
-                      <>
-                        <View style={styles.taskRow}>
-                          <View style={{ flex: 1 }}>
-                            <View style={styles.taskNameRow}>
-                              <Text style={styles.taskItemText}>{item.name}</Text>
-                              <View style={styles.iconButtonsRow}>
-                                <TouchableOpacity
-                                  style={styles.editButton}
-                                  onPress={() => editTask(item)}
-                                >
-                                  <IconSymbol
-                                    name={'pencil' as IconSymbolName}
-                                    size={20}
-                                    color="white"
-                                    testID='edit-icon-task'
-                                  />
-                                </TouchableOpacity>
+                        )}
+                    </>
+                 )}
 
-                                <TouchableOpacity
-                                  style={styles.deleteButton}
-                                  onPress={() => deleteTask(item.id)}
-                                >
-                                  <IconSymbol
-                                    name={'trash' as IconSymbolName}
-                                    size={20}
-                                    color="white"
-                                    testID='delete-icon-task'
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                            </View>
 
-                            <View style={styles.iconRow}>
-                              <IconSymbol
-                                name={'location' as IconSymbolName}
-                                size={16}
-                                color="#b2b3b8"
-                                testID='location-icon-task'
-                              />
-                              <Text style={styles.taskItemSubText}>{item.location}</Text>
-                            </View>
-                            <View style={styles.iconRow}>
-                              <IconSymbol
-                                name={'clock' as IconSymbolName}
-                                size={16}
-                                color="#b2b3b8"
-                                testID='time-icon-task'
-                              />
-                              <Text style={styles.taskItemSubText}>{item.time}</Text>
-                            </View>
-
-                            <View style={styles.buttonRow}>
-                              <TouchableOpacity
-                                style={styles.directionsButton}
-                                onPress={() => {}}
-                                testID='directions-button-task'
-                              >
-                                <Text style={{ color: 'white', fontSize: 16 }}>
-                                  Directions
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                style={styles.doneButton}
-                                onPress={() => markDone(item.id)}
-                                testID='done-button-task'
-                              >
-                                <Text style={{ color: 'white', fontSize: 16 }}>
-                                  Done
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                        </View>
-                      </>
-                    )}
-                  </View>
-                );
-              }}
-            />
-
-            {/* If not editing, show plan builder & delete plan buttons */}
-            {!editingTask && (
-              <View style={styles.footer}>
-                <TouchableOpacity
-                  style={styles.planBuilderButton}
-                  onPress={openPlanBuilder}
-                  testID='plan-builder-button'
-                >
-                  <Text style={{ color: 'white', fontSize: 16 }}>Plan Builder</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deletePlanButton}
-                  onPress={deletePlan}
-                  testID='delete-plan-button'
-                >
-                  <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
-                </TouchableOpacity>
+                <View style={styles.saveButtonRow}>
+                    <TouchableOpacity
+                        style={{ ...styles.editTaskActionButton, backgroundColor: '#555' }} // Cancel button
+                        onPress={() => setEditingTask(false)} // Go back without saving
+                        testID='cancel-edit-button-task'
+                    >
+                        <Text style={{ color: 'white', fontSize: 16 }}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ ...styles.editTaskActionButton, backgroundColor: '#00AA44' }} // Save button
+                        onPress={saveTaskEdit}
+                        testID='save-button-task'
+                    >
+                        <Text style={{ color: 'white', fontSize: 16 }}>Save</Text>
+                    </TouchableOpacity>
+                </View>
               </View>
+            ) : (
+              <>
+                <FlatList
+                    data={tasks} 
+                    keyExtractor={(item) => item.id.toString()}
+                    style={{ maxHeight: '75%' }}
+                    renderItem={({ item }) => (
+                        <View style={styles.taskRow}>
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.taskNameRow}>
+                                <Text style={styles.taskItemText}>{item.name}</Text>
+                                <View style={styles.iconButtonsRow}>
+                                    <TouchableOpacity
+                                    style={styles.editButton}
+                                    onPress={() => editTask(item)}
+                                    testID={`edit-icon-task-${item.id}`}
+                                    >
+                                    <IconSymbol
+                                        name={'pencil' as IconSymbolName}
+                                        size={20}
+                                        color="white"
+                                    />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={styles.deleteButton}
+                                        onPress={() => deleteTask(item.id)}
+                                        testID={`delete-icon-task-${item.id}`}
+                                    >
+                                        <IconSymbol
+                                            name={'trash' as IconSymbolName}
+                                            size={20}
+                                            color="white"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                </View>
+
+                                <View style={styles.iconRow}>
+                                <IconSymbol
+                                    name={'location' as IconSymbolName}
+                                    size={16}
+                                    color="#b2b3b8"
+                                    testID={`location-icon-task-${item.id}`}
+                                />
+                                <Text style={styles.taskItemSubText}>{item.location}</Text>
+                                </View>
+                                {item.time && item.name !== 'Start Location' && (
+                                <View style={styles.iconRow}>
+                                    <IconSymbol
+                                        name={'clock' as IconSymbolName}
+                                        size={16}
+                                        color="#b2b3b8"
+                                        testID={`time-icon-task-${item.id}`}
+                                    />
+                                    <Text style={styles.taskItemSubText}>{item.time}</Text>
+                                </View>
+                                )}
+
+                                {item.name !== 'Start Location' && (
+                                    <View style={styles.buttonRow}>
+                                        <TouchableOpacity
+                                            style={styles.directionsButton}
+                                            onPress={() => { /* TODO: Add directions logic */ Alert.alert("Directions", "Navigate to task functionality not yet implemented."); }}
+                                            testID={`directions-button-task-${item.id}`}
+                                        >
+                                            <Text style={{ color: 'white', fontSize: 16 }}>
+                                            Directions
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.doneButton}
+                                            onPress={() => markDone(item.id)}
+                                            testID={`done-button-task-${item.id}`}
+                                        >
+                                            <Text style={{ color: 'white', fontSize: 16 }}>
+                                            Done
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                    )}
+                    ListEmptyComponent={() => (
+                        <Text style={styles.emptyListText}>No tasks added to this plan yet.</Text>
+                    )}
+                />
+
+                 <View style={styles.footer}>
+                    <TouchableOpacity
+                      style={styles.planBuilderButton}
+                      onPress={openPlanBuilder}
+                      testID='plan-builder-button'
+                    >
+                      <Text style={{ color: 'white', fontSize: 16 }}>Add/Edit Plan</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deletePlanButton}
+                      onPress={handleDeletePlanPress}
+                      testID='delete-plan-button'
+                    >
+                      <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
             )}
           </View>
         </View>
@@ -427,7 +478,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#010213',
     borderRadius: 10,
     padding: 16,
-    // We let the inline style set height: '85%' to make it taller.
+  },
+   editTaskContainer: { 
+    flex: 1,
+    paddingTop: 10,
   },
   addTaskHeader: {
     fontSize: 17,
@@ -438,8 +492,15 @@ const styles = StyleSheet.create({
   },
   saveButtonRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 8,
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  editTaskActionButton: {
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    minWidth: 100,
+    alignItems: 'center',
   },
   taskNameRow: {
     flexDirection: 'row',
@@ -451,26 +512,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    marginVertical: 4,
+    alignItems: 'center',
   },
   headerTitle: {
     marginTop: 8,
     fontSize: 22,
     marginLeft: 8,
     color: 'white',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40,
   },
   editTaskInput: {
-    flex: 1,
     backgroundColor: '#2c2c38',
     borderRadius: 8,
     color: 'white',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     paddingVertical: 12,
-    marginRight: 8,
     fontSize: 16,
+    marginBottom: 12,
+    width: '100%',
   },
   iconButtonsRow: {
     flexDirection: 'row',
@@ -492,10 +553,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: 'white',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
     marginVertical: 4,
     fontSize: 17,
     marginBottom: 12,
+    justifyContent: 'center',
   },
   footer: {
     flexDirection: 'row',
@@ -529,13 +591,16 @@ const styles = StyleSheet.create({
   taskItemText: {
     color: 'white',
     fontSize: 21,
+    fontWeight: 'bold',
     marginBottom: 4,
+    flexShrink: 1,
   },
   taskItemSubText: {
-    color: 'white',
+    color: '#b2b3b8',
     fontSize: 17,
-    marginLeft: 4,
+    marginLeft: 8,
     marginBottom: 4,
+    flexShrink: 1,
   },
   iconRow: {
     flexDirection: 'row',
@@ -545,7 +610,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 8,
+    marginTop: 12,
   },
   directionsButton: {
     flex: 1,
@@ -562,5 +627,11 @@ const styles = StyleSheet.create({
     padding: 12,
     marginHorizontal: 4,
     alignItems: 'center',
+  },
+  emptyListText: {
+    color: '#b2b3b8',
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
   },
 });

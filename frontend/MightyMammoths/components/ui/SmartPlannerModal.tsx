@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import PlanBuilderModal from './PlanBuilderModal';
@@ -22,6 +23,7 @@ import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
 type SmartPlannerModalProps = {
   visible: boolean;
   onClose: () => void;
+  navigateToRoutes: (destination: string) => void;
   nextEvent?: {
     name: string;
     description: string;
@@ -33,6 +35,7 @@ type SmartPlannerModalProps = {
 export default function SmartPlannerModal({
   visible,
   onClose,
+  navigateToRoutes,
   nextEvent,
 }: SmartPlannerModalProps) {
   const [hasPlan, setHasPlan] = useState(false);
@@ -43,10 +46,14 @@ export default function SmartPlannerModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isStartLocationSet, setIsStartLocationSet] = useState(false);
   const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
-  
+
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
   const [taskViewVisible, setTaskViewVisible] = useState(false);
+
+  // State for tasks being edited in PlanBuilderModal
+  const [editingTasks, setEditingTasks] = useState<Task[]>([]);
+
 
   const handleCreatePlan = () => {
     if(hasPlan) {
@@ -58,7 +65,7 @@ export default function SmartPlannerModal({
         {
           text: 'Yes',
           onPress: () => {
-            handleDeletePlan();
+            handleDeletePlan(); 
             setPlanBuilderVisible(true);
           },
         },
@@ -66,34 +73,52 @@ export default function SmartPlannerModal({
       { cancelable: true }
     );
   } else {
-    setIsStartLocationSet(false);
+    handleDeletePlan();
     setPlanBuilderVisible(true);
   }
   };
-  
 
-  const handleSavePlan = async () => {
-    if (planName.trim()) {
-      setHasPlan(true);
+
+  const handleSavePlan = async (name: string, updatedTasks: Task[], startLocationSet: boolean) => {
       setIsLoading(true);
-      
-      console.log('Saved plan:', planName, tasks);
+      setPlanName(name);
+      setTasks(updatedTasks);
+      setIsStartLocationSet(startLocationSet);
+      setHasPlan(true);
+      setPlanBuilderVisible(false);
 
-      try {
-        let distanceDurationArr = await calculateAllPairsDistances(tasks);
-        //console.log('Distance Duration array:', distanceDurationArr);
-        
-        setGeneratedPlan(await generatePlanFromChatGPT(tasks, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']));
-        //console.log('Generated Plan:', generatedPlan);
+      console.log('Saved plan:', name, updatedTasks);
 
-      } catch (error) {
-        console.error("Error in handleSavePlan: ", error);
+      await handleRegeneratePlan(updatedTasks);
+      setIsLoading(false); 
+  };
 
-      } finally {
+  const handleRegeneratePlan = async (taskList: Task[]) => {
+    if (taskList.length === 0 || (taskList.length === 1 && taskList[0].type === 'location')) {
+        console.log("Skipping regeneration: No tasks or only start location.");
+        setGeneratedPlan([]); 
         setIsLoading(false);
-      }
+        return;
+    }
+    setIsLoading(true);
+    try {
+        console.log('Regenerating plan with tasks:', taskList);
+        let distanceDurationArr = await calculateAllPairsDistances(taskList);
+        //console.log('Distance Duration array:', distanceDurationArr);
+
+        const plan = await generatePlanFromChatGPT(taskList, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']);
+        setGeneratedPlan(plan);
+        console.log('Generated Plan:', plan);
+
+    } catch (error) {
+        console.error("Error regenerating plan: ", error);
+        setGeneratedPlan([]);
+        Alert.alert("Error", "Failed to generate the plan. Please try again.");
+    } finally {
+        setIsLoading(false);
     }
   };
+
 
   const handleDeletePlan = () => {
     setHasPlan(false);
@@ -102,6 +127,22 @@ export default function SmartPlannerModal({
     setTasks([]);
     setTaskViewVisible(false);
     setGeneratedPlan([]);
+    setEditingTasks([]);
+  };
+
+  const handleGetDirections = () => {
+    if (generatedPlan && generatedPlan.length > 1) {
+      const nextTask = generatedPlan[1];
+      const destination = nextTask.taskLocation;
+      if (destination) {
+        navigateToRoutes(destination);
+        onClose();
+      } else {
+        Alert.alert("Error", "Next task location is not specified.");
+      }
+    } else {
+      Alert.alert("Error", "No next task found in the plan.");
+    }
   };
 
   const renderNoPlan = () => (
@@ -124,22 +165,29 @@ export default function SmartPlannerModal({
     <View style={styles.modalContentContainer}>
       <Text style={styles.smartPlannerTitle}>Smart Planner</Text>
       <View style={styles.underlineBox} />
-      {isLoading && <Text style={styles.planTitle}>Generating {planName} plan ...</Text>}
-      {!isLoading && (
+      {isLoading ? (
+         <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.loadingText}>Generating {planName} plan...</Text>
+         </View>
+      ) : (
         <>
           <Text style={styles.planTitle}>Current Plan: {planName}</Text>
-          {tasks.length > 0 ? (
+          {generatedPlan.length > 1 ? (
             <>
               <View style={styles.taskHeaderRow}>
                 <Text style={styles.nextTaskLabel}>Next Task</Text>
-                <TouchableOpacity style={styles.nextTaskDirectionsButton} testID='get-directions-button-main-modal'>
+                <TouchableOpacity
+                    style={styles.nextTaskDirectionsButton}
+                    testID='get-directions-button-main-modal'
+                    onPress={handleGetDirections}
+                    >
                   <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'info' as IconSymbolName} size={30} color="white" testID='info-icon-main-modal'/>
-                {/* TODO Get the task from generatedPlan */}
-                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskName}</Text> 
+                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskName}</Text>
               </View>
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'location' as IconSymbolName} size={30} color="white" testID='location-icon-main-modal'/>
@@ -149,20 +197,26 @@ export default function SmartPlannerModal({
                 <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" testID='clock-icon-main-modal' />
                 <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
               </View>
+               <TouchableOpacity
+                style={styles.viewPlanButton}
+                onPress={() => setTaskViewVisible(true)}
+                testID='view-plan-button'
+                >
+                <Text style={styles.viewPlanButtonText}>View Full Plan</Text>
+               </TouchableOpacity>
             </>
           ) : (
-            <Text style={styles.noPlanText}>No tasks yet</Text>
+            <>
+            <Text style={styles.noPlanText}>{tasks.length > 0 ? 'Plan generated, but no tasks found.' : 'No tasks added yet.'}</Text>
+             <TouchableOpacity
+                style={styles.viewPlanButton}
+                onPress={openPlanBuilder}
+                testID='edit-tasks-button'
+              >
+                <Text style={styles.viewPlanButtonText}>Edit Tasks</Text>
+              </TouchableOpacity>
+            </>
           )}
-        
-      
-
-        <TouchableOpacity
-          style={styles.viewPlanButton}
-          onPress={() => setTaskViewVisible(true)}
-          testID='view-plan-button'
-        >
-          <Text style={styles.viewPlanButtonText}>View Plan</Text>
-        </TouchableOpacity>
         </>
       )}
       <View style={styles.underlineBox} />
@@ -175,6 +229,12 @@ export default function SmartPlannerModal({
       </TouchableOpacity>
     </View>
   );
+
+  const openPlanBuilder = () => {
+    setEditingTasks([...tasks]);
+    setPlanBuilderVisible(true);
+  };
+
 
   return (
     <Modal
@@ -191,10 +251,10 @@ export default function SmartPlannerModal({
       <SafeAreaView style={styles.mainContainer}>
         <View style={[
             styles.modalContainer,
-            { height: hasPlan ? '63%' : '35%' }, 
+            { height: hasPlan ? (isLoading ? '45%' : '63%') : '35%' },
           ]}>
           {/* Close Icon */}
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton} disabled={isLoading}>
             <IconSymbol name={'close' as IconSymbolName} size={30} color="white" testID='close-icon-main-modal' />
           </TouchableOpacity>
 
@@ -205,49 +265,48 @@ export default function SmartPlannerModal({
         {/* Plan Builder Modal */}
         <PlanBuilderModal
           visible={planBuilderVisible}
-          onClose={() => {setPlanBuilderVisible(false), setIsStartLocationButton(false)}}
-          planName={planName}
-          setPlanName={setPlanName}
-          tasks={tasks}
-          setTasks={setTasks}
+          onClose={() => {setPlanBuilderVisible(false)}}
+          initialPlanName={planName}
+          initialTasks={tasks}
+          initialIsStartLocationSet={isStartLocationSet}
           nextEvent={nextEvent}
-          isStartLocationButton={isStartLocationButton}
-          setIsStartLocationButton={setIsStartLocationButton}
-          isStartLocationSet={isStartLocationSet}
-          setIsStartLocationSet={setIsStartLocationSet}
-          onSavePlan={() => {
-            handleSavePlan();
-            setPlanBuilderVisible(false);
-          }}
-          openTaskView={() => {
-            setTaskViewVisible(true);
-            setPlanBuilderVisible(false);
-            setTaskViewFromEditor(true);
+          onSavePlan={handleSavePlan}
+          openTaskView={(currentTempTasks) => {
+              setEditingTasks(currentTempTasks);
+              setTaskViewVisible(true);
+              setPlanBuilderVisible(false);
+              setTaskViewFromEditor(true);
           }}
         />
+
 
         {/* Task View Modal */}
         <TaskViewModal
           visible={taskViewVisible}
-          onClose={() => {
-            setTaskViewVisible(false);
+           onClose={() => {
+                setTaskViewVisible(false);
+                
+                if (taskViewFromEditor) {
 
-            if (taskViewFromEditor) {
-              setPlanBuilderVisible(true);
-              setTaskViewFromEditor(false);
-            }
-          }}
+                    setTasks([...editingTasks]);
+                    setPlanBuilderVisible(true);
+                    setTaskViewFromEditor(false);
+                }
+           }}
           planName={planName}
-          tasks={tasks}
-          setTasks={setTasks}
+          tasks={taskViewFromEditor ? editingTasks : tasks}
+          setTasks={taskViewFromEditor ? setEditingTasks : setTasks}
           isStartLocationSet={isStartLocationSet}
           setIsStartLocationSet={setIsStartLocationSet}
           generatedPlan={generatedPlan}
           setGeneratedPlan={setGeneratedPlan}
           deletePlan={handleDeletePlan}
+          onRegeneratePlan={handleRegeneratePlan}
           openPlanBuilder={() => {
-            setPlanBuilderVisible(true);
-            setTaskViewVisible(false);
+                setEditingTasks([...tasks]);
+                setPlanBuilderVisible(true);
+                setTaskViewVisible(false);
+                setTaskViewFromEditor(false);
           }}
         />
       </SafeAreaView>
@@ -268,10 +327,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 24,
     paddingHorizontal: 16,
-    height: '80%',
+  },
+   loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginTop: 10,
   },
   closeButton: {
     alignSelf: 'flex-end',
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
   },
   planTitle: {
     fontSize: 22,
@@ -302,6 +375,7 @@ const styles = StyleSheet.create({
   },
   modalContentContainer: {
     alignItems: 'center',
+    marginTop: 30,
   },
   nextTaskLabel: {
     color: 'white',
@@ -325,11 +399,12 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     marginLeft: 50,
   },
-  
+
   taskItemSubText: {
     color: 'white',
     fontSize: 16,
     marginLeft: 8,
+    flexShrink: 1,
   },
   viewPlanButton: {
     backgroundColor: '#122F92',
@@ -338,18 +413,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 8,
     marginBottom: 8,
+    alignSelf: 'center',
+    width: '80%',
+    alignItems: 'center',
   },
   viewPlanButtonText: {
     color: 'white',
     fontSize: 18,
   },
   underlineBox: {
-    height: 1,                
-    backgroundColor: '#808080', 
-    width: '90%',              
-    alignSelf: 'center',       
-    marginBottom: 8,  
-    marginTop: 8,        
+    height: 1,
+    backgroundColor: '#808080',
+    width: '90%',
+    alignSelf: 'center',
+    marginBottom: 8,
+    marginTop: 8,
   },
   smartPlannerTitle:{
     fontSize: 22,

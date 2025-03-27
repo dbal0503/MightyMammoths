@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   View,
@@ -16,7 +16,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import AutoCompleteDropdown, { BuildingData } from './input/AutoCompleteDropdown';
+import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from './input/AutoCompleteDropdown';
 import * as Location from "expo-location";
 import { buildingList } from '@/utils/getBuildingList';
 import { suggestionResult } from '@/services/searchService';
@@ -25,16 +25,11 @@ import { suggestionResult } from '@/services/searchService';
 type PlanBuilderModalProps = {
   visible: boolean;
   onClose: () => void;
-  planName: string;
-  setPlanName: Dispatch<SetStateAction<string>>;
-  tasks: Task[];
-  setTasks: Dispatch<SetStateAction<Task[]>>;
-  isStartLocationSet: boolean;
-  setIsStartLocationSet: Dispatch<SetStateAction<boolean>>;
-  isStartLocationButton: boolean;
-  setIsStartLocationButton: Dispatch<SetStateAction<boolean>>;
-  onSavePlan: () => void;
-  openTaskView: () => void;
+  initialPlanName: string; 
+  initialTasks: Task[];      
+  initialIsStartLocationSet: boolean; 
+  onSavePlan: (name: string, updatedTasks: Task[], startLocationSet: boolean) => void; 
+  openTaskView: (currentTempTasks: Task[]) => void; 
   nextEvent?: {
     name: string;
     description: string;
@@ -45,24 +40,43 @@ type PlanBuilderModalProps = {
 export default function PlanBuilderModal({
   visible,
   onClose,
-  planName,
-  setPlanName,
-  tasks,
-  setTasks,
-  isStartLocationButton,
-  setIsStartLocationButton,
-  isStartLocationSet,
-  setIsStartLocationSet,
+  initialPlanName,
+  initialTasks,
+  initialIsStartLocationSet,
   onSavePlan,
   nextEvent,
   openTaskView,
 }: PlanBuilderModalProps) {
+  const [tempPlanName, setTempPlanName] = useState('');
+  const [tempTasks, setTempTasks] = useState<Task[]>([]);
+  const [tempIsStartLocationSet, setTempIsStartLocationSet] = useState(false);
+  const [tempIsStartLocationButton, setTempIsStartLocationButton] = useState(false); 
+
   const [tempTaskName, setTempTaskName] = React.useState('');
   const [tempTaskLocation, setTempTaskLocation] = React.useState('');
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
   const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
+
+  const locationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
+
+
+  useEffect(() => {
+    if (visible) {
+      setTempPlanName(initialPlanName || ''); 
+      setTempTasks([...initialTasks]); 
+      setTempIsStartLocationSet(initialIsStartLocationSet);
+      setTempIsStartLocationButton(false);
+      setTempTaskName('');
+      setTempTaskLocation('');
+      setTempTaskLocationPlaceId('');
+      setTempTaskTime('');
+      setDate(new Date());
+      locationDropdownRef.current?.reset();
+    }
+  }, [visible, initialPlanName, initialTasks, initialIsStartLocationSet]);
+
 
   const addTask = () => {
     if (tempTaskName.trim()) {
@@ -74,11 +88,12 @@ export default function PlanBuilderModal({
         time: tempTaskTime,
         type: 'task',
       };
-      setTasks([...tasks, newTask]);
+      setTempTasks([...tempTasks, newTask]);
       setTempTaskName('');
       setTempTaskLocation('');
       setTempTaskLocationPlaceId('');
       setTempTaskTime('');
+      locationDropdownRef.current?.reset();
     }
   };
 
@@ -92,22 +107,23 @@ export default function PlanBuilderModal({
         time: '',
         type: 'location',
       };
-      setIsStartLocationSet(true);
-      setTasks([...tasks, newOriginLocation]);
+      setTempIsStartLocationSet(true);
+      setTempTasks([...tempTasks, newOriginLocation]);
       setTempTaskName('');
       setTempTaskLocation('');
       setTempTaskLocationPlaceId('');
       setTempTaskTime('');
-      setIsStartLocationButton(false);
+      setTempIsStartLocationButton(false);
+      locationDropdownRef.current?.reset();
     }
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    
+
     const currentDate = selectedDate || date;
-    
+
     setDate(currentDate);
-    
+
     // Format the time to display
     const hours = currentDate.getHours();
     const minutes = currentDate.getMinutes();
@@ -115,7 +131,7 @@ export default function PlanBuilderModal({
     const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-    
+
     setTempTaskTime(formattedTime);
   };
 
@@ -157,12 +173,12 @@ export default function PlanBuilderModal({
     { buildingName: "Any LOY campus building", placeID: "" },
     { buildingName: "Any campus building", placeID: "" },
     { buildingName: "Any location", placeID: "" },
-    ...buildingList, 
+    ...buildingList,
   ];
 
   const isOriginLocationDisabled = !tempTaskLocation.trim();
 
-  const isSaveDisabled = !planName.trim() || tasks.length < 1;
+  const isSaveDisabled = !tempPlanName.trim() || tempTasks.filter(task => task.type !== 'location').length < 1;
 
   const _openAppSetting = useCallback(async () => {
       await Linking.openSettings();
@@ -179,11 +195,13 @@ export default function PlanBuilderModal({
               {
                 text: "Cancel",
                 style: "cancel",
+                onPress: () => locationDropdownRef.current?.reset(),
               },
               {
                 text: "Enable",
                 onPress: () => {
                   _openAppSetting();
+                  locationDropdownRef.current?.reset();
                 },
               },
             ]
@@ -198,12 +216,16 @@ export default function PlanBuilderModal({
         );
         if (data === undefined) {
           console.log("Index.tsx: selected place is undefined");
+           setTempTaskLocation('');
+           setTempTaskLocationPlaceId('');
           return;
         }
         setTempTaskLocation(data.placePrediction.structuredFormat.mainText.text);
         setTempTaskLocationPlaceId(data.placePrediction.placeId);
       } catch (error) {
         console.log(`Index.tsx: Error selecting place: ${error}`);
+         setTempTaskLocation('');
+         setTempTaskLocationPlaceId('');
       }
     };
 
@@ -212,20 +234,20 @@ export default function PlanBuilderModal({
         Alert.alert("No next event found in your Google Calendar.");
         return;
       }
-    
-      // Check if the exact same event is already in the tasks array
-      const alreadyExists = tasks.some(
+
+      // Check if the exact same event is already in the temp tasks array
+      const alreadyExists = tempTasks.some(
         (task) =>
           task.name === nextEvent.name &&
           task.location === nextEvent.location &&
           task.time === nextEvent.time
       );
-    
+
       if (alreadyExists) {
         Alert.alert("This class is already in your plan.");
         return;
       }
-    
+
       const newTask: Task = {
         id: Date.now(),
         name: nextEvent.name,
@@ -234,10 +256,10 @@ export default function PlanBuilderModal({
         time: nextEvent.time,
         type: "task",
       };
-      setTasks([...tasks, newTask]);
+      setTempTasks([...tempTasks, newTask]);
     };
-    
-  
+
+
 
   return (
     <Modal
@@ -263,19 +285,23 @@ export default function PlanBuilderModal({
             style={styles.planNameInput}
             placeholder="New Plan 1"
             placeholderTextColor="#b2b3b8"
-            value={planName}
-            onChangeText={setPlanName}
+            value={tempPlanName}
+            onChangeText={setTempPlanName}
             testID='plan-name-input'
           />
           <View style={styles.underlineBox} />
 
-          {isStartLocationButton === false ? (
+           {tempIsStartLocationButton === false ? (
             <>
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={{...styles.actionButton, backgroundColor: isStartLocationSet ? '#2c2c38' : '#122F92'}} onPress={() => setIsStartLocationButton(true)} disabled={isStartLocationSet} testID='set-start-location-button'>
+              <TouchableOpacity
+                 style={{...styles.actionButton, backgroundColor: tempIsStartLocationSet ? '#2c2c38' : '#122F92'}}
+                 onPress={() => setTempIsStartLocationButton(true)}
+                 disabled={tempIsStartLocationSet}
+                 testID='set-start-location-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()} testID='add-next-class-button'>
+              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -283,7 +309,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
               <View style={styles.taskHeaderRow}>
                 <Text style={styles.addTaskTitle}>Add Task</Text>
-                <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView} testID='view-current-tasks-button'>
+                <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button'>
                   <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
                 </TouchableOpacity>
               </View>
@@ -301,6 +327,7 @@ export default function PlanBuilderModal({
               <Text style={styles.addTaskHeader}>Location</Text>
               <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
                 <AutoCompleteDropdown
+                  ref={locationDropdownRef}
                   testID="locationSmartPlannerDropdown"
                   locked={false}
                   searchSuggestions={searchSuggestions}
@@ -308,6 +335,7 @@ export default function PlanBuilderModal({
                   buildingData={buildingListPlusMore}
                   onSelect={(selected) => handleSearch(selected)}
                   darkTheme={true}
+                  currentVal={tempTaskLocation}
                 />
               </View>
               <Text style={styles.addTaskHeader}>Time (Optional)</Text>
@@ -333,6 +361,7 @@ export default function PlanBuilderModal({
                     });
                   }}
                   style={styles.taskInput}
+                  testID='time-picker-android'
                 >
                   <Text style={{ color: 'white', fontSize: 17 }}>
                     {tempTaskTime || 'Select Time'}
@@ -348,15 +377,15 @@ export default function PlanBuilderModal({
               >
                 <Text style={{ color: 'white', fontSize: 17 }}>Add Task</Text>
               </TouchableOpacity>
-            </View> 
+            </View>
           </>
           ) : (
             <>
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => setIsStartLocationButton(false)} testID='add-task-button'>
+               <TouchableOpacity style={styles.actionButton} onPress={() => setTempIsStartLocationButton(false)} testID='add-task-mode-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Add Task</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={() => handleAddNextClass()} testID='add-next-class-button'>
+              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button-location-view'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -364,7 +393,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
             <View style={styles.taskHeaderRow}>
               <Text style={styles.addTaskTitle}>Start Location</Text>
-              <TouchableOpacity style={styles.viewTasksButton} onPress={openTaskView} testID='view-current-tasks-button'>
+              <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button-location-view'>
                 <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
               </TouchableOpacity>
             </View>
@@ -373,13 +402,15 @@ export default function PlanBuilderModal({
               <Text style={styles.addTaskHeader}>Location</Text>
               <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
                 <AutoCompleteDropdown
-                  testID="locationSmartPlannerDropdown"
+                  ref={locationDropdownRef}
+                  testID="locationSmartPlannerDropdown-start"
                   locked={false}
                   searchSuggestions={searchSuggestions}
                   setSearchSuggestions={setSearchSuggestions}
                   buildingData={buildingListPlusMore}
                   onSelect={(selected) => handleSearch(selected)}
                   darkTheme={true}
+                  currentVal={tempTaskLocation}
                 />
               </View>
 
@@ -391,13 +422,13 @@ export default function PlanBuilderModal({
               >
                 <Text style={{ color: 'white', fontSize: 17 }}>Add Start Location</Text>
               </TouchableOpacity>
-            </View> 
+            </View>
             </>)}
-          
+
 
           <TouchableOpacity
               style={[styles.saveButton, isSaveDisabled && styles.disabledButton]}
-              onPress={onSavePlan}
+              onPress={() => onSavePlan(tempPlanName, tempTasks, tempIsStartLocationSet)}
               disabled={isSaveDisabled}
               testID='save-plan-button'
             >
@@ -418,22 +449,27 @@ const styles = StyleSheet.create({
   },
   container: {
     margin: 15,
-    maxHeight: '80%',
+    maxHeight: '90%',
     backgroundColor: '#010213',
     borderRadius: 10,
     padding: 16,
   },
   backIcon: {
     alignSelf: 'flex-start',
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 1,
   },
   title: {
     fontSize: 22,
     color: 'white',
     marginBottom: 8,
     alignSelf: 'center',
+    marginTop: 5,
   },
   disabledButton: {
-    backgroundColor: '#555', 
+    backgroundColor: '#555',
     opacity: 0.7,
   },
   addTaskTitle: {
@@ -489,10 +525,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: 'white',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
     marginVertical: 4,
     fontSize: 17,
     marginBottom: 12,
+    justifyContent: 'center',
   },
   addTaskButton: {
     backgroundColor: '#122F92',
@@ -508,10 +545,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   underlineBox: {
-    height: 1,                
-    backgroundColor: '#808080', 
-    width: '100%',              
-    alignSelf: 'center',       
-    marginBottom: 16,          
+    height: 1,
+    backgroundColor: '#808080',
+    width: '100%',
+    alignSelf: 'center',
+    marginBottom: 16,
   },
 });
