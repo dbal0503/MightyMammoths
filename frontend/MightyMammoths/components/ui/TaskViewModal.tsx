@@ -60,6 +60,7 @@ export default function TaskViewModal({
   const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
   const [date, setDate] = useState(new Date());
   const editLocationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
+  const isDeletePlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
 
   // Whenever the modal closes, reset any editing state so it won't remain in edit mode
   useEffect(() => {
@@ -231,6 +232,7 @@ export default function TaskViewModal({
   };
 
    const handleDeletePlanPress = () => {
+    if (isDeletePlanDisabled) return;
       Alert.alert(
         'Confirm Delete',
         'Are you sure you want to delete this entire plan?',
@@ -412,6 +414,18 @@ export default function TaskViewModal({
                                 </View>
                                 )}
 
+                                {!item.time && item.name !== 'Start Location' && (
+                                <View style={styles.iconRow}>
+                                    <IconSymbol
+                                        name={'clock' as IconSymbolName}
+                                        size={16}
+                                        color="#b2b3b8"
+                                        testID={`time-icon-task-${item.id}`}
+                                    />
+                                    <Text style={styles.taskItemSubText}>Any time</Text>
+                                </View>
+                                )}
+
                                 {item.name !== 'Start Location' && (
                                     <View style={styles.buttonRow}>
                                         <TouchableOpacity
@@ -451,12 +465,16 @@ export default function TaskViewModal({
                       <Text style={{ color: 'white', fontSize: 16 }}>Add/Edit Plan</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.deletePlanButton}
-                      onPress={handleDeletePlanPress}
-                      testID='delete-plan-button'
-                    >
-                      <Text style={{ color: 'white', fontSize: 16 }}>Delete Plan</Text>
-                    </TouchableOpacity>
+                        style={[
+                          styles.deletePlanButton,
+                          isDeletePlanDisabled && styles.disabledButton
+                        ]}
+                        onPress={handleDeletePlanPress}
+                        disabled={isDeletePlanDisabled}
+                        testID='delete-plan-button'
+                      >
+                        <Text style={{ color: 'white', fontSize: 16,}}>Delete Plan</Text>
+                      </TouchableOpacity>
                   </View>
                 </>
             )}
@@ -501,6 +519,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     minWidth: 100,
     alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#2c2c38',
   },
   taskNameRow: {
     flexDirection: 'row',
