@@ -1,10 +1,10 @@
 appId: com.anonymous.MightyMammoths
 ---
 - assertVisible:
-    id: "add-next-class-button"
+    id: "add-next-class-button-location-view"
 
 - assertVisible:
-    id: "view-current-tasks-button"
+    id: "view-current-tasks-button-location-view"
 
 - assertVisible:
     id: "plan-name-input"
@@ -29,10 +29,10 @@ appId: com.anonymous.MightyMammoths
     point: "87%,89%"
 
 - assertVisible:
-    id: "locationSmartPlannerDropdown"
+    id: "locationSmartPlannerDropdown-start"
 
 - tapOn:
-    id: "locationSmartPlannerDropdown"
+    id: "locationSmartPlannerDropdown-start"
 
 - inputText: "EV"
 

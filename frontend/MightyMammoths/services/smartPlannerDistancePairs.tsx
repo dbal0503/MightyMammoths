@@ -64,9 +64,21 @@ export async function getDistanceAndDuration(
     destinationPlaceID: string
   ): Promise<DistanceResult | null> {
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-  
-    const originParam = originPlaceID.trim() ? `place_id:${originPlaceID}` : origin;
-    const destinationParam = destinationPlaceID.trim() ? `place_id:${destinationPlaceID}` : destination;
+
+    let originParam = ``;
+    let destinationParam = ``;
+
+    if (origin === "Your Location"){
+      originParam = originPlaceID;
+    } else {
+      originParam = originPlaceID.trim() ? `place_id:${originPlaceID}` : origin;
+    }
+
+    if (destination === "Your Location"){
+      destinationParam = destinationPlaceID;
+    } else {
+      destinationParam = destinationPlaceID.trim() ? `place_id:${destinationPlaceID}` : destination;
+    }
 
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
       originParam

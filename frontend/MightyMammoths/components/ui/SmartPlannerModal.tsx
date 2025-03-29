@@ -80,6 +80,7 @@ export default function SmartPlannerModal({
 
 
   const handleSavePlan = async (name: string, updatedTasks: Task[], startLocationSet: boolean) => {
+      console.log(startLocationSet);
       setIsLoading(true);
       setPlanName(name);
       setTasks(updatedTasks);
@@ -195,7 +196,11 @@ export default function SmartPlannerModal({
               </View>
               <View style={styles.iconTextRow}>
                 <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" testID='clock-icon-main-modal' />
-                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
+                {!generatedPlan[1].taskTime ? (
+                  <Text style={styles.taskItemSubText}>No time specified</Text>
+                ) : (
+                  <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
+                )}
               </View>
                <TouchableOpacity
                 style={styles.viewPlanButton}
@@ -251,7 +256,7 @@ export default function SmartPlannerModal({
       <SafeAreaView style={styles.mainContainer}>
         <View style={[
             styles.modalContainer,
-            { height: hasPlan ? (isLoading ? '45%' : '63%') : '35%' },
+            { maxHeight: hasPlan ? (isLoading ? '45%' : '63%') : '35%' },
           ]}>
           {/* Close Icon */}
           <TouchableOpacity onPress={onClose} style={styles.closeButton} disabled={isLoading}>

@@ -37,6 +37,8 @@ type TaskViewModalProps = {
   onRegeneratePlan: (updatedTasks: Task[]) => Promise<void>;
 };
 
+type DisplayItem = Task | TaskPlan;
+
 export default function TaskViewModal({
   visible,
   onClose,
@@ -61,6 +63,7 @@ export default function TaskViewModal({
   const [date, setDate] = useState(new Date());
   const editLocationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
   const isDeletePlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
+  const isAddEditPlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
 
   // Whenever the modal closes, reset any editing state so it won't remain in edit mode
   useEffect(() => {
@@ -79,35 +82,67 @@ export default function TaskViewModal({
      Alert.alert("Mark as Done", "Functionality not yet implemented.");
   };
 
-  const deleteTask = async (id: number) => {
+  const deleteTask = async (item: DisplayItem) => {
     let newTasks: Task[] = [];
-    setTasks((prev) => {
-      const taskToDelete = prev.find((t) => t.id === id);
-
+  
+    setTasks((prevTasks) => {
+      let taskToDelete: Task | undefined;
+  
+      if ("id" in item) {
+        taskToDelete = prevTasks.find((t) => t.id === item.id);
+        newTasks = prevTasks.filter((t) => t.id !== item.id);
+      } else {
+        taskToDelete = prevTasks.find(
+          (t) => t.name === item.taskName && t.location === item.taskLocation
+        );
+        if (taskToDelete) {
+          newTasks = prevTasks.filter((t) => t.id !== taskToDelete!.id);
+        } else {
+          newTasks = [...prevTasks];
+        }
+      }
+  
       if (taskToDelete?.name === "Start Location") {
         setIsStartLocationSet(false);
       }
-
-      newTasks = prev.filter((t) => t.id !== id);
+  
       return newTasks;
     });
-
-     // Trigger regeneration after state update completes (using newTasks)
-     if (onRegeneratePlan) {
-        await onRegeneratePlan(newTasks);
-     }
+  
+    if (onRegeneratePlan) {
+      await onRegeneratePlan(newTasks);
+    }
   };
+  
 
-  const editTask = (task: Task) => {
+  const editTask = (item: DisplayItem) => {
+    let taskToEdit: Task;
+    
+    if ('id' in item) {
+      taskToEdit = item;
+    } else {
+      const matchingTask = tasks.find(task => 
+        task.name === item.taskName && 
+        task.location === item.taskLocation
+      );
+      
+      if (!matchingTask) {
+        console.log("Task not found for editing");
+        return;
+      }
+      
+      taskToEdit = matchingTask;
+    }
+    
     setEditingTask(true);
-    setEditingTaskId(task.id);
-    setTempTaskName(task.name);
-    setTempTaskLocation(task.location);
-    setTempTaskLocationPlaceId(task.locationPlaceID);
-    setTempTaskTime(task.time);
+    setEditingTaskId(taskToEdit.id);
+    setTempTaskName(taskToEdit.name);
+    setTempTaskLocation(taskToEdit.location);
+    setTempTaskLocationPlaceId(taskToEdit.locationPlaceID);
+    setTempTaskTime(taskToEdit.time);
   
     setDate(new Date()); 
-    editLocationDropdownRef.current?.reset(); 
+    editLocationDropdownRef.current?.reset();
   };
 
   const saveTaskEdit = async () => {
@@ -358,80 +393,93 @@ export default function TaskViewModal({
             ) : (
               <>
                 <FlatList
-                    data={tasks} 
-                    keyExtractor={(item) => item.id.toString()}
+                    data={generatedPlan.length > 0 ? generatedPlan as DisplayItem[] : tasks as DisplayItem[]}
+                    keyExtractor={(item: DisplayItem) => {
+                      return 'id' in item ? item.id.toString() : item.order.toString();
+                    }}
                     style={{ maxHeight: '75%' }}
-                    renderItem={({ item }) => (
+                    renderItem={({ item }) => {
+                      const itemId = 'id' in item ? item.id : item.order;
+                      const itemName = 'name' in item ? item.name : item.taskName;
+                      const itemLocation = 'location' in item ? item.location : item.taskLocation;
+                      const itemTime = 'time' in item ? item.time : item.taskTime || '';
+                      const isStartLocation = itemName === 'Start Location';
+
+                      return (
                         <View style={styles.taskRow}>
                             <View style={{ flex: 1 }}>
                                 <View style={styles.taskNameRow}>
-                                <Text style={styles.taskItemText}>{item.name}</Text>
-                                <View style={styles.iconButtonsRow}>
-                                    <TouchableOpacity
-                                    style={styles.editButton}
-                                    onPress={() => editTask(item)}
-                                    testID={`edit-icon-task-${item.id}`}
-                                    >
-                                    <IconSymbol
-                                        name={'pencil' as IconSymbolName}
-                                        size={20}
-                                        color="white"
-                                    />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        style={styles.deleteButton}
-                                        onPress={() => deleteTask(item.id)}
-                                        testID={`delete-icon-task-${item.id}`}
-                                    >
+                                  <Text style={styles.taskItemText}>{itemName}</Text>
+                                  <View style={styles.iconButtonsRow}>
+                                      <TouchableOpacity
+                                        style={styles.editButton}
+                                        onPress={() => editTask(item)}
+                                        testID={`edit-icon-task-${itemId}`}
+                                      >
                                         <IconSymbol
-                                            name={'trash' as IconSymbolName}
+                                            name={'pencil' as IconSymbolName}
                                             size={20}
                                             color="white"
                                         />
-                                    </TouchableOpacity>
-                                </View>
+                                      </TouchableOpacity>
+
+                                      <TouchableOpacity
+                                          style={styles.deleteButton}
+                                          onPress={() => deleteTask(item)}
+                                          testID={`delete-icon-task-${itemId}`}
+                                      >
+                                          <IconSymbol
+                                              name={'trash' as IconSymbolName}
+                                              size={20}
+                                              color="white"
+                                          />
+                                      </TouchableOpacity>
+                                  </View>
                                 </View>
 
                                 <View style={styles.iconRow}>
-                                <IconSymbol
-                                    name={'location' as IconSymbolName}
-                                    size={16}
-                                    color="#b2b3b8"
-                                    testID={`location-icon-task-${item.id}`}
-                                />
-                                <Text style={styles.taskItemSubText}>{item.location}</Text>
+                                  <IconSymbol
+                                      name={'location' as IconSymbolName}
+                                      size={16}
+                                      color="#b2b3b8"
+                                      testID={`location-icon-task-${itemId}`}
+                                  />
+                                  <Text style={styles.taskItemSubText}>{itemLocation}</Text>
                                 </View>
-                                {item.time && item.name !== 'Start Location' && (
-                                <View style={styles.iconRow}>
-                                    <IconSymbol
-                                        name={'clock' as IconSymbolName}
-                                        size={16}
-                                        color="#b2b3b8"
-                                        testID={`time-icon-task-${item.id}`}
-                                    />
-                                    <Text style={styles.taskItemSubText}>{item.time}</Text>
-                                </View>
+                                
+                                {itemTime && !isStartLocation && (
+                                  <View style={styles.iconRow}>
+                                      <IconSymbol
+                                          name={'clock' as IconSymbolName}
+                                          size={16}
+                                          color="#b2b3b8"
+                                          testID={`time-icon-task-${itemId}`}
+                                      />
+                                      <Text style={styles.taskItemSubText}>{itemTime}</Text>
+                                  </View>
                                 )}
 
-                                {!item.time && item.name !== 'Start Location' && (
-                                <View style={styles.iconRow}>
-                                    <IconSymbol
-                                        name={'clock' as IconSymbolName}
-                                        size={16}
-                                        color="#b2b3b8"
-                                        testID={`time-icon-task-${item.id}`}
-                                    />
-                                    <Text style={styles.taskItemSubText}>Any time</Text>
-                                </View>
+                                {!itemTime && !isStartLocation && (
+                                  <View style={styles.iconRow}>
+                                      <IconSymbol
+                                          name={'clock' as IconSymbolName}
+                                          size={16}
+                                          color="#b2b3b8"
+                                          testID={`time-icon-task-${itemId}`}
+                                      />
+                                      <Text style={styles.taskItemSubText}>Any time</Text>
+                                  </View>
                                 )}
 
-                                {item.name !== 'Start Location' && (
+                                {!isStartLocation && (
                                     <View style={styles.buttonRow}>
                                         <TouchableOpacity
                                             style={styles.directionsButton}
-                                            onPress={() => { /* TODO: Add directions logic */ Alert.alert("Directions", "Navigate to task functionality not yet implemented."); }}
-                                            testID={`directions-button-task-${item.id}`}
+                                            onPress={() => { 
+                                              /* TODO: Add directions logic */ 
+                                              Alert.alert("Directions", "Navigate to task functionality not yet implemented."); 
+                                            }}
+                                            testID={`directions-button-task-${itemId}`}
                                         >
                                             <Text style={{ color: 'white', fontSize: 16 }}>
                                             Directions
@@ -439,8 +487,8 @@ export default function TaskViewModal({
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             style={styles.doneButton}
-                                            onPress={() => markDone(item.id)}
-                                            testID={`done-button-task-${item.id}`}
+                                            onPress={() => markDone(itemId)}
+                                            testID={`done-button-task-${itemId}`}
                                         >
                                             <Text style={{ color: 'white', fontSize: 16 }}>
                                             Done
@@ -450,7 +498,8 @@ export default function TaskViewModal({
                                 )}
                             </View>
                         </View>
-                    )}
+                      );
+                    }}
                     ListEmptyComponent={() => (
                         <Text style={styles.emptyListText}>No tasks added to this plan yet.</Text>
                     )}
@@ -458,7 +507,11 @@ export default function TaskViewModal({
 
                  <View style={styles.footer}>
                     <TouchableOpacity
-                      style={styles.planBuilderButton}
+                      style={[
+                        styles.planBuilderButton,
+                        isAddEditPlanDisabled && styles.disabledButton
+                      ]}
+                      disabled={isAddEditPlanDisabled}
                       onPress={openPlanBuilder}
                       testID='plan-builder-button'
                     >
@@ -586,7 +639,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   planBuilderButton: {
-    backgroundColor: '#2c2c38',
+    backgroundColor: '#122F92',
     borderRadius: 8,
     padding: 12,
     flex: 1,

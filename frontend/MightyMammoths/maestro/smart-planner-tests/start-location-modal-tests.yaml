@@ -7,13 +7,13 @@ appId: com.anonymous.MightyMammoths
     id: "plan-name-input"
 
 - assertVisible:
-    id: "add-next-class-button"
+    id: "add-next-class-button-location-view"
 
 - assertVisible:
     id: "view-current-tasks-button"
 
 - assertVisible:
-    id: "add-task-button"
+    id: "add-task-mode-button"
 
 - assertNotVisible:
     id: "save-add-task-button"
@@ -25,13 +25,13 @@ appId: com.anonymous.MightyMammoths
     id: "time-picker"
 
 - assertVisible:
-    id: "locationSmartPlannerDropdown"
+    id: "locationSmartPlannerDropdown-start"
 
 - assertVisible:
-    id: "locationSmartPlannerDropdown"
+    id: "locationSmartPlannerDropdown-start"
 
 - tapOn:
-    id: "locationSmartPlannerDropdown"
+    id: "locationSmartPlannerDropdown-start"
 
 - inputText: "EV"
 

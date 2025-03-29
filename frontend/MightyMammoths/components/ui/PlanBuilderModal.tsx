@@ -178,13 +178,14 @@ export default function PlanBuilderModal({
 
   const isOriginLocationDisabled = !tempTaskLocation.trim();
 
-  const isSaveDisabled = !tempPlanName.trim() || tempTasks.filter(task => task.type !== 'location').length < 1;
+  const isSaveDisabled = !tempPlanName.trim() || tempTasks.filter(task => task.type !== 'location').length < 1 || !tempIsStartLocationSet;
 
   const _openAppSetting = useCallback(async () => {
       await Linking.openSettings();
     }, []);
 
   const handleSearch = async (placeName: string) => {
+      console.log("Placename: ", placeName);
       if (placeName === "Your Location") {
         const { status } = await Location.getForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -206,6 +207,12 @@ export default function PlanBuilderModal({
               },
             ]
           );
+          return;
+        } else {
+          setTempTaskLocation(placeName);
+          const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
+          let locString = `${loc.coords.latitude},${loc.coords.longitude}`
+          setTempTaskLocationPlaceId(locString);
           return;
         }
       }
@@ -301,7 +308,7 @@ export default function PlanBuilderModal({
                  testID='set-start-location-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Set Start Location</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button'>
+              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button-location-view'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -328,7 +335,7 @@ export default function PlanBuilderModal({
               <View style={{ alignSelf: 'flex-start', marginLeft: -4 , marginBottom: 12, marginTop: 4}}>
                 <AutoCompleteDropdown
                   ref={locationDropdownRef}
-                  testID="locationSmartPlannerDropdown"
+                  testID="locationSmartPlannerDropdown-start"
                   locked={false}
                   searchSuggestions={searchSuggestions}
                   setSearchSuggestions={setSearchSuggestions}
@@ -338,7 +345,7 @@ export default function PlanBuilderModal({
                   currentVal={tempTaskLocation}
                 />
               </View>
-              <Text style={styles.addTaskHeader}>Time (Optional)</Text>
+              <Text style={styles.addTaskHeader}>Time (Optional - Omit for any time)</Text>
               {Platform.OS === 'ios' ? (
                   <DateTimePicker
                     value={date}
