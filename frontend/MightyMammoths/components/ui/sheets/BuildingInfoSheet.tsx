@@ -55,7 +55,7 @@ function BuildingInfoSheet({
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable onPress={navigateIndoor}>
+            <Pressable onPress={navigateIndoor} testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>  
