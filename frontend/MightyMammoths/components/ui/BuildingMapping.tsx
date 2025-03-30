@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Marker, Polygon} from 'react-native-maps';
 import { View, Text, StyleSheet,  } from 'react-native';
 import { fetchPlaceDetails} from '../../services/buildingsService';
-import { suggestionResult } from '@/services/searchService';
+import { SuggestionResult } from '@/services/searchService';
 
 export interface GeoJsonFeature {
   type: string;
@@ -31,8 +31,8 @@ interface GeoJsonData {
 interface BuildingMappingProps {
   geoJsonData: GeoJsonData;
   onMarkerPress: (buildingName: string) => void;
-  nearbyPlaces: suggestionResult[];
-  onNearbyPlacePress?: (place: suggestionResult) => void;
+  nearbyPlaces: SuggestionResult[];
+  onNearbyPlacePress?: (place: SuggestionResult) => void;
 
 }
 

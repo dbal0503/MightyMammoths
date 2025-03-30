@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Interfaces for API requests
-export interface suggestionRequest {
+export interface SuggestionRequest {
     input: string;
     locationBias: {
         circle: {
@@ -14,7 +14,7 @@ export interface suggestionRequest {
     }
 }
 
-export interface placesSearch {
+export interface PlacesSearch {
     includedTypes: [string],
     maxResultCount: number,
     locationRestriction: {
@@ -35,7 +35,7 @@ export interface Location {
 }
 
 // Result interfaces
-export interface suggestionResult {
+export interface SuggestionResult {
     placePrediction: {
         place: string,
         placeId: string,
@@ -66,7 +66,7 @@ export interface suggestionResult {
     }
 }
 
-export interface placeDetails {
+export interface PlaceDetails {
     location: {
         latitude: number,
         longitude: number
@@ -94,7 +94,7 @@ class GooglePlacesAPIClient {
     }
 
     async autoComplete(input: string, location: Location = this.defaultLocation, radius: number = 500): Promise<any> {
-        const data: suggestionRequest = {
+        const data: SuggestionRequest = {
             input,
             locationBias: {
                 circle: {
@@ -108,7 +108,7 @@ class GooglePlacesAPIClient {
     }
 
     async searchNearby(type: string, radius: number, location: Location = this.defaultLocation, maxResults: number = 10): Promise<any> {
-        const data: placesSearch = {
+        const data: PlacesSearch = {
             includedTypes: [type],
             maxResultCount: maxResults,
             locationRestriction: {
@@ -173,7 +173,7 @@ class PlacesRepository {
         this.client = new GooglePlacesAPIClient(apiKey);
     }
 
-    async getAutoCompleteSuggestions(searchString: string): Promise<suggestionResult[] | undefined> {
+    async getAutoCompleteSuggestions(searchString: string): Promise<SuggestionResult[] | undefined> {
         try {
             const data = await this.client.autoComplete(searchString);
             return data.suggestions;
@@ -183,7 +183,7 @@ class PlacesRepository {
         }
     }
 
-    async getNearbyPlaces(searchString: string, radius: number): Promise<suggestionResult[]> {
+    async getNearbyPlaces(searchString: string, radius: number): Promise<SuggestionResult[]> {
         try {
             // Apply business rules
             const cappedRadius = Math.min(radius, 50000);
@@ -197,7 +197,7 @@ class PlacesRepository {
         }
     }
 
-    async getPlaceDetails(placeId: string): Promise<placeDetails | undefined> {
+    async getPlaceDetails(placeId: string): Promise<PlaceDetails | undefined> {
         try {
             return await this.client.getPlaceDetails(placeId);
         } catch (error) {
@@ -206,7 +206,7 @@ class PlacesRepository {
         }
     }
 
-    private transformPlacesToSuggestions(places: any[]): suggestionResult[] {
+    private transformPlacesToSuggestions(places: any[]): SuggestionResult[] {
         return places.map((p: any) => ({
             placePrediction: {
                 place: p.id,
@@ -227,7 +227,7 @@ class PlacesRepository {
 export async function autoCompleteSearch(
     searchString: string,
     apiKeyOverride?: string
-): Promise<suggestionResult[] | undefined> {
+): Promise<SuggestionResult[] | undefined> {
     const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     
     if (!apiKey) {
@@ -248,7 +248,7 @@ export async function nearbyPlacesSearch(
     searchString: string,
     radius: number,
     apiKeyOverride?: string
-): Promise<suggestionResult[]> {
+): Promise<SuggestionResult[]> {
     console.log("radius", radius);
     
     const apiKey = apiKeyOverride || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -270,7 +270,7 @@ export async function nearbyPlacesSearch(
 export async function getPlaceDetails(
     placeID: string,
     apiKeyOverride?: string
-): Promise<placeDetails | undefined> {
+): Promise<PlaceDetails | undefined> {
 
 
 

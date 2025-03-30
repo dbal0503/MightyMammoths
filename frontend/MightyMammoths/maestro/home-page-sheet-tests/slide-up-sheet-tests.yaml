@@ -6,4 +6,3 @@ appId: com.anonymous.MightyMammoths
 - swipe:
     direction: "up"
     element: "home-page-sheet"
-

@@ -100,7 +100,7 @@ export function StaticNavigationInformation(
       const currentStep = stepsData[currentStepIndex];
       
 
-      if (!currentStep.polyline || !currentStep.polyline.points) {
+      if (!currentStep.polyline?.points) {
         console.warn(`Step ${currentStepIndex} has no valid polyline data.`);
         return;
       }

@@ -1,4 +1,6 @@
-<svg version="1.1" baseProfile="full" width="7584.0" height="323.0" viewBox="0 0 7584 323" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg version="1.1" baseProfile="full" width="7584.0" height="323.0" viewBox="0 0 7584 323"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
   <desc>
     #.interface: fill=lightblue
     #.enumeration: fill=lightgreen
@@ -9,9 +11,9 @@
     [&lt;interface&gt;DestinationChoicesProps|+buildingList: BuildingData[];+visible?: boolean;+destination: string|]
     [&lt;interface&gt;LiveInformationProps|+onStop: () =&gt; void;+routes: any|]
     [&lt;interface&gt;NavigationInformationProps|+destinationBuilding: string|]
-    [&lt;interface&gt;NavigationState|+origin: string;+destination: string;+routeEstimates: { [mode: string]: RouteData[]; };+loadingRoutes: boolean;+selectedMode: string;+selectedRoute: any;+selectedBuilding: string;+twoBuildingsSelected: boolean;+snapPoints: string[];+sheetRef: RefObject&lt;BottomSheetMethods&gt;;+searchSuggestions: suggestionResult[];+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;suggestionResult[]&gt;&gt;|]
+    [&lt;interface&gt;NavigationState|+origin: string;+destination: string;+routeEstimates: { [mode: string]: RouteData[]; };+loadingRoutes: boolean;+selectedMode: string;+selectedRoute: any;+selectedBuilding: string;+twoBuildingsSelected: boolean;+snapPoints: string[];+sheetRef: RefObject&lt;BottomSheetMethods&gt;;+searchSuggestions: SuggestionResult[];+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;SuggestionResult[]&gt;&gt;|]
     [&lt;interface&gt;NavigationContextType|+state: NavigationState;+functions: { setOrigin: (value: string) =&gt; void; setDestination: (value: string) =&gt; void; setRouteEstimates: (value: { [mode: string]: RouteData[]; }) =&gt; void; setLoadingRoutes: (value: boolean) =&gt; void; setSelectedMode: (value: string) =&gt; void; setSelectedRoute: (value: any) =&gt; void; setSelectedBuilding: (value: string) =&gt; void; ... }|]
-    [&lt;interface&gt;NavigationProviderProps|+children: ReactNode;+searchSuggestions: suggestionResult[];+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;suggestionResult[]&gt;&gt;;+navigationMode: boolean|]
+    [&lt;interface&gt;NavigationProviderProps|+children: ReactNode;+searchSuggestions: SuggestionResult[];+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;SuggestionResult[]&gt;&gt;;+navigationMode: boolean|]
     [&lt;interface&gt;TransportChoiceProps|+routeEstimates: { [mode: string]: RouteData[]; };+onSelectMode: (mode: string) =&gt; void;+destinationBuilding: string;+bothSelected: boolean;+onBack: () =&gt; void|]
     [&lt;interface&gt;StartNavigationProps|+transportationChoice: string;+setTransportationChoice: React.Dispatch&lt;React.SetStateAction&lt;string&gt;&gt;;+onBack: () =&gt; void;+destinationBuilding: any;+routes: any;+starting: () =&gt; void;+defPoly: () =&gt; void|]
     [&lt;interface&gt;GeoJsonFeature|+type: string;+properties: { Campus: string; Building: string; BuildingName: string; &apos;Building Long Name&apos;: string; Address: string; PlaceID: string; Latitude: number; Longitude: number; };+geometry: { type: string; coordinates: number[]; }|]
@@ -19,7 +21,7 @@
     [&lt;interface&gt;BuildingMappingProps|+geoJsonData: GeoJsonData;+onMarkerPress: (buildingName: string) =&gt; void|]
     [&lt;interface&gt;BuildingData|+buildingName: string;+placeID: string|]
     [&lt;interface&gt;AutoCompleteDropdownRef|+reset: () =&gt; void|]
-    [&lt;interface&gt;AutoCompleteDropdownProps|+currentVal?: string;+buildingData: BuildingData[];+searchSuggestions: suggestionResult[];+setSearchSuggestions: React.Dispatch&lt;React.SetStateAction&lt;suggestionResult[]&gt;&gt;;+onSelect: (selected: string) =&gt; void;+locked: boolean|]
+    [&lt;interface&gt;AutoCompleteDropdownProps|+currentVal?: string;+buildingData: BuildingData[];+searchSuggestions: SuggestionResult[];+setSearchSuggestions: React.Dispatch&lt;React.SetStateAction&lt;SuggestionResult[]&gt;&gt;;+onSelect: (selected: string) =&gt; void;+locked: boolean|]
     [&lt;interface&gt;BuildingDropdownProps|+defaultVal?: string;+options: string[];+onSelect: (selected: string) =&gt; void|]
     [&lt;interface&gt;RetroSwitchProps|+value: boolean;+onValueChange: (value: boolean) =&gt; void|]
     [&lt;interface&gt;ToggleOption|+label: string;+testID: string|]
@@ -45,545 +47,583 @@
                 </a>
               </g>
             </g>
-<g transform="translate(0, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingProperties" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingProperties" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="BuildingProperties" data-compartment="1">+Campus: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="BuildingProperties" data-compartment="1">+Building: string</text>
-<text x="0.0" y="46.5" stroke="none" data-name="BuildingProperties" data-compartment="1">+BuildingName: string</text>
-<text x="0.0" y="62.7" stroke="none" data-name="BuildingProperties" data-compartment="1">+Building Long Name: string</text>
-<text x="0.0" y="78.9" stroke="none" data-name="BuildingProperties" data-compartment="1">+Address: string</text>
-<text x="0.0" y="95.1" stroke="none" data-name="BuildingProperties" data-compartment="1">+Latitude: number</text>
-<text x="0.0" y="111.3" stroke="none" data-name="BuildingProperties" data-compartment="1">+Longitude: number</text>
+            <g transform="translate(0, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingProperties" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingProperties" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="BuildingProperties" data-compartment="1">+Campus: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="BuildingProperties" data-compartment="1">+Building: string</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="BuildingProperties" data-compartment="1">+BuildingName: string</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="BuildingProperties" data-compartment="1">+Building Long Name: string</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="BuildingProperties" data-compartment="1">+Address: string</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="BuildingProperties" data-compartment="1">+Latitude: number</text>
+                <text x="0.0" y="111.3" stroke="none" data-name="BuildingProperties" data-compartment="1">+Longitude: number</text>
 
-</g>
-</g>
-<g transform="translate(0, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingProperties" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="BuildingProperties" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(0, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingProperties" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="BuildingProperties" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="BuildingInfoProps">
-<g fill="lightblue" stroke="#33322E" data-name="BuildingInfoProps">
-<rect x="279.0" y="97.5" height="72.0" width="188.0" data-name="BuildingInfoProps"></rect>
-<path d="M279.0 129.5 L467.0 129.5" fill="none" data-name="BuildingInfoProps"></path>
-<path d="M279.0 161.5 L467.0 161.5" fill="none" data-name="BuildingInfoProps"></path>
-</g>
-<g transform="translate(279, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingInfoProps" data-compartment="0">
-<a id="components\BuildingInfoSheet.ts.BuildingInfoProps" xlink:href="components\BuildingInfoSheet.ts"><text x="86.0" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingInfoProps" data-compartment="0">BuildingInfoProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="BuildingInfoProps">
+            <g fill="lightblue" stroke="#33322E" data-name="BuildingInfoProps">
+              <rect x="279.0" y="97.5" height="72.0" width="188.0" data-name="BuildingInfoProps"></rect>
+              <path d="M279.0 129.5 L467.0 129.5" fill="none" data-name="BuildingInfoProps"></path>
+              <path d="M279.0 161.5 L467.0 161.5" fill="none" data-name="BuildingInfoProps"></path>
+            </g>
+            <g transform="translate(279, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingInfoProps" data-compartment="0">
+                <a id="components\BuildingInfoSheet.ts.BuildingInfoProps" xlink:href="components\BuildingInfoSheet.ts">
+                  <text x="86.0" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingInfoProps" data-compartment="0">BuildingInfoProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(279, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingInfoProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="BuildingInfoProps" data-compartment="1">+buildingName: string</text>
+              </g>
+            </g>
+            <g transform="translate(279, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingInfoProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="BuildingInfoProps" data-compartment="1">+buildingName: string</text>
 
-</g>
-</g>
-<g transform="translate(279, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="BuildingInfoProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(279, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingInfoProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="BuildingInfoProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="DestinationChoicesProps">
-<g fill="lightblue" stroke="#33322E" data-name="DestinationChoicesProps">
-<rect x="507.0" y="81.0" height="105.0" width="236.0" data-name="DestinationChoicesProps"></rect>
-<path d="M507.0 113.0 L743.0 113.0" fill="none" data-name="DestinationChoicesProps"></path>
-<path d="M507.0 178.0 L743.0 178.0" fill="none" data-name="DestinationChoicesProps"></path>
-</g>
-<g transform="translate(507, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DestinationChoicesProps" data-compartment="0">
-<a id="components\Destinations.ts.DestinationChoicesProps" xlink:href="components\Destinations.ts"><text x="110.0" y="14.1" stroke="none" text-anchor="middle" data-name="DestinationChoicesProps" data-compartment="0">DestinationChoicesProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="DestinationChoicesProps">
+            <g fill="lightblue" stroke="#33322E" data-name="DestinationChoicesProps">
+              <rect x="507.0" y="81.0" height="105.0" width="236.0" data-name="DestinationChoicesProps"></rect>
+              <path d="M507.0 113.0 L743.0 113.0" fill="none" data-name="DestinationChoicesProps"></path>
+              <path d="M507.0 178.0 L743.0 178.0" fill="none" data-name="DestinationChoicesProps"></path>
+            </g>
+            <g transform="translate(507, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DestinationChoicesProps" data-compartment="0">
+                <a id="components\Destinations.ts.DestinationChoicesProps" xlink:href="components\Destinations.ts">
+                  <text x="110.0" y="14.1" stroke="none" text-anchor="middle" data-name="DestinationChoicesProps" data-compartment="0">DestinationChoicesProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(507, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DestinationChoicesProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+buildingList: BuildingData[]</text>
-<text x="0.0" y="30.3" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+visible?: boolean</text>
-<text x="0.0" y="46.5" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+destination: string</text>
+              </g>
+            </g>
+            <g transform="translate(507, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="DestinationChoicesProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+buildingList: BuildingData[]</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+visible?: boolean</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="DestinationChoicesProps" data-compartment="1">+destination: string</text>
 
-</g>
-</g>
-<g transform="translate(507, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="DestinationChoicesProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(507, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="DestinationChoicesProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="DestinationChoicesProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="LiveInformationProps">
-<g fill="lightblue" stroke="#33322E" data-name="LiveInformationProps">
-<rect x="783.0" y="89.5" height="88.0" width="184.0" data-name="LiveInformationProps"></rect>
-<path d="M783.0 121.5 L967.0 121.5" fill="none" data-name="LiveInformationProps"></path>
-<path d="M783.0 169.5 L967.0 169.5" fill="none" data-name="LiveInformationProps"></path>
-</g>
-<g transform="translate(783, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LiveInformationProps" data-compartment="0">
-<a id="components\LiveInformation.ts.LiveInformationProps" xlink:href="components\LiveInformation.ts"><text x="84.0" y="14.1" stroke="none" text-anchor="middle" data-name="LiveInformationProps" data-compartment="0">LiveInformationProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="LiveInformationProps">
+            <g fill="lightblue" stroke="#33322E" data-name="LiveInformationProps">
+              <rect x="783.0" y="89.5" height="88.0" width="184.0" data-name="LiveInformationProps"></rect>
+              <path d="M783.0 121.5 L967.0 121.5" fill="none" data-name="LiveInformationProps"></path>
+              <path d="M783.0 169.5 L967.0 169.5" fill="none" data-name="LiveInformationProps"></path>
+            </g>
+            <g transform="translate(783, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LiveInformationProps" data-compartment="0">
+                <a id="components\LiveInformation.ts.LiveInformationProps" xlink:href="components\LiveInformation.ts">
+                  <text x="84.0" y="14.1" stroke="none" text-anchor="middle" data-name="LiveInformationProps" data-compartment="0">LiveInformationProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(783, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LiveInformationProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="LiveInformationProps" data-compartment="1">+onStop: () =&gt; void</text>
-<text x="0.0" y="30.3" stroke="none" data-name="LiveInformationProps" data-compartment="1">+routes: any</text>
+              </g>
+            </g>
+            <g transform="translate(783, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LiveInformationProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="LiveInformationProps" data-compartment="1">+onStop: () =&gt; void</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="LiveInformationProps" data-compartment="1">+routes: any</text>
 
-</g>
-</g>
-<g transform="translate(783, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="LiveInformationProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(783, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LiveInformationProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="LiveInformationProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="NavigationInformationProps">
-<g fill="lightblue" stroke="#33322E" data-name="NavigationInformationProps">
-<rect x="1007.0" y="97.5" height="72.0" width="235.0" data-name="NavigationInformationProps"></rect>
-<path d="M1007.0 129.5 L1242.0 129.5" fill="none" data-name="NavigationInformationProps"></path>
-<path d="M1007.0 161.5 L1242.0 161.5" fill="none" data-name="NavigationInformationProps"></path>
-</g>
-<g transform="translate(1007, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationInformationProps" data-compartment="0">
-<a id="components\NavigationInformation.ts.NavigationInformationProps" xlink:href="components\NavigationInformation.ts"><text x="109.5" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationInformationProps" data-compartment="0">NavigationInformationProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="NavigationInformationProps">
+            <g fill="lightblue" stroke="#33322E" data-name="NavigationInformationProps">
+              <rect x="1007.0" y="97.5" height="72.0" width="235.0" data-name="NavigationInformationProps"></rect>
+              <path d="M1007.0 129.5 L1242.0 129.5" fill="none" data-name="NavigationInformationProps"></path>
+              <path d="M1007.0 161.5 L1242.0 161.5" fill="none" data-name="NavigationInformationProps"></path>
+            </g>
+            <g transform="translate(1007, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationInformationProps" data-compartment="0">
+                <a id="components\NavigationInformation.ts.NavigationInformationProps" xlink:href="components\NavigationInformation.ts">
+                  <text x="109.5" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationInformationProps" data-compartment="0">NavigationInformationProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(1007, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationInformationProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="NavigationInformationProps" data-compartment="1">+destinationBuilding: string</text>
+              </g>
+            </g>
+            <g transform="translate(1007, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationInformationProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="NavigationInformationProps" data-compartment="1">+destinationBuilding: string</text>
 
-</g>
-</g>
-<g transform="translate(1007, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="NavigationInformationProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(1007, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationInformationProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="NavigationInformationProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="NavigationState">
-<g fill="lightblue" stroke="#33322E" data-name="NavigationState">
-<rect x="1282.0" y="0.0" height="267.0" width="586.0" data-name="NavigationState"></rect>
-<path d="M1282.0 32.0 L1868.0 32.0" fill="none" data-name="NavigationState"></path>
-<path d="M1282.0 259.0 L1868.0 259.0" fill="none" data-name="NavigationState"></path>
-</g>
-<g transform="translate(1282, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationState" data-compartment="0">
-<a id="components\NavigationProvider.ts.NavigationState" xlink:href="components\NavigationProvider.ts"><text x="285.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationState" data-compartment="0">NavigationState</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="NavigationState">
+            <g fill="lightblue" stroke="#33322E" data-name="NavigationState">
+              <rect x="1282.0" y="0.0" height="267.0" width="586.0" data-name="NavigationState"></rect>
+              <path d="M1282.0 32.0 L1868.0 32.0" fill="none" data-name="NavigationState"></path>
+              <path d="M1282.0 259.0 L1868.0 259.0" fill="none" data-name="NavigationState"></path>
+            </g>
+            <g transform="translate(1282, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationState" data-compartment="0">
+                <a id="components\NavigationProvider.ts.NavigationState" xlink:href="components\NavigationProvider.ts">
+                  <text x="285.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationState" data-compartment="0">NavigationState</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(1282, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationState" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="NavigationState" data-compartment="1">+origin: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="NavigationState" data-compartment="1">+destination: string</text>
-<text x="0.0" y="46.5" stroke="none" data-name="NavigationState" data-compartment="1">+routeEstimates: { [mode: string]: RouteData[]</text>
-<text x="0.0" y="62.7" stroke="none" data-name="NavigationState" data-compartment="1">}</text>
-<text x="0.0" y="78.9" stroke="none" data-name="NavigationState" data-compartment="1">+loadingRoutes: boolean</text>
-<text x="0.0" y="95.1" stroke="none" data-name="NavigationState" data-compartment="1">+selectedMode: string</text>
-<text x="0.0" y="111.3" stroke="none" data-name="NavigationState" data-compartment="1">+selectedRoute: any</text>
-<text x="0.0" y="127.5" stroke="none" data-name="NavigationState" data-compartment="1">+selectedBuilding: string</text>
-<text x="0.0" y="143.7" stroke="none" data-name="NavigationState" data-compartment="1">+twoBuildingsSelected: boolean</text>
-<text x="0.0" y="159.9" stroke="none" data-name="NavigationState" data-compartment="1">+snapPoints: string[]</text>
-<text x="0.0" y="176.1" stroke="none" data-name="NavigationState" data-compartment="1">+sheetRef: RefObject&lt;BottomSheetMethods&gt;</text>
-<text x="0.0" y="192.3" stroke="none" data-name="NavigationState" data-compartment="1">+searchSuggestions: suggestionResult[]</text>
-<text x="0.0" y="208.5" stroke="none" data-name="NavigationState" data-compartment="1">+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;suggestionResult[]&gt;&gt;</text>
+              </g>
+            </g>
+            <g transform="translate(1282, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationState" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="NavigationState" data-compartment="1">+origin: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="NavigationState" data-compartment="1">+destination: string</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="NavigationState" data-compartment="1">+routeEstimates: { [mode: string]: RouteData[]</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="NavigationState" data-compartment="1">}</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="NavigationState" data-compartment="1">+loadingRoutes: boolean</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="NavigationState" data-compartment="1">+selectedMode: string</text>
+                <text x="0.0" y="111.3" stroke="none" data-name="NavigationState" data-compartment="1">+selectedRoute: any</text>
+                <text x="0.0" y="127.5" stroke="none" data-name="NavigationState" data-compartment="1">+selectedBuilding: string</text>
+                <text x="0.0" y="143.7" stroke="none" data-name="NavigationState" data-compartment="1">+twoBuildingsSelected: boolean</text>
+                <text x="0.0" y="159.9" stroke="none" data-name="NavigationState" data-compartment="1">+snapPoints: string[]</text>
+                <text x="0.0" y="176.1" stroke="none" data-name="NavigationState" data-compartment="1">+sheetRef: RefObject&lt;BottomSheetMethods&gt;</text>
+                <text x="0.0" y="192.3" stroke="none" data-name="NavigationState" data-compartment="1">+searchSuggestions: SuggestionResult[]</text>
+                <text x="0.0" y="208.5" stroke="none" data-name="NavigationState" data-compartment="1">+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;SuggestionResult[]&gt;&gt;</text>
 
-</g>
-</g>
-<g transform="translate(1282, 259)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="NavigationState" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(1282, 259)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationState" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="NavigationState" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="NavigationContextType">
-<g fill="lightblue" stroke="#33322E" data-name="NavigationContextType">
-<rect x="1908.0" y="32.5" height="202.0" width="456.0" data-name="NavigationContextType"></rect>
-<path d="M1908.0 64.5 L2364.0 64.5" fill="none" data-name="NavigationContextType"></path>
-<path d="M1908.0 226.5 L2364.0 226.5" fill="none" data-name="NavigationContextType"></path>
-</g>
-<g transform="translate(1908, 32.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationContextType" data-compartment="0">
-<a id="components\NavigationProvider.ts.NavigationContextType" xlink:href="components\NavigationProvider.ts"><text x="220.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationContextType" data-compartment="0">NavigationContextType</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="NavigationContextType">
+            <g fill="lightblue" stroke="#33322E" data-name="NavigationContextType">
+              <rect x="1908.0" y="32.5" height="202.0" width="456.0" data-name="NavigationContextType"></rect>
+              <path d="M1908.0 64.5 L2364.0 64.5" fill="none" data-name="NavigationContextType"></path>
+              <path d="M1908.0 226.5 L2364.0 226.5" fill="none" data-name="NavigationContextType"></path>
+            </g>
+            <g transform="translate(1908, 32.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationContextType" data-compartment="0">
+                <a id="components\NavigationProvider.ts.NavigationContextType" xlink:href="components\NavigationProvider.ts">
+                  <text x="220.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationContextType" data-compartment="0">NavigationContextType</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(1908, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationContextType" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="NavigationContextType" data-compartment="1">+state: NavigationState</text>
-<text x="0.0" y="30.3" stroke="none" data-name="NavigationContextType" data-compartment="1">+functions: { setOrigin: (value: string) =&gt; void</text>
-<text x="0.0" y="46.5" stroke="none" data-name="NavigationContextType" data-compartment="1">setDestination: (value: string) =&gt; void</text>
-<text x="0.0" y="62.7" stroke="none" data-name="NavigationContextType" data-compartment="1">setRouteEstimates: (value: { [mode: string]: RouteData[]</text>
-<text x="0.0" y="78.9" stroke="none" data-name="NavigationContextType" data-compartment="1">}) =&gt; void</text>
-<text x="0.0" y="95.1" stroke="none" data-name="NavigationContextType" data-compartment="1">setLoadingRoutes: (value: boolean) =&gt; void</text>
-<text x="0.0" y="111.3" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedMode: (value: string) =&gt; void</text>
-<text x="0.0" y="127.5" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedRoute: (value: any) =&gt; void</text>
-<text x="0.0" y="143.7" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedBuilding: (value: string) =&gt; vo...</text>
+              </g>
+            </g>
+            <g transform="translate(1908, 64.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationContextType" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="NavigationContextType" data-compartment="1">+state: NavigationState</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="NavigationContextType" data-compartment="1">+functions: { setOrigin: (value: string) =&gt; void</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="NavigationContextType" data-compartment="1">setDestination: (value: string) =&gt; void</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="NavigationContextType" data-compartment="1">setRouteEstimates: (value: { [mode: string]: RouteData[]</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="NavigationContextType" data-compartment="1">}) =&gt; void</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="NavigationContextType" data-compartment="1">setLoadingRoutes: (value: boolean) =&gt; void</text>
+                <text x="0.0" y="111.3" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedMode: (value: string) =&gt; void</text>
+                <text x="0.0" y="127.5" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedRoute: (value: any) =&gt; void</text>
+                <text x="0.0" y="143.7" stroke="none" data-name="NavigationContextType" data-compartment="1">setSelectedBuilding: (value: string) =&gt; vo...</text>
 
-</g>
-</g>
-<g transform="translate(1908, 226.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="NavigationContextType" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(1908, 226.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationContextType" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="NavigationContextType" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="NavigationProviderProps">
-<g fill="lightblue" stroke="#33322E" data-name="NavigationProviderProps">
-<rect x="2404.0" y="73.0" height="121.0" width="586.0" data-name="NavigationProviderProps"></rect>
-<path d="M2404.0 105.0 L2990.0 105.0" fill="none" data-name="NavigationProviderProps"></path>
-<path d="M2404.0 186.0 L2990.0 186.0" fill="none" data-name="NavigationProviderProps"></path>
-</g>
-<g transform="translate(2404, 73)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationProviderProps" data-compartment="0">
-<a id="components\NavigationProvider.ts.NavigationProviderProps" xlink:href="components\NavigationProvider.ts"><text x="285.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationProviderProps" data-compartment="0">NavigationProviderProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="NavigationProviderProps">
+            <g fill="lightblue" stroke="#33322E" data-name="NavigationProviderProps">
+              <rect x="2404.0" y="73.0" height="121.0" width="586.0" data-name="NavigationProviderProps"></rect>
+              <path d="M2404.0 105.0 L2990.0 105.0" fill="none" data-name="NavigationProviderProps"></path>
+              <path d="M2404.0 186.0 L2990.0 186.0" fill="none" data-name="NavigationProviderProps"></path>
+            </g>
+            <g transform="translate(2404, 73)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NavigationProviderProps" data-compartment="0">
+                <a id="components\NavigationProvider.ts.NavigationProviderProps" xlink:href="components\NavigationProvider.ts">
+                  <text x="285.0" y="14.1" stroke="none" text-anchor="middle" data-name="NavigationProviderProps" data-compartment="0">NavigationProviderProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(2404, 105)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationProviderProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+children: ReactNode</text>
-<text x="0.0" y="30.3" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+searchSuggestions: suggestionResult[]</text>
-<text x="0.0" y="46.5" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;suggestionResult[]&gt;&gt;</text>
-<text x="0.0" y="62.7" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+navigationMode: boolean</text>
+              </g>
+            </g>
+            <g transform="translate(2404, 105)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NavigationProviderProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+children: ReactNode</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+searchSuggestions: SuggestionResult[]</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+setSearchSuggestions: Dispatch&lt;SetStateAction&lt;SuggestionResult[]&gt;&gt;</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="NavigationProviderProps" data-compartment="1">+navigationMode: boolean</text>
 
-</g>
-</g>
-<g transform="translate(2404, 186)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="NavigationProviderProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(2404, 186)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NavigationProviderProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="NavigationProviderProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="TransportChoiceProps">
-<g fill="lightblue" stroke="#33322E" data-name="TransportChoiceProps">
-<rect x="3030.0" y="57.0" height="153.0" width="377.0" data-name="TransportChoiceProps"></rect>
-<path d="M3030.0 89.0 L3407.0 89.0" fill="none" data-name="TransportChoiceProps"></path>
-<path d="M3030.0 202.0 L3407.0 202.0" fill="none" data-name="TransportChoiceProps"></path>
-</g>
-<g transform="translate(3030, 57)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TransportChoiceProps" data-compartment="0">
-<a id="components\RoutesSheet.ts.TransportChoiceProps" xlink:href="components\RoutesSheet.ts"><text x="180.5" y="14.1" stroke="none" text-anchor="middle" data-name="TransportChoiceProps" data-compartment="0">TransportChoiceProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="TransportChoiceProps">
+            <g fill="lightblue" stroke="#33322E" data-name="TransportChoiceProps">
+              <rect x="3030.0" y="57.0" height="153.0" width="377.0" data-name="TransportChoiceProps"></rect>
+              <path d="M3030.0 89.0 L3407.0 89.0" fill="none" data-name="TransportChoiceProps"></path>
+              <path d="M3030.0 202.0 L3407.0 202.0" fill="none" data-name="TransportChoiceProps"></path>
+            </g>
+            <g transform="translate(3030, 57)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TransportChoiceProps" data-compartment="0">
+                <a id="components\RoutesSheet.ts.TransportChoiceProps" xlink:href="components\RoutesSheet.ts">
+                  <text x="180.5" y="14.1" stroke="none" text-anchor="middle" data-name="TransportChoiceProps" data-compartment="0">TransportChoiceProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(3030, 89)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="TransportChoiceProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+routeEstimates: { [mode: string]: RouteData[]</text>
-<text x="0.0" y="30.3" stroke="none" data-name="TransportChoiceProps" data-compartment="1">}</text>
-<text x="0.0" y="46.5" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+onSelectMode: (mode: string) =&gt; void</text>
-<text x="0.0" y="62.7" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+destinationBuilding: string</text>
-<text x="0.0" y="78.9" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+bothSelected: boolean</text>
-<text x="0.0" y="95.1" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+onBack: () =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(3030, 89)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="TransportChoiceProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+routeEstimates: { [mode: string]: RouteData[]</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="TransportChoiceProps" data-compartment="1">}</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+onSelectMode: (mode: string) =&gt; void</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+destinationBuilding: string</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+bothSelected: boolean</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="TransportChoiceProps" data-compartment="1">+onBack: () =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(3030, 202)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="TransportChoiceProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(3030, 202)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TransportChoiceProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="TransportChoiceProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="StartNavigationProps">
-<g fill="lightblue" stroke="#33322E" data-name="StartNavigationProps">
-<rect x="3447.0" y="49.0" height="169.0" width="601.0" data-name="StartNavigationProps"></rect>
-<path d="M3447.0 81.0 L4048.0 81.0" fill="none" data-name="StartNavigationProps"></path>
-<path d="M3447.0 210.0 L4048.0 210.0" fill="none" data-name="StartNavigationProps"></path>
-</g>
-<g transform="translate(3447, 49)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="StartNavigationProps" data-compartment="0">
-<a id="components\RouteStart.ts.StartNavigationProps" xlink:href="components\RouteStart.ts"><text x="292.5" y="14.1" stroke="none" text-anchor="middle" data-name="StartNavigationProps" data-compartment="0">StartNavigationProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="StartNavigationProps">
+            <g fill="lightblue" stroke="#33322E" data-name="StartNavigationProps">
+              <rect x="3447.0" y="49.0" height="169.0" width="601.0" data-name="StartNavigationProps"></rect>
+              <path d="M3447.0 81.0 L4048.0 81.0" fill="none" data-name="StartNavigationProps"></path>
+              <path d="M3447.0 210.0 L4048.0 210.0" fill="none" data-name="StartNavigationProps"></path>
+            </g>
+            <g transform="translate(3447, 49)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="StartNavigationProps" data-compartment="0">
+                <a id="components\RouteStart.ts.StartNavigationProps" xlink:href="components\RouteStart.ts">
+                  <text x="292.5" y="14.1" stroke="none" text-anchor="middle" data-name="StartNavigationProps" data-compartment="0">StartNavigationProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(3447, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="StartNavigationProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="StartNavigationProps" data-compartment="1">+transportationChoice: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="StartNavigationProps" data-compartment="1">+setTransportationChoice: React.Dispatch&lt;React.SetStateAction&lt;string&gt;&gt;</text>
-<text x="0.0" y="46.5" stroke="none" data-name="StartNavigationProps" data-compartment="1">+onBack: () =&gt; void</text>
-<text x="0.0" y="62.7" stroke="none" data-name="StartNavigationProps" data-compartment="1">+destinationBuilding: any</text>
-<text x="0.0" y="78.9" stroke="none" data-name="StartNavigationProps" data-compartment="1">+routes: any</text>
-<text x="0.0" y="95.1" stroke="none" data-name="StartNavigationProps" data-compartment="1">+starting: () =&gt; void</text>
-<text x="0.0" y="111.3" stroke="none" data-name="StartNavigationProps" data-compartment="1">+defPoly: () =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(3447, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="StartNavigationProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="StartNavigationProps" data-compartment="1">+transportationChoice: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="StartNavigationProps" data-compartment="1">+setTransportationChoice: React.Dispatch&lt;React.SetStateAction&lt;string&gt;&gt;</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="StartNavigationProps" data-compartment="1">+onBack: () =&gt; void</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="StartNavigationProps" data-compartment="1">+destinationBuilding: any</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="StartNavigationProps" data-compartment="1">+routes: any</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="StartNavigationProps" data-compartment="1">+starting: () =&gt; void</text>
+                <text x="0.0" y="111.3" stroke="none" data-name="StartNavigationProps" data-compartment="1">+defPoly: () =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(3447, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="StartNavigationProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(3447, 210)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="StartNavigationProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="StartNavigationProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="GeoJsonFeature">
-<g fill="lightblue" stroke="#33322E" data-name="GeoJsonFeature">
-<rect x="4088.0" y="0.0" height="267.0" width="246.0" data-name="GeoJsonFeature"></rect>
-<path d="M4088.0 32.0 L4334.0 32.0" fill="none" data-name="GeoJsonFeature"></path>
-<path d="M4088.0 259.0 L4334.0 259.0" fill="none" data-name="GeoJsonFeature"></path>
-</g>
-<g transform="translate(4088, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="GeoJsonFeature" data-compartment="0">
-<a id="components\ui\BuildingMapping.ts.GeoJsonFeature" xlink:href="components\ui\BuildingMapping.ts"><text x="115.0" y="14.1" stroke="none" text-anchor="middle" data-name="GeoJsonFeature" data-compartment="0">GeoJsonFeature</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="GeoJsonFeature">
+            <g fill="lightblue" stroke="#33322E" data-name="GeoJsonFeature">
+              <rect x="4088.0" y="0.0" height="267.0" width="246.0" data-name="GeoJsonFeature"></rect>
+              <path d="M4088.0 32.0 L4334.0 32.0" fill="none" data-name="GeoJsonFeature"></path>
+              <path d="M4088.0 259.0 L4334.0 259.0" fill="none" data-name="GeoJsonFeature"></path>
+            </g>
+            <g transform="translate(4088, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="GeoJsonFeature" data-compartment="0">
+                <a id="components\ui\BuildingMapping.ts.GeoJsonFeature" xlink:href="components\ui\BuildingMapping.ts">
+                  <text x="115.0" y="14.1" stroke="none" text-anchor="middle" data-name="GeoJsonFeature" data-compartment="0">GeoJsonFeature</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(4088, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="GeoJsonFeature" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+type: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+properties: { Campus: string</text>
-<text x="0.0" y="46.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Building: string</text>
-<text x="0.0" y="62.7" stroke="none" data-name="GeoJsonFeature" data-compartment="1">BuildingName: string</text>
-<text x="0.0" y="78.9" stroke="none" data-name="GeoJsonFeature" data-compartment="1">&apos;Building Long Name&apos;: string</text>
-<text x="0.0" y="95.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Address: string</text>
-<text x="0.0" y="111.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">PlaceID: string</text>
-<text x="0.0" y="127.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Latitude: number</text>
-<text x="0.0" y="143.7" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Longitude: number</text>
-<text x="0.0" y="159.9" stroke="none" data-name="GeoJsonFeature" data-compartment="1">}</text>
-<text x="0.0" y="176.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+geometry: { type: string</text>
-<text x="0.0" y="192.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">coordinates: number[]</text>
-<text x="0.0" y="208.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">}</text>
+              </g>
+            </g>
+            <g transform="translate(4088, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="GeoJsonFeature" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+type: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+properties: { Campus: string</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Building: string</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="GeoJsonFeature" data-compartment="1">BuildingName: string</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="GeoJsonFeature" data-compartment="1">&apos;Building Long Name&apos;: string</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Address: string</text>
+                <text x="0.0" y="111.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">PlaceID: string</text>
+                <text x="0.0" y="127.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Latitude: number</text>
+                <text x="0.0" y="143.7" stroke="none" data-name="GeoJsonFeature" data-compartment="1">Longitude: number</text>
+                <text x="0.0" y="159.9" stroke="none" data-name="GeoJsonFeature" data-compartment="1">}</text>
+                <text x="0.0" y="176.1" stroke="none" data-name="GeoJsonFeature" data-compartment="1">+geometry: { type: string</text>
+                <text x="0.0" y="192.3" stroke="none" data-name="GeoJsonFeature" data-compartment="1">coordinates: number[]</text>
+                <text x="0.0" y="208.5" stroke="none" data-name="GeoJsonFeature" data-compartment="1">}</text>
 
-</g>
-</g>
-<g transform="translate(4088, 259)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="GeoJsonFeature" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(4088, 259)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonFeature" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="GeoJsonFeature" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="GeoJsonData">
-<g fill="lightblue" stroke="#33322E" data-name="GeoJsonData">
-<rect x="4374.0" y="81.0" height="105.0" width="243.0" data-name="GeoJsonData"></rect>
-<path d="M4374.0 113.0 L4617.0 113.0" fill="none" data-name="GeoJsonData"></path>
-<path d="M4374.0 178.0 L4617.0 178.0" fill="none" data-name="GeoJsonData"></path>
-</g>
-<g transform="translate(4374, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="GeoJsonData" data-compartment="0">
-<a id="components\ui\BuildingMapping.ts.GeoJsonData" xlink:href="components\ui\BuildingMapping.ts"><text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="GeoJsonData" data-compartment="0">GeoJsonData</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="GeoJsonData">
+            <g fill="lightblue" stroke="#33322E" data-name="GeoJsonData">
+              <rect x="4374.0" y="81.0" height="105.0" width="243.0" data-name="GeoJsonData"></rect>
+              <path d="M4374.0 113.0 L4617.0 113.0" fill="none" data-name="GeoJsonData"></path>
+              <path d="M4374.0 178.0 L4617.0 178.0" fill="none" data-name="GeoJsonData"></path>
+            </g>
+            <g transform="translate(4374, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="GeoJsonData" data-compartment="0">
+                <a id="components\ui\BuildingMapping.ts.GeoJsonData" xlink:href="components\ui\BuildingMapping.ts">
+                  <text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="GeoJsonData" data-compartment="0">GeoJsonData</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(4374, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="GeoJsonData" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="GeoJsonData" data-compartment="1">+type: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="GeoJsonData" data-compartment="1">+name: string</text>
-<text x="0.0" y="46.5" stroke="none" data-name="GeoJsonData" data-compartment="1">+features: GeoJsonFeature[]</text>
+              </g>
+            </g>
+            <g transform="translate(4374, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="GeoJsonData" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="GeoJsonData" data-compartment="1">+type: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="GeoJsonData" data-compartment="1">+name: string</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="GeoJsonData" data-compartment="1">+features: GeoJsonFeature[]</text>
 
-</g>
-</g>
-<g transform="translate(4374, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="GeoJsonData" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(4374, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="GeoJsonData" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="GeoJsonData" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="BuildingMappingProps">
-<g fill="lightblue" stroke="#33322E" data-name="BuildingMappingProps">
-<rect x="4657.0" y="89.5" height="88.0" width="393.0" data-name="BuildingMappingProps"></rect>
-<path d="M4657.0 121.5 L5050.0 121.5" fill="none" data-name="BuildingMappingProps"></path>
-<path d="M4657.0 169.5 L5050.0 169.5" fill="none" data-name="BuildingMappingProps"></path>
-</g>
-<g transform="translate(4657, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingMappingProps" data-compartment="0">
-<a id="components\ui\BuildingMapping.ts.BuildingMappingProps" xlink:href="components\ui\BuildingMapping.ts"><text x="188.5" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingMappingProps" data-compartment="0">BuildingMappingProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="BuildingMappingProps">
+            <g fill="lightblue" stroke="#33322E" data-name="BuildingMappingProps">
+              <rect x="4657.0" y="89.5" height="88.0" width="393.0" data-name="BuildingMappingProps"></rect>
+              <path d="M4657.0 121.5 L5050.0 121.5" fill="none" data-name="BuildingMappingProps"></path>
+              <path d="M4657.0 169.5 L5050.0 169.5" fill="none" data-name="BuildingMappingProps"></path>
+            </g>
+            <g transform="translate(4657, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingMappingProps" data-compartment="0">
+                <a id="components\ui\BuildingMapping.ts.BuildingMappingProps" xlink:href="components\ui\BuildingMapping.ts">
+                  <text x="188.5" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingMappingProps" data-compartment="0">BuildingMappingProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(4657, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingMappingProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="BuildingMappingProps" data-compartment="1">+geoJsonData: GeoJsonData</text>
-<text x="0.0" y="30.3" stroke="none" data-name="BuildingMappingProps" data-compartment="1">+onMarkerPress: (buildingName: string) =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(4657, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingMappingProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="BuildingMappingProps" data-compartment="1">+geoJsonData: GeoJsonData</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="BuildingMappingProps" data-compartment="1">+onMarkerPress: (buildingName: string) =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(4657, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="BuildingMappingProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(4657, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingMappingProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="BuildingMappingProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="BuildingData">
-<g fill="lightblue" stroke="#33322E" data-name="BuildingData">
-<rect x="5090.0" y="89.5" height="88.0" width="188.0" data-name="BuildingData"></rect>
-<path d="M5090.0 121.5 L5278.0 121.5" fill="none" data-name="BuildingData"></path>
-<path d="M5090.0 169.5 L5278.0 169.5" fill="none" data-name="BuildingData"></path>
-</g>
-<g transform="translate(5090, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingData" data-compartment="0">
-<a id="components\ui\input\AutoCompleteDropdown.ts.BuildingData" xlink:href="components\ui\input\AutoCompleteDropdown.ts"><text x="86.0" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingData" data-compartment="0">BuildingData</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="BuildingData">
+            <g fill="lightblue" stroke="#33322E" data-name="BuildingData">
+              <rect x="5090.0" y="89.5" height="88.0" width="188.0" data-name="BuildingData"></rect>
+              <path d="M5090.0 121.5 L5278.0 121.5" fill="none" data-name="BuildingData"></path>
+              <path d="M5090.0 169.5 L5278.0 169.5" fill="none" data-name="BuildingData"></path>
+            </g>
+            <g transform="translate(5090, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingData" data-compartment="0">
+                <a id="components\ui\input\AutoCompleteDropdown.ts.BuildingData" xlink:href="components\ui\input\AutoCompleteDropdown.ts">
+                  <text x="86.0" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingData" data-compartment="0">BuildingData</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(5090, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingData" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="BuildingData" data-compartment="1">+buildingName: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="BuildingData" data-compartment="1">+placeID: string</text>
+              </g>
+            </g>
+            <g transform="translate(5090, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingData" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="BuildingData" data-compartment="1">+buildingName: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="BuildingData" data-compartment="1">+placeID: string</text>
 
-</g>
-</g>
-<g transform="translate(5090, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="BuildingData" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(5090, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingData" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="BuildingData" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="AutoCompleteDropdownRef">
-<g fill="lightblue" stroke="#33322E" data-name="AutoCompleteDropdownRef">
-<rect x="5318.0" y="97.5" height="72.0" width="234.0" data-name="AutoCompleteDropdownRef"></rect>
-<path d="M5318.0 129.5 L5552.0 129.5" fill="none" data-name="AutoCompleteDropdownRef"></path>
-<path d="M5318.0 161.5 L5552.0 161.5" fill="none" data-name="AutoCompleteDropdownRef"></path>
-</g>
-<g transform="translate(5318, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="AutoCompleteDropdownRef" data-compartment="0">
-<a id="components\ui\input\AutoCompleteDropdown.ts.AutoCompleteDropdownRef" xlink:href="components\ui\input\AutoCompleteDropdown.ts"><text x="109.0" y="14.1" stroke="none" text-anchor="middle" data-name="AutoCompleteDropdownRef" data-compartment="0">AutoCompleteDropdownRef</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="AutoCompleteDropdownRef">
+            <g fill="lightblue" stroke="#33322E" data-name="AutoCompleteDropdownRef">
+              <rect x="5318.0" y="97.5" height="72.0" width="234.0" data-name="AutoCompleteDropdownRef"></rect>
+              <path d="M5318.0 129.5 L5552.0 129.5" fill="none" data-name="AutoCompleteDropdownRef"></path>
+              <path d="M5318.0 161.5 L5552.0 161.5" fill="none" data-name="AutoCompleteDropdownRef"></path>
+            </g>
+            <g transform="translate(5318, 97.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="AutoCompleteDropdownRef" data-compartment="0">
+                <a id="components\ui\input\AutoCompleteDropdown.ts.AutoCompleteDropdownRef" xlink:href="components\ui\input\AutoCompleteDropdown.ts">
+                  <text x="109.0" y="14.1" stroke="none" text-anchor="middle" data-name="AutoCompleteDropdownRef" data-compartment="0">AutoCompleteDropdownRef</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(5318, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="AutoCompleteDropdownRef" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="AutoCompleteDropdownRef" data-compartment="1">+reset: () =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(5318, 129.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="AutoCompleteDropdownRef" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="AutoCompleteDropdownRef" data-compartment="1">+reset: () =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(5318, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="AutoCompleteDropdownRef" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(5318, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownRef" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="AutoCompleteDropdownRef" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="AutoCompleteDropdownProps">
-<g fill="lightblue" stroke="#33322E" data-name="AutoCompleteDropdownProps">
-<rect x="5592.0" y="57.0" height="153.0" width="688.0" data-name="AutoCompleteDropdownProps"></rect>
-<path d="M5592.0 89.0 L6280.0 89.0" fill="none" data-name="AutoCompleteDropdownProps"></path>
-<path d="M5592.0 202.0 L6280.0 202.0" fill="none" data-name="AutoCompleteDropdownProps"></path>
-</g>
-<g transform="translate(5592, 57)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="AutoCompleteDropdownProps" data-compartment="0">
-<a id="components\ui\input\AutoCompleteDropdown.ts.AutoCompleteDropdownProps" xlink:href="components\ui\input\AutoCompleteDropdown.ts"><text x="336.0" y="14.1" stroke="none" text-anchor="middle" data-name="AutoCompleteDropdownProps" data-compartment="0">AutoCompleteDropdownProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="AutoCompleteDropdownProps">
+            <g fill="lightblue" stroke="#33322E" data-name="AutoCompleteDropdownProps">
+              <rect x="5592.0" y="57.0" height="153.0" width="688.0" data-name="AutoCompleteDropdownProps"></rect>
+              <path d="M5592.0 89.0 L6280.0 89.0" fill="none" data-name="AutoCompleteDropdownProps"></path>
+              <path d="M5592.0 202.0 L6280.0 202.0" fill="none" data-name="AutoCompleteDropdownProps"></path>
+            </g>
+            <g transform="translate(5592, 57)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="AutoCompleteDropdownProps" data-compartment="0">
+                <a id="components\ui\input\AutoCompleteDropdown.ts.AutoCompleteDropdownProps" xlink:href="components\ui\input\AutoCompleteDropdown.ts">
+                  <text x="336.0" y="14.1" stroke="none" text-anchor="middle" data-name="AutoCompleteDropdownProps" data-compartment="0">AutoCompleteDropdownProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(5592, 89)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="AutoCompleteDropdownProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+currentVal?: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+buildingData: BuildingData[]</text>
-<text x="0.0" y="46.5" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+searchSuggestions: suggestionResult[]</text>
-<text x="0.0" y="62.7" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+setSearchSuggestions: React.Dispatch&lt;React.SetStateAction&lt;suggestionResult[]&gt;&gt;</text>
-<text x="0.0" y="78.9" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+onSelect: (selected: string) =&gt; void</text>
-<text x="0.0" y="95.1" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+locked: boolean</text>
+              </g>
+            </g>
+            <g transform="translate(5592, 89)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="AutoCompleteDropdownProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+currentVal?: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+buildingData: BuildingData[]</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+searchSuggestions: SuggestionResult[]</text>
+                <text x="0.0" y="62.7" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+setSearchSuggestions: React.Dispatch&lt;React.SetStateAction&lt;SuggestionResult[]&gt;&gt;</text>
+                <text x="0.0" y="78.9" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+onSelect: (selected: string) =&gt; void</text>
+                <text x="0.0" y="95.1" stroke="none" data-name="AutoCompleteDropdownProps" data-compartment="1">+locked: boolean</text>
 
-</g>
-</g>
-<g transform="translate(5592, 202)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="AutoCompleteDropdownProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(5592, 202)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="AutoCompleteDropdownProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="AutoCompleteDropdownProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="BuildingDropdownProps">
-<g fill="lightblue" stroke="#33322E" data-name="BuildingDropdownProps">
-<rect x="6320.0" y="81.0" height="105.0" width="301.0" data-name="BuildingDropdownProps"></rect>
-<path d="M6320.0 113.0 L6621.0 113.0" fill="none" data-name="BuildingDropdownProps"></path>
-<path d="M6320.0 178.0 L6621.0 178.0" fill="none" data-name="BuildingDropdownProps"></path>
-</g>
-<g transform="translate(6320, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingDropdownProps" data-compartment="0">
-<a id="components\ui\input\BuildingDropdown.ts.BuildingDropdownProps" xlink:href="components\ui\input\BuildingDropdown.ts"><text x="142.5" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingDropdownProps" data-compartment="0">BuildingDropdownProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="BuildingDropdownProps">
+            <g fill="lightblue" stroke="#33322E" data-name="BuildingDropdownProps">
+              <rect x="6320.0" y="81.0" height="105.0" width="301.0" data-name="BuildingDropdownProps"></rect>
+              <path d="M6320.0 113.0 L6621.0 113.0" fill="none" data-name="BuildingDropdownProps"></path>
+              <path d="M6320.0 178.0 L6621.0 178.0" fill="none" data-name="BuildingDropdownProps"></path>
+            </g>
+            <g transform="translate(6320, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BuildingDropdownProps" data-compartment="0">
+                <a id="components\ui\input\BuildingDropdown.ts.BuildingDropdownProps" xlink:href="components\ui\input\BuildingDropdown.ts">
+                  <text x="142.5" y="14.1" stroke="none" text-anchor="middle" data-name="BuildingDropdownProps" data-compartment="0">BuildingDropdownProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(6320, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingDropdownProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+defaultVal?: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+options: string[]</text>
-<text x="0.0" y="46.5" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+onSelect: (selected: string) =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(6320, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BuildingDropdownProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+defaultVal?: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+options: string[]</text>
+                <text x="0.0" y="46.5" stroke="none" data-name="BuildingDropdownProps" data-compartment="1">+onSelect: (selected: string) =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(6320, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="BuildingDropdownProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(6320, 178)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BuildingDropdownProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="BuildingDropdownProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="RetroSwitchProps">
-<g fill="lightblue" stroke="#33322E" data-name="RetroSwitchProps">
-<rect x="6661.0" y="89.5" height="88.0" width="355.0" data-name="RetroSwitchProps"></rect>
-<path d="M6661.0 121.5 L7016.0 121.5" fill="none" data-name="RetroSwitchProps"></path>
-<path d="M6661.0 169.5 L7016.0 169.5" fill="none" data-name="RetroSwitchProps"></path>
-</g>
-<g transform="translate(6661, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="RetroSwitchProps" data-compartment="0">
-<a id="components\ui\input\RetroSwitch.ts.RetroSwitchProps" xlink:href="components\ui\input\RetroSwitch.ts"><text x="169.5" y="14.1" stroke="none" text-anchor="middle" data-name="RetroSwitchProps" data-compartment="0">RetroSwitchProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="RetroSwitchProps">
+            <g fill="lightblue" stroke="#33322E" data-name="RetroSwitchProps">
+              <rect x="6661.0" y="89.5" height="88.0" width="355.0" data-name="RetroSwitchProps"></rect>
+              <path d="M6661.0 121.5 L7016.0 121.5" fill="none" data-name="RetroSwitchProps"></path>
+              <path d="M6661.0 169.5 L7016.0 169.5" fill="none" data-name="RetroSwitchProps"></path>
+            </g>
+            <g transform="translate(6661, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="RetroSwitchProps" data-compartment="0">
+                <a id="components\ui\input\RetroSwitch.ts.RetroSwitchProps" xlink:href="components\ui\input\RetroSwitch.ts">
+                  <text x="169.5" y="14.1" stroke="none" text-anchor="middle" data-name="RetroSwitchProps" data-compartment="0">RetroSwitchProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(6661, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="RetroSwitchProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="RetroSwitchProps" data-compartment="1">+value: boolean</text>
-<text x="0.0" y="30.3" stroke="none" data-name="RetroSwitchProps" data-compartment="1">+onValueChange: (value: boolean) =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(6661, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="RetroSwitchProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="RetroSwitchProps" data-compartment="1">+value: boolean</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="RetroSwitchProps" data-compartment="1">+onValueChange: (value: boolean) =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(6661, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="RetroSwitchProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(6661, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="RetroSwitchProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="RetroSwitchProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="ToggleOption">
-<g fill="lightblue" stroke="#33322E" data-name="ToggleOption">
-<rect x="7056.0" y="89.5" height="88.0" width="126.0" data-name="ToggleOption"></rect>
-<path d="M7056.0 121.5 L7182.0 121.5" fill="none" data-name="ToggleOption"></path>
-<path d="M7056.0 169.5 L7182.0 169.5" fill="none" data-name="ToggleOption"></path>
-</g>
-<g transform="translate(7056, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ToggleOption" data-compartment="0">
-<a id="components\ui\input\ToggleSwitch.ts.ToggleOption" xlink:href="components\ui\input\ToggleSwitch.ts"><text x="55.0" y="14.1" stroke="none" text-anchor="middle" data-name="ToggleOption" data-compartment="0">ToggleOption</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="ToggleOption">
+            <g fill="lightblue" stroke="#33322E" data-name="ToggleOption">
+              <rect x="7056.0" y="89.5" height="88.0" width="126.0" data-name="ToggleOption"></rect>
+              <path d="M7056.0 121.5 L7182.0 121.5" fill="none" data-name="ToggleOption"></path>
+              <path d="M7056.0 169.5 L7182.0 169.5" fill="none" data-name="ToggleOption"></path>
+            </g>
+            <g transform="translate(7056, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ToggleOption" data-compartment="0">
+                <a id="components\ui\input\ToggleSwitch.ts.ToggleOption" xlink:href="components\ui\input\ToggleSwitch.ts">
+                  <text x="55.0" y="14.1" stroke="none" text-anchor="middle" data-name="ToggleOption" data-compartment="0">ToggleOption</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(7056, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ToggleOption" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="ToggleOption" data-compartment="1">+label: string</text>
-<text x="0.0" y="30.3" stroke="none" data-name="ToggleOption" data-compartment="1">+testID: string</text>
+              </g>
+            </g>
+            <g transform="translate(7056, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ToggleOption" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="ToggleOption" data-compartment="1">+label: string</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="ToggleOption" data-compartment="1">+testID: string</text>
 
-</g>
-</g>
-<g transform="translate(7056, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="ToggleOption" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(7056, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleOption" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="ToggleOption" data-compartment="2">
 
-</g>
-</g>
-</g>
-<g data-name="ToggleSwitchProps">
-<g fill="lightblue" stroke="#33322E" data-name="ToggleSwitchProps">
-<rect x="7222.0" y="89.5" height="88.0" width="306.0" data-name="ToggleSwitchProps"></rect>
-<path d="M7222.0 121.5 L7528.0 121.5" fill="none" data-name="ToggleSwitchProps"></path>
-<path d="M7222.0 169.5 L7528.0 169.5" fill="none" data-name="ToggleSwitchProps"></path>
-</g>
-<g transform="translate(7222, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="0">
-<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ToggleSwitchProps" data-compartment="0">
-<a id="components\ui\input\ToggleSwitch.ts.ToggleSwitchProps" xlink:href="components\ui\input\ToggleSwitch.ts"><text x="145.0" y="14.1" stroke="none" text-anchor="middle" data-name="ToggleSwitchProps" data-compartment="0">ToggleSwitchProps</text></a>
+              </g>
+            </g>
+          </g>
+          <g data-name="ToggleSwitchProps">
+            <g fill="lightblue" stroke="#33322E" data-name="ToggleSwitchProps">
+              <rect x="7222.0" y="89.5" height="88.0" width="306.0" data-name="ToggleSwitchProps"></rect>
+              <path d="M7222.0 121.5 L7528.0 121.5" fill="none" data-name="ToggleSwitchProps"></path>
+              <path d="M7222.0 169.5 L7528.0 169.5" fill="none" data-name="ToggleSwitchProps"></path>
+            </g>
+            <g transform="translate(7222, 89.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="0">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ToggleSwitchProps" data-compartment="0">
+                <a id="components\ui\input\ToggleSwitch.ts.ToggleSwitchProps" xlink:href="components\ui\input\ToggleSwitch.ts">
+                  <text x="145.0" y="14.1" stroke="none" text-anchor="middle" data-name="ToggleSwitchProps" data-compartment="0">ToggleSwitchProps</text>
+                </a>
 
-</g>
-</g>
-<g transform="translate(7222, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="1">
-<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ToggleSwitchProps" data-compartment="1">
-<text x="0.0" y="14.1" stroke="none" data-name="ToggleSwitchProps" data-compartment="1">+options: ToggleOption[]</text>
-<text x="0.0" y="30.3" stroke="none" data-name="ToggleSwitchProps" data-compartment="1">+onToggle: (selected: string) =&gt; void</text>
+              </g>
+            </g>
+            <g transform="translate(7222, 121.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="1">
+              <g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ToggleSwitchProps" data-compartment="1">
+                <text x="0.0" y="14.1" stroke="none" data-name="ToggleSwitchProps" data-compartment="1">+options: ToggleOption[]</text>
+                <text x="0.0" y="30.3" stroke="none" data-name="ToggleSwitchProps" data-compartment="1">+onToggle: (selected: string) =&gt; void</text>
 
-</g>
-</g>
-<g transform="translate(7222, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="2">
-<g transform="translate(8, 8)" fill="#33322E" data-name="ToggleSwitchProps" data-compartment="2">
+              </g>
+            </g>
+            <g transform="translate(7222, 169.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ToggleSwitchProps" data-compartment="2">
+              <g transform="translate(8, 8)" fill="#33322E" data-name="ToggleSwitchProps" data-compartment="2">
 
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
 </svg>

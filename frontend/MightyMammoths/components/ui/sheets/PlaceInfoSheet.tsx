@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import ActionSheet, { ActionSheetProps, ActionSheetRef} from 'react-native-actions-sheet';
-import { placeDetails } from '@/services/searchService';
+import ActionSheet from 'react-native-actions-sheet';
+import { ActionSheetProps } from 'react-native-actions-sheet';
+import {ActionSheetRef} from "react-native-actions-sheet";
+import { PlaceDetails } from '@/services/searchService';
 
 export type PlaceInfoSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     mainsheet: React.MutableRefObject<ActionSheetRef | null>;
-    placeDetails?: placeDetails;
+    PlaceDetails?: PlaceDetails;
     navigate: () => void;
 }
 
@@ -19,7 +21,7 @@ function PlaceInfoSheet({
     overdrawEnabled = false,
     overdrawSize = 200,
     actionsheetref,
-    placeDetails,
+    PlaceDetails,
     navigate,
     mainsheet
 }: PlaceInfoSheetProps) {
@@ -39,7 +41,7 @@ function PlaceInfoSheet({
         onClose={()=>mainsheet.current?.show()}
         >
       <View style={styles.container}>
-    <Text style={styles.header}>{placeDetails?.shortFormattedAddress || ""}</Text>
+    <Text style={styles.header}>{PlaceDetails?.shortFormattedAddress || ""}</Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton

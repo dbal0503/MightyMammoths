@@ -1,18 +1,6 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import {
-  StyleSheet,
-  View,
-  Keyboard,
-  Modal,
-  TouchableOpacity,
-  Text,
-  Image,
-  Alert,
-  Linking,
-  AppState,
-  Platform,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
+import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
+import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
@@ -28,10 +16,14 @@ import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuild
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/DestinationsChoices";
 import {
-  suggestionResult,
+  SuggestionResult,
   getPlaceDetails,
-  placeDetails,
+  PlaceDetails,
 } from "@/services/searchService";
+import { Image } from "react-native";
+import { useFirstLaunch } from '../../hooks/useFirstLaunch'
+import TutorialHowTo from "@/components/TutorialHowTo";
+
 
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -73,21 +65,18 @@ export default function HomeScreen() {
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
-  const indoorMapSheet = useRef<ActionSheetRef>(null);
+  const isFirstLaunch = useFirstLaunch();
+  const [showTutorialHowTo, setShowTutorialHowTo] = useState(true);
   const [indoorMapVisible, setIndoorMapVisible] = useState(false);
 
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<
-    suggestionResult[]
-  >([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
-  const [currentPlace, setCurrentPlace] = useState<placeDetails | undefined>(
-    undefined
-  );
-  const [destination, setDestination] = useState<string>("");
+  const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
+  const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
@@ -121,7 +110,7 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
-  const [nearbyPlaces, setNearbyPlaces] = useState<suggestionResult[]>([]);
+  const [nearbyPlaces, setNearbyPlaces] = useState<SuggestionResult[]>([]);
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
   const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
@@ -245,32 +234,26 @@ export default function HomeScreen() {
   }, [latitudeStepByStep, longitudeStepByStep]);
 
   useEffect(() => {
-    const buildingResults: suggestionResult[] = buildingList.map(
-      (building) => ({
-        placePrediction: {
-          place: building.buildingName,
-          placeId: building.placeID,
-          text: {
-            text: building.buildingName,
-            matches: [
-              { startOffset: 0, endOffset: building.buildingName.length },
-            ],
-          },
-          structuredFormat: {
-            mainText: {
-              text: building.buildingName,
-              matches: [
-                { startOffset: 0, endOffset: building.buildingName.length },
-              ],
-            },
-            secondaryText: {
-              text: "",
-            },
-          },
-          types: ["building"],
+    const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
+      placePrediction: {
+        place: building.buildingName,
+        placeId: building.placeID,
+        text: {
+          text: building.buildingName,
+          matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
         },
-      })
-    );
+        structuredFormat: {
+          mainText: {
+            text: building.buildingName,
+            matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
+          },
+          secondaryText: {
+            text: ""
+          }
+        },
+        types: ["building"]
+      }
+    }));
     setSearchSuggestions(buildingResults);
   }, []);
 
@@ -372,7 +355,7 @@ export default function HomeScreen() {
   }, []);
 
 
-const handleNearbyPlacePress = async(place: suggestionResult) => {
+const handleNearbyPlacePress = async(place: SuggestionResult) => {
   try {
     if (!place.location || !place.placePrediction) {
       console.log('Index.tsx: nearby place has no location data');
@@ -585,10 +568,10 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
+         
         }
-      } else if (mapRef.current && isZoomedIn) {
-        // Reduce animation duration to minimize flickering
-        mapRef.current.animateCamera({ heading: 0 }, { duration: 500 });
+      }else if (mapRef.current){
+        mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
     };
 
@@ -629,6 +612,12 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        {/* HOW TO guide */}
+        {isFirstLaunch && showTutorialHowTo &&
+          <TutorialHowTo 
+            onClose={()=>setShowTutorialHowTo(false)}
+          />
+        }
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -734,7 +723,7 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
           mainsheet={campusToggleSheet}
-          placeDetails={currentPlace}
+          PlaceDetails={currentPlace}
         />
 
         <NavigationProvider

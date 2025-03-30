@@ -10,8 +10,9 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult, placesSearch, nearbyPlacesSearch } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
 import { BoundingBox } from "react-native-maps";
+
 
 export interface BuildingData {
   buildingName: string;
@@ -19,18 +20,19 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; 
+  reset: () => void;
+  setValue: (value: string) => void; 
 }
 
 interface AutoCompleteDropdownProps {
   currentVal?: string;
   buildingData: BuildingData[];
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
-  onNearbyResults: (results: suggestionResult[]) => void;
+  onNearbyResults: (results: SuggestionResult[]) => void;
   boundaries: BoundingBox | undefined
 }
 
@@ -52,6 +54,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSelected("Select a building");
       setIsOpen(false);
     },
+    setValue: (value: string) => {
+      setSelected(value);
+    },
   }));
 
   const [selected, setSelected] = useState("Select a building");
@@ -63,6 +68,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
+  const [showCafes, setShowCafes] = useState(false);
+  const [showRestaurants, setShowRestaurants] = useState(false);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
@@ -147,15 +154,19 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSearchSuggestions(prevSuggestions => {
         // Optionally filter out duplicates based on a unique property, e.g., placeId
         const newResults = results.filter(newResult => 
-          !prevSuggestions.some(oldResult => 
-            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-          )
+          mergeUniqueResults(prevSuggestions, newResult)
         );
         return [...prevSuggestions, ...newResults];
       });
     } else {
       console.log("Failed to get search suggestions.")
     }
+  };
+
+  const mergeUniqueResults = (prevSuggestions: SuggestionResult[], newResult: SuggestionResult) => {
+    return !prevSuggestions.some(oldResult => 
+      oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+    )
   };
 
   const handleSelect = (placeName: string) => {
@@ -185,12 +196,23 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    
-    getNearbySuggestions("cafe", boundaries);
+    setShowCafes(prevState => !prevState);
+    if (!showCafes) {
+      console.log("Showing Cafes");
+      getNearbySuggestions("cafe", boundaries);
+    } else {
+      console.log("Hiding Cafes");
+    }
   };
 
   const handleFindNearbyRestaurants = () => {
-    getNearbySuggestions("restaurant", boundaries);
+    setShowRestaurants(prevState => !prevState);
+    if (!showRestaurants) {
+      console.log("Showing Restaurants");
+      getNearbySuggestions("restaurant", boundaries);
+    } else {
+      console.log("Hiding Restaurants");
+    }
     };
 
   return (
@@ -244,10 +266,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       />
       <View style={styles.buttonContainer}>
         <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
-          <Text style={styles.buttonText}>Cafe</Text>
+          <Text style={styles.buttonText}>Show Cafes</Text>
         </Pressable>
         <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
-          <Text style={styles.buttonText}>Restaurants</Text>
+          <Text style={styles.buttonText}>Show Restaurants</Text>
         </Pressable>
       </View>
       </Animated.View>
@@ -331,10 +353,13 @@ const styles = StyleSheet.create({
     borderTopColor: "#ddd"
   },
   actionButton: {
+    width: "45%",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    backgroundColor: "#007bff",
-    borderRadius: 8,
+    backgroundColor: "darkblue",
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   buttonText: {
     color: "#fff",
