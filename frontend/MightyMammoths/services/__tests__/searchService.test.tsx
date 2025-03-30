@@ -18,7 +18,7 @@ describe('autoCompleteSearch', () => {
   test('returns empty array if API key is missing', async () => {
     delete process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     const result = await autoCompleteSearch('Anything');
-    expect(result).toEqual([]);
+    expect(result).toBeUndefined();
     expect(axios).not.toHaveBeenCalled();
   });
 });

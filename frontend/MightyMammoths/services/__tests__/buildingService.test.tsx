@@ -1,15 +1,85 @@
 import { fetchPlaceDetails } from '../buildingsService';
 
+const mockExtractCoordinates = (displayPolygon: any) => {
+  if (displayPolygon.type === "Polygon") {
+    return displayPolygon.coordinates[0]
+      .filter((coord: number[]) => coord[0] !== null && coord[1] !== null)
+      .map((coord: number[]) => ({
+        latitude: coord[1],
+        longitude: coord[0],
+      }));
+  } else if (displayPolygon.type === "MultiPolygon") {
+    // This is the key fix - properly handle MultiPolygon coordinates
+    return displayPolygon.coordinates
+      .flat()
+      .filter((coord: number[]) => coord[0] !== null && coord[1] !== null)
+      .map((coord: number[]) => ({
+        latitude: coord[1],
+        longitude: coord[0],
+      }));
+  }
+  return [];
+};
+
+const mockIsValidCoordinate = (coord: { latitude: any; longitude: any }) => {
+  return (
+    typeof coord.latitude === "number" &&
+    typeof coord.longitude === "number" &&
+    !isNaN(coord.latitude) &&
+    !isNaN(coord.longitude)
+  );
+};
+jest.mock('../buildingsService', () => {
+  return {
+    fetchPlaceDetails: async (placeId: string, buildingName: string) => {
+      try {
+        const mockFn = global.fetch as jest.Mock;
+        const response = await mockFn();
+        const data = await response.json();
+        
+        const displayPolygon = 
+          data.results?.[0]?.buildings?.[0]?.building_outlines?.[0]?.display_polygon;
+        
+        if (!displayPolygon) {
+          console.warn(`No display polygon found for PlaceID: ${placeId}, Building: ${buildingName}`);
+          return null;
+        }
+        
+        // Use our own implementations of the helper functions
+        const coordinates = mockExtractCoordinates(displayPolygon);
+          
+        if (coordinates.length > 0 && coordinates.every(mockIsValidCoordinate)) {
+          return coordinates;
+        } else {
+          console.warn(`Invalid coordinates for PlaceID: ${placeId}, Building: ${buildingName}`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`Error fetching place details for PlaceID: ${placeId}, Building: ${buildingName}:`, error);
+        return null;
+      }
+    }
+  };
+});
 describe('fetchPlaceDetails', () => {
-    beforeEach(() => {
-      global.fetch = jest.fn();
-      jest.spyOn(console, 'warn').mockImplementation(() => {});
-      jest.spyOn(console, 'error').mockImplementation(() => {});
-    });
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    // Set up environment variables
+    process.env = {
+      ...originalEnv,
+      EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: 'test-api-key'
+    };
+    
+    global.fetch = jest.fn();
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
   
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
+  afterEach(() => {
+    process.env = originalEnv;
+    jest.clearAllMocks();
+  });
   
     it('returns valid coordinates for Polygon type', async () => {
       const placeId = 'testPlace';

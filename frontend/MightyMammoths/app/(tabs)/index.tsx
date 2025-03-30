@@ -637,9 +637,6 @@ const handleNearbyPlacePress = async(place: suggestionResult) => {
           rotateEnabled={true}
           onRegionChangeComplete={fetchBoundaries}
           onMapReady={fetchBoundaries}
-          onMapReady={() => console.log("Map ready")}
-          maxZoomLevel={20}
-          minZoomLevel={10}
         >
           {locationServicesEnabled && myLocation && (
             <Marker coordinate={myLocation} title="My Location">
