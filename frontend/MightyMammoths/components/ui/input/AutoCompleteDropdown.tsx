@@ -203,11 +203,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const handleFindNearbyCoffee = () => {
     //setShowCafes(prevState => !prevState);
     if (!showCafes) {
-      console.log("Showing Cafes 47377");
+      //console.log("Showing Cafes 47377");
       setShowRestaurants(false);
       getNearbySuggestions("cafe", boundaries);
     } else {
-      console.log("Hiding Cafes");
+      //console.log("Hiding Cafes");
     }
     setShowCafes(prevState => !prevState);
   };
@@ -215,11 +215,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const handleFindNearbyRestaurants = () => {
     //setShowRestaurants(prevState => !prevState);
     if (!showRestaurants) {
-      console.log("Showing Restaurants");
+      //console.log("Showing Restaurants");
       setShowCafes(false);
       getNearbySuggestions("restaurant", boundaries);
     } else {
-      console.log("Hiding Restaurants");
+      //console.log("Hiding Restaurants");
     }
     setShowRestaurants(prevState => !prevState);
     };
