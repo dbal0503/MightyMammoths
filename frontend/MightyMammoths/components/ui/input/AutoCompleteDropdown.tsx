@@ -204,6 +204,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     //setShowCafes(prevState => !prevState);
     if (!showCafes) {
       console.log("Showing Cafes 47377");
+      setShowRestaurants(false);
       getNearbySuggestions("cafe", boundaries);
     } else {
       console.log("Hiding Cafes");
@@ -215,6 +216,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     //setShowRestaurants(prevState => !prevState);
     if (!showRestaurants) {
       console.log("Showing Restaurants");
+      setShowCafes(false);
       getNearbySuggestions("restaurant", boundaries);
     } else {
       console.log("Hiding Restaurants");
