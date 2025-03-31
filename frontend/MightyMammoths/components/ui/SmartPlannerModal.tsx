@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -15,7 +15,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import PlanBuilderModal from './PlanBuilderModal';
 import TaskViewModal from './TaskViewModal';
 import { Task } from './types';
-import {calculateAllPairsDistances} from '@/services/smartPlannerDistancePairs';
+import { calculateAllPairsDistances } from '@/services/smartPlannerDistancePairs';
 import { generatePlanFromChatGPT, TaskPlan } from '@/services/spOpenAI';
 import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
 
@@ -47,7 +47,6 @@ export default function SmartPlannerModal({
   const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isStartLocationSet, setIsStartLocationSet] = useState(false);
-  const [isStartLocationButton, setIsStartLocationButton] = React.useState(false);
 
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
@@ -56,76 +55,57 @@ export default function SmartPlannerModal({
   // State for tasks being edited in PlanBuilderModal
   const [editingTasks, setEditingTasks] = useState<Task[]>([]);
 
+  useEffect(() => {
+    if (!visible) {
+      setHasPlan(false); setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false);
+      setPlanBuilderVisible(false); setTaskViewVisible(false); setEditingTasks([]); setTaskViewFromEditor(false); setIsLoading(false);
+    }
+  }, [visible]);
+
+
   const handleCloseAllModals = () => {
     setTaskViewVisible(false);
     setPlanBuilderVisible(false);
     onClose();
   };
-  
 
   const handleCreatePlan = () => {
-    if(hasPlan) {
-    Alert.alert(
-      'Confirm New Plan',
-      'Are you sure you want to create a new plan? This will delete the current plan.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Yes',
-          onPress: () => {
-            handleDeletePlan(); 
-            setPlanBuilderVisible(true);
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  } else {
-    handleDeletePlan();
+    const openBuilder = () => {
+      setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false); setHasPlan(false);
+      setEditingTasks([]);
+      setPlanBuilderVisible(true);
+    };
+    if (hasPlan) { Alert.alert('Confirm New Plan', 'Are you sure you want to create a new plan? This will delete the current plan.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Yes', onPress: openBuilder },], { cancelable: true }); }
+    else { openBuilder(); }
+  };
+
+  const openPlanBuilderForEdit = () => {
+    setEditingTasks([...tasks]);
     setPlanBuilderVisible(true);
-  }
   };
 
 
   const handleSavePlan = async (name: string, updatedTasks: Task[], startLocationSet: boolean) => {
-      console.log(startLocationSet);
-      setIsLoading(true);
-      setPlanName(name);
-      setTasks(updatedTasks);
-      setIsStartLocationSet(startLocationSet);
-      setHasPlan(true);
-      setPlanBuilderVisible(false);
-
-      console.log('Saved plan:', name, updatedTasks);
-
-      await handleRegeneratePlan(updatedTasks);
-      setIsLoading(false); 
+    setIsLoading(true);
+    setPlanName(name);
+    setTasks([...updatedTasks]);
+    setIsStartLocationSet(startLocationSet);
+    setHasPlan(true);
+    setPlanBuilderVisible(false);
+    await handleRegeneratePlan(updatedTasks);
   };
 
   const handleRegeneratePlan = async (taskList: Task[]) => {
-    if (taskList.length === 0 || (taskList.length === 1 && taskList[0].type === 'location')) {
-        console.log("Skipping regeneration: No tasks or only start location.");
-        setGeneratedPlan([]); 
-        setIsLoading(false);
-        return;
-    }
+    const actualTasks = taskList.filter(task => task.type !== 'location');
+    if (actualTasks.length === 0) { setGeneratedPlan([]); setIsLoading(false); return; }
     setIsLoading(true);
     try {
-        console.log('Regenerating plan with tasks:', taskList);
-        let distanceDurationArr = await calculateAllPairsDistances(taskList);
-        //console.log('Distance Duration array:', distanceDurationArr);
-
-        const plan = await generatePlanFromChatGPT(taskList, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']);
-        setGeneratedPlan(plan);
-        console.log('Generated Plan:', plan);
-
+      let distanceDurationArr = await calculateAllPairsDistances(taskList);
+      const plan = await generatePlanFromChatGPT(taskList, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']);
+      setGeneratedPlan(plan);
     } catch (error) {
-        console.error("Error regenerating plan: ", error);
-        setGeneratedPlan([]);
-        Alert.alert("Error", "Failed to generate the plan. Please try again.");
-    } finally {
-        setIsLoading(false);
-    }
+      setGeneratedPlan([]); Alert.alert("Error", "Failed to generate plan.");
+    } finally { setIsLoading(false); }
   };
 
 
@@ -235,7 +215,7 @@ export default function SmartPlannerModal({
             <Text style={styles.noPlanText}>{tasks.length > 0 ? 'Plan generated, but no tasks found.' : 'No tasks added yet.'}</Text>
              <TouchableOpacity
                 style={styles.viewPlanButton}
-                onPress={openPlanBuilder}
+                onPress={openPlanBuilderForEdit}
                 testID='edit-tasks-button'
               >
                 <Text style={styles.viewPlanButtonText}>Edit Tasks</Text>
@@ -255,68 +235,41 @@ export default function SmartPlannerModal({
     </View>
   );
 
-  const openPlanBuilder = () => {
-    setEditingTasks([...tasks]);
-    setPlanBuilderVisible(true);
-  };
-
 
   return (
-    <Modal
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-      transparent
-    >
-    <KeyboardAvoidingView
-    style={{ flex: 1 }}
-    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <Modal visible={visible} animationType="fade" onRequestClose={onClose} statusBarTranslucent={true} transparent>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <SafeAreaView style={styles.mainContainer}>
-        <View style={[
-            styles.modalContainer,
-            { maxHeight: hasPlan ? (isLoading ? '45%' : '63%') : '35%' },
-          ]}>
-          {/* Close Icon */}
+        <View style={[styles.modalContainer, { maxHeight: hasPlan ? (isLoading ? '45%' : (generatedPlan.length > 1 ? '63%' : '45%')) : '35%' },]}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton} disabled={isLoading}>
             <IconSymbol name={'close' as IconSymbolName} size={30} color="white" testID='close-icon-main-modal' />
           </TouchableOpacity>
-
-          {/* Conditional Content */}
           {!hasPlan ? renderNoPlan() : renderHasPlan()}
         </View>
 
         {/* Plan Builder Modal */}
         <PlanBuilderModal
           visible={planBuilderVisible}
-          onClose={() => {setPlanBuilderVisible(false)}}
+          onClose={() => { setPlanBuilderVisible(false) }}
           initialPlanName={planName}
-          initialTasks={tasks}
+          initialTasks={editingTasks}
           initialIsStartLocationSet={isStartLocationSet}
           nextEvent={nextEvent}
           onSavePlan={handleSavePlan}
           openTaskView={(currentTempTasks) => {
-              setEditingTasks(currentTempTasks);
-              setTaskViewVisible(true);
-              setPlanBuilderVisible(false);
+              setEditingTasks([...currentTempTasks]);
               setTaskViewFromEditor(true);
+              setTaskViewVisible(true);
           }}
         />
 
-
-        {/* Task View Modal */}
         <TaskViewModal
           visible={taskViewVisible}
           navigateToRoutes={navigateToRoutes}
           onCloseAllModals={handleCloseAllModals}
            onClose={() => {
                 setTaskViewVisible(false);
-                
                 if (taskViewFromEditor) {
-
-                    setTasks([...editingTasks]);
-                    setPlanBuilderVisible(true);
                     setTaskViewFromEditor(false);
                 }
            }}
@@ -327,14 +280,9 @@ export default function SmartPlannerModal({
           setIsStartLocationSet={setIsStartLocationSet}
           generatedPlan={generatedPlan}
           setGeneratedPlan={setGeneratedPlan}
-          deletePlan={handleDeletePlan}
+          deletePlan={() => { handleDeletePlan(); setTaskViewVisible(false); }}
           onRegeneratePlan={handleRegeneratePlan}
-          openPlanBuilder={() => {
-                setEditingTasks([...tasks]);
-                setPlanBuilderVisible(true);
-                setTaskViewVisible(false);
-                setTaskViewFromEditor(false);
-          }}
+          openPlanBuilder={() => { openPlanBuilderForEdit(); setTaskViewVisible(false); setTaskViewFromEditor(false); }}
         />
       </SafeAreaView>
       </KeyboardAvoidingView>

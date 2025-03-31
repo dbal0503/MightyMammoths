@@ -75,7 +75,7 @@ export default function PlanBuilderModal({
       setDate(new Date());
       locationDropdownRef.current?.reset();
     }
-  }, [visible, initialPlanName, initialTasks, initialIsStartLocationSet]);
+  }, [visible]);
 
 
   const addTask = () => {
@@ -389,10 +389,10 @@ export default function PlanBuilderModal({
           ) : (
             <>
             <View style={styles.buttonRow}>
-               <TouchableOpacity style={styles.actionButton} onPress={() => setTempIsStartLocationButton(false)} testID='add-task-mode-button'>
+               <TouchableOpacity style={styles.actionButton} onPress={() => setTempIsStartLocationButton(false)} testID='add-task-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>Add Task</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button-location-view'>
+              <TouchableOpacity style={styles.actionButton} onPress={handleAddNextClass} testID='add-next-class-button'>
                 <Text style={{ color: 'white', fontSize: 15}}>Add Next Class</Text>
               </TouchableOpacity>
             </View>
@@ -400,7 +400,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
             <View style={styles.taskHeaderRow}>
               <Text style={styles.addTaskTitle}>Start Location</Text>
-              <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button-location-view'>
+              <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
               </TouchableOpacity>
             </View>
