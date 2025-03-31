@@ -470,7 +470,6 @@ export default function HomeScreen() {
       finalOrigin = params.origin;
     }
   
-    console.log(finalOrigin + " , " + destination)
     if (!finalDestination) return;
   
     setDestination(finalDestination);

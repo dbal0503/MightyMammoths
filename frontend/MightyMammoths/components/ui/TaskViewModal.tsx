@@ -35,6 +35,10 @@ type TaskViewModalProps = {
   deletePlan: () => void;
   openPlanBuilder: () => void;
   onRegeneratePlan: (updatedTasks: Task[]) => Promise<void>;
+  navigateToRoutes: (
+    destination: string | { origin?: string; destination: string }
+  ) => void;
+  onCloseAllModals: () => void;
 };
 
 type DisplayItem = Task | TaskPlan;
@@ -52,6 +56,8 @@ export default function TaskViewModal({
   deletePlan,
   openPlanBuilder,
   onRegeneratePlan,
+  navigateToRoutes,
+  onCloseAllModals,
 }: TaskViewModalProps) {
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [tempTaskName, setTempTaskName] = useState('');
@@ -197,6 +203,32 @@ export default function TaskViewModal({
     { buildingName: "Any location", placeID: "" },
     ...buildingList,
   ];
+
+  const handleDirections = (item: DisplayItem, index: number) => {
+
+    if (!generatedPlan || generatedPlan.length < 2) {
+      Alert.alert("Error", "No next task found in the plan.");
+      return;
+    }
+  
+    const nextTaskIndex = 1;
+  
+    // If it's the first actual task, origin is the start location (index 0);
+    // otherwise origin is the task's previous destination
+    const origin = generatedPlan[nextTaskIndex - 1].taskLocation;
+    const destination = generatedPlan[nextTaskIndex].taskLocation;
+    console.log(origin + ', ' + destination);
+  
+    if (!destination) {
+      Alert.alert("Error", "Next task location is not specified.");
+      return;
+    }
+  
+    // Pass both to navigateToRoutes
+    navigateToRoutes({ origin, destination });
+    onCloseAllModals();
+  };
+  
 
   useEffect(() => {
     const buildingResults: suggestionResult[] = buildingListPlusMore.map(
@@ -398,7 +430,7 @@ export default function TaskViewModal({
                       return 'id' in item ? item.id.toString() : item.order.toString();
                     }}
                     style={{ maxHeight: '75%' }}
-                    renderItem={({ item }) => {
+                    renderItem={({ item, index }) => {
                       const itemId = 'id' in item ? item.id : item.order;
                       const itemName = 'name' in item ? item.name : item.taskName;
                       const itemLocation = 'location' in item ? item.location : item.taskLocation;
@@ -475,10 +507,7 @@ export default function TaskViewModal({
                                     <View style={styles.buttonRow}>
                                         <TouchableOpacity
                                             style={styles.directionsButton}
-                                            onPress={() => { 
-                                              /* TODO: Add directions logic */ 
-                                              Alert.alert("Directions", "Navigate to task functionality not yet implemented."); 
-                                            }}
+                                            onPress={() => handleDirections(item, index)}
                                             testID={`directions-button-task-${itemId}`}
                                         >
                                             <Text style={{ color: 'white', fontSize: 16 }}>

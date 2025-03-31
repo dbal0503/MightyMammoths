@@ -56,6 +56,12 @@ export default function SmartPlannerModal({
   // State for tasks being edited in PlanBuilderModal
   const [editingTasks, setEditingTasks] = useState<Task[]>([]);
 
+  const handleCloseAllModals = () => {
+    setTaskViewVisible(false);
+    setPlanBuilderVisible(false);
+    onClose();
+  };
+  
 
   const handleCreatePlan = () => {
     if(hasPlan) {
@@ -146,6 +152,7 @@ export default function SmartPlannerModal({
     // otherwise origin is the task's previous destination
     const origin = generatedPlan[nextTaskIndex - 1].taskLocation;
     const destination = generatedPlan[nextTaskIndex].taskLocation;
+    console.log(origin + ', ' + destination);
   
     if (!destination) {
       Alert.alert("Error", "Next task location is not specified.");
@@ -301,6 +308,8 @@ export default function SmartPlannerModal({
         {/* Task View Modal */}
         <TaskViewModal
           visible={taskViewVisible}
+          navigateToRoutes={navigateToRoutes}
+          onCloseAllModals={handleCloseAllModals}
            onClose={() => {
                 setTaskViewVisible(false);
                 
