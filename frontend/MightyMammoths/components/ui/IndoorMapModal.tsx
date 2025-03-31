@@ -24,7 +24,7 @@ interface IndoorMapModalProps {
   building: GeoJsonFeature;
 }
 
-const IndoorMapModal = ({
+export const IndoorMapModal = ({
   visible,
   onClose,
   building,
@@ -62,7 +62,7 @@ const IndoorMapModal = ({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Pressable onPress={onClose} style={styles.backButton}>
+          <Pressable onPress={onClose} style={styles.backButton} testID="back-button">
             <IconSymbol
               name="arrow.left"
               size={28}
