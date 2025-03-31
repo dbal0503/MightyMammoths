@@ -23,7 +23,9 @@ import { getBuildingsByCampus } from '@/utils/getBuildingsByCampus';
 type SmartPlannerModalProps = {
   visible: boolean;
   onClose: () => void;
-  navigateToRoutes: (destination: string) => void;
+  navigateToRoutes: (
+    destination: string | { origin?: string; destination: string }
+  ) => void;
   nextEvent?: {
     name: string;
     description: string;
@@ -131,20 +133,31 @@ export default function SmartPlannerModal({
     setEditingTasks([]);
   };
 
+  
   const handleGetDirections = () => {
-    if (generatedPlan && generatedPlan.length > 1) {
-      const nextTask = generatedPlan[1];
-      const destination = nextTask.taskLocation;
-      if (destination) {
-        navigateToRoutes(destination);
-        onClose();
-      } else {
-        Alert.alert("Error", "Next task location is not specified.");
-      }
-    } else {
+    if (!generatedPlan || generatedPlan.length < 2) {
       Alert.alert("Error", "No next task found in the plan.");
+      return;
     }
+  
+    const nextTaskIndex = 1;
+  
+    // If it's the first actual task, origin is the start location (index 0);
+    // otherwise origin is the task's previous destination
+    const origin = generatedPlan[nextTaskIndex - 1].taskLocation;
+    const destination = generatedPlan[nextTaskIndex].taskLocation;
+  
+    if (!destination) {
+      Alert.alert("Error", "Next task location is not specified.");
+      return;
+    }
+  
+    // Pass both to navigateToRoutes
+    navigateToRoutes({ origin, destination });
+    onClose();
   };
+  
+
 
   const renderNoPlan = () => (
     <View style={styles.modalContentContainer}>

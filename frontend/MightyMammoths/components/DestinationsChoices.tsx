@@ -9,6 +9,7 @@ import { IconSymbolName, IconSymbol } from "@/components/ui/IconSymbol";
 interface DestinationChoicesProps {
   buildingList: BuildingData[];
   visible?: boolean;
+  origin: string;
   destination: string;
   locationServicesEnabled: boolean;
 }
@@ -16,6 +17,7 @@ interface DestinationChoicesProps {
 export function DestinationChoices({
   buildingList,
   visible,
+  origin,
   destination,
   locationServicesEnabled
 }: DestinationChoicesProps) {
@@ -124,6 +126,7 @@ export function DestinationChoices({
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           buildingData={buildingList} 
+          currentVal={selectedStart || origin}
           onSelect={(selected) => {
             if(!selected) return;
             if (selected === "Your Location") {

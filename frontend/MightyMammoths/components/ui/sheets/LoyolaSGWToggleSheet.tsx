@@ -9,7 +9,9 @@ import SmartPlannerModal from '../SmartPlannerModal';
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
   setSelectedCampus: (selected: string) => void;
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-  navigateToRoutes: (destination: string) => void;
+  navigateToRoutes: (
+    destination: string | { origin?: string; destination: string }
+  ) => void;
 };
 
 function LoyolaSGWToggleSheet({

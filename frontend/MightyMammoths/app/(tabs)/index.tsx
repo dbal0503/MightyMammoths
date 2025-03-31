@@ -88,6 +88,7 @@ export default function HomeScreen() {
   const [currentPlace, setCurrentPlace] = useState<placeDetails | undefined>(
     undefined
   );
+  const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
@@ -454,14 +455,37 @@ export default function HomeScreen() {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
-  const navigateToRoutes = (destination: string) => {
-    setDestination(destination);
+
+  function navigateToRoutes(
+    params: string | { origin?: string; destination: string }
+  ) {
+    let finalDestination: string;
+    let finalOrigin: string | undefined;
+  
+    if (typeof params === "string") {
+      finalDestination = params;
+      finalOrigin = undefined;
+    } else {
+      finalDestination = params.destination;
+      finalOrigin = params.origin;
+    }
+  
+    console.log(finalOrigin + " , " + destination)
+    if (!finalDestination) return;
+  
+    setDestination(finalDestination);
+  
+    // Store origin so NavigationSheet can access it
+    if (finalOrigin) {
+      setOrigin(finalOrigin);
+    }
+  
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     setChooseDestVisible(true);
     setNavigationMode(true);
-  };
+  }
 
   //have destination be set to the selected building
 
@@ -672,6 +696,7 @@ export default function HomeScreen() {
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
+            origin={origin}
             locationServicesEnabled={locationServicesEnabled}
           />
         </NavigationProvider>
