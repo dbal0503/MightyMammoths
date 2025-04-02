@@ -32,12 +32,12 @@ interface AutoCompleteDropdownProps {
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
-  onNearbyResults: (results: SuggestionResult[]) => void;
-  boundaries: BoundingBox | undefined
-  showCafes: boolean;
-  showRestaurants: boolean;
-  setShowCafes : React.Dispatch<React.SetStateAction<boolean>>;
-  setShowRestaurants : React.Dispatch<React.SetStateAction<boolean>>
+  onNearbyResults?: (results: SuggestionResult[]) => void;
+  boundaries?: BoundingBox | undefined
+  showCafes?: boolean;
+  showRestaurants?: boolean;
+  setShowCafes?: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowRestaurants?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -150,8 +150,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       const radius = getRadiusFromBoundingBox(boundaries)
 
     try{
-    const results = await nearbyPlacesSearch(searchQuery, radius);
-    onNearbyResults(results);}
+      const results = await nearbyPlacesSearch(searchQuery, radius);
+      if (onNearbyResults) {
+        onNearbyResults(results);
+      }
+    }
     catch (err) {
       console.log(err)
     }}
@@ -205,28 +208,34 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    //setShowCafes(prevState => !prevState);
     if (!showCafes) {
-      //console.log("Showing Cafes 47377");
-      setShowRestaurants(false);
-      getNearbySuggestions("cafe", boundaries);
-    } else {
-      //console.log("Hiding Cafes");
+      if (setShowRestaurants && showRestaurants) {
+        setShowRestaurants(false);
+      }
+      if (boundaries && onNearbyResults) {
+        getNearbySuggestions("cafe", boundaries);
+      }
     }
-    setShowCafes(prevState => !prevState);
+    if (setShowCafes) {
+      setShowCafes(prevState => !prevState);
+    }
   };
 
   const handleFindNearbyRestaurants = () => {
-    //setShowRestaurants(prevState => !prevState);
     if (!showRestaurants) {
-      //console.log("Showing Restaurants");
-      setShowCafes(false);
-      getNearbySuggestions("restaurant", boundaries);
-    } else {
-      //console.log("Hiding Restaurants");
+      if (setShowCafes) {
+        setShowCafes(false);
+      }
+      
+      if (boundaries && onNearbyResults) {
+        getNearbySuggestions("restaurant", boundaries);
+      }
     }
-    setShowRestaurants(prevState => !prevState);
-    };
+    
+    if (setShowRestaurants) {
+      setShowRestaurants(prevState => !prevState);
+    }
+  };
 
   return (
     <View style={styles.container} testID={testID}>
