@@ -35,6 +35,10 @@ interface AutoCompleteDropdownProps {
   onNearbyResults: (results: SuggestionResult[]) => void;
   boundaries: BoundingBox | undefined
   showNearbyButtons?: boolean;
+  showCafes: boolean;
+  showRestaurants: boolean;
+  setShowCafes : React.Dispatch<React.SetStateAction<boolean>>;
+  setShowRestaurants : React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -48,6 +52,10 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   onNearbyResults,
   boundaries,
   showNearbyButtons=false,
+  showCafes,
+  showRestaurants,
+  setShowCafes ,
+  setShowRestaurants,
 }, ref) => {
 
   //functions exposed through ref
@@ -70,8 +78,9 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
-  const [showCafes, setShowCafes] = useState(false);
-  const [showRestaurants, setShowRestaurants] = useState(false);
+  //const [showCafes, setShowCafes] = useState(false);
+
+  //const [showRestaurants, setShowRestaurants] = useState(false);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {
@@ -198,23 +207,27 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleFindNearbyCoffee = () => {
-    setShowCafes(prevState => !prevState);
+    //setShowCafes(prevState => !prevState);
     if (!showCafes) {
-      console.log("Showing Cafes");
+      //console.log("Showing Cafes 47377");
+      setShowRestaurants(false);
       getNearbySuggestions("cafe", boundaries);
     } else {
-      console.log("Hiding Cafes");
+      //console.log("Hiding Cafes");
     }
+    setShowCafes(prevState => !prevState);
   };
 
   const handleFindNearbyRestaurants = () => {
-    setShowRestaurants(prevState => !prevState);
+    //setShowRestaurants(prevState => !prevState);
     if (!showRestaurants) {
-      console.log("Showing Restaurants");
+      //console.log("Showing Restaurants");
+      setShowCafes(false);
       getNearbySuggestions("restaurant", boundaries);
     } else {
-      console.log("Hiding Restaurants");
+      //console.log("Hiding Restaurants");
     }
+    setShowRestaurants(prevState => !prevState);
     };
 
   return (
@@ -268,11 +281,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       />
       {showNearbyButtons && (
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
-            <Text style={styles.buttonText}>Show Cafes</Text>
+          <Pressable style={[styles.actionButton, showCafes && styles.activeButton]} 
+        onPress={handleFindNearbyCoffee}>
+            <Text style={styles.buttonText}>{showCafes ? "Hide Cafes" : "Show Cafes"}</Text>
           </Pressable>
-          <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
-            <Text style={styles.buttonText}>Show Restaurants</Text>
+          <Pressable style={[styles.actionButton, showRestaurants && styles.activeButton]} 
+        onPress={handleFindNearbyRestaurants}>
+            <Text style={styles.buttonText}>{showRestaurants ? "Hide Restaurants" : "Show Restaurants"}</Text>
           </Pressable>
         </View>
       )}
@@ -364,6 +379,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  activeButton: {
+    backgroundColor: "darkgreen"
+  ,
   },
   buttonText: {
     color: "#fff",

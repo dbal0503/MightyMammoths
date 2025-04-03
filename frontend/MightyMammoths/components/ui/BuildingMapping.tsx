@@ -34,6 +34,8 @@ interface BuildingMappingProps {
   nearbyPlaces: SuggestionResult[];
   onNearbyPlacePress?: (place: SuggestionResult) => void;
 
+  showCafes: boolean;
+  showRestaurants: boolean;
 }
 
 const BuildingMapping: React.FC<BuildingMappingProps> = ({ 
@@ -41,6 +43,8 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
   onMarkerPress,
   nearbyPlaces,
   onNearbyPlacePress,
+  showCafes,
+  showRestaurants,
 }) => {
   const [polygons, setPolygons] = useState<any[]>([]);
 
@@ -92,6 +96,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
         const { latitude, longitude } = {latitude: place.location?.latitude, longitude: place.location?.longitude};
         const mainText = place.placePrediction.structuredFormat.mainText.text;
 
+        if ((showCafes || showRestaurants) ) {
         return (
           <Marker
             key={`nearby-${index}`}
@@ -104,6 +109,8 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
             </View>
           </Marker>
         );
+     }
+      return null;
       });
     };
 
