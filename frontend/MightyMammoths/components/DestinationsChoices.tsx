@@ -78,10 +78,10 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      topDropDownRef.current?.reset();
-      setSelectedStart("");
-      checkSelection("", selectedDestination);
-      setOrigin("");
+      //topDropDownRef.current?.reset();
+      //setSelectedStart("");
+      //checkSelection("", selectedDestination);
+      //setOrigin("");
     }
   }, [visible]);
 
