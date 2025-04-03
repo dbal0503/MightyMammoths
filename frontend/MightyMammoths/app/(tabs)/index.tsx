@@ -668,7 +668,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
                   buildingData={buildingList}
                   onSelect={(selected) => handleSearch(selected)}
                   onNearbyResults={(results) => setNearbyPlaces(results)}
-                boundaries = {boundaries}
+                  showNearbyButtons={true}
+                  boundaries = {boundaries}
               />
               </View>
             )}

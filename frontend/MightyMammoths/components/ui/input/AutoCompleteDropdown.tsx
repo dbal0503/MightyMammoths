@@ -34,6 +34,7 @@ interface AutoCompleteDropdownProps {
   testID?: string;
   onNearbyResults: (results: SuggestionResult[]) => void;
   boundaries: BoundingBox | undefined
+  showNearbyButtons?: boolean;
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -45,7 +46,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   locked,
   testID,
   onNearbyResults,
-  boundaries
+  boundaries,
+  showNearbyButtons=false,
 }, ref) => {
 
   //functions exposed through ref
@@ -264,14 +266,16 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
-          <Text style={styles.buttonText}>Show Cafes</Text>
-        </Pressable>
-        <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
-          <Text style={styles.buttonText}>Show Restaurants</Text>
-        </Pressable>
-      </View>
+      {showNearbyButtons && (
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.actionButton} onPress={handleFindNearbyCoffee}>
+            <Text style={styles.buttonText}>Show Cafes</Text>
+          </Pressable>
+          <Pressable style={styles.actionButton} onPress={handleFindNearbyRestaurants}>
+            <Text style={styles.buttonText}>Show Restaurants</Text>
+          </Pressable>
+        </View>
+      )}
       </Animated.View>
     </View>
   );
