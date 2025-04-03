@@ -354,7 +354,7 @@ export default function TaskViewModal({
                 />
 
                 <Text style={styles.addTaskHeader}>Location</Text>
-                <View style={{ alignSelf: 'stretch', marginBottom: 12, marginTop: 4}}>
+                <View style={{ alignSelf: 'stretch', marginBottom: 12, marginTop: 4, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <AutoCompleteDropdown
                         ref={editLocationDropdownRef}
                         locked={false}
