@@ -34,6 +34,7 @@ interface AutoCompleteDropdownProps {
   testID?: string;
   onNearbyResults?: (results: SuggestionResult[]) => void;
   boundaries?: BoundingBox | undefined
+  showNearbyButtons?: boolean;
   showCafes?: boolean;
   showRestaurants?: boolean;
   setShowCafes?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -50,6 +51,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   testID,
   onNearbyResults,
   boundaries,
+  showNearbyButtons=false,
   showCafes,
   showRestaurants,
   setShowCafes ,
@@ -286,16 +288,18 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
-      <View style={styles.buttonContainer}>
-        <Pressable style={[styles.actionButton, showCafes && styles.activeButton]} 
+      {showNearbyButtons && (
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.actionButton, showCafes && styles.activeButton]} 
         onPress={handleFindNearbyCoffee}>
-          <Text style={styles.buttonText}>{showCafes ? "Hide Cafes" : "Show Cafes"}</Text>
-        </Pressable>
-        <Pressable style={[styles.actionButton, showRestaurants && styles.activeButton]} 
+            <Text style={styles.buttonText}>{showCafes ? "Hide Cafes" : "Show Cafes"}</Text>
+          </Pressable>
+          <Pressable style={[styles.actionButton, showRestaurants && styles.activeButton]} 
         onPress={handleFindNearbyRestaurants}>
-          <Text style={styles.buttonText}>{showRestaurants ? "Hide Restaurants" : "Show Restaurants"}</Text>
-        </Pressable>
-      </View>
+            <Text style={styles.buttonText}>{showRestaurants ? "Hide Restaurants" : "Show Restaurants"}</Text>
+          </Pressable>
+        </View>
+      )}
       </Animated.View>
     </View>
   );

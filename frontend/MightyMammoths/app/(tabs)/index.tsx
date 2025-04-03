@@ -1,17 +1,25 @@
-import React, {useRef, useState, useEffect, useCallback} from "react";
-import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Alert} from "react-native";
+import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
+import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
 import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
-import AutoCompleteDropdown from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng, BoundingBox} from 'react-native-maps';
-import * as Location from 'expo-location'
-import BuildingMapping, {GeoJsonFeature} from "@/components/ui/BuildingMapping"
+import {
+  AutoCompleteDropdown,
+  BuildingData,
+} from "@/components/ui/input/AutoCompleteDropdown";
+import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
+import * as Location from "expo-location";
+import BuildingMapping, {
+  GeoJsonFeature,
+} from "@/components/ui/BuildingMapping";
 import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/DestinationsChoices";
-import { SuggestionResult, getPlaceDetails, PlaceDetails } from "@/services/searchService";
-import { BuildingData } from "@/components/ui/input/AutoCompleteDropdown";
+import {
+  SuggestionResult,
+  getPlaceDetails,
+  PlaceDetails,
+} from "@/services/searchService";
 import { Image } from "react-native";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
 import TutorialHowTo from "@/components/TutorialHowTo";
@@ -28,16 +36,16 @@ import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
-
+import IndoorMapModal from "@/components/ui/IndoorMapModal";
 
 export default function HomeScreen() {
   interface Region {
-    latitude: number,
-    longitude: number,
-    latitudeDelta: number,
-    longitudeDelta: number,
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
   }
-  
+
   const sgwRegion: Region = {
     latitude: 45.49465577566852,
     longitude: -73.57763385380554,
@@ -51,7 +59,7 @@ export default function HomeScreen() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   };
-  
+
   const mapRef = useRef<MapView>(null);
 
   const campusToggleSheet = useRef<ActionSheetRef>(null);
@@ -59,6 +67,7 @@ export default function HomeScreen() {
   const navigationSheet = useRef<ActionSheetRef>(null);
   const isFirstLaunch = useFirstLaunch();
   const [showTutorialHowTo, setShowTutorialHowTo] = useState(true);
+  const [indoorMapVisible, setIndoorMapVisible] = useState(false);
 
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
@@ -71,15 +80,32 @@ export default function HomeScreen() {
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null >(null);
+  const [selectedBuilding, setSelectedBuilding] =
+    useState<GeoJsonFeature | null>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [regionMap, setRegion] = useState(sgwRegion);
-  const [myLocation, setMyLocation] = useState({latitude: 45.49465577566852, longitude: -73.57763385380554, latitudeDelta: 0.005, longitudeDelta: 0.005,});
-  const buildingList: BuildingData[] = campusBuildingCoords.features.map(({properties})=> ({buildingName: properties.BuildingName, placeID: properties.PlaceID || ""}));
+  const [myLocation, setMyLocation] = useState({
+    latitude: 45.49465577566852,
+    longitude: -73.57763385380554,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  });
+  const buildingList: BuildingData[] = campusBuildingCoords.features.map(
+    ({ properties }) => ({
+      buildingName: properties.BuildingName,
+      placeID: properties.PlaceID || "",
+    })
+  );
 
   //Search Marker state
-  const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({latitude: 1, longitude: 1, latitudeDelta: 0.01, longitudeDelta: 0.01});
-  const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({
+    latitude: 1,
+    longitude: 1,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  });
+  const [searchMarkerVisible, setSearchMarkerVisible] =
+    useState<boolean>(false);
   const [routePolyline, setRoutePolyline] = useState<LatLng[]>([]);
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
@@ -99,63 +125,64 @@ export default function HomeScreen() {
     if (area === "SGW") newRegion = sgwRegion;
     else if (area === "LOY") newRegion = loyolaRegion;
     else newRegion = myLocation;
-    setRegion(newRegion);    
+    setRegion(newRegion);
     if (mapRef.current) {
       mapRef.current.animateToRegion(newRegion, 1000);
     }
   };
 
-const centerAndShowBuilding = (buildingName: string) => {
-  if (isZoomedIn)return;
-  // 1. Find the building in your GeoJSON
-  const buildingFeature = campusBuildingCoords.features.find(
-    (feature: GeoJsonFeature) => 
-      feature.properties.BuildingName === buildingName
-  );
-  if (!buildingFeature) {
-    console.log("Cannot find building in campusBuildingCoords");
-    return;
-  }
-
-  // 2. Update the state to store the selected building
-  setDestination(buildingFeature.properties.BuildingName);
-  setSelectedBuilding(buildingFeature);
-
-  // 3. Get building coordinates (assuming a "Point" in geometry.coordinates)
-  // If it’s a polygon, you might need to compute or store a centroid
-  const [longitude, latitude] = buildingFeature.geometry.coordinates;
-
-  // 4. Animate to the building location
-  if (mapRef.current) {
-    mapRef.current.animateToRegion(
-      {
-        latitude,
-        longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      1000 // animation duration ms
+  const centerAndShowBuilding = (buildingName: string) => {
+    // 1. Find the building in your GeoJSON
+    const buildingFeature = campusBuildingCoords.features.find(
+      (feature: GeoJsonFeature) =>
+        feature.properties.BuildingName === buildingName
     );
-  }
+    if (!buildingFeature) {
+      console.log("Cannot find building in campusBuildingCoords");
+      return;
+    }
 
-  // 5. Show the building info sheet after a brief delay
-  setTimeout(() => {
+    // 2. Update the state to store the selected building
+    setDestination(buildingFeature.properties.BuildingName);
+    setSelectedBuilding(buildingFeature);
+
+    // 3. Get building coordinates (assuming a "Point" in geometry.coordinates)
+    // If it's a polygon, you might need to compute or store a centroid
+    const [longitude, latitude] = buildingFeature.geometry.coordinates;
+
+    // 4. Animate to the building location
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        1000 // animation duration ms
+      );
+    }
+
+    // 5. Show the building info sheet after a brief delay
+    setTimeout(() => {
       // If you also have a campusToggleSheet open, hide it:
       campusToggleSheet.current?.hide();
 
-    // Then show the building sheet:
-    if (buildingInfoSheet.current) {
-      buildingInfoSheet.current.show();
-    }
-  }, 200);
-};
+      // Then show the building sheet:
+      if (buildingInfoSheet.current) {
+        buildingInfoSheet.current.show();
+      }
+    }, 200);
+  };
 
-  const CenterOnCampus = (campus:string) => {
+  const CenterOnCampus = (campus: string) => {
     ChangeLocation(campus);
-  }
+  };
 
   const CenterOnLocation = async () => {
-    const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Highest});
+    const loc = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Highest,
+    });
     const newRegion: Region = {
       latitude: loc.coords.latitude,
       longitude: loc.coords.longitude,
@@ -203,11 +230,11 @@ const centerAndShowBuilding = (buildingName: string) => {
 
 
   useEffect(() => {
-    if(latitudeStepByStep!==0 && longitudeStepByStep!==0){
-      recenterToPolyline(latitudeStepByStep, longitudeStepByStep) 
+    if (latitudeStepByStep !== 0 && longitudeStepByStep !== 0) {
+      recenterToPolyline(latitudeStepByStep, longitudeStepByStep);
     }
   }, [latitudeStepByStep, longitudeStepByStep]);
- 
+
   useEffect(() => {
     const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
       placePrediction: {
@@ -233,14 +260,13 @@ const centerAndShowBuilding = (buildingName: string) => {
   }, []);
 
   const _openAppSetting = useCallback(async () => {
-      await Linking.openSettings();
-    }, []);
+    await Linking.openSettings();
+  }, []);
   const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
   const handleSearch = async (placeName: string) => {
-
     if (placeName === "Your Location") {
       const { status } = await Location.getForegroundPermissionsAsync();
-      if(status !== 'granted'){
+      if (status !== "granted") {
         setLocationServicesEnabled(false);
         Alert.alert(
           "Location Services Disabled",
@@ -254,8 +280,8 @@ const centerAndShowBuilding = (buildingName: string) => {
               text: "Enable",
               onPress: () => {
                 _openAppSetting();
-              }
-            }
+              },
+            },
           ]
         );
         return;
@@ -271,41 +297,43 @@ const centerAndShowBuilding = (buildingName: string) => {
           place.placePrediction.structuredFormat.mainText.text === placeName
       );
       if (data === undefined) {
-        console.log('Index.tsx: selected place is undefined');
+        console.log("Index.tsx: selected place is undefined");
         return;
       }
-  
+
       if (data.placePrediction.types.includes("building")) {
-          // Update the building state so that BuildingInfoSheet gets the correct info
-          centerAndShowBuilding(data.placePrediction.structuredFormat.mainText.text);
-          return;
+        // Update the building state so that BuildingInfoSheet gets the correct info
+        centerAndShowBuilding(
+          data.placePrediction.structuredFormat.mainText.text
+        );
+        return;
       }
-  
+
       // For non-building suggestions, fetch details and create a waypoint as before
       const details = await getPlaceDetails(data.placePrediction.placeId);
       if (details === undefined) {
-        console.log('Index.tsx: failed to fetch place location');
+        console.log("Index.tsx: failed to fetch place location");
         return;
       }
       const placeRegion: Region = {
         latitude: details.location.latitude,
         longitude: details.location.longitude,
         latitudeDelta: 0.005,
-        longitudeDelta: 0.005
+        longitudeDelta: 0.005,
       };
       setSearchMarkerLocation(placeRegion);
       setRegion(placeRegion);
       if (mapRef.current) {
         mapRef.current.animateToRegion(placeRegion, 1000);
       }
-  
+
       setCurrentPlace(details);
       setDestination(data.placePrediction.structuredFormat.mainText.text);
       if (placeInfoSheet.current) {
         setSearchMarkerVisible(true);
         placeInfoSheet.current.show();
       } else {
-        console.log('Index.tsx: location info sheet ref is not defined');
+        console.log("Index.tsx: location info sheet ref is not defined");
       }
     } catch (error) {
       console.log(`Index.tsx: Error selecting place: ${error}`);
@@ -313,13 +341,16 @@ const centerAndShowBuilding = (buildingName: string) => {
   };
 
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", async (nextAppState) => {
-      if (nextAppState === "active") {
-        // When the app becomes active, check the current location permissions
-        const { status } = await Location.getForegroundPermissionsAsync();
-        setLocationServicesEnabled(status === 'granted');
+    const subscription = AppState.addEventListener(
+      "change",
+      async (nextAppState) => {
+        if (nextAppState === "active") {
+          // When the app becomes active, check the current location permissions
+          const { status } = await Location.getForegroundPermissionsAsync();
+          setLocationServicesEnabled(status === "granted");
+        }
       }
-    });
+    );
     return () => {
       subscription.remove();
     };
@@ -391,13 +422,16 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     buildingInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
-  }
+  };
 
 
-  const zoomIn = async (originCoordsPlaceID: string, originPlaceName: string) => {
+  const zoomIn = async (
+    originCoordsPlaceID: string,
+    originPlaceName: string
+  ) => {
     if (mapRef.current) {
       let targetRegion: Region | undefined;
-  
+
       if (originPlaceName === "Your Location" && myLocation) {
         setIsOriginYourLocation(true);
         targetRegion = {
@@ -408,9 +442,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         };
       } else {
         const buildingCoords = campusBuildingCoords.features.find(
-          feature => feature.properties.BuildingName === originPlaceName
+          (feature) => feature.properties.BuildingName === originPlaceName
         )?.geometry.coordinates;
-  
+
         if (buildingCoords) {
           targetRegion = {
             latitude: buildingCoords[1],
@@ -419,7 +453,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             longitudeDelta: 0.003,
           };
         } else {
-          const placeIdCoords = await getPlaceIdCoordinates(originCoordsPlaceID);
+          const placeIdCoords = await getPlaceIdCoordinates(
+            originCoordsPlaceID
+          );
           targetRegion = {
             latitude: placeIdCoords.latitude,
             longitude: placeIdCoords.longitude,
@@ -428,7 +464,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           };
         }
       }
-  
+
       if (targetRegion) {
         setZoomedRegion(targetRegion);
         mapRef.current.animateToRegion(targetRegion, 700);
@@ -436,13 +472,15 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       }
     }
   };
-  
 
   // Zoom out: Revert to the original region (or a less zoomed-in version)
-  const zoomOut = async (destinationCoordsPlaceID: string, destinationPlaceName:string) => {
+  const zoomOut = async (
+    destinationCoordsPlaceID: string,
+    destinationPlaceName: string
+  ) => {
     if (mapRef.current && isZoomedIn && zoomedRegion && myLocation) {
       let targetRegion: Region | undefined;
-  
+
       if (destinationPlaceName === "Your Location") {
         targetRegion = {
           latitude: myLocation.latitude,
@@ -452,9 +490,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         };
       } else {
         const buildingCoords = campusBuildingCoords.features.find(
-          feature => feature.properties.BuildingName === destinationPlaceName
+          (feature) => feature.properties.BuildingName === destinationPlaceName
         )?.geometry.coordinates;
-  
+
         if (buildingCoords) {
           targetRegion = {
             latitude: buildingCoords[1],
@@ -463,7 +501,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             longitudeDelta: 0.005,
           };
         } else {
-          const placeIdCoords = await getPlaceIdCoordinates(destinationCoordsPlaceID);
+          const placeIdCoords = await getPlaceIdCoordinates(
+            destinationCoordsPlaceID
+          );
           targetRegion = {
             latitude: placeIdCoords.latitude,
             longitude: placeIdCoords.longitude,
@@ -486,7 +526,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
-
   const navigateToRoutes = (destination: string) => {
     setDestination(destination);
     navigationSheet.current?.show();
@@ -494,34 +533,40 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     buildingInfoSheet.current?.hide();
     setChooseDestVisible(true);
     setNavigationMode(true);
-};
+  };
 
-  useEffect(()=>{
-    campusToggleSheet.current?.show();
-  },[])
+  //have destination be set to the selected building
+
+  const switchToIndoor = () => {
+    placeInfoSheet.current?.hide();
+    campusToggleSheet.current?.hide();
+    setIndoorMapVisible(true);
+  };
 
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      setLocationServicesEnabled(status === 'granted');
-      if (status !== 'granted') {
-        console.log('Permission denied');
+      setLocationServicesEnabled(status === "granted");
+      if (status !== "granted") {
+        console.log("Permission denied");
         return;
       }
     })();
-  
+
     const updateLocation = async () => {
       const { status } = await Location.getForegroundPermissionsAsync();
-      const granted = status === 'granted';
-      setLocationServicesEnabled(granted);
-  
-      if (!granted) {
-        return;
+      const granted = status === "granted";
+      
+      // Only update the state if the permission status has changed
+      if (locationServicesEnabled !== granted) {
+        setLocationServicesEnabled(granted);
       }
 
-      if (!isZoomedIn) {
+      if (!granted || !isZoomedIn) {
         return;
       }
+      
+      // Only update location when necessary
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
@@ -531,28 +576,40 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
     };
-  
-    // Run updateLocation immediately and then every 3 seconds
-    updateLocation();
-    const intervalId = setInterval(updateLocation, 5000);
-    
-    if (!(buildingInfoSheet.current)){
-      campusToggleSheet.current?.show();
-    }
 
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-    });
-  
+    // Run updateLocation immediately and then every 10 seconds instead of 5
+    updateLocation();
+    const intervalId = setInterval(updateLocation, 10000);
+
+    campusToggleSheet.current?.show();
+
+    // Optimize keyboard listeners to use refs instead of state to prevent unnecessary re-renders
+    let keyboardVisible = false;
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        if (!keyboardVisible) {
+          keyboardVisible = true;
+          setIsKeyboardVisible(true);
+        }
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        if (keyboardVisible) {
+          keyboardVisible = false;
+          setIsKeyboardVisible(false);
+        }
+      }
+    );
+
     return () => {
       clearInterval(intervalId);
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isKeyboardVisible, isOriginYourLocation, isZoomedIn]);
+  }, [isOriginYourLocation, isZoomedIn]); // Remove isKeyboardVisible from dependencies
 
   return (
     <>
@@ -581,11 +638,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             </Marker>
           )}
 
-          {searchMarkerVisible && 
-            <Marker
-              coordinate={searchMarkerLocation}
-            />
-          }
+          {searchMarkerVisible && <Marker coordinate={searchMarkerLocation} />}
+          
+          {/* Use React.memo to optimize building mapping render */}
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
@@ -595,66 +650,80 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             showRestaurants={showRestaurants} 
           />
 
-          {routePolyline && 
+          {routePolyline.length > 0 && (
             <Polyline
               strokeWidth={10}
               strokeColor="turquoise"
               coordinates={routePolyline}
-              /> 
-          }
+            />
+          )}
         </MapView>
 
-        <View style={styles.topElements}>
-          {!navigationMode && (
-            <View style={styles.dropdownWrapper}>
-              <AutoCompleteDropdown
-                testID="searchBarHomeSheet"
-                locked={false}
-                searchSuggestions={searchSuggestions}
-                setSearchSuggestions={setSearchSuggestions}
-                buildingData={buildingList}
-                onSelect={(selected) => handleSearch(selected)}
-                onNearbyResults={(results) => setNearbyPlaces(results)}
-                boundaries = {boundaries}
-                showCafes={showCafes} 
-                showRestaurants={showRestaurants} 
-                setShowCafes={setShowCafes}
-                setShowRestaurants={setShowRestaurants}
+        {/* Optimize rendering of top elements */}
+        {useMemo(() => (
+          <View style={styles.topElements}>
+            {!navigationMode && (
+              <View style={[styles.dropdownWrapper, isKeyboardVisible && styles.dropdownWrapperKeyboardOpen]}>
+                <AutoCompleteDropdown
+                  testID="searchBarHomeSheet"
+                  locked={false}
+                  searchSuggestions={searchSuggestions}
+                  setSearchSuggestions={setSearchSuggestions}
+                  buildingData={buildingList}
+                  onSelect={(selected) => handleSearch(selected)}
+                  onNearbyResults={(results) => setNearbyPlaces(results)}
+                  showNearbyButtons={true}
+                  boundaries = {boundaries}
+                  showCafes={showCafes} 
+                  showRestaurants={showRestaurants} 
+                  setShowCafes={setShowCafes}
+                  setShowRestaurants={setShowRestaurants}
               />
-            </View>
-          )}
-        </View>
+              </View>
+            )}
+          </View>
+        ), [navigationMode, isKeyboardVisible, searchSuggestions, buildingList])}
 
         {/* LOCATION BUTTON */}
         <View style={styles.bottomElements}>
-        {locationServicesEnabled && (
-          <RoundButton
-            imageSrc={require("@/assets/images/recenter-map.png")}
-            onPress={CenterOnLocation}
-            testID="recenter-button"
-          />)}
+          {locationServicesEnabled && (
+            <RoundButton
+              imageSrc={require("@/assets/images/recenter-map.png")}
+              onPress={CenterOnLocation}
+              testID="recenter-button"
+            />
+          )}
         </View>
 
         {/* SGW & LOY TOGGLE */}
-        {(!isKeyboardVisible &&
-
-        <LoyolaSGWToggleSheet
-          actionsheetref = {campusToggleSheet}
-          setSelectedCampus={CenterOnCampus}
-          navigateToRoutes={navigateToRoutes} 
-        />
-
+        {!isKeyboardVisible && (
+          <LoyolaSGWToggleSheet
+            actionsheetref={campusToggleSheet}
+            setSelectedCampus={CenterOnCampus}
+            navigateToRoutes={navigateToRoutes}
+          />
         )}
-        
+
         {/* BUILDING INFO */}
         {selectedBuilding && (
           <BuildingInfoSheet
             navigate={startNavigation}
+            navigateIndoor={switchToIndoor}
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
             onClose={() => {
               campusToggleSheet.current?.show();
-              setSelectedBuilding(null);
+            }}
+          />
+        )}
+
+        {selectedBuilding && (
+          <IndoorMapModal
+            visible={indoorMapVisible}
+            building={selectedBuilding}
+            onClose={() => {
+              setIndoorMapVisible(false);
+              campusToggleSheet.current?.show();
             }}
           />
         )}
@@ -684,19 +753,17 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             }}
             onZoomIn={zoomIn}
             onZoomOut={zoomOut}
-            setLatitudeStepByStep = {setLatitudeStepByStep}
-            setLongitudeStepByStep = {setLongitudeStepByStep}
+            setLatitudeStepByStep={setLatitudeStepByStep}
+            setLongitudeStepByStep={setLongitudeStepByStep}
             isZoomedIn={isZoomedIn}
             userLocation={myLocation}
-          
           />
           <DestinationChoices
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
             locationServicesEnabled={locationServicesEnabled}
-          />    
-
+          />
         </NavigationProvider>
       </GestureHandlerRootView>
     </>
@@ -704,14 +771,22 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
 }
 
 const styles = StyleSheet.create({
-  root:{
-    backgroundColor: '#010213',
-    borderRadius: 10
+  root: {
+    backgroundColor: "#010213",
+    borderRadius: 10,
   },
   container: {
     ...StyleSheet.absoluteFillObject,
     flex: 1,
     backgroundColor: "white",
+    ...Platform.select({
+      ios: {
+        position: 'relative',
+      },
+      android: {
+        // Android-specific adjustments
+      },
+    }),
   },
   toggleButtonContainer: {
     position: "absolute",
@@ -722,6 +797,10 @@ const styles = StyleSheet.create({
   dropdownWrapper: {
     top: "-29%",
     height: "10%",
+    backfaceVisibility: 'hidden',
+  },
+  dropdownWrapperKeyboardOpen: {
+    top: "-10%",
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -734,10 +813,11 @@ const styles = StyleSheet.create({
     width: "100%",
     bottom: "22%",
     paddingRight: 20,
+    backfaceVisibility: 'hidden',
   },
   topElements: {
     top: 0,
-    position: 'absolute',
+    position: "absolute",
     left: 30,
     gap: "6%",
     marginTop: 45,
@@ -745,6 +825,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "10%",
+    backfaceVisibility: 'hidden',
   },
   centeredView: {
     marginTop: "10%",
