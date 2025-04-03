@@ -5,4 +5,5 @@ export type Task = {
     locationPlaceID: string;
     time: string;
     type: string;
+    completed?: boolean;
   };

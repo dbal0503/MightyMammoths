@@ -95,18 +95,33 @@ export default function SmartPlannerModal({
     await handleRegeneratePlan(updatedTasks);
   };
 
-  const handleRegeneratePlan = async (taskList: Task[]) => {
-    const actualTasks = taskList.filter(task => task.type !== 'location');
-    if (actualTasks.length === 0) { setGeneratedPlan([]); setIsLoading(false); return; }
-    setIsLoading(true);
-    try {
-      let distanceDurationArr = await calculateAllPairsDistances(taskList);
-      const plan = await generatePlanFromChatGPT(taskList, distanceDurationArr, getBuildingsByCampus()['SGW'], getBuildingsByCampus()['LOY']);
-      setGeneratedPlan(plan);
-    } catch (error) {
-      setGeneratedPlan([]); Alert.alert("Error", "Failed to generate plan.");
-    } finally { setIsLoading(false); }
-  };
+const handleRegeneratePlan = async (taskList: Task[]) => {
+  const actualTasks = taskList.filter(
+    task => task.type !== 'location' && !task.completed
+  );
+  if (actualTasks.length === 0) {
+    setGeneratedPlan([]);
+    setIsLoading(false);
+    return;
+  }
+  setIsLoading(true);
+  try {
+    let distanceDurationArr = await calculateAllPairsDistances(taskList);
+    const plan = await generatePlanFromChatGPT(
+      taskList,
+      distanceDurationArr,
+      getBuildingsByCampus()['SGW'],
+      getBuildingsByCampus()['LOY']
+    );
+    setGeneratedPlan(plan);
+  } catch (error) {
+    setGeneratedPlan([]);
+    Alert.alert("Error", "Failed to generate plan.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
 
   const handleDeletePlan = () => {

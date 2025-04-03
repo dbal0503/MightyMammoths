@@ -84,9 +84,26 @@ export default function TaskViewModal({
   }, [visible]);
 
   const markDone = (id: number) => {
-    // TODO: Implement "Done" state visually or functionally if needed
-     Alert.alert("Mark as Done", "Functionality not yet implemented.");
+    Alert.alert(
+      "Confirm Task Completion",
+      "Are you sure you want to mark this task as completed?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Confirm",
+          onPress: () => {
+            setTasks(prevTasks =>
+              prevTasks.map(task =>
+                task.id === id ? { ...task, completed: true } : task
+              )
+            );
+          },
+        },
+      ]
+    );
   };
+  
+
 
   const deleteTask = async (item: DisplayItem) => {
     let newTasks: Task[] = [];
@@ -425,7 +442,7 @@ export default function TaskViewModal({
             ) : (
               <>
                 <FlatList
-                    data={generatedPlan.length > 0 ? generatedPlan as DisplayItem[] : tasks as DisplayItem[]}
+                    data={tasks as DisplayItem[]}
                     keyExtractor={(item: DisplayItem) => {
                       return 'id' in item ? item.id.toString() : item.order.toString();
                     }}
@@ -436,6 +453,7 @@ export default function TaskViewModal({
                       const itemLocation = 'location' in item ? item.location : item.taskLocation;
                       const itemTime = 'time' in item ? item.time : item.taskTime || '';
                       const isStartLocation = itemName === 'Start Location';
+                      const isCompleted = 'completed' in item && item.completed;
 
                       return (
                         <View style={styles.taskRow}>
@@ -504,27 +522,27 @@ export default function TaskViewModal({
                                 )}
 
                                 {!isStartLocation && (
-                                    <View style={styles.buttonRow}>
-                                        <TouchableOpacity
-                                            style={styles.directionsButton}
-                                            onPress={() => handleDirections(item, index)}
-                                            testID={`directions-button-task-${itemId}`}
-                                        >
-                                            <Text style={{ color: 'white', fontSize: 16 }}>
-                                            Directions
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.doneButton}
-                                            onPress={() => markDone(itemId)}
-                                            testID={`done-button-task-${itemId}`}
-                                        >
-                                            <Text style={{ color: 'white', fontSize: 16 }}>
-                                            Done
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
+                                isCompleted ? (
+                                  <Text style={styles.completedText}>Completed</Text>
+                                ) : (
+                                  <View style={styles.buttonRow}>
+                                    <TouchableOpacity
+                                      style={styles.directionsButton}
+                                      onPress={() => handleDirections(item, index)}
+                                      testID={`directions-button-task-${itemId}`}
+                                    >
+                                      <Text style={{ color: 'white', fontSize: 16 }}>Directions</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                      style={styles.doneButton}
+                                      onPress={() => markDone(itemId)}
+                                      testID={`done-button-task-${itemId}`}
+                                    >
+                                      <Text style={{ color: 'white', fontSize: 16 }}>Done</Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                )
+                              )}
                             </View>
                         </View>
                       );
@@ -736,5 +754,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
+  },
+  completedText: {
+    color: '#00AA44',
+    fontSize: 16,
+    alignSelf: 'center',
+    marginTop: 8,
   },
 });
