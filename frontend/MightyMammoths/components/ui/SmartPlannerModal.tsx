@@ -55,12 +55,13 @@ export default function SmartPlannerModal({
   // State for tasks being edited in PlanBuilderModal
   const [editingTasks, setEditingTasks] = useState<Task[]>([]);
 
-  useEffect(() => {
-    if (!visible) {
-      setHasPlan(false); setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false);
-      setPlanBuilderVisible(false); setTaskViewVisible(false); setEditingTasks([]); setTaskViewFromEditor(false); setIsLoading(false);
-    }
-  }, [visible]);
+  // Should prob stay commented out, leaving in case for now
+  // useEffect(() => {
+  //   if (!visible) {
+  //     setHasPlan(false); setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false);
+  //     setPlanBuilderVisible(false); setTaskViewVisible(false); setEditingTasks([]); setTaskViewFromEditor(false); setIsLoading(false);
+  //   }
+  // }, [visible]);
 
 
   const handleCloseAllModals = () => {
