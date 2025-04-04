@@ -5,38 +5,39 @@ import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
   BuildingData,
-} from "@/components/ui/input/AutoCompleteDropdown";
+} from "../../components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
   GeoJsonFeature,
-} from "@/components/ui/BuildingMapping";
-import RoundButton from "@/components/ui/buttons/RoundButton";
+} from "../../components/ui/BuildingMapping";
+import RoundButton from "../../components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
-import { DestinationChoices } from "@/components/DestinationsChoices";
+import { DestinationChoices } from "../../components/DestinationsChoices";
 import {
   SuggestionResult,
   getPlaceDetails,
   PlaceDetails,
-} from "@/services/searchService";
+} from "../../services/searchService";
+import { checkProximityToDestination as checkDistanceWithGoogleMaps } from "../../services/directionsService";
 import { Image } from "react-native";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
-import TutorialHowTo from "@/components/TutorialHowTo";
+import TutorialHowTo from "../../components/TutorialHowTo";
 
 
 // Context providers
-import { NavigationProvider } from "@/components/NavigationProvider";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
+import { NavigationProvider } from "../../components/NavigationProvider";
+import { getPlaceIdCoordinates } from "../../services/getPlaceIdCoordinatesService";
 
 // Sheets
-import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
-import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
-import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
+import LoyolaSGWToggleSheet from "../../components/ui/sheets/LoyolaSGWToggleSheet";
+import BuildingInfoSheet from "../../components/ui/sheets/BuildingInfoSheet";
+import PlaceInfoSheet from "../../components/ui/sheets/PlaceInfoSheet";
 
 // Styling the map https://mapstyle.withgoogle.com/
-import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
-import IndoorMapModal from "@/components/ui/IndoorMapModal";
+import NavigationSheet from "../../components/ui/sheets/NavigationSheet";
+import IndoorMapModal from "../../components/ui/IndoorMapModal";
 
 export default function HomeScreen() {
   interface Region {
@@ -117,7 +118,13 @@ export default function HomeScreen() {
   const [boundaries, setBoundaries] = useState<BoundingBox>();
   const [showCafes, setShowCafes] = useState(false);
   const [showRestaurants, setShowRestaurants] = useState(false);
+  const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
+  const [isNearDestination, setIsNearDestination] = useState(false);
  
+  const parseRoomNumber = (text: string): string | null => {
+    const match = /(?:room\s+)?(\d+)|\b([a-z])-(\d+)\b/i.exec(text);
+    return match ? match[1] || match[3] : null;
+  };
 
 
   const ChangeLocation = (area: string) => {
@@ -418,12 +425,67 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
+    
+    // Extract room number from destination if possible
+    const roomNumber = parseRoomNumber(destination);
+    setDestinationRoom(roomNumber);
+    
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   };
-
+  const checkProximityToDestination = async () => {
+    if (selectedBuilding && myLocation && destinationRoom) {
+      try {
+        // Format the user's current location
+        const userLocationStr = `${myLocation.latitude},${myLocation.longitude}`;
+        
+        // Get the destination building's place ID
+        const buildingPlaceId = selectedBuilding.properties.PlaceID 
+          ? `place_id:${selectedBuilding.properties.PlaceID}` 
+          : `${selectedBuilding.geometry.coordinates[1]},${selectedBuilding.geometry.coordinates[0]}`;
+        
+        // Check proximity using Google's Directions API
+        const proximityResult = await checkDistanceWithGoogleMaps(
+          userLocationStr,
+          buildingPlaceId,
+          50, // 50 meters threshold
+          "walking"
+        );
+        
+        // If we're near the destination and not already showing the indoor map
+        if (proximityResult.isNearby && !indoorMapVisible && !isNearDestination) {
+          setIsNearDestination(true);
+          
+          // Show alert asking user if they want to switch to indoor navigation
+          Alert.alert(
+            "You're near your destination",
+            `Would you like to switch to indoor navigation? (${proximityResult.distanceText} away)`,
+            [
+              { 
+                text: "No thanks", 
+                style: "cancel",
+                onPress: () => setIsNearDestination(false)
+              },
+              { 
+                text: "Yes", 
+                onPress: () => {
+                  // Switch to indoor map
+                  setIndoorMapVisible(true);
+                  setNavigationMode(false);
+                }
+              }
+            ]
+          );
+        } else if (!proximityResult.isNearby && isNearDestination) {
+          setIsNearDestination(false);
+        }
+      } catch (error) {
+        console.error("Error checking proximity:", error);
+      }
+    }
+  };
 
   const zoomIn = async (
     originCoordsPlaceID: string,
@@ -528,6 +590,11 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
 
   const navigateToRoutes = (destination: string) => {
     setDestination(destination);
+    
+    // Extract room number from destination if possible
+    const roomNumber = parseRoomNumber(destination);
+    setDestinationRoom(roomNumber);
+    
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
@@ -570,11 +637,13 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
-         
         }
-      }else if (mapRef.current){
+      } else if (mapRef.current) {
         mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
+      
+      // Check if we're near the destination building
+      await checkProximityToDestination();
     };
 
     // Run updateLocation immediately and then every 10 seconds instead of 5
@@ -609,7 +678,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isOriginYourLocation, isZoomedIn]); // Remove isKeyboardVisible from dependencies
+  }, [isOriginYourLocation, isZoomedIn, destinationRoom, selectedBuilding]); // Added destinationRoom and selectedBuilding to dependencies
 
   return (
     <>
@@ -721,6 +790,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           <IndoorMapModal
             visible={indoorMapVisible}
             building={selectedBuilding}
+            roomNumber={destinationRoom}
+            userLocation={myLocation}
             onClose={() => {
               setIndoorMapVisible(false);
               campusToggleSheet.current?.show();

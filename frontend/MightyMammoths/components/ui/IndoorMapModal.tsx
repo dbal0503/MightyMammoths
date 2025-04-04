@@ -1,57 +1,121 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Pressable,
   Modal,
   Text,
-  Dimensions,
   ActivityIndicator,
-  BackHandler,
+  Linking,
 } from "react-native";
-import { WebView } from "react-native-webview";
-import { GeoJsonFeature } from "./BuildingMapping";
 import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
-
-// MappedIn map ID
-const MAP_ID = "677d8a736e2f5c000b8f3fa6";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+import { GeoJsonFeature } from "./BuildingMapping";
+import MappedinView from "./MappedinView";
+import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
 
 interface IndoorMapModalProps {
   visible: boolean;
   onClose: () => void;
   building: GeoJsonFeature;
+  roomNumber?: string | null;
+  userLocation?: { latitude: number; longitude: number } | null;
 }
 
 const IndoorMapModal = ({
   visible,
   onClose,
   building,
+  roomNumber,
+  userLocation,
 }: IndoorMapModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const webViewRef = useRef<WebView>(null);
-  const buildingName = building?.properties?.BuildingName || "Hall";
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [entranceId, setEntranceId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   
-  // Use the direct embedded iframe URL from Mappedin
-  const mappedinEmbedUrl = `https://app.mappedin.com/map/${MAP_ID}?embedded=true`;
+  const buildingName = building?.properties?.BuildingName || "Hall Building";
 
-  // Simplest possible HTML wrapping the iframe
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <style>
-          body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #010213; }
-          iframe { border: 0; width: 100%; height: 100%; }
-        </style>
-      </head>
-      <body>
-        <iframe src="${mappedinEmbedUrl}" allow="geolocation" allowfullscreen></iframe>
-      </body>
-    </html>
-  `;
+  // Reset state when modal shows/hides
+  useEffect(() => {
+    if (visible) {
+      setIsLoading(true);
+      setError(null);
+      setMapLoaded(false);
+    }
+  }, [visible]);
+
+  // Load room and entrance IDs when modal becomes visible
+  useEffect(() => {
+    if (visible && roomNumber) {
+      const loadLocationIds = async () => {
+        try {
+          // Get room by number
+          const room = await getRoom(buildingName, roomNumber);
+          if (room) {
+            setRoomId(room.id);
+          } else {
+            console.warn(`Room ${roomNumber} not found in ${buildingName}`);
+          }
+          
+          // Get nearest entrance based on user location
+          if (userLocation) {
+            const entrance = await getNearestEntrance(buildingName, userLocation);
+            if (entrance) {
+              setEntranceId(entrance.id);
+            } else {
+              console.warn(`Could not determine nearest entrance for ${buildingName}`);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading indoor map data:', error);
+          setError('Failed to load indoor navigation data');
+        }
+      };
+      
+      loadLocationIds();
+    }
+  }, [visible, roomNumber, buildingName, userLocation]);
+
+  const handleMapError = (errorMessage: string) => {
+    console.error('Map error:', errorMessage);
+    setError(errorMessage);
+    setIsLoading(false);
+  };
+
+  const handleMapLoaded = () => {
+    setIsLoading(false);
+    setMapLoaded(true);
+    setError(null);
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setIsLoading(true);
+    setMapLoaded(false);
+    // Force a re-render of MappedinView by using a key
+    setRetryKey(prevKey => prevKey + 1);
+  };
+  
+  const openInBrowser = () => {
+    const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Fallback to Hall Building ID
+    
+    // Base URL without directions
+    let url = `https://app.mappedin.com/map/${mapId}`;
+    
+    // If we have room and entrance IDs, add directions
+    if (roomId && entranceId) {
+      url = `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${entranceId}`;
+    }
+    
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } 
+    });
+  };
+
+  const [retryKey, setRetryKey] = useState(0);
 
   return (
     <Modal
@@ -70,29 +134,49 @@ const IndoorMapModal = ({
               style={styles.modeIcon}
             />
           </Pressable>
-          <Text style={styles.headerTitle}>{buildingName} • Indoor Map</Text>
+          <Text style={styles.headerTitle}>
+            {buildingName} {roomNumber ? `• Room ${roomNumber}` : '• Indoor Map'}
+          </Text>
         </View>
 
         <View style={styles.webViewContainer}>
-          {isLoading && (
+          {isLoading && !error && (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.loadingText}>Loading map...</Text>
+              <Text style={styles.loadingText}>Loading indoor map...</Text>
             </View>
           )}
           
-          <WebView
-            ref={webViewRef}
-            source={{ html: htmlContent }}
-            style={styles.webView}
-            onLoadStart={() => setIsLoading(true)}
-            onLoadEnd={() => setIsLoading(false)}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            allowsFullscreenVideo={true}
-            originWhitelist={['*']}
-            onError={(error) => console.error('WebView error:', error)}
-          />
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                Unable to load indoor map. {error}
+              </Text>
+              <View style={styles.buttonRow}>
+                <Pressable 
+                  style={styles.tryAgainButton}
+                  onPress={handleRetry}
+                >
+                  <Text style={styles.tryAgainButtonText}>Try Again</Text>
+                </Pressable>
+                <Pressable 
+                  style={[styles.tryAgainButton, styles.browserButton]}
+                  onPress={openInBrowser}
+                >
+                  <Text style={styles.tryAgainButtonText}>Open in Browser</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <MappedinView
+              key={`mappedin-view-${retryKey}`}
+              buildingName={buildingName}
+              roomId={roomId || undefined}
+              entranceId={entranceId || undefined}
+              onMapLoaded={handleMapLoaded}
+              onError={handleMapError}
+            />
+          )}
         </View>
       </View>
     </Modal>
@@ -124,10 +208,6 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  webView: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
@@ -147,6 +227,41 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 2,
     borderRadius: 16,
+  },
+  errorContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(1, 2, 19, 0.8)",
+    zIndex: 10,
+  },
+  errorText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+  },
+  tryAgainButton: {
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    marginHorizontal: 5,
+    flex: 1,
+    alignItems: "center",
+  },
+  browserButton: {
+    backgroundColor: "#4a90e2",
+  },
+  tryAgainButtonText: {
+    color: "#010213",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
