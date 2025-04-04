@@ -1,6 +1,5 @@
 // components/RoutesSheet.tsx
 import React, {useState, useEffect} from "react";
-
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
@@ -42,6 +41,7 @@ export function TransportChoice({
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
+  
   const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
   const setStepByStepVisible = () => {
     showStepByStep(true)

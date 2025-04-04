@@ -1,24 +1,12 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import {
-  StyleSheet,
-  View,
-  Keyboard,
-  Modal,
-  TouchableOpacity,
-  Text,
-  Image,
-  Alert,
-  Linking,
-  AppState,
-  Platform,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
+import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
+import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
   BuildingData,
 } from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng } from "react-native-maps";
+import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
   GeoJsonFeature,
@@ -28,10 +16,14 @@ import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuild
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
 import { DestinationChoices } from "@/components/DestinationsChoices";
 import {
-  suggestionResult,
+  SuggestionResult,
   getPlaceDetails,
-  placeDetails,
+  PlaceDetails,
 } from "@/services/searchService";
+import { Image } from "react-native";
+import { useFirstLaunch } from '../../hooks/useFirstLaunch'
+import TutorialHowTo from "@/components/TutorialHowTo";
+
 
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -74,22 +66,19 @@ export default function HomeScreen() {
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
-  const indoorMapSheet = useRef<ActionSheetRef>(null);
+  const isFirstLaunch = useFirstLaunch();
+  const [showTutorialHowTo, setShowTutorialHowTo] = useState(true);
   const [indoorMapVisible, setIndoorMapVisible] = useState(false);
 
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<
-    suggestionResult[]
-  >([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
-  const [currentPlace, setCurrentPlace] = useState<placeDetails | undefined>(
-    undefined
-  );
+  const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
   const [origin, setOrigin] = useState<string>("");
-  const [destination, setDestination] = useState<string>("");
+  const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
@@ -117,6 +106,15 @@ export default function HomeScreen() {
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
   const [longitudeStepByStep, setLongitudeStepByStep] = useState(0);
+  const [nearbyPlaces, setNearbyPlaces] = useState<SuggestionResult[]>([]);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
+  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
+  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+  const [boundaries, setBoundaries] = useState<BoundingBox>();
+  const [showCafes, setShowCafes] = useState(false);
+  const [showRestaurants, setShowRestaurants] = useState(false);
+ 
+
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -195,6 +193,38 @@ export default function HomeScreen() {
     }
   };
 
+  const recenterToPolyline = (latitude: number, longitude: number) => {
+    if (mapRef?.current !== null){
+      mapRef.current.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      },1000);
+    }
+  }
+  const fetchBoundaries = async () => {
+    if (mapRef.current) {
+      try {
+        const bounds = await mapRef.current.getMapBoundaries();
+        // Perform a shallow comparison or a more robust deep comparison if needed.
+        if (
+          !boundaries ||
+          boundaries.northEast.latitude !== bounds.northEast.latitude ||
+          boundaries.northEast.longitude !== bounds.northEast.longitude ||
+          boundaries.southWest.latitude !== bounds.southWest.latitude ||
+          boundaries.southWest.longitude !== bounds.southWest.longitude
+        ) {
+          setBoundaries(bounds);
+        }
+      } catch (error) {
+        console.error("Error fetching boundaries:", error);
+      }
+    }
+  };
+  
+
+
   useEffect(() => {
     if (latitudeStepByStep !== 0 && longitudeStepByStep !== 0) {
       recenterToPolyline(latitudeStepByStep, longitudeStepByStep);
@@ -202,32 +232,26 @@ export default function HomeScreen() {
   }, [latitudeStepByStep, longitudeStepByStep]);
 
   useEffect(() => {
-    const buildingResults: suggestionResult[] = buildingList.map(
-      (building) => ({
-        placePrediction: {
-          place: building.buildingName,
-          placeId: building.placeID,
-          text: {
-            text: building.buildingName,
-            matches: [
-              { startOffset: 0, endOffset: building.buildingName.length },
-            ],
-          },
-          structuredFormat: {
-            mainText: {
-              text: building.buildingName,
-              matches: [
-                { startOffset: 0, endOffset: building.buildingName.length },
-              ],
-            },
-            secondaryText: {
-              text: "",
-            },
-          },
-          types: ["building"],
+    const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
+      placePrediction: {
+        place: building.buildingName,
+        placeId: building.placeID,
+        text: {
+          text: building.buildingName,
+          matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
         },
-      })
-    );
+        structuredFormat: {
+          mainText: {
+            text: building.buildingName,
+            matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
+          },
+          secondaryText: {
+            text: ""
+          }
+        },
+        types: ["building"]
+      }
+    }));
     setSearchSuggestions(buildingResults);
   }, []);
 
@@ -328,6 +352,65 @@ export default function HomeScreen() {
     };
   }, []);
 
+
+const handleNearbyPlacePress = async(place: SuggestionResult) => {
+  try {
+    if (!place.location || !place.placePrediction) {
+      console.log('Index.tsx: nearby place has no location data');
+      return;
+    }
+
+    const placeExists = searchSuggestions.some(
+      (suggestion) => suggestion.placePrediction.placeId === place.placePrediction.placeId
+    );
+
+    if (!placeExists) {
+      setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
+    }
+
+    //Region for the place
+    const placeRegion: Region = {
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005
+    };
+
+    setSearchMarkerLocation(placeRegion);
+    setRegion(placeRegion);
+    setSearchMarkerVisible(true);
+    //setDestination(place.placePrediction.structuredFormat.mainText.text);
+
+    // Fetching the place details
+    if (place.placePrediction.placeId) {
+      const details = await getPlaceDetails(place.placePrediction.placeId);
+      if (details) {
+        setCurrentPlace(details);
+        //setDestination(place.placePrediction.placeId);
+        setDestination(place.placePrediction.structuredFormat.mainText.text);
+      }
+    }
+
+    
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(placeRegion, 1000);
+    }
+
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    if (placeInfoSheet.current) {
+      placeInfoSheet.current.show();
+    } else {
+      console.log('Index.tsx: place info sheet ref is not defined');
+    }
+  } catch (error) {
+    console.log(`Index.tsx: Error handling nearby place: ${error}`);
+  }
+};
+
+  // TODO: have destination be set to the selected building
   const startNavigation = () => {
     setChooseDestVisible(true);
     setNavigationMode(true);
@@ -336,9 +419,7 @@ export default function HomeScreen() {
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   };
-  const [isZoomedIn, setIsZoomedIn] = useState(false);
-  const [zoomedRegion, setZoomedRegion] = useState<Region | null>(null);
-  const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
+
 
   const zoomIn = async (
     originCoordsPlaceID: string,
@@ -385,20 +466,6 @@ export default function HomeScreen() {
         mapRef.current.animateToRegion(targetRegion, 700);
         setIsZoomedIn(true);
       }
-    }
-  };
-
-  const recenterToPolyline = (latitude: any, longitude: any) => {
-    if (mapRef?.current !== null) {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.003,
-          longitudeDelta: 0.003,
-        },
-        1000
-      );
     }
   };
 
@@ -521,10 +588,10 @@ export default function HomeScreen() {
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
+         
         }
-      } else if (mapRef.current && isZoomedIn) {
-        // Reduce animation duration to minimize flickering
-        mapRef.current.animateCamera({ heading: 0 }, { duration: 500 });
+      }else if (mapRef.current){
+        mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
     };
 
@@ -565,15 +632,20 @@ export default function HomeScreen() {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        {/* HOW TO guide */}
+        {isFirstLaunch && showTutorialHowTo &&
+          <TutorialHowTo 
+            onClose={()=>setShowTutorialHowTo(false)}
+          />
+        }
         <MapView
           style={styles.map}
           initialRegion={regionMap}
           customMapStyle={mapStyle}
           ref={mapRef}
           rotateEnabled={true}
-          onMapReady={() => console.log("Map ready")}
-          maxZoomLevel={20}
-          minZoomLevel={10}
+          onRegionChangeComplete={fetchBoundaries}
+          onMapReady={fetchBoundaries}
         >
           {locationServicesEnabled && myLocation && (
             <Marker coordinate={myLocation} title="My Location">
@@ -590,7 +662,10 @@ export default function HomeScreen() {
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
-            key="building-mapping"
+            nearbyPlaces={nearbyPlaces}
+            onNearbyPlacePress={handleNearbyPlacePress}
+            showCafes={showCafes} 
+            showRestaurants={showRestaurants} 
           />
 
           {routePolyline.length > 0 && (
@@ -614,7 +689,14 @@ export default function HomeScreen() {
                   setSearchSuggestions={setSearchSuggestions}
                   buildingData={buildingList}
                   onSelect={(selected) => handleSearch(selected)}
-                />
+                  onNearbyResults={(results) => setNearbyPlaces(results)}
+                  showNearbyButtons={true}
+                  boundaries = {boundaries}
+                  showCafes={showCafes} 
+                  showRestaurants={showRestaurants} 
+                  setShowCafes={setShowCafes}
+                  setShowRestaurants={setShowRestaurants}
+              />
               </View>
             )}
           </View>
@@ -665,7 +747,8 @@ export default function HomeScreen() {
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
-          placeDetails={currentPlace}
+          mainsheet={campusToggleSheet}
+          PlaceDetails={currentPlace}
         />
 
         <NavigationProvider

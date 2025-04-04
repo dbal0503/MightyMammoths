@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Marker, Polygon} from 'react-native-maps';
 import { View, Text, StyleSheet,  } from 'react-native';
 import { fetchPlaceDetails} from '../../services/buildingsService';
+import { SuggestionResult } from '@/services/searchService';
 
 export interface GeoJsonFeature {
   type: string;
@@ -30,9 +31,21 @@ interface GeoJsonData {
 interface BuildingMappingProps {
   geoJsonData: GeoJsonData;
   onMarkerPress: (buildingName: string) => void;
+  nearbyPlaces: SuggestionResult[];
+  onNearbyPlacePress?: (place: SuggestionResult) => void;
+
+  showCafes: boolean;
+  showRestaurants: boolean;
 }
 
-const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarkerPress }) => {
+const BuildingMapping: React.FC<BuildingMappingProps> = ({ 
+  geoJsonData, 
+  onMarkerPress,
+  nearbyPlaces,
+  onNearbyPlacePress,
+  showCafes,
+  showRestaurants,
+}) => {
   const [polygons, setPolygons] = useState<any[]>([]);
 
     const loadAllPolygons = async () => {
@@ -64,8 +77,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
           <Marker
             key={buildingName}
             coordinate={{ latitude, longitude }}
-          //  title={buildingName}
-          //  description={feature.properties.Address}
             onPress={() => onMarkerPress(buildingName)}
             testID={`marker-${buildingAccronym}`}
           >
@@ -77,6 +88,31 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
       }
       return null;
     });
+
+    const renderNearbyMarkers = () => {
+      if (!nearbyPlaces || nearbyPlaces.length === 0) return null;
+      return nearbyPlaces.map((place, index) => {
+        if (!place.location) return null;
+        const { latitude, longitude } = {latitude: place.location?.latitude, longitude: place.location?.longitude};
+        const mainText = place.placePrediction.structuredFormat.mainText.text;
+
+        if ((showCafes || showRestaurants) ) {
+        return (
+          <Marker
+            key={`nearby-${index}`}
+            coordinate={{ latitude, longitude }}
+            title={mainText}
+            onPress={() => onNearbyPlacePress && onNearbyPlacePress(place)}
+          >
+            <View style={styles.nearbyMarker}>
+              <Text style={styles.text}>{mainText}</Text>
+            </View>
+          </Marker>
+        );
+     }
+      return null;
+      });
+    };
 
     const renderPolygons = () =>
       polygons
@@ -111,6 +147,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({ geoJsonData, onMarker
   {renderMarkers(geoJsonData)}
   {renderPolygons()}
   {rendermissingPolygons()}
+  {renderNearbyMarkers()}
   </>;
 };
 
@@ -236,6 +273,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nearbyMarker: {
+    backgroundColor: 'green', 
+    padding: 6,
+    borderRadius: 10,
   },
   text: {
     color: 'white',

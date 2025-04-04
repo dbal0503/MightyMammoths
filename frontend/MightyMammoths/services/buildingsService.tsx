@@ -8,7 +8,10 @@ export const fetchPlaceDetails = async (
   buildingName: string
 ) => {
   try {
-    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    let apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (process.env.NODE_ENV === 'test' || apiKey === 'test-api-key') {
+      apiKey = 'test-api-key';
+    }
     if (!apiKey) {
       console.log("Failed loading Google API key in building mapping");
       return null;

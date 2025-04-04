@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef} from "react-native-actions-sheet";
+import ActionSheet, { ActionSheetRef, ActionSheetProps} from 'react-native-actions-sheet';
 import { GeoJsonFeature } from '../BuildingMapping';
 
 
@@ -57,7 +55,7 @@ function BuildingInfoSheet({
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable onPress={navigateIndoor}>
+            <Pressable onPress={navigateIndoor} testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>  

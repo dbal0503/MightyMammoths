@@ -17,8 +17,8 @@ import axios from "axios";
 //webclient not android client id
 GoogleSignin.configure({
   webClientId:
-    "1069237773869-m1q5nruuve50ee7a9enku70vr1f057fj.apps.googleusercontent.com",
-  iosClientId: "1069237773869-lj16d9448a1unfds0k42ag37iu39nv62.apps.googleusercontent.com",
+    "928706434521-68ol8ennd84iqjug4rd3e648hrs9fm15.apps.googleusercontent.com",
+  iosClientId: "928706434521-k6o2qqdt247fpd170a72g939jrbh11b0.apps.googleusercontent.com",
 });
 
 type GoogleCalendarButtonProps = {
@@ -38,7 +38,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
     try {
       await GoogleSignin.hasPlayServices();
       await GoogleSignin.configure({
-        iosClientId: "1069237773869-lj16d9448a1unfds0k42ag37iu39nv62.apps.googleusercontent.com",
+        iosClientId: "928706434521-k6o2qqdt247fpd170a72g939jrbh11b0.apps.googleusercontent.com",
         scopes: [
           "https://www.googleapis.com/auth/calendar.readonly",
           "https://www.googleapis.com/auth/calendar.events.readonly",

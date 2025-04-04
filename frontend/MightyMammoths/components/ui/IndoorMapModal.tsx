@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { GeoJsonFeature } from "./BuildingMapping";
-import { IconSymbol } from "../../components/ui/IconSymbol";
+import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
 
 // MappedIn map ID
 const MAP_ID = "677d8a736e2f5c000b8f3fa6";
@@ -64,7 +64,7 @@ const IndoorMapModal = ({
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.backButton}>
             <IconSymbol
-              name="arrow.left"
+              name={"arrow-back" as IconSymbolName}
               size={28}
               color="white"
               style={styles.modeIcon}
