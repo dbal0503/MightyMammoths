@@ -72,10 +72,16 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [selected, setSelected] = useState("Select a building");
   const [options, setOptions] = useState([
     "Your Location",
-    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+    ...searchSuggestions.map((item) => {
+      if(item.discriminator === "place"){
+        return item.placePrediction.structuredFormat.mainText.text + " - " + item.placePrediction.structuredFormat.secondaryText.text
+      }else{
+        return item.placePrediction.structuredFormat.mainText.text
+      }
+    })
   ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
+  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName)); //Whats in the dropdown
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
   //const [showCafes, setShowCafes] = useState(false);
@@ -110,7 +116,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   useEffect(() => {
     setOptions([
       "Your Location",
-      ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+      ...searchSuggestions.map((item) => {
+        if(item.discriminator === "place"){
+          return item.placePrediction.structuredFormat.mainText.text + " - " + item.placePrediction.structuredFormat.secondaryText.text
+        }else{
+          return item.placePrediction.structuredFormat.mainText.text
+        }
+      })
     ]);
   }, [searchSuggestions]);
 
@@ -184,6 +196,14 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   const handleSelect = (placeName: string) => {
+    /*
+      checks for what the user selected
+      your location
+      search suggestions
+      hardcoded building names
+      Then defers to Onselect function
+    */
+
     setSelected(placeName);
 
     if(placeName === "Your Location") {
@@ -193,7 +213,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         return;
     }
 
-    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    //re-format string
+    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName.split('-')[0].trim())
     if(!selectedLocation){
       let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
