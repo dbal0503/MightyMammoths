@@ -62,10 +62,10 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      //topDropDownRef.current?.reset();
-      //setSelectedStart("");
-      //checkSelection("", selectedDestination);
-      //setOrigin("");
+      topDropDownRef.current?.reset();
+      setSelectedStart("Your Location");
+      checkSelection("Your Location", selectedDestination);
+      setOrigin("Your Location");
     }
   }, [visible]);
 
@@ -142,24 +142,21 @@ export function DestinationChoices({
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           buildingData={buildingList} 
-          currentVal={selectedStart || origin}
+          currentVal={origin}
           onSelect={(selected) => {
             if(!selected) return;
             if (selected === "Your Location") {
               checkLocationPermission(
                 () => {
-                  setSelectedStart(selected);
                   checkSelection(selected, selectedDestination);
                   setOrigin(selected);
                 },
                 () => {
                   topDropDownRef.current?.reset();
-                  setSelectedStart("Select a building");
                   setOrigin("Select a building");
                 }
               );
             } else {
-              setSelectedStart(selected);
               checkSelection(selected, selectedDestination);
               setOrigin(selected);
             }

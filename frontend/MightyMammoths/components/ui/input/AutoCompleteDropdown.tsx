@@ -64,7 +64,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   //functions exposed through ref
   useImperativeHandle(ref, () => ({
     reset: () => {
-      setSelected("Select a building");
+      setSelected("Your Location");
       setIsOpen(false);
     },
     setValue: (value: string) => {
