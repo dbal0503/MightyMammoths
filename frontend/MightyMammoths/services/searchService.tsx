@@ -36,6 +36,7 @@ export interface Location {
 
 // Result interfaces
 export interface SuggestionResult {
+    discriminator: string,
     placePrediction: {
         place: string,
         placeId: string,
@@ -208,6 +209,7 @@ class PlacesRepository {
 
     private transformPlacesToSuggestions(places: any[]): SuggestionResult[] {
         return places.map((p: any) => ({
+            discriminator: "place",
             placePrediction: {
                 place: p.id,
                 placeId: p.id,
@@ -237,7 +239,13 @@ export async function autoCompleteSearch(
 
     try {
         const repository = new PlacesRepository(apiKey);
-        return await repository.getAutoCompleteSuggestions(searchString);
+        let temp = await repository.getAutoCompleteSuggestions(searchString);
+        if(!temp) return undefined;
+        temp = temp.map((item, index) => ({
+            ...item,
+            discriminator: `place` // or whatever logic you want for the discriminator
+          }));
+        return temp;
     } catch (error) {
         console.log(`Error in autoCompleteSearch: ${error}`);
         return undefined;
