@@ -19,7 +19,7 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from './input/AutoCompleteDropdown';
 import * as Location from "expo-location";
 import { buildingList } from '@/utils/getBuildingList';
-import { suggestionResult } from '@/services/searchService';
+import { SuggestionResult } from '@/services/searchService';
 
 
 type PlanBuilderModalProps = {
@@ -57,7 +57,7 @@ export default function PlanBuilderModal({
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = React.useState('');
   const [tempTaskTime, setTempTaskTime] = React.useState('');
   const [date, setDate] = React.useState(new Date());
-  const [searchSuggestions, setSearchSuggestions] = React.useState<suggestionResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = React.useState<SuggestionResult[]>([]);
 
   const locationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
 
@@ -136,7 +136,7 @@ export default function PlanBuilderModal({
   };
 
   useEffect(() => {
-    const buildingResults: suggestionResult[] = buildingListPlusMore.map(
+    const buildingResults: SuggestionResult[] = buildingListPlusMore.map(
       (building) => ({
         placePrediction: {
           place: building.buildingName,

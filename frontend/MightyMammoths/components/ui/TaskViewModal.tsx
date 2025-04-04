@@ -16,7 +16,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
 import * as Location from "expo-location";
 import { buildingList } from '@/utils/getBuildingList';
-import { suggestionResult } from '@/services/searchService';
+import { SuggestionResult } from '@/services/searchService';
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from './input/AutoCompleteDropdown';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
@@ -65,7 +65,7 @@ export default function TaskViewModal({
   const [tempTaskLocationPlaceId, setTempTaskLocationPlaceId] = useState('');
   const [tempTaskTime, setTempTaskTime] = useState('');
   const [editingTask, setEditingTask] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState<suggestionResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
   const [date, setDate] = useState(new Date());
   const editLocationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
   const isDeletePlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
@@ -248,7 +248,7 @@ export default function TaskViewModal({
   
 
   useEffect(() => {
-    const buildingResults: suggestionResult[] = buildingListPlusMore.map(
+    const buildingResults: SuggestionResult[] = buildingListPlusMore.map(
       (building) => ({
         placePrediction: {
           place: building.buildingName,
