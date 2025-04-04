@@ -412,6 +412,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
 
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
+    setOrigin("Your Location");
     setChooseDestVisible(true);
     setNavigationMode(true);
     placeInfoSheet.current?.hide();
@@ -523,7 +524,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
   }, [routePolyline]);
 
 
-  function navigateToRoutes(
+  function navigateToRoutes (
     params: string | { origin?: string; destination: string }
   ) {
     let finalDestination: string;
@@ -545,7 +546,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     if (finalOrigin) {
       setOrigin(finalOrigin);
     }
-  
+
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();

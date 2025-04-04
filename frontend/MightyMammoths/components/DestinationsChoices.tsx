@@ -45,24 +45,6 @@ export function DestinationChoices({
     setTwoBuildingsSelected(start !== null && destination !== null);
   };
 
-  useEffect(() => {
-    const checkAndSetOrigin =  () => {
-      if (destination && destination !== "Select a building") {
-        if (locationServicesEnabled) {
-          setOrigin("Your Location");
-          setSelectedStart("Your Location");
-          topDropDownRef.current?.setValue("Your Location");
-        } else {
-          setOrigin("");
-          setSelectedStart(""); 
-          setSelectedDestination(state.destination); 
-          topDropDownRef.current?.setValue("");
-        }
-      }
-    };
-  
-    checkAndSetOrigin();
-  }, [destination]);
 
   useEffect(() => {
     if (visible) {
@@ -93,6 +75,7 @@ export function DestinationChoices({
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
   }, [destination])
+
 
   const _openAppSetting = useCallback(async () => {
         await Linking.openSettings();
