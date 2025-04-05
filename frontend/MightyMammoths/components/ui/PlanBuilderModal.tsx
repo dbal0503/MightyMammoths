@@ -62,20 +62,27 @@ export default function PlanBuilderModal({
   const locationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
 
 
-  useEffect(() => {
-    if (visible) {
-      setTempPlanName(initialPlanName || ''); 
-      setTempTasks([...initialTasks]); 
-      setTempIsStartLocationSet(initialIsStartLocationSet);
-      setTempIsStartLocationButton(false);
-      setTempTaskName('');
-      setTempTaskLocation('');
-      setTempTaskLocationPlaceId('');
-      setTempTaskTime('');
-      setDate(new Date());
-      locationDropdownRef.current?.reset();
-    }
-  }, [visible]);
+  // useEffect(() => {
+  //   if (visible) {
+  //     setTempPlanName(initialPlanName || ''); 
+  //     setTempTasks([...initialTasks]); 
+  //     setTempIsStartLocationSet(initialIsStartLocationSet);
+  //     setTempIsStartLocationButton(false);
+  //     setTempTaskName('');
+  //     setTempTaskLocation('');
+  //     setTempTaskLocationPlaceId('');
+  //     setTempTaskTime('');
+  //     setDate(new Date());
+  //     locationDropdownRef.current?.reset();
+  //   }
+  // }, [visible]);
+
+  const handleBackArrow = () => {
+    setTempPlanName('');
+    setTempTasks([]);
+    setTempIsStartLocationSet(false);
+    onClose();
+  };
 
   const addTask = () => {
     if (tempTaskName.trim()) {
@@ -281,7 +288,7 @@ export default function PlanBuilderModal({
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          <TouchableOpacity onPress={onClose} style={styles.backIcon}>
+          <TouchableOpacity onPress={handleBackArrow} style={styles.backIcon}>
             <IconSymbol name={'arrow-back' as IconSymbolName} size={32} color="white" testID='back-button-editor-modal'/>
           </TouchableOpacity>
 

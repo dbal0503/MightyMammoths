@@ -77,14 +77,13 @@ export default function SmartPlannerModal({
     const openBuilder = () => {
       setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false); setHasPlan(false);
       setEditingTasks([]);
-      setPlanBuilderVisible(true);
+      openPlanBuilderForEdit();
     };
     if (hasPlan) { Alert.alert('Confirm New Plan', 'Are you sure you want to create a new plan? This will delete the current plan.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Yes', onPress: openBuilder },], { cancelable: true }); }
     else { openBuilder(); }
   };
 
   const openPlanBuilderForEdit = () => {
-    setEditingTasks([...tasks]);
     setPlanBuilderVisible(true);
   };
 
@@ -329,7 +328,9 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
         {/* Plan Builder Modal */}
         <PlanBuilderModal
           visible={planBuilderVisible}
-          onClose={() => { setPlanBuilderVisible(false) }}
+          onClose={() => {
+            setPlanBuilderVisible(false)
+          }}
           initialPlanName={planName}
           initialTasks={editingTasks}
           initialIsStartLocationSet={isStartLocationSet}
@@ -350,7 +351,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
            onClose={() => {
                 setTaskViewVisible(false);
                 if (taskViewFromEditor) {
-                    setPlanBuilderVisible(true);
+                  openPlanBuilderForEdit();
                     setTaskViewFromEditor(false);
                 }
            }}
