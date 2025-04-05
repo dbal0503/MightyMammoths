@@ -137,17 +137,25 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
 
   
   const handleGetDirections = () => {
+    console.log("Generated Plan: ", generatedPlan);
     if (!generatedPlan || generatedPlan.length < 2) {
       Alert.alert("Error", "No next task found in the plan.");
       return;
     }
   
-    const nextTaskIndex = 1;
-  
-    // If it's the first actual task, origin is the start location (index 0);
-    // otherwise origin is the task's previous destination
-    const origin = generatedPlan[nextTaskIndex - 1].taskLocation;
-    const destination = generatedPlan[nextTaskIndex].taskLocation;
+    const nextIncompleteTaskIndex = generatedPlan.findIndex((task, index) => 
+      index > 0 && !task.completed
+    );
+
+    console.log("Next Incomplete Task Index: ", nextIncompleteTaskIndex);
+    
+    if (nextIncompleteTaskIndex === -1) {
+      Alert.alert("Info", "All tasks have been completed.");
+      return;
+    }
+    
+    const origin = generatedPlan[nextIncompleteTaskIndex].origin;
+    const destination = generatedPlan[nextIncompleteTaskIndex].destination;
     console.log(origin + ', ' + destination);
   
     if (!destination) {
@@ -178,78 +186,112 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
     </View>
   );
 
-  const renderHasPlan = () => (
-    <View style={styles.modalContentContainer}>
-      <Text style={styles.smartPlannerTitle}>Smart Planner</Text>
-      <View style={styles.underlineBox} />
-      {isLoading ? (
-         <View style={styles.loadingContainer}>
+  const renderHasPlan = () => {
+    const allTasksCompleted = generatedPlan.length > 1 && 
+      generatedPlan.slice(1).every(task => task.completed);
+    
+    const nextIncompleteTaskIndex = generatedPlan.length > 1 ? 
+      generatedPlan.findIndex((task, index) => index > 0 && !task.completed) : -1;
+    
+    const hasNextTask = nextIncompleteTaskIndex !== -1;
+  
+    return (
+      <View style={styles.modalContentContainer}>
+        <Text style={styles.smartPlannerTitle}>Smart Planner</Text>
+        <View style={styles.underlineBox} />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#FFFFFF" />
             <Text style={styles.loadingText}>Generating {planName} plan...</Text>
-         </View>
-      ) : (
-        <>
-          <Text style={styles.planTitle}>Current Plan: {planName}</Text>
-          {generatedPlan.length > 1 ? (
-            <>
-              <View style={styles.taskHeaderRow}>
-                <Text style={styles.nextTaskLabel}>Next Task</Text>
-                <TouchableOpacity
-                    style={styles.nextTaskDirectionsButton}
-                    testID='get-directions-button-main-modal'
-                    onPress={handleGetDirections}
+          </View>
+        ) : (
+          <>
+            <Text style={styles.planTitle}>Current Plan: {planName}</Text>
+            {generatedPlan.length > 1 ? (
+              allTasksCompleted ? (
+                <>
+                  <Text style={styles.noPlanText}>All tasks completed!</Text>
+                  <TouchableOpacity
+                    style={styles.viewPlanButton}
+                    onPress={() => setTaskViewVisible(true)}
+                    testID="view-plan-button"
+                  >
+                    <Text style={styles.viewPlanButtonText}>View Full Plan</Text>
+                  </TouchableOpacity>
+                </>
+              ) : hasNextTask ? (
+                <>
+                  <View style={styles.taskHeaderRow}>
+                    <Text style={styles.nextTaskLabel}>Next Task</Text>
+                    <TouchableOpacity
+                      style={styles.nextTaskDirectionsButton}
+                      testID="get-directions-button-main-modal"
+                      onPress={handleGetDirections}
                     >
-                  <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.iconTextRow}>
-                <IconSymbol name={'info' as IconSymbolName} size={30} color="white" testID='info-icon-main-modal'/>
-                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskName}</Text>
-              </View>
-              <View style={styles.iconTextRow}>
-                <IconSymbol name={'location' as IconSymbolName} size={30} color="white" testID='location-icon-main-modal'/>
-                <Text style={styles.taskItemSubText}>{generatedPlan[1].taskLocation}</Text>
-              </View>
-              <View style={styles.iconTextRow}>
-                <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" testID='clock-icon-main-modal' />
-                {!generatedPlan[1].taskTime ? (
-                  <Text style={styles.taskItemSubText}>No time specified</Text>
-                ) : (
-                  <Text style={styles.taskItemSubText}>{generatedPlan[1].taskTime}</Text>
-                )}
-              </View>
-               <TouchableOpacity
-                style={styles.viewPlanButton}
-                onPress={() => setTaskViewVisible(true)}
-                testID='view-plan-button'
+                      <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.iconTextRow}>
+                    <IconSymbol name={'info' as IconSymbolName} size={30} color="white" testID="info-icon-main-modal" />
+                    <Text style={styles.taskItemSubText}>{generatedPlan[nextIncompleteTaskIndex].taskName}</Text>
+                  </View>
+                  <View style={styles.iconTextRow}>
+                    <IconSymbol name={'location' as IconSymbolName} size={30} color="white" testID="location-icon-main-modal" />
+                    <Text style={styles.taskItemSubText}>{generatedPlan[nextIncompleteTaskIndex].taskLocation}</Text>
+                  </View>
+                  <View style={styles.iconTextRow}>
+                    <IconSymbol name={'clock' as IconSymbolName} size={30} color="white" testID="clock-icon-main-modal" />
+                    {!generatedPlan[nextIncompleteTaskIndex].taskTime ? (
+                      <Text style={styles.taskItemSubText}>No time specified</Text>
+                    ) : (
+                      <Text style={styles.taskItemSubText}>{generatedPlan[nextIncompleteTaskIndex].taskTime}</Text>
+                    )}
+                  </View>
+                  <TouchableOpacity
+                    style={styles.viewPlanButton}
+                    onPress={() => setTaskViewVisible(true)}
+                    testID="view-plan-button"
+                  >
+                    <Text style={styles.viewPlanButtonText}>View Full Plan</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.noPlanText}>No incomplete tasks found.</Text>
+                  <TouchableOpacity
+                    style={styles.viewPlanButton}
+                    onPress={() => setTaskViewVisible(true)}
+                    testID="view-plan-button"
+                  >
+                    <Text style={styles.viewPlanButtonText}>View Full Plan</Text>
+                  </TouchableOpacity>
+                </>
+              )
+            ) : (
+              <>
+                <Text style={styles.noPlanText}>{tasks.length > 0 ? 'Plan generated, but no tasks found.' : 'No tasks added yet.'}</Text>
+                <TouchableOpacity
+                  style={styles.viewPlanButton}
+                  onPress={openPlanBuilderForEdit}
+                  testID="edit-tasks-button"
                 >
-                <Text style={styles.viewPlanButtonText}>View Full Plan</Text>
-               </TouchableOpacity>
-            </>
-          ) : (
-            <>
-            <Text style={styles.noPlanText}>{tasks.length > 0 ? 'Plan generated, but no tasks found.' : 'No tasks added yet.'}</Text>
-             <TouchableOpacity
-                style={styles.viewPlanButton}
-                onPress={openPlanBuilderForEdit}
-                testID='edit-tasks-button'
-              >
-                <Text style={styles.viewPlanButtonText}>Edit Tasks</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </>
-      )}
-      <View style={styles.underlineBox} />
-      <TouchableOpacity
-        style={styles.createPlanButton}
-        onPress={handleCreatePlan}
-        testID='create-plan-button'
-      >
-        <Text style={styles.createPlanButtonText}>Create New Plan</Text>
-      </TouchableOpacity>
-    </View>
-  );
+                  <Text style={styles.viewPlanButtonText}>Edit Tasks</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </>
+        )}
+        <View style={styles.underlineBox} />
+        <TouchableOpacity
+          style={styles.createPlanButton}
+          onPress={handleCreatePlan}
+          testID="create-plan-button"
+        >
+          <Text style={styles.createPlanButtonText}>Create New Plan</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
 
   return (
@@ -274,8 +316,9 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
           onSavePlan={handleSavePlan}
           openTaskView={(currentTempTasks) => {
               setEditingTasks([...currentTempTasks]);
-              setTaskViewFromEditor(true);
               setTaskViewVisible(true);
+              setPlanBuilderVisible(false);
+              setTaskViewFromEditor(true);
           }}
         />
 
@@ -286,6 +329,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
            onClose={() => {
                 setTaskViewVisible(false);
                 if (taskViewFromEditor) {
+                    setPlanBuilderVisible(true);
                     setTaskViewFromEditor(false);
                 }
            }}

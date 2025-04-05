@@ -77,7 +77,6 @@ export default function PlanBuilderModal({
     }
   }, [visible]);
 
-
   const addTask = () => {
     if (tempTaskName.trim()) {
       const newTask: Task = {

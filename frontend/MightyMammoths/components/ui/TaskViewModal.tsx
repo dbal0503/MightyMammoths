@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Modal,
   View,
@@ -92,11 +92,29 @@ export default function TaskViewModal({
         {
           text: "Confirm",
           onPress: () => {
+            const taskToComplete = tasks.find(task => task.id === id);
+            
             setTasks(prevTasks =>
               prevTasks.map(task =>
                 task.id === id ? { ...task, completed: true } : task
               )
             );
+            
+            if (generatedPlan && generatedPlan.length > 0 && taskToComplete) {
+              setGeneratedPlan(prevPlan => 
+                prevPlan.map(planTask => {
+                  const nameMatch = planTask.taskName.trim() === taskToComplete.name.trim();
+                  const locationMatch = planTask.taskLocation === taskToComplete.location;
+                  
+                  if (nameMatch && locationMatch) {
+                    return { ...planTask, completed: true };
+                  }
+                  return planTask;
+                })
+              );
+            }
+            console.log("Generated Plan: ", generatedPlan);
+            console.log("Tasks: ", tasks);
           },
         },
       ]

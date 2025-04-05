@@ -53,12 +53,13 @@ export const generatePlanFromChatGPT = async (
 
         Notes:
         - Tasks with location \"Any SGW campus building\", \"Any LOY campus building\", or \"Any campus building\" should be assigned the most efficient building from the provided campus buildings and the distance data. 
-        If there is no distance data then calculate the estimated distance and duration using the buildings from the respetive campus. Note that all buildings are in Montreal, Canada.
+        If there is no distance data then calculate the estimated distance and duration using the buildings from the respective campus. Note that all buildings are in Montreal, Canada.
         - Some tasks may not be time-sensitive and you will know this because some tasks will not have an associated time; prioritize optimizing overall travel distance and duration.
         
-        IMPORTANT: Format your response as a raw JSON array without any markdown formatting, code blocks, or backticks.
+        IMPORTANT: Format your response as a raw JSON array without any markdown formatting, code blocks, or backticks. Based on the order of the tasks, destination of one task should be the origin of the next task.
+        So for example, if the first task is \"Task A\" and the second task is \"Task B\", then the destination of \"Task A\" should be the origin of \"Task B\" and this should be determined based on the order.
         Return the response as a JSON array of objects with the following fields:
-            - order (the order of the task in the plan starting from 1, and the start location task should be 0)
+            - order (the order of the task in the plan starting from 1, and the start location task should be 0 and should be marked as completed)
             - taskName
             - taskLocation
             - taskTime (the scheduled time for the task)
