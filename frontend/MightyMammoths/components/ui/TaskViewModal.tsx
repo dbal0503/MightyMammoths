@@ -411,7 +411,7 @@ export default function TaskViewModal({
                                     });
                                 }}
                                 style={styles.taskInput}
-                                testID='time-picker-android-edit-task'
+                                testID='time-picker-edit-task'
                                 >
                                 <Text style={{ color: 'white', fontSize: 17 }}>
                                     {tempTaskTime || 'Select Time'}
@@ -464,7 +464,7 @@ export default function TaskViewModal({
                                       <TouchableOpacity
                                         style={styles.editButton}
                                         onPress={() => editTask(item)}
-                                        testID={`edit-icon-task-${itemId}`}
+                                        testID={`edit-icon-task`}
                                       >
                                         <IconSymbol
                                             name={'pencil' as IconSymbolName}
@@ -476,7 +476,7 @@ export default function TaskViewModal({
                                       <TouchableOpacity
                                           style={styles.deleteButton}
                                           onPress={() => deleteTask(item)}
-                                          testID={`delete-icon-task-${itemId}`}
+                                          testID={`delete-icon-task`}
                                       >
                                           <IconSymbol
                                               name={'trash' as IconSymbolName}
@@ -492,7 +492,7 @@ export default function TaskViewModal({
                                       name={'location' as IconSymbolName}
                                       size={16}
                                       color="#b2b3b8"
-                                      testID={`location-icon-task-${itemId}`}
+                                      testID={`location-icon-task`}
                                   />
                                   <Text style={styles.taskItemSubText}>{itemLocation}</Text>
                                 </View>
@@ -503,7 +503,7 @@ export default function TaskViewModal({
                                           name={'clock' as IconSymbolName}
                                           size={16}
                                           color="#b2b3b8"
-                                          testID={`time-icon-task-${itemId}`}
+                                          testID={`time-icon-task`}
                                       />
                                       <Text style={styles.taskItemSubText}>{itemTime}</Text>
                                   </View>
@@ -515,7 +515,7 @@ export default function TaskViewModal({
                                           name={'clock' as IconSymbolName}
                                           size={16}
                                           color="#b2b3b8"
-                                          testID={`time-icon-task-${itemId}`}
+                                          testID={`time-icon-task`}
                                       />
                                       <Text style={styles.taskItemSubText}>Any time</Text>
                                   </View>
@@ -529,14 +529,14 @@ export default function TaskViewModal({
                                     <TouchableOpacity
                                       style={styles.directionsButton}
                                       onPress={() => handleDirections(item, index)}
-                                      testID={`directions-button-task-${itemId}`}
+                                      testID={`directions-button-task`}
                                     >
                                       <Text style={{ color: 'white', fontSize: 16 }}>Directions</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                       style={styles.doneButton}
                                       onPress={() => markDone(itemId)}
-                                      testID={`done-button-task-${itemId}`}
+                                      testID={`done-button-task`}
                                     >
                                       <Text style={{ color: 'white', fontSize: 16 }}>Done</Text>
                                     </TouchableOpacity>

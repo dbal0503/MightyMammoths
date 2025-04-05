@@ -316,7 +316,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
               <View style={styles.taskHeaderRow}>
                 <Text style={styles.addTaskTitle}>Add Task</Text>
-                <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button'>
+                <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button-location-view'>
                   <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
                 </TouchableOpacity>
               </View>
@@ -368,7 +368,7 @@ export default function PlanBuilderModal({
                     });
                   }}
                   style={styles.taskInput}
-                  testID='time-picker-android'
+                  testID='time-picker'
                 >
                   <Text style={{ color: 'white', fontSize: 17 }}>
                     {tempTaskTime || 'Select Time'}
@@ -400,7 +400,7 @@ export default function PlanBuilderModal({
             <View style={styles.underlineBox} />
             <View style={styles.taskHeaderRow}>
               <Text style={styles.addTaskTitle}>Start Location</Text>
-              <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button-location-view'>
+              <TouchableOpacity style={styles.viewTasksButton} onPress={() => openTaskView(tempTasks)} testID='view-current-tasks-button'>
                 <Text style={{ color: 'white', fontSize: 15 }}>View Current Tasks</Text>
               </TouchableOpacity>
             </View>
