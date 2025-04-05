@@ -56,8 +56,7 @@ export const generatePlanFromChatGPT = async (
         If there is no distance data then calculate the estimated distance and duration using the buildings from the respective campus. Note that all buildings are in Montreal, Canada.
         - Some tasks may not be time-sensitive and you will know this because some tasks will not have an associated time; prioritize optimizing overall travel distance and duration.
         
-        IMPORTANT: Format your response as a raw JSON array without any markdown formatting, code blocks, or backticks. Based on the order of the tasks, destination of one task should be the origin of the next task.
-        So for example, if the first task is \"Task A\" and the second task is \"Task B\", then the destination of \"Task A\" should be the origin of \"Task B\" and this should be determined based on the order.
+        IMPORTANT: Format your response as a raw JSON array without any markdown formatting, code blocks, or backticks. 
         Return the response as a JSON array of objects with the following fields:
             - order (the order of the task in the plan starting from 1, and the start location task should be 0 and should be marked as completed)
             - taskName
@@ -68,7 +67,11 @@ export const generatePlanFromChatGPT = async (
             - originPlaceID
             - destination
             - destinationPlaceID
-            - completed (a boolean indicating whether the task has been completed but set this to false for all tasks)`;
+            - completed (a boolean indicating whether the task has been completed but set this to false for all tasks)
+            
+            The length of the array should be equal to the number of tasks in the input. Based on the order and how you arranged the tasks, the origin and destination fields should be set like the following example.
+            Suppose that you arrange Task A with order 1 and Task B with order 2, then the origin for Task A should be the start location and the destination for Task A should be its own location. 
+            For Task B, the origin should be the location of Task A and the destination should be its own location.`;
 
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {

@@ -155,11 +155,11 @@ function NavigationSheet({
                         if(origin && destination){
                           setSelectedMode(mode);
                           actionsheetref.current?.snapToIndex(1)
-                          console.log("onselect mode"+mode);
+                          //console.log("onselect mode"+mode);
                         }
                       }}
                       onSetSteps={(steps) => {
-                        console.log("Steps set: ", steps);
+                        //console.log("Steps set: ", steps);
                         console.log("steps mode: " + selectedMode)
                       }}
                       destinationBuilding={selectedBuilding}

@@ -105,12 +105,11 @@ const NavigationProvider = ({
     return [lat, long];
   }
 
-
-
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
-
-    if (!origin || !destination || !navigationMode) return;
+    if (!origin || !destination || !navigationMode) {
+      return;
+    }
     setLoadingRoutes(true);
     const estimates: { [mode: string]: RouteData[] } = {};
     try {
@@ -124,7 +123,7 @@ const NavigationProvider = ({
       console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
       for (const mode of transportModes) {
         const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-        console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+        //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
         if (routeMode) {
           estimates[mode] = [routeMode]; 
         }

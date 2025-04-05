@@ -40,7 +40,10 @@ function LoyolaSGWToggleSheet({
 
   const closeSmartPlanner = () => {
     setSmartPlannerVisible(false);
-    actionsheetref.current?.show();
+    // Add a delay before showing the ActionSheet again
+    setTimeout(() => {
+      actionsheetref.current?.show();
+    }, 300);
   };
 
   return (

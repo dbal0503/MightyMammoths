@@ -47,6 +47,8 @@ export default function SmartPlannerModal({
   const [taskViewFromEditor, setTaskViewFromEditor] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isStartLocationSet, setIsStartLocationSet] = useState(false);
+  const [pendingOrigin, setPendingOrigin] = useState('');
+  const [pendingDestination, setPendingDestination] = useState('');
 
   // Controls for nested modals
   const [planBuilderVisible, setPlanBuilderVisible] = useState(false);
@@ -67,6 +69,7 @@ export default function SmartPlannerModal({
   const handleCloseAllModals = () => {
     setTaskViewVisible(false);
     setPlanBuilderVisible(false);
+    setTaskViewFromEditor(false);
     onClose();
   };
 
@@ -136,38 +139,53 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
   };
 
   
-  const handleGetDirections = () => {
+  const handleGetDirections = (origin: string, destination:string) => {
     console.log("Generated Plan: ", generatedPlan);
+    console.log("Tasks: ", tasks);
     if (!generatedPlan || generatedPlan.length < 2) {
       Alert.alert("Error", "No next task found in the plan.");
       return;
     }
   
-    const nextIncompleteTaskIndex = generatedPlan.findIndex((task, index) => 
-      index > 0 && !task.completed
-    );
+    // const nextIncompleteTaskIndex = generatedPlan.findIndex((task, index) => 
+    //   index > 0 && !task.completed
+    // );
 
-    console.log("Next Incomplete Task Index: ", nextIncompleteTaskIndex);
+    // console.log("Next Incomplete Task Index: ", nextIncompleteTaskIndex);
     
-    if (nextIncompleteTaskIndex === -1) {
-      Alert.alert("Info", "All tasks have been completed.");
-      return;
-    }
+    // if (nextIncompleteTaskIndex === -1) {
+    //   Alert.alert("Info", "All tasks have been completed.");
+    //   return;
+    // }
     
-    const origin = generatedPlan[nextIncompleteTaskIndex].origin;
-    const destination = generatedPlan[nextIncompleteTaskIndex].destination;
-    console.log(origin + ', ' + destination);
-  
-    if (!destination) {
-      Alert.alert("Error", "Next task location is not specified.");
-      return;
-    }
-  
-    // Pass both to navigateToRoutes
-    navigateToRoutes({ origin, destination });
+    // const origin = generatedPlan[nextIncompleteTaskIndex].origin;
+    // const destination = generatedPlan[nextIncompleteTaskIndex].destination;
+    // console.log(origin + ', ' + destination);
+
     onClose();
-  };
   
+  // Add a small delay before navigation to ensure modal is closed
+    setTimeout(() => {
+      if (!origin || !destination) {
+        Alert.alert("Error", "Origin or destination is missing.");
+        return;
+      }
+      
+      // Navigate to routes
+      navigateToRoutes({ origin, destination });
+    }, 800);
+  };
+
+  useEffect(() => {
+    if (pendingOrigin && pendingDestination) {
+      onClose();
+      setTimeout(() => {
+        navigateToRoutes({ origin: pendingOrigin, destination: pendingDestination });
+        setPendingOrigin('');
+        setPendingDestination('');
+      }, 500);
+    }
+  }, [pendingOrigin, pendingDestination]);
 
 
   const renderNoPlan = () => (
@@ -194,6 +212,9 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
       generatedPlan.findIndex((task, index) => index > 0 && !task.completed) : -1;
     
     const hasNextTask = nextIncompleteTaskIndex !== -1;
+    const origin = hasNextTask ? generatedPlan[nextIncompleteTaskIndex].origin ?? '' : '';
+    const destination = hasNextTask ? generatedPlan[nextIncompleteTaskIndex].destination ?? '' : '';
+
   
     return (
       <View style={styles.modalContentContainer}>
@@ -226,7 +247,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
                     <TouchableOpacity
                       style={styles.nextTaskDirectionsButton}
                       testID="get-directions-button-main-modal"
-                      onPress={handleGetDirections}
+                      onPress={() => handleGetDirections(origin, destination)}
                     >
                       <Text style={{ color: 'white', fontSize: 15 }}>Get Directions</Text>
                     </TouchableOpacity>
@@ -343,6 +364,14 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
           deletePlan={() => { handleDeletePlan(); setTaskViewVisible(false); }}
           onRegeneratePlan={handleRegeneratePlan}
           openPlanBuilder={() => { openPlanBuilderForEdit(); setTaskViewVisible(false); setTaskViewFromEditor(false); }}
+          handleGetDirections={(origin, destination) => {
+            // Close before navigation
+            onClose();
+            // Add delay before navigation
+            setTimeout(() => navigateToRoutes({ origin, destination }), 500);
+          }}
+          setPendingOrigin={setPendingOrigin}
+          setPendingDestination={setPendingDestination}
         />
       </SafeAreaView>
       </KeyboardAvoidingView>

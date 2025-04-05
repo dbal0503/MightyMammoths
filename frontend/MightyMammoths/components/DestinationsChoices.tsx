@@ -45,7 +45,6 @@ export function DestinationChoices({
     setTwoBuildingsSelected(start !== null && destination !== null);
   };
 
-
   useEffect(() => {
     if (visible) {
       Animated.spring(slideAnim, {
@@ -62,19 +61,29 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      topDropDownRef.current?.reset();
-      setSelectedStart("Your Location");
-      checkSelection("Your Location", selectedDestination);
-      setOrigin("Your Location");
+      //setSelectedStart("");
+      // console.log("Selected start", selectedStart);
+      // console.log("Selected origin", origin);
+      setSelectedStart(origin);
+      // console.log("Selected start", selectedStart);
+      // console.log("Selected origin", origin);
+      // console.log("SelectedDestination", selectedDestination);
+      // console.log("Selected destination", destination);
+      // topDropDownRef.current?.reset();
+      // setSelectedStart("Your Location");
+      // checkSelection("Your Location", selectedDestination);
+      // setOrigin("Your Location");
     }
   }, [visible]);
 
   useEffect(()=>{
     setDestination(destination);
     setSelectedBuilding(destination);
+    setSelectedStart(origin);
+    setOrigin(origin);
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
-  }, [destination])
+  }, [destination, origin]);
 
 
   const _openAppSetting = useCallback(async () => {
@@ -144,6 +153,7 @@ export function DestinationChoices({
           buildingData={buildingList} 
           currentVal={origin}
           onSelect={(selected) => {
+            console.log("Selected", selected);
             if(!selected) return;
             if (selected === "Your Location") {
               checkLocationPermission(

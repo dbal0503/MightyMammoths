@@ -39,6 +39,9 @@ type TaskViewModalProps = {
     destination: string | { origin?: string; destination: string }
   ) => void;
   onCloseAllModals: () => void;
+  handleGetDirections: (origin: string, destination: string) => void;
+  setPendingDestination: Dispatch<SetStateAction<string>>;
+  setPendingOrigin: Dispatch<SetStateAction<string>>;
 };
 
 type DisplayItem = Task | TaskPlan;
@@ -58,6 +61,9 @@ export default function TaskViewModal({
   onRegeneratePlan,
   navigateToRoutes,
   onCloseAllModals,
+  handleGetDirections,
+  setPendingDestination,
+  setPendingOrigin,
 }: TaskViewModalProps) {
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [tempTaskName, setTempTaskName] = useState('');
@@ -70,6 +76,7 @@ export default function TaskViewModal({
   const editLocationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
   const isDeletePlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
   const isAddEditPlanDisabled = tasks.length === 0 && generatedPlan.length === 0;
+  const isGeneratedPlan = generatedPlan.length === 0;
 
   // Whenever the modal closes, reset any editing state so it won't remain in edit mode
   useEffect(() => {
@@ -113,8 +120,6 @@ export default function TaskViewModal({
                 })
               );
             }
-            console.log("Generated Plan: ", generatedPlan);
-            console.log("Tasks: ", tasks);
           },
         },
       ]
@@ -239,29 +244,30 @@ export default function TaskViewModal({
     ...buildingList,
   ];
 
-  const handleDirections = (item: DisplayItem, index: number) => {
+  const handleDirections = (item: DisplayItem) => {
+    const taskName = 'name' in item ? item.name : item.taskName;
+    const taskLocation = 'location' in item ? item.location : item.taskLocation;
 
-    if (!generatedPlan || generatedPlan.length < 2) {
-      Alert.alert("Error", "No next task found in the plan.");
+    const matchingPlanItem = generatedPlan.find(plan =>
+      plan.taskName.trim() === taskName.trim() &&
+      plan.destination === taskLocation
+    );
+
+    if (!matchingPlanItem) {
+      Alert.alert("Error", "No matching plan item found for directions.");
       return;
     }
-  
-    const nextTaskIndex = 1;
-  
-    // If it's the first actual task, origin is the start location (index 0);
-    // otherwise origin is the task's previous destination
-    const origin = generatedPlan[nextTaskIndex - 1].taskLocation;
-    const destination = generatedPlan[nextTaskIndex].taskLocation;
-    console.log(origin + ', ' + destination);
-  
-    if (!destination) {
-      Alert.alert("Error", "Next task location is not specified.");
+    
+    const origin = matchingPlanItem.origin;
+    const destination = matchingPlanItem.destination;
+    
+    if (!origin || !destination) {
+      Alert.alert("Error", "Missing origin or destination for directions.");
       return;
     }
-  
-    // Pass both to navigateToRoutes
-    navigateToRoutes({ origin, destination });
-    onCloseAllModals();
+    setPendingDestination(destination);
+    setPendingOrigin(origin);
+    onClose();
   };
   
 
@@ -466,6 +472,9 @@ export default function TaskViewModal({
                     }}
                     style={{ maxHeight: '75%' }}
                     renderItem={({ item, index }) => {
+                      // console.log("Tasks: ", tasks);
+                      // console.log("Generated Plan: ", generatedPlan);
+                      // console.log("Item: ", item);
                       const itemId = 'id' in item ? item.id : item.order;
                       const itemName = 'name' in item ? item.name : item.taskName;
                       const itemLocation = 'location' in item ? item.location : item.taskLocation;
@@ -539,14 +548,14 @@ export default function TaskViewModal({
                                   </View>
                                 )}
 
-                                {!isStartLocation && (
+                                {!isStartLocation && !isGeneratedPlan && (
                                 isCompleted ? (
                                   <Text style={styles.completedText}>Completed</Text>
                                 ) : (
                                   <View style={styles.buttonRow}>
                                     <TouchableOpacity
                                       style={styles.directionsButton}
-                                      onPress={() => handleDirections(item, index)}
+                                      onPress={() => handleDirections(item)}
                                       testID={`directions-button-task`}
                                     >
                                       <Text style={{ color: 'white', fontSize: 16 }}>Directions</Text>
