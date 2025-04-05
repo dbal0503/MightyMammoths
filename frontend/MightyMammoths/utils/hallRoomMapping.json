@@ -1,0 +1,235 @@
+{
+  "rooms": [
+    {
+      "roomNumber": "101",
+      "encodedId": "s_5a430cb52a708b2b",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "102",
+      "encodedId": "s_4ce9cf932e5c105c",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "103",
+      "encodedId": "s_e72c2ed4f1949630",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "110",
+      "encodedId": "s_3b1b2798159c63f2",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "112",
+      "encodedId": "s_8bcb9a7fb2fbb5a7",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "114",
+      "encodedId": "s_479062780a429b34",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "115",
+      "encodedId": "s_23734d8bc97e4665",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "116-1",
+      "encodedId": "s_f36dee2fb8ef3f40",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "118",
+      "encodedId": "s_91da9d93d27a96a9",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "122",
+      "encodedId": "s_277fbe284aa7c717",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "124",
+      "encodedId": "s_8d5870189cce2902",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "126",
+      "encodedId": "s_946c0f500f21318e",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "127",
+      "encodedId": "s_309097efd55edb23",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "128",
+      "encodedId": "s_3abb9aa9b1df2adf",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "129",
+      "encodedId": "s_3b51925e0d5e71f6",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "131",
+      "encodedId": "s_3718711e18967ead",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "134",
+      "encodedId": "s_bbfd01cf20f8da69",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "135",
+      "encodedId": "s_810ad3324ebe02c2",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "137",
+      "encodedId": "s_f26f0218ae5ff04f",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "139",
+      "encodedId": "s_c2e5ac02216b16d5",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "141",
+      "encodedId": "s_296e87dd4259ebf4",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "175",
+      "encodedId": "s_9cfc834e40353db9",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "151",
+      "encodedId": "s_cc76132a0e09adae",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "155",
+      "encodedId": "s_c61713c110951cde",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "157",
+      "encodedId": "s_665be5ed1019b2d2",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "190",
+      "encodedId": "s_5d8561ec264d3cbe",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "196",
+      "encodedId": "s_49b13b4d9e5955e7",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+    {
+      "roomNumber": "198",
+      "encodedId": "s_0222160801aac963",
+      "floor": "m_2b2365d2f44ba4a0"
+    },
+
+    {
+      "roomNumber": "205",
+      "encodedId": "s_0ce92a1f9c4deec0",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "209",
+      "encodedId": "s_027ad07caecf8ac3",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "217",
+      "encodedId": "s_8abbd80c22e63dc2",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "222.00",
+      "encodedId": "s_c058872fd99c7137",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "224",
+      "encodedId": "s_353cda6548728bc6",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "224-1",
+      "encodedId": "s_09e970b38313c3cf",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "225",
+      "encodedId": "s_ec2a48aa9836744b",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "231",
+      "encodedId": "s_5685e2c698b12233",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "231.00",
+      "encodedId": "s_947d5d639325aa03",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "235",
+      "encodedId": "s_923e0a0da1038568",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "239.00",
+      "encodedId": "s_18055cd8b21e1cda",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "239.04",
+      "encodedId": "s_017348abd0b5acc4",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "258.18",
+      "encodedId": "s_8b7aae2bd0bf181b",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "260",
+      "encodedId": "s_f5c410e20fa3eba4",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "275",
+      "encodedId": "s_70f43cd8a51e2b9d",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "280",
+      "encodedId": "s_df5a5a0759624f80",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "281",
+      "encodedId": "s_998e494f303aa20a",
+      "floor": "m_f06f42e4dd43b7a3"
+    },
+    {
+      "roomNumber": "298",
+      "encodedId": "s_e6f6977fd05aea7a",
+      "floor": "m_f06f42e4dd43b7a3"
+    }
+  ]
+}
