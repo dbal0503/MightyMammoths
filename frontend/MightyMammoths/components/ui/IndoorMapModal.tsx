@@ -7,14 +7,19 @@ import {
   Text,
   Dimensions,
   ActivityIndicator,
-  BackHandler,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { GeoJsonFeature } from "./BuildingMapping";
 import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
+import { getRoomEncodedId } from "../../utils/hallRoomMapper";
 
-// MappedIn map ID
+// MappedIn map ID and default floor
 const MAP_ID = "677d8a736e2f5c000b8f3fa6";
+const DEFAULT_FLOOR = "m_2b2365d2f44ba4a0"; // Default floor to display
+const SECOND_FLOOR = "m_f06f42e4dd43b7a3"; // Second floor ID
+
+// Default room for entrance when only destination is provided
+const DEFAULT_ENTRANCE_ROOM = "103"; // This will be converted to encoded ID
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -22,21 +27,53 @@ interface IndoorMapModalProps {
   visible: boolean;
   onClose: () => void;
   building: GeoJsonFeature;
+  entranceRoomNumber?: string; // Room number (not encoded ID)
+  destinationRoomNumber?: string; // Room number (not encoded ID)
 }
 
 const IndoorMapModal = ({
   visible,
   onClose,
   building,
+  entranceRoomNumber,
+  destinationRoomNumber,
 }: IndoorMapModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const webViewRef = useRef<WebView>(null);
   const buildingName = building?.properties?.BuildingName || "Hall";
-  
-  // Use the direct embedded iframe URL from Mappedin
-  const mappedinEmbedUrl = `https://app.mappedin.com/map/${MAP_ID}?embedded=true`;
 
-  // Simplest possible HTML wrapping the iframe
+  // Convert room numbers to encoded IDs if provided
+  const entranceRoomCode = entranceRoomNumber
+    ? getRoomEncodedId(entranceRoomNumber)
+    : undefined;
+  const destinationRoomCode = destinationRoomNumber
+    ? getRoomEncodedId(destinationRoomNumber)
+    : undefined;
+
+  // Default entrance code when only destination is provided
+  const defaultEntranceCode =
+    getRoomEncodedId(DEFAULT_ENTRANCE_ROOM) || "s_e72c2ed4f1949630";
+
+  // Build the iframe URL dynamically based on provided props
+  let iframeSrc = "";
+
+  // Case 1: Neither entrance nor destination provided - show basic map
+  if (!entranceRoomCode && !destinationRoomCode) {
+    iframeSrc = `https://app.mappedin.com/map/${MAP_ID}?floor=${SECOND_FLOOR}`;
+  }
+  // Case 2: Only destination provided - use default entrance
+  else if (!entranceRoomCode && destinationRoomCode) {
+    iframeSrc = `https://app.mappedin.com/map/${MAP_ID}/directions?floor=${DEFAULT_FLOOR}&location=${destinationRoomCode}&departure=${defaultEntranceCode}`;
+  }
+  // Case 3: Both entrance and destination provided
+  else if (entranceRoomCode && destinationRoomCode) {
+    iframeSrc = `https://app.mappedin.com/map/${MAP_ID}/directions?floor=${DEFAULT_FLOOR}&location=${destinationRoomCode}&departure=${entranceRoomCode}`;
+  }
+  // Case 4: Only entrance provided (fallback to showing just the map at that location)
+  else if (entranceRoomCode && !destinationRoomCode) {
+    iframeSrc = `https://app.mappedin.com/map/${MAP_ID}?floor=${DEFAULT_FLOOR}&highlight=${entranceRoomCode}`;
+  }
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -48,7 +85,7 @@ const IndoorMapModal = ({
         </style>
       </head>
       <body>
-        <iframe src="${mappedinEmbedUrl}" allow="geolocation" allowfullscreen></iframe>
+        <iframe src="${iframeSrc}" allow="geolocation" allowfullscreen></iframe>
       </body>
     </html>
   `;
@@ -80,7 +117,7 @@ const IndoorMapModal = ({
               <Text style={styles.loadingText}>Loading map...</Text>
             </View>
           )}
-          
+
           <WebView
             ref={webViewRef}
             source={{ html: htmlContent }}
@@ -90,8 +127,8 @@ const IndoorMapModal = ({
             javaScriptEnabled={true}
             domStorageEnabled={true}
             allowsFullscreenVideo={true}
-            originWhitelist={['*']}
-            onError={(error) => console.error('WebView error:', error)}
+            originWhitelist={["*"]}
+            onError={(error) => console.error("WebView error:", error)}
           />
         </View>
       </View>
@@ -126,7 +163,7 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
