@@ -23,21 +23,27 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   const [isEmbeddedView, setIsEmbeddedView] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // Use a direct link to Mappedin instead of trying to embed the SDK
-  const getMapUrl = () => {
-    // Get the map ID from our service
-    const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Fallback to Hall Building ID
+  /**
+   * Generate the URL for the Mappedin map
+   */
+  function getMapUrl(buildingName: string, roomId?: string, entranceId?: string): string {
+    // Default to Hall Building if not specified
+    const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
     
-    // Base URL without directions
-    let url = `https://app.mappedin.com/map/${mapId}?embedded=true`;
+    // Base URL for the map
+    let url = `https://app.mappedin.com/map/${mapId}`;
     
-    // If we have room and entrance IDs, add directions
+    // Add directional info if both room and entrance are specified
     if (roomId && entranceId) {
-      url = `https://app.mappedin.com/map/${mapId}/directions?embedded=true&location=${roomId}&departure=${entranceId}`;
+      url = `${url}/directions?location=${roomId}&departure=${entranceId}`;
+    } 
+    // Just show the room if only room is specified
+    else if (roomId) {
+      url = `${url}/routes/${roomId}`;
     }
     
     return url;
-  };
+  }
 
   // Simple HTML that just embeds the Mappedin web app in an iframe
   const getHtmlContent = () => {
@@ -77,7 +83,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
         <body>
           ${isEmbeddedView ? 
             `<iframe 
-              src="${getMapUrl()}"
+              src="${getMapUrl(buildingName, roomId, entranceId)}"
               allow="geolocation" 
               allowfullscreen
               onerror="handleIframeError()"
@@ -95,7 +101,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
                 return '<div class="fallback">' +
                   '<h2>${buildingName}</h2>' +
                   '<p>Indoor map is available in the web browser.</p>' +
-                  '<a href="${getMapUrl()}" target="_blank">Open Map in Browser</a>' +
+                  '<a href="${getMapUrl(buildingName, roomId, entranceId)}" target="_blank">Open Map in Browser</a>' +
                 '</div>';
               }
             </script>` 
@@ -103,7 +109,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
             `<div class="fallback">
               <h2>${buildingName}</h2>
               <p>Indoor map is available in the web browser.</p>
-              <a href="${getMapUrl()}" target="_blank">Open Map in Browser</a>
+              <a href="${getMapUrl(buildingName, roomId, entranceId)}" target="_blank">Open Map in Browser</a>
              </div>`
           }
           <script>
@@ -152,7 +158,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   };
 
   const openInBrowser = () => {
-    const url = getMapUrl();
+    const url = getMapUrl(buildingName, roomId, entranceId);
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
         Linking.openURL(url);

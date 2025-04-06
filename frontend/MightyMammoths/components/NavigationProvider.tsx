@@ -28,6 +28,9 @@ interface NavigationState {
   searchSuggestions: SuggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   routesValid: boolean;
+  isIndoorMapVisible: boolean;
+  selectedRoomId: string | null;
+  setModalVisible: (visible: boolean, roomId?: string | null) => void;
 }
 
 interface NavigationContextType {
@@ -45,6 +48,7 @@ interface NavigationContextType {
     setTwoBuildingsSelected: (value: boolean) => void;
     fetchRoutes: () => void;
     setRoutesValid: (value: boolean) => void;
+    setModalVisible: (visible: boolean, roomId?: string | null) => void;
   };
 }
 
@@ -79,6 +83,8 @@ const NavigationProvider = ({
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
   const [routesValid, setRoutesValid] = useState<boolean>(false);
+  const [isIndoorMapVisible, setIsIndoorMapVisible] = useState<boolean>(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
@@ -187,6 +193,14 @@ const NavigationProvider = ({
     fetchRoutes();
   }, [origin, destination, navigationMode]);
 
+  // Function to set modal visibility and optionally a room ID
+  const setModalVisible = (visible: boolean, roomId: string | null = null) => {
+    setIsIndoorMapVisible(visible);
+    if (roomId) {
+      setSelectedRoomId(roomId);
+    }
+  };
+
   return (
     <NavigationContext.Provider
       value={{
@@ -206,6 +220,9 @@ const NavigationProvider = ({
           searchSuggestions,
           setSearchSuggestions,
           routesValid,
+          isIndoorMapVisible,
+          selectedRoomId,
+          setModalVisible,
         },
         functions: {
           setOrigin,
@@ -220,6 +237,7 @@ const NavigationProvider = ({
           setTwoBuildingsSelected,
           fetchRoutes,
           setRoutesValid,
+          setModalVisible,
         },
       }}
     >

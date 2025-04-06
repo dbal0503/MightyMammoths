@@ -12,12 +12,14 @@ import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
 import { GeoJsonFeature } from "./BuildingMapping";
 import MappedinView from "./MappedinView";
 import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
+import { useNavigation as useNavigationProvider } from "../NavigationProvider";
 
 interface IndoorMapModalProps {
   visible: boolean;
   onClose: () => void;
   building: GeoJsonFeature;
   roomNumber?: string | null;
+  roomId?: string | null;
   userLocation?: { latitude: number; longitude: number } | null;
 }
 
@@ -26,6 +28,7 @@ const IndoorMapModal = ({
   onClose,
   building,
   roomNumber,
+  roomId: propRoomId,
   userLocation,
 }: IndoorMapModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +36,9 @@ const IndoorMapModal = ({
   const [entranceId, setEntranceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  
+  const { state } = useNavigationProvider();
+  const { selectedRoomId } = state;
   
   const buildingName = building?.properties?.BuildingName || "Hall Building";
 
@@ -45,9 +51,23 @@ const IndoorMapModal = ({
     }
   }, [visible]);
 
+  // Check if we have a direct room ID from props or context
+  useEffect(() => {
+    // Priority: 1. Prop roomId, 2. Context selectedRoomId, 3. Look up by roomNumber
+    if (propRoomId) {
+      setRoomId(propRoomId);
+      return;
+    }
+    
+    if (selectedRoomId) {
+      setRoomId(selectedRoomId);
+      return;
+    }
+  }, [propRoomId, selectedRoomId]);
+
   // Load room and entrance IDs when modal becomes visible
   useEffect(() => {
-    if (visible && roomNumber) {
+    if (visible && roomNumber && !roomId) {
       const loadLocationIds = async () => {
         try {
           // Get room by number
@@ -75,7 +95,7 @@ const IndoorMapModal = ({
       
       loadLocationIds();
     }
-  }, [visible, roomNumber, buildingName, userLocation]);
+  }, [visible, roomNumber, buildingName, userLocation, roomId]);
 
   const handleMapError = (errorMessage: string) => {
     console.error('Map error:', errorMessage);
@@ -106,6 +126,9 @@ const IndoorMapModal = ({
     // If we have room and entrance IDs, add directions
     if (roomId && entranceId) {
       url = `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${entranceId}`;
+    } else if (roomId) {
+      // Just navigate to the room without directions
+      url = `https://app.mappedin.com/map/${mapId}/routes/${roomId}`;
     }
     
     Linking.canOpenURL(url).then(supported => {
@@ -116,6 +139,8 @@ const IndoorMapModal = ({
   };
 
   const [retryKey, setRetryKey] = useState(0);
+
+  const displayRoomInfo = roomNumber ? `• Room ${roomNumber}` : (roomId ? '• Selected Room' : '• Indoor Map');
 
   return (
     <Modal
@@ -135,7 +160,7 @@ const IndoorMapModal = ({
             />
           </Pressable>
           <Text style={styles.headerTitle}>
-            {buildingName} {roomNumber ? `• Room ${roomNumber}` : '• Indoor Map'}
+            {buildingName} {displayRoomInfo}
           </Text>
         </View>
 

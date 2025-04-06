@@ -24,6 +24,8 @@ import { checkProximityToDestination as checkDistanceWithGoogleMaps } from "../.
 import { Image } from "react-native";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
 import TutorialHowTo from "../../components/TutorialHowTo";
+import { isNearHallBuilding } from "../../services/directionsService";
+import HallBuildingRoomPrompt from "../../components/ui/HallBuildingRoomPrompt";
 
 
 // Context providers
@@ -120,6 +122,7 @@ export default function HomeScreen() {
   const [showRestaurants, setShowRestaurants] = useState(false);
   const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
   const [isNearDestination, setIsNearDestination] = useState(false);
+  const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
  
   const parseRoomNumber = (text: string): string | null => {
     const match = /(?:room\s+)?(\d+)|\b([a-z])-(\d+)\b/i.exec(text);
@@ -436,11 +439,26 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     navigationSheet.current?.show();
   };
   const checkProximityToDestination = async () => {
+    // Only check if we're not already showing prompts or indoor maps
+    if (indoorMapVisible || showHallBuildingPrompt || isNearDestination) {
+      return;
+    }
+    
+    // Format the user's current location
+    const userLocationStr = `${myLocation.latitude},${myLocation.longitude}`;
+    
+    // Check if user is near Hall Building specifically
+    const isNearHall = await isNearHallBuilding(userLocationStr);
+    
+    if (isNearHall) {
+      console.log("User is near Hall Building - showing room prompt");
+      setShowHallBuildingPrompt(true);
+      return;
+    }
+    
+    // Continue with the original proximity check for the destination building
     if (selectedBuilding && myLocation && destinationRoom) {
       try {
-        // Format the user's current location
-        const userLocationStr = `${myLocation.latitude},${myLocation.longitude}`;
-        
         // Get the destination building's place ID
         const buildingPlaceId = selectedBuilding.properties.PlaceID 
           ? `place_id:${selectedBuilding.properties.PlaceID}` 
@@ -689,6 +707,17 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             onClose={()=>setShowTutorialHowTo(false)}
           />
         }
+        
+        {/* Hall Building Room Prompt */}
+        <HallBuildingRoomPrompt
+          visible={showHallBuildingPrompt}
+          onClose={() => setShowHallBuildingPrompt(false)}
+          onSelectRoom={(roomId) => {
+            // After selecting a room, show the indoor map
+            setIndoorMapVisible(true);
+          }}
+        />
+        
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -789,13 +818,22 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         {selectedBuilding && (
           <IndoorMapModal
             visible={indoorMapVisible}
-            building={selectedBuilding}
-            roomNumber={destinationRoom}
-            userLocation={myLocation}
             onClose={() => {
               setIndoorMapVisible(false);
-              campusToggleSheet.current?.show();
+              setShowHallBuildingPrompt(false);
+              if (navigationMode) {
+                navigationSheet.current?.show();
+              } else {
+                campusToggleSheet.current?.show();
+              }
             }}
+            building={selectedBuilding || {
+              properties: { BuildingName: "Hall Building" },
+              geometry: { type: "Point", coordinates: [-73.5788, 45.497092] },
+              type: "Feature"
+            }}
+            roomNumber={destinationRoom}
+            userLocation={myLocation}
           />
         )}
 

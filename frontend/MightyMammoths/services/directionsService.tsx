@@ -107,3 +107,33 @@ export async function checkProximityToDestination(
     return { isNearby: false, distanceValue: Infinity, distanceText: "Error" };
   }
 }
+
+// Add the Hall Building coordinates constant
+const HALL_BUILDING_COORDS = {
+  latitude: 45.497092, 
+  longitude: -73.5788
+};
+
+// Add a threshold distance constant (in meters)
+const HALL_BUILDING_PROXIMITY_THRESHOLD = 50;
+
+/**
+ * Checks if the user is near Hall Building
+ * @param userLocation User's current location as latitude,longitude string
+ * @returns Promise with a boolean indicating if user is near Hall Building
+ */
+export async function isNearHallBuilding(userLocation: string): Promise<boolean> {
+  try {
+    const result = await checkProximityToDestination(
+      userLocation,
+      `${HALL_BUILDING_COORDS.latitude},${HALL_BUILDING_COORDS.longitude}`,
+      HALL_BUILDING_PROXIMITY_THRESHOLD
+    );
+    
+    console.log(`User is ${result.isNearby ? 'near' : 'not near'} Hall Building. Distance: ${result.distanceText}`);
+    return result.isNearby;
+  } catch (error) {
+    console.error("Error checking proximity to Hall Building:", error);
+    return false;
+  }
+}
