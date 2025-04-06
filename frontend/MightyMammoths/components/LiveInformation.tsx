@@ -16,10 +16,54 @@ const getUpdatedTime = (duration: string) => {
   return timeNow.toLocaleTimeString();
 };
 
+// Add tons of console logs for debugging
 const isDestinationBuilding = (destination: string) => {
-  return buildingData.features.some(
-    (feature) => feature.properties.BuildingName === destination
+  console.log(
+    "DEBUG: isDestinationBuilding called with destination:",
+    destination
   );
+
+  // Check if we have a valid destination
+  if (!destination) {
+    console.log("DEBUG: Destination is null, undefined, or empty string");
+    return false;
+  }
+
+  // Convert destination to lowercase, trim any extra spaces
+  const normalizedDestination = destination.toLowerCase().trim();
+  console.log("DEBUG: normalizedDestination:", normalizedDestination);
+
+  // Check each building
+  const foundBuilding = buildingData.features.find((feature, index) => {
+    const buildingName = feature.properties.BuildingName.toLowerCase().trim();
+    console.log(
+      "DEBUG: Checking building index",
+      index,
+      "with BuildingName:",
+      feature.properties.BuildingName,
+      "| Lowercase/trimmed:",
+      buildingName
+    );
+
+    // Compare normalized strings
+    const isMatch = buildingName === normalizedDestination;
+    console.log("DEBUG: isMatch:", isMatch);
+    return isMatch;
+  });
+
+  if (foundBuilding) {
+    console.log(
+      "DEBUG: We found a matching building:",
+      foundBuilding.properties.BuildingName
+    );
+    return true;
+  } else {
+    console.log(
+      "DEBUG: No matching building found for:",
+      normalizedDestination
+    );
+    return false;
+  }
 };
 
 interface LiveInformationProps {
@@ -32,7 +76,7 @@ interface LiveInformationProps {
   isZoomedIn: boolean;
   destination: string;
   destinationCoords: string;
-  onIndoorMapPress: () => void; // Add callback for indoor map button
+  onIndoorMapPress: () => void;
 }
 
 export function LiveInformation({
@@ -44,18 +88,39 @@ export function LiveInformation({
   destinationCoords,
   onIndoorMapPress,
 }: LiveInformationProps) {
+  console.log("DEBUG: LiveInformation Props -> destination:", destination);
+
   const estimates = routes;
+  console.log("DEBUG: routes (estimates) array:", estimates);
+
   const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
+  console.log("DEBUG: bestEstimate:", bestEstimate);
+
   const stopNavigation = () => {
+    console.log("DEBUG: stopNavigation called");
     onStop();
-    if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+    if (onZoomOut && isZoomedIn) {
+      console.log(
+        "DEBUG: onZoomOut invoked with coords:",
+        destinationCoords,
+        "destination:",
+        destination
+      );
+      onZoomOut(destinationCoords, destination);
+    }
   };
 
   // Determine if we should show the indoor map button
-  const showIndoorMapButton = useMemo(
-    () => isDestinationBuilding(destination),
-    [destination]
-  );
+  const showIndoorMapButton = useMemo(() => {
+    console.log(
+      "DEBUG: useMemo showIndoorMapButton -> checking isDestinationBuilding"
+    );
+    const result = isDestinationBuilding(destination);
+    console.log("DEBUG: showIndoorMapButton result:", result);
+    return result;
+  }, [destination]);
+
+  console.log("DEBUG: showIndoorMapButton:", showIndoorMapButton);
 
   return (
     <>
@@ -64,30 +129,39 @@ export function LiveInformation({
           <View style={styles.etaContainer}>
             <Text style={styles.routeHeading}>ETA</Text>
             <Text style={styles.destinationTime}>
-              {getUpdatedTime(bestEstimate.duration)}
+              {bestEstimate ? getUpdatedTime(bestEstimate.duration) : "--:--"}
             </Text>
           </View>
           <View style={styles.travelInformation}>
             <View style={styles.travelText}>
-              <Text style={styles.time}>{bestEstimate.duration}</Text>
-              <Text style={styles.distance}>{bestEstimate.distance}</Text>
+              <Text style={styles.time}>
+                {bestEstimate ? bestEstimate.duration : "No duration"}
+              </Text>
+              <Text style={styles.distance}>
+                {bestEstimate ? bestEstimate.distance : "No distance"}
+              </Text>
             </View>
+          </View>
+
+          {/* Bottom Buttons Container */}
+          <View style={styles.buttonsContainer}>
             <TouchableOpacity
-              style={styles.startButton}
+              style={styles.stopButton}
               onPress={stopNavigation}
             >
               <Text style={styles.stop}>Stop</Text>
             </TouchableOpacity>
-          </View>
 
-          {/* Indoor Map Button - only show if destination is in building list */}
-          {showIndoorMapButton && (
-            <View style={[styles.button, styles.indoorMapButton]}>
-              <Pressable onPress={onIndoorMapPress} testID="indoorMapButton">
+            {showIndoorMapButton && (
+              <TouchableOpacity
+                style={styles.indoorMapButton}
+                onPress={onIndoorMapPress}
+                testID="indoorMapButton"
+              >
                 <Text style={styles.buttonText}>View Indoor Map</Text>
-              </Pressable>
-            </View>
-          )}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
     </>
@@ -129,7 +203,7 @@ const styles = StyleSheet.create({
   },
   destinationInformation: {
     paddingLeft: 20,
-    width: "80%",
+    width: "90%",
   },
   travelInformation: {
     flexDirection: "row",
@@ -146,17 +220,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "white",
   },
-  startButton: {
-    position: "absolute",
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    width: "100%",
+  },
+  stopButton: {
     backgroundColor: "red",
     borderRadius: 20,
-    height: 60,
+    height: 50,
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 230,
-    width: "40%",
     justifyContent: "center",
-    marginTop: 100,
+    width: "45%",
+  },
+  indoorMapButton: {
+    backgroundColor: "#800000",
+    borderRadius: 20,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "50%",
   },
   navigationIcon: {
     paddingLeft: 10,
@@ -175,19 +261,6 @@ const styles = StyleSheet.create({
   },
   travelText: {
     marginTop: 10,
-  },
-  // New styles for the indoor map button
-  button: {
-    padding: 12,
-    borderRadius: 20,
-    marginTop: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-  indoorMapButton: {
-    backgroundColor: "#800000",
-    marginTop: 80,
   },
   buttonText: {
     color: "white",
