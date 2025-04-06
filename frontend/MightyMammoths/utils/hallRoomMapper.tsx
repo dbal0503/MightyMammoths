@@ -1,4 +1,4 @@
-const { rooms } = require("./rooms.json");
+import data from "./hallRoomMapping.json";
 
 interface Room {
   roomNumber: string;
@@ -11,7 +11,7 @@ interface RoomsData {
 }
 
 const roomsData: RoomsData = {
-  rooms: rooms,
+  rooms: data.rooms,
 };
 
 /**

@@ -1,12 +1,35 @@
-import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
-import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
-import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  StyleSheet,
+  View,
+  Keyboard,
+  Modal,
+  AppState,
+  Linking,
+  Platform,
+  Alert,
+} from "react-native";
+import {
+  GestureHandlerRootView,
+  Pressable,
+} from "react-native-gesture-handler";
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
   BuildingData,
 } from "@/components/ui/input/AutoCompleteDropdown";
-import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
+import MapView, {
+  Marker,
+  Polyline,
+  LatLng,
+  BoundingBox,
+} from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
   GeoJsonFeature,
@@ -21,9 +44,8 @@ import {
   PlaceDetails,
 } from "@/services/searchService";
 import { Image } from "react-native";
-import { useFirstLaunch } from '../../hooks/useFirstLaunch'
+import { useFirstLaunch } from "../../hooks/useFirstLaunch";
 import TutorialHowTo from "@/components/TutorialHowTo";
-
 
 // Context providers
 import { NavigationProvider } from "@/components/NavigationProvider";
@@ -72,11 +94,15 @@ export default function HomeScreen() {
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]); //stores google api search suggestion data
+  const [searchSuggestions, setSearchSuggestions] = useState<
+    SuggestionResult[]
+  >([]); //stores google api search suggestion data
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
-  const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
-  const [destination, setDestination] = useState<string>("")
+  const [currentPlace, setCurrentPlace] = useState<PlaceDetails | undefined>(
+    undefined
+  );
+  const [destination, setDestination] = useState<string>("");
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
@@ -117,8 +143,6 @@ export default function HomeScreen() {
   const [boundaries, setBoundaries] = useState<BoundingBox>();
   const [showCafes, setShowCafes] = useState(false);
   const [showRestaurants, setShowRestaurants] = useState(false);
- 
-
 
   const ChangeLocation = (area: string) => {
     let newRegion;
@@ -198,15 +222,18 @@ export default function HomeScreen() {
   };
 
   const recenterToPolyline = (latitude: number, longitude: number) => {
-    if (mapRef?.current !== null){
-      mapRef.current.animateToRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.003,
-        longitudeDelta: 0.003,
-      },1000);
+    if (mapRef?.current !== null) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
+        },
+        1000
+      );
     }
-  }
+  };
   const fetchBoundaries = async () => {
     if (mapRef.current) {
       try {
@@ -226,8 +253,6 @@ export default function HomeScreen() {
       }
     }
   };
-  
-
 
   useEffect(() => {
     if (latitudeStepByStep !== 0 && longitudeStepByStep !== 0) {
@@ -236,27 +261,33 @@ export default function HomeScreen() {
   }, [latitudeStepByStep, longitudeStepByStep]);
 
   useEffect(() => {
-    const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
-      discriminator: "building",
-      placePrediction: {
-        place: building.buildingName,
-        placeId: building.placeID,
-        text: {
-          text: building.buildingName,
-          matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
-        },
-        structuredFormat: {
-          mainText: {
+    const buildingResults: SuggestionResult[] = buildingList.map(
+      (building) => ({
+        discriminator: "building",
+        placePrediction: {
+          place: building.buildingName,
+          placeId: building.placeID,
+          text: {
             text: building.buildingName,
-            matches: [{ startOffset: 0, endOffset: building.buildingName.length }]
+            matches: [
+              { startOffset: 0, endOffset: building.buildingName.length },
+            ],
           },
-          secondaryText: {
-            text: ""
-          }
+          structuredFormat: {
+            mainText: {
+              text: building.buildingName,
+              matches: [
+                { startOffset: 0, endOffset: building.buildingName.length },
+              ],
+            },
+            secondaryText: {
+              text: "",
+            },
+          },
+          types: ["building"],
         },
-        types: ["building"]
-      }
-    }));
+      })
+    );
     setSearchSuggestions(buildingResults);
   }, []);
 
@@ -357,63 +388,61 @@ export default function HomeScreen() {
     };
   }, []);
 
-
-const handleNearbyPlacePress = async(place: SuggestionResult) => {
-  try {
-    if (!place.location || !place.placePrediction) {
-      console.log('Index.tsx: nearby place has no location data');
-      return;
-    }
-
-    const placeExists = searchSuggestions.some(
-      (suggestion) => suggestion.placePrediction.placeId === place.placePrediction.placeId
-    );
-
-    if (!placeExists) {
-      setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
-    }
-
-    //Region for the place
-    const placeRegion: Region = {
-      latitude: place.location.latitude,
-      longitude: place.location.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005
-    };
-
-    setSearchMarkerLocation(placeRegion);
-    setRegion(placeRegion);
-    setSearchMarkerVisible(true);
-    //setDestination(place.placePrediction.structuredFormat.mainText.text);
-
-    // Fetching the place details
-    if (place.placePrediction.placeId) {
-      const details = await getPlaceDetails(place.placePrediction.placeId);
-      if (details) {
-        setCurrentPlace(details);
-        //setDestination(place.placePrediction.placeId);
-        setDestination(place.placePrediction.structuredFormat.mainText.text);
+  const handleNearbyPlacePress = async (place: SuggestionResult) => {
+    try {
+      if (!place.location || !place.placePrediction) {
+        console.log("Index.tsx: nearby place has no location data");
+        return;
       }
-    }
 
-    
+      const placeExists = searchSuggestions.some(
+        (suggestion) =>
+          suggestion.placePrediction.placeId === place.placePrediction.placeId
+      );
 
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(placeRegion, 1000);
-    }
+      if (!placeExists) {
+        setSearchSuggestions((prevSuggestions) => [...prevSuggestions, place]);
+      }
 
-    campusToggleSheet.current?.hide();
-    buildingInfoSheet.current?.hide();
-    
-    if (placeInfoSheet.current) {
-      placeInfoSheet.current.show();
-    } else {
-      console.log('Index.tsx: place info sheet ref is not defined');
+      //Region for the place
+      const placeRegion: Region = {
+        latitude: place.location.latitude,
+        longitude: place.location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      };
+
+      setSearchMarkerLocation(placeRegion);
+      setRegion(placeRegion);
+      setSearchMarkerVisible(true);
+      //setDestination(place.placePrediction.structuredFormat.mainText.text);
+
+      // Fetching the place details
+      if (place.placePrediction.placeId) {
+        const details = await getPlaceDetails(place.placePrediction.placeId);
+        if (details) {
+          setCurrentPlace(details);
+          //setDestination(place.placePrediction.placeId);
+          setDestination(place.placePrediction.structuredFormat.mainText.text);
+        }
+      }
+
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(placeRegion, 1000);
+      }
+
+      campusToggleSheet.current?.hide();
+      buildingInfoSheet.current?.hide();
+
+      if (placeInfoSheet.current) {
+        placeInfoSheet.current.show();
+      } else {
+        console.log("Index.tsx: place info sheet ref is not defined");
+      }
+    } catch (error) {
+      console.log(`Index.tsx: Error handling nearby place: ${error}`);
     }
-  } catch (error) {
-    console.log(`Index.tsx: Error handling nearby place: ${error}`);
-  }
-};
+  };
 
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
@@ -424,7 +453,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   };
-
 
   const zoomIn = async (
     originCoordsPlaceID: string,
@@ -557,7 +585,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     const updateLocation = async () => {
       const { status } = await Location.getForegroundPermissionsAsync();
       const granted = status === "granted";
-      
+
       // Only update the state if the permission status has changed
       if (locationServicesEnabled !== granted) {
         setLocationServicesEnabled(granted);
@@ -566,14 +594,13 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       if (!granted || !isZoomedIn) {
         return;
       }
-      
+
       // Only update location when necessary
       if (routePolylineRef.current && routePolylineRef.current.length > 0) {
         if (isOriginYourLocation) {
           CenterOnLocation();
-         
         }
-      }else if (mapRef.current){
+      } else if (mapRef.current) {
         mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
     };
@@ -616,11 +643,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     <>
       <GestureHandlerRootView style={styles.container}>
         {/* HOW TO guide */}
-        {isFirstLaunch && showTutorialHowTo &&
-          <TutorialHowTo 
-            onClose={()=>setShowTutorialHowTo(false)}
-          />
-        }
+        {isFirstLaunch && showTutorialHowTo && (
+          <TutorialHowTo onClose={() => setShowTutorialHowTo(false)} />
+        )}
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -640,15 +665,15 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           )}
 
           {searchMarkerVisible && <Marker coordinate={searchMarkerLocation} />}
-          
+
           {/* Use React.memo to optimize building mapping render */}
           <BuildingMapping
             geoJsonData={campusBuildingCoords}
             onMarkerPress={centerAndShowBuilding}
             nearbyPlaces={nearbyPlaces}
             onNearbyPlacePress={handleNearbyPlacePress}
-            showCafes={showCafes} 
-            showRestaurants={showRestaurants} 
+            showCafes={showCafes}
+            showRestaurants={showRestaurants}
           />
 
           {routePolyline.length > 0 && (
@@ -661,29 +686,37 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         </MapView>
 
         {/* Optimize rendering of top elements */}
-        {useMemo(() => (
-          <View style={styles.topElements}>
-            {!navigationMode && (
-              <View style={[styles.dropdownWrapper, isKeyboardVisible && styles.dropdownWrapperKeyboardOpen]}>
-                <AutoCompleteDropdown
-                  testID="searchBarHomeSheet"
-                  locked={false}
-                  searchSuggestions={searchSuggestions}
-                  setSearchSuggestions={setSearchSuggestions}
-                  buildingData={buildingList}
-                  onSelect={(selected) => handleSearch(selected)}
-                  onNearbyResults={(results) => setNearbyPlaces(results)}
-                  showNearbyButtons={true}
-                  boundaries = {boundaries}
-                  showCafes={showCafes} 
-                  showRestaurants={showRestaurants} 
-                  setShowCafes={setShowCafes}
-                  setShowRestaurants={setShowRestaurants}
-              />
-              </View>
-            )}
-          </View>
-        ), [navigationMode, isKeyboardVisible, searchSuggestions, buildingList])}
+        {useMemo(
+          () => (
+            <View style={styles.topElements}>
+              {!navigationMode && (
+                <View
+                  style={[
+                    styles.dropdownWrapper,
+                    isKeyboardVisible && styles.dropdownWrapperKeyboardOpen,
+                  ]}
+                >
+                  <AutoCompleteDropdown
+                    testID="searchBarHomeSheet"
+                    locked={false}
+                    searchSuggestions={searchSuggestions}
+                    setSearchSuggestions={setSearchSuggestions}
+                    buildingData={buildingList}
+                    onSelect={(selected) => handleSearch(selected)}
+                    onNearbyResults={(results) => setNearbyPlaces(results)}
+                    showNearbyButtons={true}
+                    boundaries={boundaries}
+                    showCafes={showCafes}
+                    showRestaurants={showRestaurants}
+                    setShowCafes={setShowCafes}
+                    setShowRestaurants={setShowRestaurants}
+                  />
+                </View>
+              )}
+            </View>
+          ),
+          [navigationMode, isKeyboardVisible, searchSuggestions, buildingList]
+        )}
 
         {/* LOCATION BUTTON */}
         <View style={styles.bottomElements}>
@@ -744,11 +777,11 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           <NavigationSheet
             setNavigationMode={setNavigationMode}
             actionsheetref={navigationSheet}
+            navigateIndoor={switchToIndoor}
             closeChooseDest={setChooseDestVisible}
             onPolylineUpdate={(poly) => {
-                setRoutePolyline(poly)
-              }
-            }
+              setRoutePolyline(poly);
+            }}
             onExtraClose={() => {
               campusToggleSheet.current?.show();
             }}
@@ -782,7 +815,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     ...Platform.select({
       ios: {
-        position: 'relative',
+        position: "relative",
       },
       android: {
         // Android-specific adjustments
@@ -798,7 +831,7 @@ const styles = StyleSheet.create({
   dropdownWrapper: {
     top: "-29%",
     height: "10%",
-    backfaceVisibility: 'hidden',
+    backfaceVisibility: "hidden",
   },
   dropdownWrapperKeyboardOpen: {
     top: "-10%",
@@ -814,7 +847,7 @@ const styles = StyleSheet.create({
     width: "100%",
     bottom: "22%",
     paddingRight: 20,
-    backfaceVisibility: 'hidden',
+    backfaceVisibility: "hidden",
   },
   topElements: {
     top: 0,
@@ -826,7 +859,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "10%",
-    backfaceVisibility: 'hidden',
+    backfaceVisibility: "hidden",
   },
   centeredView: {
     marginTop: "10%",
