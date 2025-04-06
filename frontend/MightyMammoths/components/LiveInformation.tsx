@@ -17,7 +17,7 @@ interface LiveInformationProps {
     destination: string;
     destinationCoords: string;
     roomNumber?: string | null;
-    onViewBuildingInfo?: () => void;
+    onViewBuildingInfo?: (isLoyolaCampus: boolean) => void;
 }
 
 export function LiveInformation({
@@ -64,11 +64,43 @@ export function LiveInformation({
       
       return false;
     })();
+
+    // Determine if building is on Loyola campus
+    const isLoyolaCampusBuilding = (() => {
+      try {
+        // Import building coordinates data to access campus property
+        const campusBuildingCoords = require('../assets/buildings/coordinates/campusbuildingcoords.json');
+        
+        // Look up building by name or code
+        const buildingInfo = campusBuildingCoords.features.find(
+          (feature: any) => {
+            const buildingName = feature.properties.BuildingName || '';
+            const buildingCode = feature.properties.Building || '';
+            
+            return destination.includes(buildingName) || 
+                   destination.trim().toUpperCase() === buildingCode.trim().toUpperCase() ||
+                   // Class code format
+                   destination.match(new RegExp(`\\b[A-Z]+\\s+\\d+\\s+${buildingCode}\\b`, 'i'));
+          }
+        );
+        
+        if (buildingInfo && buildingInfo.properties.Campus === 'LOY') {
+          console.log('[LiveInformation] Detected Loyola campus building:', buildingInfo.properties.BuildingName);
+          return true;
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('[LiveInformation] Error detecting campus:', error);
+        return false;
+      }
+    })();
     
     console.log('[LiveInformation] destination:', destination);
     console.log('[LiveInformation] roomNumber:', roomNumber);
     console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
     console.log('[LiveInformation] isConcordiaBuilding:', isConcordiaBuilding);
+    console.log('[LiveInformation] isLoyolaCampusBuilding:', isLoyolaCampusBuilding);
 
     return (
     <>
@@ -117,11 +149,11 @@ export function LiveInformation({
                                     console.log('[LiveInformation] Using specific room number:', hasRoomNumber ? roomNumber : 'No room number available');
                                     // First execute the callback to show the room prompt
                                     if (onViewBuildingInfo) {
-                                        onViewBuildingInfo();
+                                        onViewBuildingInfo(isLoyolaCampusBuilding);
                                     }
                                 }}
                             >
-                                <Text style={styles.buttonText}>{hasRoomNumber ? `View Room ${roomNumber}` : 'View Indoor'}</Text>
+                                <Text style={styles.buttonText}>{hasRoomNumber ? `View Room ${roomNumber}` : (isLoyolaCampusBuilding ? 'View VE Map' : 'View Indoor')}</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity 
@@ -252,8 +284,6 @@ const styles = StyleSheet.create({
         marginTop:10
     },
     roomNumberButton: {
-        backgroundColor: '#007f5f',
-        borderWidth: 2,
-        borderColor: '#fff',
+        backgroundColor: '#1e88e5',
     },
 });

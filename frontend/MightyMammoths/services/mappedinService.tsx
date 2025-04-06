@@ -25,6 +25,9 @@ let mapDataCache: Record<string, MappedinData> = {};
 // Building IDs mapping
 const BUILDING_MAP_IDS: Record<string, string> = {
   "Hall Building": "677d8a736e2f5c000b8f3fa6",
+  "H Building": "677d8a736e2f5c000b8f3fa6", // Alias for Hall Building
+  "Vanier Extension": "67f019943060f8000b749624",
+  "VE Building": "67f019943060f8000b749624", // Loyola Campus Map ID
   // Add other buildings here
 };
 

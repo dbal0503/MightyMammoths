@@ -23,6 +23,7 @@ interface IndoorMapModalProps {
   roomId?: string | null;
   floorId?: string | null;
   userLocation?: { latitude: number; longitude: number } | null;
+  buildingName?: string | null;
 }
 
 const IndoorMapModal = ({
@@ -33,6 +34,7 @@ const IndoorMapModal = ({
   roomId: propRoomId,
   floorId: propFloorId,
   userLocation,
+  buildingName: propBuildingName,
 }: IndoorMapModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -44,7 +46,7 @@ const IndoorMapModal = ({
   const { state } = useNavigationProvider();
   const { selectedRoomId } = state;
   
-  const buildingName = building?.properties?.BuildingName || "Hall Building";
+  const buildingName = propBuildingName || building?.properties?.BuildingName || "Hall Building";
 
   // Reset state when modal shows/hides
   useEffect(() => {
@@ -144,8 +146,11 @@ const IndoorMapModal = ({
         return;
       }
       
-      // Fallback to old method if we don't have floor information
-      const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Fallback to Hall Building ID
+      // Determine which building to use - prefer the buildingName prop if provided
+      const effectiveBuildingName = propBuildingName || buildingName;
+      
+      // Get map ID for the effective building name
+      const mapId = getMapId(effectiveBuildingName) || "677d8a736e2f5c000b8f3fa6"; // Fallback to Hall Building ID
       
       // Base URL without directions
       let url = `https://app.mappedin.com/map/${mapId}`;
@@ -222,7 +227,7 @@ const IndoorMapModal = ({
           ) : (
             <MappedinView
               key={`mappedin-view-${retryKey}`}
-              buildingName={buildingName}
+              buildingName={propBuildingName || buildingName}
               roomId={roomId || undefined}
               entranceId={entranceId || undefined}
               floorId={floorId || undefined}

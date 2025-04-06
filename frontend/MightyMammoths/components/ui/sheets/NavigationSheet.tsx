@@ -9,6 +9,11 @@ import * as polyline from "@mapbox/polyline";
 import { LatLng } from "react-native-maps";
 import HallBuildingRoomPrompt from "../../ui/HallBuildingRoomPrompt";
 
+// Define campus types at the top level
+type CampusType = string;
+const SGW_CAMPUS: CampusType = 'SGW';
+const LOY_CAMPUS: CampusType = 'LOY';
+
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
     closeChooseDest: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,7 +26,7 @@ export type NavigationSheetProps = ActionSheetProps & {
     onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
     isZoomedIn: boolean;
     userLocation: {latitude: number, longitude: number};
-    onShowIndoorMap?: (roomData?: {roomId: string, floorId: string, roomNumber: string}) => void;
+    onShowIndoorMap?: (roomData?: {roomId: string, floorId: string, roomNumber: string, building?: string}) => void;
 }
 
 function NavigationSheet({
@@ -254,15 +259,22 @@ function NavigationSheet({
                       destination={destination}
                       destinationCoords={destinationCoords}
                       roomNumber={state.selectedRoomId || state.destinationRoom}
-                      onViewBuildingInfo={() => {
+                      onViewBuildingInfo={(isLoyola) => {
                         console.log('View Indoor button clicked - showing room prompt');
                         console.log('Current destination:', destination);
                         console.log('Current roomNumber:', state.selectedRoomId || state.destinationRoom);
+                        console.log('Is Loyola building (from LiveInformation):', isLoyola);
                         
                         const existingRoomNumber = state.selectedRoomId || state.destinationRoom;
                         
+                        // Use the isLoyola prop passed from LiveInformation
+                        const campusToShow = isLoyola ? LOY_CAMPUS : SGW_CAMPUS;
+                        const buildingToShow = isLoyola ? 'Vanier Extension' : 'H Building';
+                        
+                        console.log(`Using ${buildingToShow} for ${campusToShow} campus`);
+                        
                         // If we already have a room number from Google Calendar, don't show the prompt
-                        if (existingRoomNumber) {
+                        if (existingRoomNumber && campusToShow === SGW_CAMPUS) { // Only use room numbers for SGW campus (Hall Building)
                           console.log('Using existing room number from Google Calendar:', existingRoomNumber);
                           
                           // Explicitly hide the sheet to prevent UI conflicts
@@ -280,7 +292,30 @@ function NavigationSheet({
                                 onShowIndoorMap({
                                   roomId: roomInfo.encodedId, 
                                   floorId: roomInfo.floor, 
-                                  roomNumber: roomInfo.roomNumber
+                                  roomNumber: roomInfo.roomNumber,
+                                  building: buildingToShow // Pass the building name
+                                });
+                              }, 300);
+                              
+                              // Stop navigation if needed
+                              setNavigationIsStarted(false);
+                              actionsheetref.current?.hide();
+                              setPoly("");
+                              setStartedSelectedRoute(false);
+                              setIsOriginYourLocation(false);
+                              setRoutesValid(false);
+                              setIsBackgroundInteractionEnabled(false);
+                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                            }
+                          } else if (campusToShow === LOY_CAMPUS) {
+                            // For Loyola campus, just show the map without a specific room
+                            if (onShowIndoorMap) {
+                              setTimeout(() => {
+                                onShowIndoorMap({
+                                  roomId: '', 
+                                  floorId: '',
+                                  roomNumber: '',
+                                  building: buildingToShow // Use the detected building
                                 });
                               }, 300);
                               
@@ -302,8 +337,34 @@ function NavigationSheet({
                               setShowRoomPrompt(true);
                             }, 100);
                           }
+                        } else if (campusToShow === LOY_CAMPUS) {
+                          // For Loyola campus, just show the map without a room prompt
+                          console.log('Showing Loyola campus map');
+                          
+                          actionsheetref.current?.snapToIndex(0);
+                          
+                          if (onShowIndoorMap) {
+                            setTimeout(() => {
+                              onShowIndoorMap({
+                                roomId: '', 
+                                floorId: '',
+                                roomNumber: '',
+                                building: buildingToShow // Use the detected building
+                              });
+                            }, 300);
+                            
+                            // Stop navigation if needed
+                            setNavigationIsStarted(false);
+                            actionsheetref.current?.hide();
+                            setPoly("");
+                            setStartedSelectedRoute(false);
+                            setIsOriginYourLocation(false);
+                            setRoutesValid(false);
+                            setIsBackgroundInteractionEnabled(false);
+                            if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                          }
                         } else {
-                          // No room number exists, show the prompt as usual
+                          // For SGW campus, show the Hall Building room prompt
                           actionsheetref.current?.snapToIndex(0);
                           setTimeout(() => {
                             setShowRoomPrompt(true);

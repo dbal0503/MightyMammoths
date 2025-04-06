@@ -7,8 +7,9 @@ export type BuildingInfoSheetProps = ActionSheetProps & {
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
   building: GeoJsonFeature;
   navigate: () => void;
-    navigateIndoor: () => void;
+  navigateIndoor: () => void;
   onClose: () => void; 
+  onViewIndoorMap?: (buildingData: {roomId: string, floorId: string, roomNumber: string, building: string}) => void;
 }
 
 
@@ -26,7 +27,35 @@ function BuildingInfoSheet({
     navigate,
     navigateIndoor,
     onClose,
+    onViewIndoorMap,
 }: BuildingInfoSheetProps) {
+    const handleViewIndoorMap = () => {
+      if (onViewIndoorMap) {
+        const campus = building?.properties.Campus || 'SGW';
+        console.log(`Building campus determined as: ${campus}`);
+        
+        if (campus === 'LOY') {
+          console.log('Using Vanier Extension map for Loyola campus building:', building?.properties.BuildingName);
+          onViewIndoorMap({
+            roomId: '',
+            floorId: '',
+            roomNumber: '',
+            building: 'VE Building'
+          });
+        } else {
+          console.log('Using Hall Building map for SGW campus building:', building?.properties.BuildingName);
+          onViewIndoorMap({
+            roomId: '',
+            floorId: '',
+            roomNumber: '',
+            building: 'H Building'
+          });
+        }
+      } else {
+        navigateIndoor();
+      }
+    };
+    
     return (
       <ActionSheet
         ref={actionsheetref}
@@ -55,7 +84,7 @@ function BuildingInfoSheet({
             <View style={
                 [styles.button, styles.indoorMapButton]
                 }>
-            <Pressable onPress={navigateIndoor} testID='indoorMapButton'>
+            <Pressable onPress={handleViewIndoorMap} testID='indoorMapButton'>
                 <Text style={styles.buttonText}>View Indoor Map</Text>
                 </Pressable>
             </View>  

@@ -32,6 +32,8 @@ const MappedinView: React.FC<MappedinViewProps> = ({
     // Default to Hall Building if not specified
     const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
     
+    console.log(`Loading indoor map for building: ${buildingName}, Map ID: ${mapId}`);
+    
     // Base URL for the map
     let url = `https://app.mappedin.com/map/${mapId}`;
     

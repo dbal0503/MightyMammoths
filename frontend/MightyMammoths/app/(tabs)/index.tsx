@@ -4,8 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
-  
-} from "@/components/ui/input/AutoCompleteDropdown";
+} from "../../components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
@@ -40,7 +39,7 @@ import PlaceInfoSheet from "../../components/ui/sheets/PlaceInfoSheet";
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "../../components/ui/sheets/NavigationSheet";
 import IndoorMapModal from "../../components/ui/IndoorMapModal";
-import { buildingList } from "@/utils/getBuildingList";
+import { buildingList } from "../../utils/getBuildingList";
 
 export default function HomeScreen() {
   interface Region {
@@ -785,42 +784,84 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     };
   }, [isOriginYourLocation, isZoomedIn, destinationRoom, selectedBuilding]); // Added destinationRoom and selectedBuilding to dependencies
 
+  // Global temporary storage for room selection
+  const roomSelectionData = useRef<{
+    roomId: string | null;
+    floorId: string | null;
+    roomNumber: string | null;
+    buildingName?: string | undefined;
+  }>({
+    roomId: null,
+    floorId: null,
+    roomNumber: null
+  });
+
   // This function is specifically for handling the transition from room prompt to indoor map
-  const showIndoorMapWithRoom = (roomId: string, floorId: string, roomNumber: string) => {
-    // Set all required state variables
-    setDestinationRoom(roomNumber);
-    setSelectedRoomId(roomId);
-    setSelectedFloorId(floorId);
+  const showIndoorMapWithRoom = (roomData?: {roomId: string, floorId: string, roomNumber: string, building?: string}) => {
+    if (!roomData) return;
     
-    // If no building is selected, set the Hall Building as default
-    if (!selectedBuilding) {
-      const hallBuilding = campusBuildingCoords.features.find(
-        feature => feature.properties.BuildingName === "Hall Building"
-      );
-      if (hallBuilding) {
-        setSelectedBuilding(hallBuilding);
+    console.log('showIndoorMapWithRoom called with building:', roomData.building);
+    
+    // Set all required state variables
+    setDestinationRoom(roomData.roomNumber);
+    setSelectedRoomId(roomData.roomId);
+    setSelectedFloorId(roomData.floorId);
+    
+    // If custom building is specified, use that for Loyola campus
+    let targetBuilding = selectedBuilding;
+    
+    if (roomData.building === 'Vanier Extension' || roomData.building === 'VE Building') {
+      console.log('Using Vanier Extension indoor map for Loyola campus');
+      // Use a default Loyola building structure with Vanier Extension as the name
+      const loyolaBuilding = {
+        type: "Feature",
+        properties: { 
+          BuildingName: "Vanier Extension",
+          Campus: "LOY",
+          Building: "VE",
+          "Building Long Name": "Vanier Extension",
+          Address: "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+          PlaceID: "ChIJpSgs9DEXyUwRDj_oJAj-X64",
+          Latitude: 45.458204,
+          Longitude: -73.6403
+        },
+        geometry: { type: "Point", coordinates: [-73.6403, 45.458204] }
+      };
+      targetBuilding = loyolaBuilding as any;
+    } else if (roomData.building === 'H Building' || roomData.building === 'Hall Building') {
+      console.log('Using Hall Building indoor map for SGW campus');
+      // If specified as Hall Building but no building selected, create a Hall Building structure
+      if (!targetBuilding) {
+        const hallBuilding = campusBuildingCoords.features.find(
+          feature => feature.properties.BuildingName === "Hall Building"
+        );
+        if (hallBuilding) {
+          targetBuilding = hallBuilding;
+        }
       }
+    }
+    
+    // Update the selected building
+    if (targetBuilding) {
+      setSelectedBuilding(targetBuilding);
     }
     
     // Hide any open sheets
     navigationSheet.current?.hide();
     campusToggleSheet.current?.hide();
     buildingInfoSheet.current?.hide();
-    
+
     // Show the indoor map modal
     setIndoorMapVisible(true);
-  };
 
-  // Global temporary storage for room selection
-  const roomSelectionData = useRef<{
-    roomId: string | null;
-    floorId: string | null;
-    roomNumber: string | null;
-  }>({
-    roomId: null,
-    floorId: null,
-    roomNumber: null
-  });
+    // Store the building name for the IndoorMapModal
+    roomSelectionData.current = {
+      roomId: roomData.roomId,
+      floorId: roomData.floorId,
+      roomNumber: roomData.roomNumber,
+      buildingName: roomData.building
+    };
+  };
 
   // Force show the indoor map - call this directly to avoid using context
   const forceShowIndoorMap = () => {
@@ -957,6 +998,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             onClose={() => {
               campusToggleSheet.current?.show();
             }}
+            onViewIndoorMap={showIndoorMapWithRoom}
           />
         )}
 
@@ -1001,7 +1043,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
                 roomSelectionData.current = {
                   roomId: roomData.roomId,
                   floorId: roomData.floorId,
-                  roomNumber: roomData.roomNumber
+                  roomNumber: roomData.roomNumber,
+                  buildingName: roomData.building
                 };
               }
               
@@ -1021,7 +1064,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             onClose={() => setShowHallBuildingPrompt(false)}
             onSelectRoom={(roomId, floorId, roomNumber) => {
               // Use the new function to show the indoor map with proper parameters
-              showIndoorMapWithRoom(roomId, floorId, roomNumber);
+              showIndoorMapWithRoom({
+                roomId, 
+                floorId, 
+                roomNumber,
+                building: "H Building" // Use H Building identifier for consistency
+              });
               
               // Hide the room prompt
               setShowHallBuildingPrompt(false);
@@ -1058,6 +1106,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             roomId={selectedRoomId || undefined}
             floorId={selectedFloorId || undefined}
             userLocation={myLocation}
+            buildingName={roomSelectionData.current?.buildingName || undefined}
           />
         </NavigationProvider>
       </GestureHandlerRootView>
