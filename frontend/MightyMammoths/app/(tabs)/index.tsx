@@ -24,8 +24,6 @@ import { checkProximityToDestination as checkDistanceWithGoogleMaps } from "../.
 import { Image } from "react-native";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
 import TutorialHowTo from "../../components/TutorialHowTo";
-import { isNearHallBuilding } from "../../services/directionsService";
-import HallBuildingRoomPrompt from "../../components/ui/HallBuildingRoomPrompt";
 
 
 // Context providers
@@ -121,6 +119,8 @@ export default function HomeScreen() {
   const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedFloorId, setSelectedFloorId] = useState<string | null>(null);
+  const [classBuilding, setClassBuilding] = useState<string | null>(null);
+  const [classRoom, setClassRoom] = useState<string | null>(null);
  
   const parseRoomNumber = (text: string): string | null => {
     const match = /(?:room\s+)?(\d+)|\b([a-z])-(\d+)\b/i.exec(text);
@@ -597,21 +597,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
-  const navigateToRoomRoutes = (destination: string) => {
-    setDestination(destination);
-    const roomNumber = parseRoomNumber(destination);
-    setDestinationRoom(roomNumber);
-    navigationSheet.current?.show();
-    placeInfoSheet.current?.hide();
-    buildingInfoSheet.current?.hide();
-    setChooseDestVisible(true);
-    setNavigationMode(true);
-  }
-
 
   function navigateToRoutes (
     params: string | { origin?: string; destination: string }
   ) {
+    console.log("Origin: ", origin);
+    console.log("Destination: ", destination);
     let finalDestination: string;
     let finalOrigin: string | undefined;
   
@@ -622,6 +613,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       finalDestination = params.destination;
       finalOrigin = params.origin;
     }
+    console.log("Final Destination: ", finalDestination);
+    console.log("Final Origin: ", finalOrigin);
   
     if (!finalDestination) return;
   
@@ -630,6 +623,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     // Store origin so NavigationSheet can access it
     if (finalOrigin) {
       setOrigin(finalOrigin);
+    } else {
+      setOrigin("Your Location");
     }
 
     navigationSheet.current?.show();
@@ -877,6 +872,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             actionsheetref={campusToggleSheet}
             setSelectedCampus={CenterOnCampus}
             navigateToRoutes={navigateToRoutes}
+            setClassBuilding={setClassBuilding}
+            setClassRoom={setClassRoom}
           />
 
         {/* BUILDING INFO */}
@@ -925,6 +922,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             setLongitudeStepByStep={setLongitudeStepByStep}
             isZoomedIn={isZoomedIn}
             userLocation={myLocation}
+            classBuilding={classBuilding}
+            classRoom={classRoom}
             onShowIndoorMap={(roomData) => {
               // Store the room data in our temporary storage
               if (roomData) {

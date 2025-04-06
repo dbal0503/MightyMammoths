@@ -36,6 +36,8 @@ export function LiveInformation({
 
     // Check if room number is specified
     const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
+    console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
+    //const hasRoomNumber = true;
     const isConcordiaBuilding = buildingList.some(building =>
         destination.toLowerCase().includes(building.buildingName.toLowerCase())
       );

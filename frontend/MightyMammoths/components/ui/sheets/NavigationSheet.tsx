@@ -8,6 +8,7 @@ import { LiveInformation } from "../../../components/LiveInformation";
 import * as polyline from "@mapbox/polyline";
 import { LatLng } from "react-native-maps";
 import HallBuildingRoomPrompt from "../../ui/HallBuildingRoomPrompt";
+import {isValidRoom, findBuildingCampus, getFloorIdbyRoomID, getRoomInfoByNumberString} from "../../../utils/hallBuildingRooms";
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
@@ -22,6 +23,8 @@ export type NavigationSheetProps = ActionSheetProps & {
     isZoomedIn: boolean;
     userLocation: {latitude: number, longitude: number};
     onShowIndoorMap?: (roomData?: {roomId: string, floorId: string, roomNumber: string}) => void;
+    classBuilding?: string | null;
+    classRoom?: string | null;
 }
 
 function NavigationSheet({
@@ -44,7 +47,9 @@ function NavigationSheet({
     onZoomOut,
     isZoomedIn,
     userLocation,
-    onShowIndoorMap
+    onShowIndoorMap,
+    classBuilding,
+    classRoom,
 }: NavigationSheetProps) {
 
     const { state, functions } = useNavigation();
@@ -246,11 +251,30 @@ function NavigationSheet({
                         console.log('View Indoor button clicked - showing room prompt');
                         // Explicitly hide the sheet to prevent UI conflicts
                         //actionsheetref.current?.snapToIndex(0); //???????????
-
+                        
                         // Then show the room prompt after a small delay
-                        setTimeout(() => {
-                          setShowRoomPrompt(true);
-                        }, 100);
+                        if (!classRoom || !isValidRoom(classRoom, findBuildingCampus(classBuilding) )) {
+                          setTimeout(() => {
+                            setShowRoomPrompt(true);
+                          }, 100);
+                        } else {
+                          setTimeout(() => {
+                            // Before we call onShowIndoorMap, we need to ensure the room data is available
+                            // The index.tsx file will handle the data through the callback
+                            let campus = findBuildingCampus(classBuilding);
+                            const roomId = getRoomInfoByNumberString(classRoom, campus);
+                            console.log("Room ID: ", roomId);
+                            const floorId = getFloorIdbyRoomID(roomId);
+                            console.log("Floor ID: ", floorId);
+                            onShowIndoorMap?.({
+                              roomId, 
+                              floorId, 
+                              roomNumber: classRoom
+                            });
+                            
+                          }, 300);
+                          setNavigationIsStarted(false);
+                        }
                       }}
                     /> 
                   )

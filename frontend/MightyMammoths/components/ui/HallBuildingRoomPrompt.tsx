@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
-import { isValidHallBuildingRoom, getRoomInfoByNumber, RoomInfo } from '../../utils/hallBuildingRooms';
+import {getRoomInfoByNumber, RoomInfo } from '../../utils/hallBuildingRooms';
 
 interface HallBuildingRoomPromptProps {
   visible: boolean;
@@ -33,7 +33,7 @@ const HallBuildingRoomPrompt: React.FC<HallBuildingRoomPromptProps> = ({
       return;
     }
     
-    const roomInfo = getRoomInfoByNumber(roomNumber);
+    const roomInfo = getRoomInfoByNumber(roomNumber, 'SGW');
     const isValid = roomInfo !== undefined;
     
     setIsRoomValid(isValid);

@@ -1,4 +1,6 @@
 import hallBuildingRooms from '../assets/hall-building-rooms.json';
+import vlBuildingRooms from '../assets/loyolaBuildingRooms.json';
+import campusBuildingInfo from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 export interface RoomInfo {
   roomNumber: string;
@@ -11,14 +13,20 @@ export interface RoomInfo {
  * @param roomNumber The room number to search for
  * @returns Room information or undefined if not found
  */
-export const getRoomInfoByNumber = (roomNumber: string): RoomInfo | undefined => {
+export const getRoomInfoByNumber = (roomNumber: string, campus:string): RoomInfo | undefined => {
   try {
     // Normalize the room number by removing "H-" prefix if present
     const normalizedRoomNumber = roomNumber.replace(/^H-/i, '');
-    
-    return hallBuildingRooms.rooms.find(
-      (room) => room.roomNumber === normalizedRoomNumber
-    );
+    if (campus === 'LOY') {
+      return vlBuildingRooms.rooms.find(
+        (room) => room.roomNumber === normalizedRoomNumber
+      );
+    }
+    if (campus === 'SGW') {
+      return hallBuildingRooms.rooms.find(
+        (room) => room.roomNumber === normalizedRoomNumber
+      );
+    }
   } catch (error) {
     console.error("Error getting room info:", error);
     return undefined;
@@ -98,6 +106,85 @@ export const getMappedinUrl = (roomId: string, floorId: string): string => {
  * @param roomNumber The room number to check
  * @returns True if the room exists, false otherwise
  */
-export const isValidHallBuildingRoom = (roomNumber: string): boolean => {
-  return getRoomInfoByNumber(roomNumber) !== undefined;
-}; 
+// export const isValidHallBuildingRoom = (roomNumber: string): boolean => {
+//   return getRoomInfoByNumber(roomNumber) !== undefined;
+// }; 
+
+export function findBuildingCampus(destination?: string | null): string {
+  if (!destination) {
+    return '';
+  }
+  const building = (campusBuildingInfo as BuildingList).features.find((feature: BuildingFeature) => {
+    return feature.properties.Building.toLowerCase() === destination.toLowerCase();
+  });
+
+  if (building) {
+    return building.properties.Campus;
+  }
+  return '';
+}
+
+export function isValidRoom(roomNumber: string, destinationCampus:string): boolean {
+  if (destinationCampus === 'LOY') {
+    return vlBuildingRooms.rooms.some((room: RoomInfo) => room.roomNumber === roomNumber);
+  } else if (destinationCampus === 'SGW') {
+    return hallBuildingRooms.rooms.some((room: RoomInfo) => room.roomNumber === roomNumber);
+  }
+  return false;
+}
+
+export interface BuildingProperties {
+  Campus: string;
+  Building: string;
+  BuildingName: string;
+  "Building Long Name": string;
+  Address: string;
+  PlaceID: string;
+  Latitude: number;
+  Longitude: number;
+}
+
+export interface BuildingFeature {
+  type: string;
+  properties: BuildingProperties;
+  geometry: {
+    type: string;
+    coordinates: number[];
+  };
+}
+
+export interface BuildingList {
+  type: string;
+  name: string;
+  features: BuildingFeature[];
+}
+
+export const getFloorIdbyRoomID = (roomId: string): string => {
+  if (hallBuildingRooms.rooms.find(room => room.encodedId === roomId) !== null) {
+    return hallBuildingRooms.rooms.find(room => room.encodedId === roomId)?.floor || '';
+  } else if (vlBuildingRooms.rooms.find(room => room.encodedId === roomId) !== null) {
+    return vlBuildingRooms.rooms.find(room => room.encodedId === roomId)?.floor || '';
+  }
+  return '';
+};
+
+export const getRoomInfoByNumberString = (roomNumber: string, campus:string): string => {
+  try {
+    // Normalize the room number by removing "H-" prefix if present
+    const normalizedRoomNumber = roomNumber.replace(/^H-/i, '');
+    if (campus === 'LOY') {
+      return vlBuildingRooms.rooms.find(
+        (room) => room.roomNumber === normalizedRoomNumber
+      )?.encodedId || '';
+    }
+    if (campus === 'SGW') {
+    
+    return hallBuildingRooms.rooms.find(
+      (room) => room.roomNumber === normalizedRoomNumber
+    )?.encodedId || '';}
+  } catch (error) {
+    console.error("Error getting room info:", error);
+    return '';
+  }
+  return '';
+};
