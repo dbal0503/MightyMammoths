@@ -49,7 +49,7 @@ function NavigationSheet({
     onZoomOut,
     isZoomedIn,
     userLocation,
-    onShowIndoorMap
+    onShowIndoorMap,
 }: NavigationSheetProps) {
     const [navigationIsStarted, setNavigationIsStarted] = useState(false);
     const { state, functions } = useNavigation();
@@ -69,28 +69,28 @@ function NavigationSheet({
     const [showRoomPrompt, setShowRoomPrompt] = useState(false);
     
     // Add debug logs to help identify the issue
-    useEffect(() => {
-      console.log("NavigationSheet - DEBUG INFO:");
-      console.log("Origin:", origin);
-      console.log("Destination:", destination);
-      console.log("Destination Room ID:", state.selectedRoomId);
-      console.log("Destination Room:", state.destinationRoom);
-      console.log("routesValid:", routesValid);
-      console.log("twoBuildingsSelected:", twoBuildingsSelected);
-      console.log("routeEstimates available modes:", Object.keys(routeEstimates));
+    // useEffect(() => {
+    //   console.log("NavigationSheet - DEBUG INFO:");
+    //   console.log("Origin:", origin);
+    //   console.log("Destination:", destination);
+    //   console.log("Destination Room ID:", state.selectedRoomId);
+    //   console.log("Destination Room:", state.destinationRoom);
+    //   console.log("routesValid:", routesValid);
+    //   console.log("twoBuildingsSelected:", twoBuildingsSelected);
+    //   console.log("routeEstimates available modes:", Object.keys(routeEstimates));
       
-      // Check for building codes in class format
-      const classCodeMatch = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i.exec(destination);
-      if (classCodeMatch) {
-        console.log("Detected class code format in destination");
-        console.log("Building code:", classCodeMatch[2]);
-      }
+    //   // Check for building codes in class format
+    //   const classCodeMatch = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i.exec(destination);
+    //   if (classCodeMatch) {
+    //     console.log("Detected class code format in destination");
+    //     console.log("Building code:", classCodeMatch[2]);
+    //   }
       
-      // Also check for single building codes
-      if (/^[A-Z]{1,3}$/i.test(destination.trim())) {
-        console.log("Destination is a building code:", destination);
-      }
-    }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates, state.selectedRoomId, state.destinationRoom]);
+    //   // Also check for single building codes
+    //   if (/^[A-Z]{1,3}$/i.test(destination.trim())) {
+    //     console.log("Destination is a building code:", destination);
+    //   }
+    // }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates, state.selectedRoomId, state.destinationRoom]);
     
     const { 
         setSelectedMode, 
@@ -282,33 +282,33 @@ function NavigationSheet({
                         console.log(`Using ${buildingToShow} for ${campusToShow} campus`);
                         
                         // For Loyola campus, always show the map without a room prompt
-                        if (isLoyola) {
-                          console.log('Showing Loyola campus map');
+                        // if (isLoyola) {
+                        //   console.log('Showing Loyola campus map');
                           
-                          actionsheetref.current?.snapToIndex(0);
+                        //   actionsheetref.current?.snapToIndex(0);
                           
-                          if (onShowIndoorMap) {
-                            setTimeout(() => {
-                              onShowIndoorMap({
-                                roomId: '', 
-                                floorId: '',
-                                roomNumber: '',
-                                building: buildingToShow
-                              });
-                            }, 300);
+                        //   if (onShowIndoorMap) {
+                        //     setTimeout(() => {
+                        //       onShowIndoorMap({
+                        //         roomId: '', 
+                        //         floorId: '',
+                        //         roomNumber: '',
+                        //         building: buildingToShow
+                        //       });
+                        //     }, 300);
                             
-                            // Stop navigation if needed
-                            setNavigationIsStarted(false);
-                            actionsheetref.current?.hide();
-                            setPoly("");
-                            setStartedSelectedRoute(false);
-                            setIsOriginYourLocation(false);
-                            setRoutesValid(false);
-                            setIsBackgroundInteractionEnabled(false);
-                            if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
-                          }
-                          return;
-                        }
+                        //     // Stop navigation if needed
+                        //     setNavigationIsStarted(false);
+                        //     actionsheetref.current?.hide();
+                        //     setPoly("");
+                        //     setStartedSelectedRoute(false);
+                        //     setIsOriginYourLocation(false);
+                        //     setRoutesValid(false);
+                        //     setIsBackgroundInteractionEnabled(false);
+                        //     if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                        //   }
+                        //   return;
+                        // }
                         
                         // For SGW campus (Hall Building)
                         if (existingRoomNumber) {
@@ -324,35 +324,35 @@ function NavigationSheet({
                           
                           // For room 907, set a fallback floor and room ID
                           // First digit indicates floor (9th floor)
-                          if (existingRoomNumber === '907') {
-                            floorId = 'm_0eb314b313d85ced'; // Using 8th floor as fallback, update with correct floor ID for 9th floor
-                            roomId = 'p_3ba9b73e5a3c4a1f'; // Placeholder, update with correct room ID if available
+                          // if (existingRoomNumber === '907') {
+                          //   floorId = 'm_0eb314b313d85ced'; // Using 8th floor as fallback, update with correct floor ID for 9th floor
+                          //   roomId = 'p_3ba9b73e5a3c4a1f'; // Placeholder, update with correct room ID if available
                             
-                            console.log('Using hardcoded IDs for room 907');
+                          //   console.log('Using hardcoded IDs for room 907');
                             
-                            // Call the parent's function to show the indoor map directly
-                            if (onShowIndoorMap) {
-                              setTimeout(() => {
-                                onShowIndoorMap({
-                                  roomId: roomId, 
-                                  floorId: floorId,
-                                  roomNumber: existingRoomNumber,
-                                  building: buildingToShow
-                                });
-                              }, 300);
+                          //   // Call the parent's function to show the indoor map directly
+                          //   if (onShowIndoorMap) {
+                          //     setTimeout(() => {
+                          //       onShowIndoorMap({
+                          //         roomId: roomId, 
+                          //         floorId: floorId,
+                          //         roomNumber: existingRoomNumber,
+                          //         building: buildingToShow
+                          //       });
+                          //     }, 300);
                               
-                              // Stop navigation if needed
-                              setNavigationIsStarted(false);
-                              actionsheetref.current?.hide();
-                              setPoly("");
-                              setStartedSelectedRoute(false);
-                              setIsOriginYourLocation(false);
-                              setRoutesValid(false);
-                              setIsBackgroundInteractionEnabled(false);
-                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
-                            }
-                            return;
-                          }
+                          //     // Stop navigation if needed
+                          //     setNavigationIsStarted(false);
+                          //     actionsheetref.current?.hide();
+                          //     setPoly("");
+                          //     setStartedSelectedRoute(false);
+                          //     setIsOriginYourLocation(false);
+                          //     setRoutesValid(false);
+                          //     setIsBackgroundInteractionEnabled(false);
+                          //     if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                          //   }
+                          //   return;
+                          // }
                           
                           // For other rooms, try to use the Hall Building room info utility
                           try {
@@ -476,14 +476,14 @@ function NavigationSheet({
                   //* Uncomment the following lines if you want it so that if the View Indoor is pressed then we stop navigation
                   //* If left commented, when the back arrow for indoor is pressed, the user will return back to the outdoor navigation
 
-                  setNavigationIsStarted(false);
-                  actionsheetref.current?.hide();
-                  setPoly("");
-                  setStartedSelectedRoute(false);
-                  setIsOriginYourLocation(false);
-                  setRoutesValid(false);
-                  setIsBackgroundInteractionEnabled(false);
-                  if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                  // setNavigationIsStarted(false);
+                  // actionsheetref.current?.hide();
+                  // setPoly("");
+                  // setStartedSelectedRoute(false);
+                  // setIsOriginYourLocation(false);
+                  // setRoutesValid(false);
+                  // setIsBackgroundInteractionEnabled(false);
+                  // if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
 
                 } else {
                   // Fallback alert if all else fails

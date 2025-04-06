@@ -1,4 +1,6 @@
 import hallBuildingRooms from '../assets/hall-building-rooms.json';
+import vlBuildingRooms from '../assets/loyolaRoomMapping.json';
+import campusBuildingInfo from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 export interface RoomInfo {
   roomNumber: string;
@@ -101,3 +103,50 @@ export const getMappedinUrl = (roomId: string, floorId: string): string => {
 export const isValidHallBuildingRoom = (roomNumber: string): boolean => {
   return getRoomInfoByNumber(roomNumber) !== undefined;
 }; 
+
+export function isValidRoom(roomNumber: string, destinationCampus:string): boolean {
+  if (destinationCampus === 'LOY') {
+    return vlBuildingRooms.rooms.some((room: RoomInfo) => room.roomNumber === roomNumber);
+  } else if (destinationCampus === 'SGW') {
+    return hallBuildingRooms.rooms.some((room: RoomInfo) => room.roomNumber === roomNumber);
+  }
+  return false;
+}
+
+export interface BuildingProperties {
+  Campus: string;
+  Building: string;
+  BuildingName: string;
+  "Building Long Name": string;
+  Address: string;
+  PlaceID: string;
+  Latitude: number;
+  Longitude: number;
+}
+
+export interface BuildingFeature {
+  type: string;
+  properties: BuildingProperties;
+  geometry: {
+    type: string;
+    coordinates: number[];
+  };
+}
+
+export interface BuildingList {
+  type: string;
+  name: string;
+  features: BuildingFeature[];
+}
+
+
+export function findBuildingCampus(destination: string): string {
+  const building = (campusBuildingInfo as BuildingList).features.find((feature: BuildingFeature) => {
+    return feature.properties.Building.toLowerCase() === destination.toLowerCase();
+  });
+
+  if (building) {
+    return building.properties.Campus;
+  }
+  return '';
+}

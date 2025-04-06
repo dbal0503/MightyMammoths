@@ -23,9 +23,6 @@ import { checkProximityToDestination as checkDistanceWithGoogleMaps } from "../.
 import { Image } from "react-native";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
 import TutorialHowTo from "../../components/TutorialHowTo";
-import { isNearHallBuilding } from "../../services/directionsService";
-import HallBuildingRoomPrompt from "../../components/ui/HallBuildingRoomPrompt";
-
 
 // Context providers
 import { NavigationProvider } from "../../components/NavigationProvider";
@@ -40,6 +37,7 @@ import PlaceInfoSheet from "../../components/ui/sheets/PlaceInfoSheet";
 import NavigationSheet from "../../components/ui/sheets/NavigationSheet";
 import IndoorMapModal from "../../components/ui/IndoorMapModal";
 import { buildingList } from "../../utils/getBuildingList";
+import {isValidRoom, findBuildingCampus} from "../../utils/hallBuildingRooms";
 
 export default function HomeScreen() {
   interface Region {
@@ -116,6 +114,7 @@ export default function HomeScreen() {
   const [showCafes, setShowCafes] = useState(false);
   const [showRestaurants, setShowRestaurants] = useState(false);
   const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
+  const [indoorCampus, setIndoorCampus] = useState<string | null>(null);
   const [isNearDestination, setIsNearDestination] = useState(false);
   const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -621,17 +620,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
-  const navigateToRoomRoutes = (destination: string) => {
-    setDestination(destination);
-    const roomNumber = parseRoomNumber(destination);
-    setDestinationRoom(roomNumber);
-    navigationSheet.current?.show();
-    placeInfoSheet.current?.hide();
-    buildingInfoSheet.current?.hide();
-    setChooseDestVisible(true);
-    setNavigationMode(true);
-  }
-
   const navigateToRoutes = (
     params: string | { origin?: string; destination: string; roomNumber?: string }
   ) => {
@@ -660,50 +648,58 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     }
     
     // Check if this is a class code with format like "SOEN 345 H"
-    const classPattern = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i;
-    const classMatch = classPattern.exec(finalDestination);
+    // const classPattern = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i;
+    // const classMatch = classPattern.exec(finalDestination);
     
-    if (classMatch) {
+    // if (classMatch) {
       // Extract the building code (e.g., "H" from "SOEN 345 H")
-      const buildingCode = classMatch[2].toUpperCase();
-      console.log(`Extracted building code "${buildingCode}" from class name "${finalDestination}"`);
+      // const buildingCode = classMatch[2].toUpperCase();
+      // console.log(`Extracted building code "${buildingCode}" from class name "${finalDestination}"`);
       
       // Find the building with this code
-      const building = campusBuildingCoords.features.find(
-        (feature) => feature.properties.Building === buildingCode
-      );
+    //   const building = campusBuildingCoords.features.find(
+    //     (feature) => feature.properties.Building === buildingCode
+    //   );
       
-      if (building) {
-        console.log(`Found building for code "${buildingCode}":`, building.properties.BuildingName);
-        finalDestination = buildingCode;
-      }
-    }
+    //   if (building) {
+    //     console.log(`Found building for code "${buildingCode}":`, building.properties.BuildingName);
+    //     finalDestination = buildingCode;
+    //   }
+    // }
   
     console.log("Setting destination to:", finalDestination);
     setDestination(finalDestination);
+
+    let destinationCampus = findBuildingCampus(finalDestination);
+    console.log("Destination campus:", destinationCampus);
+    if (destinationCampus) {
+      setIndoorCampus(destinationCampus);
+    }
     
     // Set the destination room if we have a room number
-    if (roomNumber) {
-      console.log("Setting destinationRoom to:", roomNumber);
+
+    if (roomNumber && destinationCampus && isValidRoom(roomNumber, destinationCampus)) {
+      console.log("Is valid room: ", isValidRoom(roomNumber, destinationCampus));
+      console.log("Setting destinationRoom to NEW:", roomNumber);
       setDestinationRoom(roomNumber);
       
       // Special handling for room 907 and similar
-      if (roomNumber === '907' || roomNumber === '908' || roomNumber === '909') {
-        console.log(`Special handling for room ${roomNumber} - ensuring it works without validation`);
-        // No need to validate this room, as we'll handle it specially in the NavigationSheet
-      } else {
-        // Check if this is a valid Hall Building room
-        try {
-          const { isValidHallBuildingRoom } = require('../../utils/hallBuildingRooms');
-          if (isValidHallBuildingRoom(roomNumber)) {
-            console.log(`Room number ${roomNumber} is a valid Hall Building room`);
-          } else {
-            console.log(`Room number ${roomNumber} is not recognized in Hall Building, but will still be used`);
-          }
-        } catch (error) {
-          console.error("Error checking room validity:", error);
-        }
-      }
+      // if (roomNumber === '907' || roomNumber === '908' || roomNumber === '909') {
+      //   console.log(`Special handling for room ${roomNumber} - ensuring it works without validation`);
+      //   // No need to validate this room, as we'll handle it specially in the NavigationSheet
+      // } else {
+      //   // Check if this is a valid Hall Building room
+      //   try {
+      //     const { isValidHallBuildingRoom } = require('../../utils/hallBuildingRooms');
+      //     if (isValidHallBuildingRoom(roomNumber)) {
+      //       console.log(`Room number ${roomNumber} is a valid Hall Building room`);
+      //     } else {
+      //       console.log(`Room number ${roomNumber} is not recognized in Hall Building, but will still be used`);
+      //     }
+      //   } catch (error) {
+      //     console.error("Error checking room validity:", error);
+      //   }
+      // }
     }
   
     // Store origin so NavigationSheet can access it
@@ -1076,22 +1072,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             destination={destination}
             origin={origin}
             locationServicesEnabled={locationServicesEnabled}
-          />
-          <HallBuildingRoomPrompt
-            visible={showHallBuildingPrompt}
-            onClose={() => setShowHallBuildingPrompt(false)}
-            onSelectRoom={(roomId, floorId, roomNumber) => {
-              // Use the new function to show the indoor map with proper parameters
-              showIndoorMapWithRoom({
-                roomId, 
-                floorId, 
-                roomNumber,
-                building: "H Building" // Use H Building identifier for consistency
-              });
-              
-              // Hide the room prompt
-              setShowHallBuildingPrompt(false);
-            }}
           />
           
           {/* Add IndoorMapModal inside the NavigationProvider */}
