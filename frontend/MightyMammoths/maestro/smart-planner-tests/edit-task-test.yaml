@@ -1,0 +1,35 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "task-name-input-edit-task"
+
+- tapOn:
+    id: "task-name-input-edit-task"
+  
+- inputText: "Task New 1"
+
+- tapOn:
+    point: "87%,89%"
+
+- assertVisible:
+    id: "location-dropdown-edit-task"
+
+- tapOn:
+    id: "location-dropdown-edit-task"
+
+- inputText: "BH"
+
+- tapOn:
+    point: "87%,89%"
+
+- tapOn:
+    point: "55%,46%"
+
+- assertVisible:
+    id: "time-picker-edit-task"
+
+- assertVisible:
+    id: "save-button-task"
+
+- tapOn:
+    id: "save-button-task"

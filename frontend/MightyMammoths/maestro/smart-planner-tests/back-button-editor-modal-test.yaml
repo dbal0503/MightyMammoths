@@ -1,0 +1,7 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "back-button-editor-modal"
+
+- tapOn:
+    id: "back-button-editor-modal"

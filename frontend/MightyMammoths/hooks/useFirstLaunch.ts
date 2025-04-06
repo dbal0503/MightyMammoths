@@ -10,10 +10,10 @@ export function useFirstLaunch() {
         if (!hasLaunchedBefore) {
           setIsFirstLaunch(true);
           await AsyncStorage.setItem('FIRST_LAUNCH_APP', 'true');
-          console.log("FIRST LAUNCH")
+          //console.log("FIRST LAUNCH")
         } else {
           setIsFirstLaunch(false);
-          console.log("NOT FIRST LAUNCH")
+          //console.log("NOT FIRST LAUNCH")
         }
     };
     checkIfFirstLaunch();

@@ -1,11 +1,11 @@
 import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
-import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
-import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
+import {StyleSheet, View, Keyboard, AppState, Linking, Platform, Alert} from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
-  BuildingData,
-} from "../../components/ui/input/AutoCompleteDropdown";
+  
+} from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
 import BuildingMapping, {
@@ -40,6 +40,7 @@ import PlaceInfoSheet from "../../components/ui/sheets/PlaceInfoSheet";
 // Styling the map https://mapstyle.withgoogle.com/
 import NavigationSheet from "../../components/ui/sheets/NavigationSheet";
 import IndoorMapModal from "../../components/ui/IndoorMapModal";
+import { buildingList } from "@/utils/getBuildingList";
 
 export default function HomeScreen() {
   interface Region {
@@ -75,10 +76,11 @@ export default function HomeScreen() {
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]); //stores google api search suggestion data
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
   const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
+  const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
 
@@ -93,12 +95,6 @@ export default function HomeScreen() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-  const buildingList: BuildingData[] = campusBuildingCoords.features.map(
-    ({ properties }) => ({
-      buildingName: properties.BuildingName,
-      placeID: properties.PlaceID || "",
-    })
-  );
 
   //Search Marker state
   const [searchMarkerLocation, setSearchMarkerLocation] = useState<Region>({
@@ -249,6 +245,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
+      discriminator: "building",
       placePrediction: {
         place: building.buildingName,
         placeId: building.placeID,
@@ -428,6 +425,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
 
   // TODO: have destination be set to the selected building
   const startNavigation = () => {
+    setOrigin("Your Location");
     setChooseDestVisible(true);
     setNavigationMode(true);
     
@@ -599,19 +597,47 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     routePolylineRef.current = routePolyline;
   }, [routePolyline]);
 
-  const navigateToRoutes = (destination: string) => {
+  const navigateToRoomRoutes = (destination: string) => {
     setDestination(destination);
-    
-    // Extract room number from destination if possible
     const roomNumber = parseRoomNumber(destination);
     setDestinationRoom(roomNumber);
-    
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     setChooseDestVisible(true);
     setNavigationMode(true);
-  };
+  }
+
+
+  function navigateToRoutes (
+    params: string | { origin?: string; destination: string }
+  ) {
+    let finalDestination: string;
+    let finalOrigin: string | undefined;
+  
+    if (typeof params === "string") {
+      finalDestination = params;
+      finalOrigin = undefined;
+    } else {
+      finalDestination = params.destination;
+      finalOrigin = params.origin;
+    }
+  
+    if (!finalDestination) return;
+  
+    setDestination(finalDestination);
+  
+    // Store origin so NavigationSheet can access it
+    if (finalOrigin) {
+      setOrigin(finalOrigin);
+    }
+
+    navigationSheet.current?.show();
+    placeInfoSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    setChooseDestVisible(true);
+    setNavigationMode(true);
+  }
 
   //have destination be set to the selected building
 
@@ -847,13 +873,11 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         </View>
 
         {/* SGW & LOY TOGGLE */}
-        {!isKeyboardVisible && (
           <LoyolaSGWToggleSheet
             actionsheetref={campusToggleSheet}
             setSelectedCampus={CenterOnCampus}
             navigateToRoutes={navigateToRoutes}
           />
-        )}
 
         {/* BUILDING INFO */}
         {selectedBuilding && (
@@ -879,6 +903,10 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           navigationMode={navigationMode}
+          destination={destination}
+          setDestination={setDestination}
+          origin={origin}
+          setOrigin={setOrigin}
         >
           <NavigationSheet
             setNavigationMode={setNavigationMode}
@@ -915,6 +943,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
+            origin={origin}
             locationServicesEnabled={locationServicesEnabled}
           />
           <HallBuildingRoomPrompt

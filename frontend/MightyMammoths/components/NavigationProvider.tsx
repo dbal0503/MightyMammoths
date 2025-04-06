@@ -59,20 +59,28 @@ export interface NavigationProviderProps {
   searchSuggestions: SuggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   navigationMode: boolean;
+  destination: string,
+  setDestination: React.Dispatch<React.SetStateAction<string>>
+  origin: string,
+  setOrigin: React.Dispatch<React.SetStateAction<string>>
 }
 
 const NavigationProvider = ({ 
   children, 
   searchSuggestions, 
   setSearchSuggestions,
-  navigationMode 
+  navigationMode,
+  destination,
+  setDestination,
+  origin,
+  setOrigin
 }: NavigationProviderProps) => {
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%", "60%"], []);
 
-  const [origin, setOrigin] = useState<string>("");
+  //const [origin, setOrigin] = useState<string>("");
   const [originCoords, setOriginCoords] = useState<string>("");
-  const [destination, setDestination] = useState<string>("");
+  //const [destination, setDestination] = useState<string>("");
   const [destinationCoords, setDestinationCoords] = useState<string>("");
   const [routeEstimates, setRouteEstimates] = useState<{
     [mode: string]: RouteData[];
@@ -120,12 +128,11 @@ const NavigationProvider = ({
     return [lat, long];
   }
 
-
-
   // Move the route fetching logic into the provider
   async function fetchRoutes() {
-
-    if (!origin || !destination || !navigationMode) return;
+    if (!origin || !destination || !navigationMode) {
+      return;
+    }
     setLoadingRoutes(true);
     
     // Set twoBuildingsSelected to true when both origin and destination are set
@@ -149,7 +156,7 @@ const NavigationProvider = ({
       console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
       for (const mode of transportModes) {
         const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-        console.log("Mode: ", mode, "Shortest Route: ", routeMode);
+        //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
         if (routeMode) {
           estimates[mode] = [routeMode]; 
         }

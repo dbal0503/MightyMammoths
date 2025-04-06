@@ -9,7 +9,9 @@ import SmartPlannerModal from '../SmartPlannerModal';
 export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
   setSelectedCampus: (selected: string) => void;
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
-  navigateToRoutes: (destination: string) => void;
+  navigateToRoutes: (
+    destination: string | { origin?: string; destination: string }
+  ) => void;
 };
 
 function LoyolaSGWToggleSheet({
@@ -28,16 +30,20 @@ function LoyolaSGWToggleSheet({
 }: LoyolaSGWToggleSheetProps) {
   const [isEnabled, setIsEnabled] = useState(false);
   const [smartPlannerVisible, setSmartPlannerVisible] = useState(false);
+  const [nextEvent, setNextEvent] = useState<any | null>(null);
 
   const openSmartPlanner = () => {
     actionsheetref.current?.hide();
     setTimeout(() => setSmartPlannerVisible(true), 300);
   };
-  
+
 
   const closeSmartPlanner = () => {
     setSmartPlannerVisible(false);
-    actionsheetref.current?.show();
+    // Add a delay before showing the ActionSheet again
+    setTimeout(() => {
+      actionsheetref.current?.show();
+    }, 300);
   };
 
   return (
@@ -71,6 +77,7 @@ function LoyolaSGWToggleSheet({
         <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
         <GoogleCalendarButton
           testID="google-calendar-button"
+          onNextEvent={(eventData) => setNextEvent(eventData)}
           navigateToRoutes={(destination: string) => navigateToRoutes(destination)}
         />
         <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={openSmartPlanner}>
@@ -86,6 +93,8 @@ function LoyolaSGWToggleSheet({
       <SmartPlannerModal
         visible={smartPlannerVisible}
         onClose={closeSmartPlanner}
+        nextEvent={nextEvent}
+        navigateToRoutes={navigateToRoutes}
       />
     </>
   );

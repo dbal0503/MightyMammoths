@@ -149,7 +149,6 @@ export function TransportChoice({
         {Object.keys(modeDisplayNames).map((mode) => {
           const estimates = routeEstimates[mode];
           const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-          
           const steps = bestEstimate?.steps || [];
           const isSelected = selectedMode === mode;
           // Make buttons enabled if we have valid routes
@@ -177,7 +176,7 @@ export function TransportChoice({
                 }
               }}
               // Only disable if absolutely no estimates are available
-              disabled={isDisabled}
+              disabled={!bothSelected || isDisabled}
             >
               {modeIcons[mode]}
             </TouchableOpacity>
