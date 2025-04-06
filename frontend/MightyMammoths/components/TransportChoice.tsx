@@ -15,7 +15,7 @@ interface TransportChoiceProps {
   defPoly:()=>void;
   starting: ()=> void;
   onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
-  showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
+  showStepByStep: (value: boolean) => void;
   routes: any
   origin: string;
   originCoords: string;

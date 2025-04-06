@@ -946,7 +946,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             origin={origin}
             locationServicesEnabled={locationServicesEnabled}
           />
-          <HallBuildingRoomPrompt
+          {/* <HallBuildingRoomPrompt
             visible={showHallBuildingPrompt}
             onClose={() => setShowHallBuildingPrompt(false)}
             onSelectRoom={(roomId, floorId, roomNumber) => {
@@ -956,7 +956,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
               // Hide the room prompt
               setShowHallBuildingPrompt(false);
             }}
-          />
+          /> */}
           
           {/* Add IndoorMapModal inside the NavigationProvider */}
           <IndoorMapModal

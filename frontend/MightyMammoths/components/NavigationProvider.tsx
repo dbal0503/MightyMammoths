@@ -31,6 +31,7 @@ interface NavigationState {
   isIndoorMapVisible: boolean;
   selectedRoomId: string | null;
   setModalVisible: (visible: boolean, roomId?: string | null) => void;
+  navigationIsStarted: boolean
 }
 
 interface NavigationContextType {
@@ -49,6 +50,7 @@ interface NavigationContextType {
     fetchRoutes: () => void;
     setRoutesValid: (value: boolean) => void;
     setModalVisible: (visible: boolean, roomId?: string | null) => void;
+    setNavigationIsStarted: (value: boolean) => void;
   };
 }
 
@@ -93,6 +95,7 @@ const NavigationProvider = ({
   const [routesValid, setRoutesValid] = useState<boolean>(false);
   const [isIndoorMapVisible, setIsIndoorMapVisible] = useState<boolean>(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [navigationIsStarted, setNavigationIsStarted] = useState(false);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
@@ -239,6 +242,7 @@ const NavigationProvider = ({
           isIndoorMapVisible,
           selectedRoomId,
           setModalVisible,
+          navigationIsStarted
         },
         functions: {
           setOrigin,
@@ -254,6 +258,7 @@ const NavigationProvider = ({
           fetchRoutes,
           setRoutesValid,
           setModalVisible,
+          setNavigationIsStarted
         },
       }}
     >

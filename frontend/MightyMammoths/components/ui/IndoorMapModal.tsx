@@ -14,6 +14,7 @@ import MappedinView from "./MappedinView";
 import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
 import { useNavigation as useNavigationProvider } from "../NavigationProvider";
 import { getMappedinUrl } from "../../utils/hallBuildingRooms";
+import { useNavigation } from "@/components/NavigationProvider";
 
 interface IndoorMapModalProps {
   visible: boolean;
@@ -34,15 +35,22 @@ const IndoorMapModal = ({
   floorId: propFloorId,
   userLocation,
 }: IndoorMapModalProps) => {
+
+  const { state, functions } = useNavigation();
+  const { 
+      selectedRoomId,
+  } = state;
+  
+  const { 
+      setNavigationIsStarted
+  } = functions;
+
   const [isLoading, setIsLoading] = useState(true);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [floorId, setFloorId] = useState<string | null>(null);
   const [entranceId, setEntranceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
-  const { state } = useNavigationProvider();
-  const { selectedRoomId } = state;
   
   const buildingName = building?.properties?.BuildingName || "Hall Building";
 
@@ -174,11 +182,17 @@ const IndoorMapModal = ({
       animationType="slide"
       transparent={false}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={() => {
+        onClose()
+        setNavigationIsStarted(true);
+      }}
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Pressable onPress={onClose} style={styles.backButton}>
+          <Pressable onPress={() => {
+        onClose()
+        setNavigationIsStarted(true);
+      }} style={styles.backButton}>
             <IconSymbol
               name={"arrow-back" as IconSymbolName}
               size={28}
