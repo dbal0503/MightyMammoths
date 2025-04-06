@@ -65,6 +65,8 @@ export function DestinationChoices({
       // console.log("Selected start", selectedStart);
       // console.log("Selected origin", origin);
       setSelectedStart(origin);
+      topDropDownRef.current?.setValue(origin);
+      bottomDropDownRef.current?.setValue(destination);
       // console.log("Selected start", selectedStart);
       // console.log("Selected origin", origin);
       // console.log("SelectedDestination", selectedDestination);
@@ -77,10 +79,10 @@ export function DestinationChoices({
   }, [visible]);
 
   useEffect(()=>{
-    setDestination(destination);
+    //setDestination(destination);
     setSelectedBuilding(destination);
     setSelectedStart(origin);
-    setOrigin(origin);
+    //setOrigin(origin);
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
   }, [destination, origin]);
@@ -120,16 +122,20 @@ export function DestinationChoices({
   };
 
   const swapBuildings = () => {
-    if (selectedStart && selectedDestination) {
-      setSelectedStart(selectedDestination);
-      setSelectedDestination(selectedStart);
+    if (origin && destination) {
+      console.log(`Swapping ${destination} and ${origin}`)
+      const tempOrigin = origin
+      const tempDestination = destination // from index.tsx
+
+      setSelectedStart(tempDestination);
+      setSelectedDestination(tempOrigin);
   
-      setOrigin(selectedDestination);
-      setDestination(selectedStart);
-      setSelectedBuilding(selectedStart);
+      setOrigin(tempDestination);
+      setDestination(tempOrigin); // Navigation context
+      setSelectedBuilding(tempOrigin);
   
-      topDropDownRef.current?.setValue(selectedDestination);
-      bottomDropDownRef.current?.setValue(selectedStart);
+      topDropDownRef.current?.setValue(tempDestination);
+      bottomDropDownRef.current?.setValue(tempOrigin);
     }
   };
       

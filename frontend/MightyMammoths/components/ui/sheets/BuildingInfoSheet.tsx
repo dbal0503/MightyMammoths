@@ -6,7 +6,7 @@ import { GeoJsonFeature } from '../BuildingMapping';
 export type BuildingInfoSheetProps = ActionSheetProps & {
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
   building: GeoJsonFeature;
-  navigate: (destination: string) => void;
+  navigate: () => void;
     navigateIndoor: () => void;
   onClose: () => void; 
 }

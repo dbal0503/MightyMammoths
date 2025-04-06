@@ -756,6 +756,10 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           navigationMode={navigationMode}
+          destination={destination}
+          setDestination={setDestination}
+          origin={origin}
+          setOrigin={setOrigin}
         >
           <NavigationSheet
             setNavigationMode={setNavigationMode}
