@@ -73,7 +73,7 @@ export default function HomeScreen() {
   //This is for globally storing data for place search so that all location choice dropdown
   //have the same options
   //probably should be refactored to be defined in a context if time allows
-  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]); //stores google api search suggestion data
 
   const placeInfoSheet = useRef<ActionSheetRef>(null);
   const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
@@ -233,6 +233,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const buildingResults: SuggestionResult[] = buildingList.map((building) => ({
+      discriminator: "building",
       placePrediction: {
         place: building.buildingName,
         placeId: building.placeID,
