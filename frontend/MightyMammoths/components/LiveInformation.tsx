@@ -9,20 +9,17 @@ import {
 
 import buildingData from "../assets/buildings/coordinates/campusbuildingcoords.json";
 
-const getBuildingInfo = (buildingCode: string) => {
-  if (!buildingData || !buildingData.features) return null;
-
-  // Look for a match by Building code
-  return buildingData.features.find(
-    (feature: any) => feature.properties.Building === buildingCode
-  );
-};
-
 const getUpdatedTime = (duration: string) => {
   const numericDuration = parseInt(duration, 10);
   const timeNow = new Date();
   timeNow.setMinutes(timeNow.getMinutes() + numericDuration);
   return timeNow.toLocaleTimeString();
+};
+
+const isDestinationBuilding = (destination: string) => {
+  return buildingData.features.some(
+    (feature) => feature.properties.BuildingName === destination
+  );
 };
 
 interface LiveInformationProps {
@@ -54,18 +51,11 @@ export function LiveInformation({
     if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
   };
 
-  // Check if destination is in the building list
-  const buildingInfo = useMemo(() => {
-    // Extract building code from destination (typically 2-3 characters)
-    // This assumes destination format like "H Building" or similar
-    const matches = destination.match(/^([A-Z]{1,3})\s/);
-    const buildingCode = matches ? matches[1] : null;
-
-    return buildingCode ? getBuildingInfo(buildingCode) : null;
-  }, [destination]);
-
   // Determine if we should show the indoor map button
-  const showIndoorMapButton = !!buildingInfo;
+  const showIndoorMapButton = useMemo(
+    () => isDestinationBuilding(destination),
+    [destination]
+  );
 
   return (
     <>
