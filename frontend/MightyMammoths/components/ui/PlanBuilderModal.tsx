@@ -36,6 +36,7 @@ type PlanBuilderModalProps = {
     location: string;
     time: string;
   } | null;
+  init: boolean;
 };
 export default function PlanBuilderModal({
   visible,
@@ -46,6 +47,7 @@ export default function PlanBuilderModal({
   onSavePlan,
   nextEvent,
   openTaskView,
+  init,
 }: PlanBuilderModalProps) {
   const [tempPlanName, setTempPlanName] = useState('');
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
@@ -62,20 +64,13 @@ export default function PlanBuilderModal({
   const locationDropdownRef = useRef<AutoCompleteDropdownRef>(null);
 
 
-  // useEffect(() => {
-  //   if (visible) {
-  //     setTempPlanName(initialPlanName || ''); 
-  //     setTempTasks([...initialTasks]); 
-  //     setTempIsStartLocationSet(initialIsStartLocationSet);
-  //     setTempIsStartLocationButton(false);
-  //     setTempTaskName('');
-  //     setTempTaskLocation('');
-  //     setTempTaskLocationPlaceId('');
-  //     setTempTaskTime('');
-  //     setDate(new Date());
-  //     locationDropdownRef.current?.reset();
-  //   }
-  // }, [visible]);
+  useEffect(() => {
+    if (init) {
+      setTempPlanName(initialPlanName); 
+      setTempTasks([...initialTasks]);
+      setTempIsStartLocationSet(initialIsStartLocationSet);
+    }
+  }, [init]);
 
   const handleBackArrow = () => {
     setTempPlanName('');

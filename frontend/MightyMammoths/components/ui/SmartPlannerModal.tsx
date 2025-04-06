@@ -57,6 +57,8 @@ export default function SmartPlannerModal({
   // State for tasks being edited in PlanBuilderModal
   const [editingTasks, setEditingTasks] = useState<Task[]>([]);
 
+  const [initBuilder, setInitBuilder] = useState(false);
+
   // Should prob stay commented out, leaving in case for now
   // useEffect(() => {
   //   if (!visible) {
@@ -77,6 +79,7 @@ export default function SmartPlannerModal({
     const openBuilder = () => {
       setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false); setHasPlan(false);
       setEditingTasks([]);
+      setInitBuilder(true);
       openPlanBuilderForEdit();
     };
     if (hasPlan) { Alert.alert('Confirm New Plan', 'Are you sure you want to create a new plan? This will delete the current plan.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Yes', onPress: openBuilder },], { cancelable: true }); }
@@ -85,6 +88,8 @@ export default function SmartPlannerModal({
 
   const openPlanBuilderForEdit = () => {
     setPlanBuilderVisible(true);
+    setEditingTasks([...tasks]); // Pass the current tasks to the PlanBuilderModal for editing
+    setInitBuilder(false);
   };
 
 
@@ -135,6 +140,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
     setTaskViewVisible(false);
     setGeneratedPlan([]);
     setEditingTasks([]);
+    setInitBuilder(true);
   };
 
   
@@ -172,7 +178,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
       
       // Navigate to routes
       navigateToRoutes({ origin, destination });
-    }, 200);
+    }, 800);
   };
 
   useEffect(() => {
@@ -182,7 +188,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
         navigateToRoutes({ origin: pendingOrigin, destination: pendingDestination });
         setPendingOrigin('');
         setPendingDestination('');
-      }, 200);
+      }, 500);
     }
   }, [pendingOrigin, pendingDestination]);
 
@@ -342,6 +348,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
               setPlanBuilderVisible(false);
               setTaskViewFromEditor(true);
           }}
+          init={initBuilder}
         />
 
         <TaskViewModal
@@ -364,7 +371,10 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
           setGeneratedPlan={setGeneratedPlan}
           deletePlan={() => { handleDeletePlan(); setTaskViewVisible(false); }}
           onRegeneratePlan={handleRegeneratePlan}
-          openPlanBuilder={() => { openPlanBuilderForEdit(); setTaskViewVisible(false); setTaskViewFromEditor(false); }}
+          openPlanBuilder={() => {
+            openPlanBuilderForEdit();
+            setTaskViewVisible(false);
+            setTaskViewFromEditor(false); }}
           handleGetDirections={(origin, destination) => {
             // Close before navigation
             onClose();
