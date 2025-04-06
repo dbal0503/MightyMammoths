@@ -139,6 +139,7 @@ export default function PlanBuilderModal({
   useEffect(() => {
     const buildingResults: SuggestionResult[] = buildingListPlusMore.map(
       (building) => ({
+        discriminator: "building",
         placePrediction: {
           place: building.buildingName,
           placeId: building.placeID,

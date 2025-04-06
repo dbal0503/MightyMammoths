@@ -25,7 +25,16 @@ appId: com.anonymous.MightyMammoths
     id: "clock-icon-main-modal"
 
 - assertVisible:
-    id: "view-plan-button"
+    id: "get-directions-button-main-modal"
 
 - tapOn:
-    id: "view-plan-button"
+    id: "get-directions-button-main-modal"
+
+- assertVisible:
+    id: "startButton"
+
+- assertVisible:
+    id: "routesSheetBackButton"
+
+- tapOn:
+    id: "routesSheetBackButton"
