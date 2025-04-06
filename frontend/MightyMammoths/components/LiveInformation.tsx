@@ -146,14 +146,25 @@ export function LiveInformation({
                                 onPress={() => {
                                     console.log('[LiveInformation] View Indoor button clicked');
                                     console.log('[LiveInformation] roomNumber:', roomNumber);
+                                    console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
+                                    console.log('[LiveInformation] destination:', destination);
+                                    
+                                    if (hasRoomNumber && roomNumber === '907') {
+                                        console.log('[LiveInformation] Special case: Found room 907');
+                                    }
+                                    
                                     console.log('[LiveInformation] Using specific room number:', hasRoomNumber ? roomNumber : 'No room number available');
-                                    // First execute the callback to show the room prompt
+                                    // Execute the callback to show the room prompt or map
                                     if (onViewBuildingInfo) {
                                         onViewBuildingInfo(isLoyolaCampusBuilding);
                                     }
                                 }}
                             >
-                                <Text style={styles.buttonText}>{hasRoomNumber ? `View Room ${roomNumber}` : (isLoyolaCampusBuilding ? 'View VE Map' : 'View Indoor')}</Text>
+                                <Text style={styles.buttonText}>
+                                    {hasRoomNumber 
+                                        ? `View Room ${roomNumber}` 
+                                        : (isLoyolaCampusBuilding ? 'View VE Map' : 'View Indoor')}
+                                </Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity 

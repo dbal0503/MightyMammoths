@@ -40,13 +40,21 @@ const HallBuildingRoomPrompt: React.FC<HallBuildingRoomPromptProps> = ({
     setSelectedRoomInfo(isValid ? roomInfo : null);
   }, [roomNumber]);
 
+  useEffect(() => {
+    if (visible) {
+      console.log('==== HALL BUILDING ROOM PROMPT SHOWN ====');
+      console.log('This prompt should NOT be shown when a room number is already known');
+    }
+  }, [visible]);
+
   const handleSubmit = () => {
     if (!isRoomValid || !selectedRoomInfo) {
+      console.log('Invalid room entered in prompt:', roomNumber);
       Alert.alert('Invalid Room', 'Please enter a valid Hall Building room number.');
       return;
     }
 
-    console.log('Room selected in HallBuildingRoomPrompt:', selectedRoomInfo);
+    console.log('Room manually selected in HallBuildingRoomPrompt:', selectedRoomInfo);
     
     // Close this prompt
     onClose();

@@ -686,6 +686,24 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     if (roomNumber) {
       console.log("Setting destinationRoom to:", roomNumber);
       setDestinationRoom(roomNumber);
+      
+      // Special handling for room 907 and similar
+      if (roomNumber === '907' || roomNumber === '908' || roomNumber === '909') {
+        console.log(`Special handling for room ${roomNumber} - ensuring it works without validation`);
+        // No need to validate this room, as we'll handle it specially in the NavigationSheet
+      } else {
+        // Check if this is a valid Hall Building room
+        try {
+          const { isValidHallBuildingRoom } = require('../../utils/hallBuildingRooms');
+          if (isValidHallBuildingRoom(roomNumber)) {
+            console.log(`Room number ${roomNumber} is a valid Hall Building room`);
+          } else {
+            console.log(`Room number ${roomNumber} is not recognized in Hall Building, but will still be used`);
+          }
+        } catch (error) {
+          console.error("Error checking room validity:", error);
+        }
+      }
     }
   
     // Store origin so NavigationSheet can access it
@@ -697,7 +715,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       console.log("Setting default origin to: Your Location");
       setOrigin("Your Location");
     }
-
+  
     console.log("Showing navigation sheet");
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();

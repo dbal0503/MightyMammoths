@@ -66,6 +66,14 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
       return roomMatch[1];
     }
     
+    // Pattern for just a number like "907"
+    const simpleNumberPattern = /\b(\d{3,4})\b/i;
+    const simpleNumberMatch = simpleNumberPattern.exec(text);
+    if (simpleNumberMatch) {
+      console.log("Found simple room number format:", simpleNumberMatch[1]);
+      return simpleNumberMatch[1];
+    }
+    
     // Pattern for "at 123" format (common in calendar events)
     const atRoomPattern = /\bat\s+(\d+)\b/i;
     const atRoomMatch = atRoomPattern.exec(text);
@@ -270,10 +278,46 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
                     destination = eventName;
                   }
                   
-                  // Extract room number if available
-                  const roomNumber = nextEvent.roomNumber || 
-                                    (nextEvent.description && nextEvent.description.includes("at ") ? 
-                                      parseRoomNumber(nextEvent.description) : undefined);
+                  // Extract room number if available, trying different sources
+                  let roomNumber;
+                  
+                  // First try to extract from location
+                  const locationRoomNumber = parseRoomNumber(location);
+                  if (locationRoomNumber) {
+                    console.log("Found room number in location:", locationRoomNumber);
+                    roomNumber = locationRoomNumber;
+                  } 
+                  // Then try description
+                  else if (description) {
+                    const descriptionRoomNumber = parseRoomNumber(description);
+                    if (descriptionRoomNumber) {
+                      console.log("Found room number in description:", descriptionRoomNumber);
+                      roomNumber = descriptionRoomNumber;
+                    }
+                  }
+                  // Look in event name as last resort
+                  else if (eventName) {
+                    const nameRoomNumber = parseRoomNumber(eventName);
+                    if (nameRoomNumber) {
+                      console.log("Found room number in event name:", nameRoomNumber);
+                      roomNumber = nameRoomNumber;
+                    }
+                  }
+                  
+                  // If we have a description with "at" followed by a number, it's likely a room
+                  if (!roomNumber && description && description.includes("at ")) {
+                    const atMatch = /\bat\s+(\d+)\b/i.exec(description);
+                    if (atMatch) {
+                      console.log("Found 'at NNN' format in description:", atMatch[1]);
+                      roomNumber = atMatch[1];
+                    }
+                  }
+                  
+                  // If the room is just the description field itself and it's a number
+                  if (!roomNumber && description && /^\d+$/.test(description.trim())) {
+                    console.log("Description is just a number, using as room:", description.trim());
+                    roomNumber = description.trim();
+                  }
                   
                   console.log("Final destination:", destination);
                   console.log("Room number to use:", roomNumber);

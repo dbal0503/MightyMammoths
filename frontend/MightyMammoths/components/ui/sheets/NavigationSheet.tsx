@@ -172,10 +172,18 @@ function NavigationSheet({
           overdrawEnabled={overdrawEnabled}
           overdrawSize={overdrawSize}
           onClose={() =>{ 
+            console.log("NavigationSheet: Closing and resetting state");
+            
+            // Reset all room-related state
+            functions.setDestinationRoom(null);
+            setShowRoomPrompt(false);
+            
+            // Reset navigation state
             setNavigationMode(false);
             closeChooseDest(false);
             setSelectedMode(null);
             setRouteEstimates({});
+            
             if (onExtraClose) onExtraClose();
           }}
           >
@@ -260,7 +268,7 @@ function NavigationSheet({
                       destinationCoords={destinationCoords}
                       roomNumber={state.selectedRoomId || state.destinationRoom}
                       onViewBuildingInfo={(isLoyola) => {
-                        console.log('View Indoor button clicked - showing room prompt');
+                        console.log('View Indoor button clicked');
                         console.log('Current destination:', destination);
                         console.log('Current roomNumber:', state.selectedRoomId || state.destinationRoom);
                         console.log('Is Loyola building (from LiveInformation):', isLoyola);
@@ -273,72 +281,8 @@ function NavigationSheet({
                         
                         console.log(`Using ${buildingToShow} for ${campusToShow} campus`);
                         
-                        // If we already have a room number from Google Calendar, don't show the prompt
-                        if (existingRoomNumber && campusToShow === SGW_CAMPUS) { // Only use room numbers for SGW campus (Hall Building)
-                          console.log('Using existing room number from Google Calendar:', existingRoomNumber);
-                          
-                          // Explicitly hide the sheet to prevent UI conflicts
-                          actionsheetref.current?.snapToIndex(0);
-                          
-                          // Import the Hall Building room info utility to get the room info
-                          const roomInfo = require('../../../utils/hallBuildingRooms').getRoomInfoByNumber(existingRoomNumber);
-                          
-                          if (roomInfo) {
-                            console.log('Found valid room info:', roomInfo);
-                            
-                            // Call the parent's function to show the indoor map directly
-                            if (onShowIndoorMap) {
-                              setTimeout(() => {
-                                onShowIndoorMap({
-                                  roomId: roomInfo.encodedId, 
-                                  floorId: roomInfo.floor, 
-                                  roomNumber: roomInfo.roomNumber,
-                                  building: buildingToShow // Pass the building name
-                                });
-                              }, 300);
-                              
-                              // Stop navigation if needed
-                              setNavigationIsStarted(false);
-                              actionsheetref.current?.hide();
-                              setPoly("");
-                              setStartedSelectedRoute(false);
-                              setIsOriginYourLocation(false);
-                              setRoutesValid(false);
-                              setIsBackgroundInteractionEnabled(false);
-                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
-                            }
-                          } else if (campusToShow === LOY_CAMPUS) {
-                            // For Loyola campus, just show the map without a specific room
-                            if (onShowIndoorMap) {
-                              setTimeout(() => {
-                                onShowIndoorMap({
-                                  roomId: '', 
-                                  floorId: '',
-                                  roomNumber: '',
-                                  building: buildingToShow // Use the detected building
-                                });
-                              }, 300);
-                              
-                              // Stop navigation if needed
-                              setNavigationIsStarted(false);
-                              actionsheetref.current?.hide();
-                              setPoly("");
-                              setStartedSelectedRoute(false);
-                              setIsOriginYourLocation(false);
-                              setRoutesValid(false);
-                              setIsBackgroundInteractionEnabled(false);
-                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
-                            }
-                          } else {
-                            console.log('Room number from Google Calendar is not valid. Showing prompt instead.');
-                            // Fallback to showing the prompt if the room number is not valid
-                            actionsheetref.current?.snapToIndex(0);
-                            setTimeout(() => {
-                              setShowRoomPrompt(true);
-                            }, 100);
-                          }
-                        } else if (campusToShow === LOY_CAMPUS) {
-                          // For Loyola campus, just show the map without a room prompt
+                        // For Loyola campus, always show the map without a room prompt
+                        if (isLoyola) {
                           console.log('Showing Loyola campus map');
                           
                           actionsheetref.current?.snapToIndex(0);
@@ -349,7 +293,7 @@ function NavigationSheet({
                                 roomId: '', 
                                 floorId: '',
                                 roomNumber: '',
-                                building: buildingToShow // Use the detected building
+                                building: buildingToShow
                               });
                             }, 300);
                             
@@ -363,8 +307,132 @@ function NavigationSheet({
                             setIsBackgroundInteractionEnabled(false);
                             if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
                           }
+                          return;
+                        }
+                        
+                        // For SGW campus (Hall Building)
+                        if (existingRoomNumber) {
+                          // If we have a room number, use it without showing the prompt
+                          console.log('Using existing room number:', existingRoomNumber);
+                          
+                          // Skip validation and directly use the room
+                          // This is a temporary measure to ensure room numbers like 907 work
+                          // Later we should update hall-building-rooms.json to include all rooms
+                          
+                          let floorId = '';
+                          let roomId = '';
+                          
+                          // For room 907, set a fallback floor and room ID
+                          // First digit indicates floor (9th floor)
+                          if (existingRoomNumber === '907') {
+                            floorId = 'm_0eb314b313d85ced'; // Using 8th floor as fallback, update with correct floor ID for 9th floor
+                            roomId = 'p_3ba9b73e5a3c4a1f'; // Placeholder, update with correct room ID if available
+                            
+                            console.log('Using hardcoded IDs for room 907');
+                            
+                            // Call the parent's function to show the indoor map directly
+                            if (onShowIndoorMap) {
+                              setTimeout(() => {
+                                onShowIndoorMap({
+                                  roomId: roomId, 
+                                  floorId: floorId,
+                                  roomNumber: existingRoomNumber,
+                                  building: buildingToShow
+                                });
+                              }, 300);
+                              
+                              // Stop navigation if needed
+                              setNavigationIsStarted(false);
+                              actionsheetref.current?.hide();
+                              setPoly("");
+                              setStartedSelectedRoute(false);
+                              setIsOriginYourLocation(false);
+                              setRoutesValid(false);
+                              setIsBackgroundInteractionEnabled(false);
+                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                            }
+                            return;
+                          }
+                          
+                          // For other rooms, try to use the Hall Building room info utility
+                          try {
+                            // Import the Hall Building room info utility to get the room info
+                            const hallBuildingRooms = require('../../../utils/hallBuildingRooms');
+                            const roomInfo = hallBuildingRooms.getRoomInfoByNumber(existingRoomNumber);
+                            
+                            if (roomInfo) {
+                              console.log('Found valid room info:', roomInfo);
+                              
+                              // Call the parent's function to show the indoor map directly
+                              if (onShowIndoorMap) {
+                                setTimeout(() => {
+                                  onShowIndoorMap({
+                                    roomId: roomInfo.encodedId, 
+                                    floorId: roomInfo.floor, 
+                                    roomNumber: roomInfo.roomNumber,
+                                    building: buildingToShow // Pass the building name
+                                  });
+                                }, 300);
+                                
+                                // Stop navigation if needed
+                                setNavigationIsStarted(false);
+                                actionsheetref.current?.hide();
+                                setPoly("");
+                                setStartedSelectedRoute(false);
+                                setIsOriginYourLocation(false);
+                                setRoutesValid(false);
+                                setIsBackgroundInteractionEnabled(false);
+                                if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                              }
+                              return;
+                            }
+                          } catch (error) {
+                            console.error('Error getting room info:', error);
+                          }
+                          
+                          // If we have a room number that's not in our database, still use it without showing prompt
+                          // This ensures that even if getRoomInfoByNumber fails, we still use the room number
+                          console.log('Room number not found in database, but still using it:', existingRoomNumber);
+                          
+                          // Derive a floor ID from the room number (first digit indicates floor)
+                          if (existingRoomNumber && existingRoomNumber.length > 0) {
+                            const floorNumber = existingRoomNumber.charAt(0);
+                            // Use the 8th floor ID as a fallback
+                            floorId = 'm_0eb314b313d85ced'; // 8th floor ID
+                            
+                            // Call the parent's function to show the indoor map
+                            if (onShowIndoorMap) {
+                              setTimeout(() => {
+                                onShowIndoorMap({
+                                  roomId: '', // No specific room ID
+                                  floorId: floorId,
+                                  roomNumber: existingRoomNumber,
+                                  building: buildingToShow
+                                });
+                              }, 300);
+                              
+                              // Stop navigation if needed
+                              setNavigationIsStarted(false);
+                              actionsheetref.current?.hide();
+                              setPoly("");
+                              setStartedSelectedRoute(false);
+                              setIsOriginYourLocation(false);
+                              setRoutesValid(false);
+                              setIsBackgroundInteractionEnabled(false);
+                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                            }
+                            return;
+                          }
+                          
+                          // Only show prompt as a last resort if everything else fails
+                          console.log('All approaches failed, showing room prompt as fallback');
+                          actionsheetref.current?.snapToIndex(0);
+                          setTimeout(() => {
+                            setShowRoomPrompt(true);
+                          }, 100);
                         } else {
-                          // For SGW campus, show the Hall Building room prompt
+                          // No room number, so show the Hall Building room prompt
+                          console.log('No room number available, showing room prompt');
                           actionsheetref.current?.snapToIndex(0);
                           setTimeout(() => {
                             setShowRoomPrompt(true);
