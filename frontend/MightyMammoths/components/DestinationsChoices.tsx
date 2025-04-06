@@ -9,6 +9,7 @@ import { IconSymbolName, IconSymbol } from "@/components/ui/IconSymbol";
 interface DestinationChoicesProps {
   buildingList: BuildingData[];
   visible?: boolean;
+  origin: string;
   destination: string;
   locationServicesEnabled: boolean;
 }
@@ -16,6 +17,7 @@ interface DestinationChoicesProps {
 export function DestinationChoices({
   buildingList,
   visible,
+  origin,
   destination,
   locationServicesEnabled
 }: DestinationChoicesProps) {
@@ -44,25 +46,6 @@ export function DestinationChoices({
   };
 
   useEffect(() => {
-    const checkAndSetOrigin =  () => {
-      if (destination && destination !== "Select a building") {
-        if (locationServicesEnabled) {
-          setOrigin("Your Location");
-          setSelectedStart("Your Location");
-          topDropDownRef.current?.setValue("Your Location");
-        } else {
-          setOrigin("");
-          setSelectedStart(""); 
-          setSelectedDestination(state.destination); 
-          topDropDownRef.current?.setValue("");
-        }
-      }
-    };
-  
-    checkAndSetOrigin();
-  }, [destination]);
-
-  useEffect(() => {
     if (visible) {
       Animated.spring(slideAnim, {
         toValue: 0,
@@ -78,19 +61,32 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      //topDropDownRef.current?.reset();
       //setSelectedStart("");
-      //checkSelection("", selectedDestination);
-      //setOrigin("");
+      // console.log("Selected start", selectedStart);
+      // console.log("Selected origin", origin);
+      setSelectedStart(origin);
+      topDropDownRef.current?.setValue(origin);
+      bottomDropDownRef.current?.setValue(destination);
+      // console.log("Selected start", selectedStart);
+      // console.log("Selected origin", origin);
+      // console.log("SelectedDestination", selectedDestination);
+      // console.log("Selected destination", destination);
+      // topDropDownRef.current?.reset();
+      // setSelectedStart("Your Location");
+      // checkSelection("Your Location", selectedDestination);
+      // setOrigin("Your Location");
     }
   }, [visible]);
 
   useEffect(()=>{
-    setDestination(destination);
+    //setDestination(destination);
     setSelectedBuilding(destination);
+    setSelectedStart(origin);
+    //setOrigin(origin);
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
-  }, [destination])
+  }, [destination, origin]);
+
 
   const _openAppSetting = useCallback(async () => {
         await Linking.openSettings();
@@ -126,16 +122,20 @@ export function DestinationChoices({
   };
 
   const swapBuildings = () => {
-    if (selectedStart && selectedDestination) {
-      setSelectedStart(selectedDestination);
-      setSelectedDestination(selectedStart);
+    if (origin && destination) {
+      console.log(`Swapping ${destination} and ${origin}`)
+      const tempOrigin = origin
+      const tempDestination = destination // from index.tsx
+
+      setSelectedStart(tempDestination);
+      setSelectedDestination(tempOrigin);
   
-      setOrigin(selectedDestination);
-      setDestination(selectedStart);
-      setSelectedBuilding(selectedStart);
+      setOrigin(tempDestination);
+      setDestination(tempOrigin); // Navigation context
+      setSelectedBuilding(tempOrigin);
   
-      topDropDownRef.current?.setValue(selectedDestination);
-      bottomDropDownRef.current?.setValue(selectedStart);
+      topDropDownRef.current?.setValue(tempDestination);
+      bottomDropDownRef.current?.setValue(tempOrigin);
     }
   };
       
@@ -157,23 +157,22 @@ export function DestinationChoices({
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           buildingData={buildingList} 
+          currentVal={origin}
           onSelect={(selected) => {
+            console.log("Selected", selected);
             if(!selected) return;
             if (selected === "Your Location") {
               checkLocationPermission(
                 () => {
-                  setSelectedStart(selected);
                   checkSelection(selected, selectedDestination);
                   setOrigin(selected);
                 },
                 () => {
                   topDropDownRef.current?.reset();
-                  setSelectedStart("Select a building");
                   setOrigin("Select a building");
                 }
               );
             } else {
-              setSelectedStart(selected);
               checkSelection(selected, selectedDestination);
               setOrigin(selected);
             }

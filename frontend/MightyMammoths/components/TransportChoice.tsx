@@ -139,10 +139,10 @@ export function TransportChoice({
         {Object.keys(modeDisplayNames).map((mode) => {
           const estimates = routeEstimates[mode];
           const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-          
           const steps = bestEstimate?.steps || [];
           const isSelected = selectedMode === mode;
           const isDisabled = !estimates || estimates.length === 0;
+
           return (
             <TouchableOpacity
               key={mode}

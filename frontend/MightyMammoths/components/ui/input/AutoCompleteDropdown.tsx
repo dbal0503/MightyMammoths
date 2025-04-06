@@ -32,6 +32,7 @@ interface AutoCompleteDropdownProps {
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
+  darkTheme?: boolean;
   onNearbyResults?: (results: SuggestionResult[]) => void;
   boundaries?: BoundingBox | undefined
   showNearbyButtons?: boolean;
@@ -49,6 +50,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   setSearchSuggestions,
   locked,
   testID,
+  darkTheme = false,
   onNearbyResults,
   boundaries,
   showNearbyButtons=false,
@@ -61,7 +63,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   //functions exposed through ref
   useImperativeHandle(ref, () => ({
     reset: () => {
-      setSelected("Select a building");
+      setSelected("Your Location");
       setIsOpen(false);
     },
     setValue: (value: string) => {
@@ -261,8 +263,11 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   };
 
   return (
-    <View style={styles.container} testID={testID}>
-      <Pressable style={styles.dropdownContainer} onPress={() => {
+    <View style={{...styles.container, width: darkTheme ? 5 : 280}} testID={testID}>
+      <Pressable style={{ ...styles.dropdownContainer, 
+                backgroundColor: darkTheme ? '#2c2c38' : "white", 
+                borderColor: darkTheme ? '#2c2c38' : '#d1d1d1',
+              borderRadius: darkTheme ? 8 : 25 }} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>
         <Image
@@ -271,7 +276,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           }}
           style={styles.logo}
         />
-        <Text style={styles.selectedText}>{selected}</Text>
+        <Text style={{...styles.selectedText, color: darkTheme ? "white": '#555'}}>{selected}</Text>
         <MaterialIcons
           name={isOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"}
           size={24}
@@ -329,19 +334,16 @@ AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     position: "relative",
     alignSelf: "center",
   },
   dropdownContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
     borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "#d1d1d1",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -356,7 +358,6 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     fontSize: 16,
-    color: "#555",
     flex: 1,
   },
   arrow: {

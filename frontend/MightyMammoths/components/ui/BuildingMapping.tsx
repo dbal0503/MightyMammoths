@@ -151,15 +151,6 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
   </>;
 };
 
-const isValidCoordinate = (coord: { latitude: any; longitude: any }) => {
-  return (
-    typeof coord.latitude === 'number' &&
-    typeof coord.longitude === 'number' &&
-    !isNaN(coord.latitude) &&
-    !isNaN(coord.longitude)
-  );
-};
-
 const missingPolygons = {
   EV: [
     { latitude: 45.495633054158894, longitude: -73.57874661684036 },

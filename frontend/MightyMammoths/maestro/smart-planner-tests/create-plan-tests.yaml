@@ -1,0 +1,23 @@
+appId: com.anonymous.MightyMammoths
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5783
+
+- assertVisible:
+    id: "create-plan-button"
+
+- assertNotVisible:
+    id: "get-directions-button-main-modal"
+
+- assertNotVisible:
+    id: "info-icon-main-modal"
+
+- assertNotVisible:
+    id: "location-icon-main-modal"
+
+- assertNotVisible:
+    id: "clock-icon-main-modal"
+
+- tapOn:
+    id: "create-plan-button"
