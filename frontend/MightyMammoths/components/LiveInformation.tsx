@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { buildingList } from '../utils/getBuildingList';
+import campusBuildingdata from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);
@@ -38,9 +39,19 @@ export function LiveInformation({
     const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
     console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
     //const hasRoomNumber = true;
-    const isConcordiaBuilding = buildingList.some(building =>
-        destination.toLowerCase().includes(building.buildingName.toLowerCase())
-      );
+    console.log()
+    const isConcordiaBuilding = (destination: string): boolean => {
+        const lowerDestination = destination.toLowerCase();
+        return campusBuildingdata.features.some((feature: any) => {
+          const buildingName = feature.properties.BuildingName.toLowerCase();
+          const buildingCode = feature.properties.Building.toLowerCase();
+          return (
+            lowerDestination.includes(buildingName) ||
+            lowerDestination.includes(buildingCode)
+          );
+        });
+      };
+      
     
     console.log('[LiveInformation] destination:', destination);
     console.log('[LiveInformation] isConcordiaBuilding:', isConcordiaBuilding);
