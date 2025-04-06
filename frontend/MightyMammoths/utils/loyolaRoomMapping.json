@@ -1,0 +1,254 @@
+{
+  "rooms": [
+    {
+      "roomNumber": "100",
+      "encodedId": "s_211281b107ab7770",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-1",
+      "encodedId": "s_016d1cde2bb5ac22",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-3",
+      "encodedId": "s_ed4e2bddedaaf99d",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-4",
+      "encodedId": "s_f8a073176c462975",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-5",
+      "encodedId": "s_de89fb4e7f6a51c2",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-6",
+      "encodedId": "s_a094b1c953362705",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "101-7",
+      "encodedId": "s_97f9c8f10a8a8ffb",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "102",
+      "encodedId": "s_bf807ca028c005ae",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "102-2",
+      "encodedId": "s_82d1a14873a67d80",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "102-3",
+      "encodedId": "s_d88887091143dab7",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "102-4",
+      "encodedId": "s_799c8b0f4a47a868",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "103",
+      "encodedId": "s_b280c89715a0ce68",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "103-1",
+      "encodedId": "s_f744ef722ad3b48d",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "104",
+      "encodedId": "s_eb8ace4fc118e46a",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "106-1",
+      "encodedId": "s_3a9e036e27f954d8",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "106-2",
+      "encodedId": "s_70c9b46ab385cbbe",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "110",
+      "encodedId": "s_d712340a89029bfd",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "112",
+      "encodedId": "s_dd150d7c5a1af854",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "116",
+      "encodedId": "s_09fe6876cdc59816",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "118",
+      "encodedId": "s_23c349e87419b464",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "119",
+      "encodedId": "s_30deeb6118da402e",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "120",
+      "encodedId": "s_bd3fe7b7fa0d4d34",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "121",
+      "encodedId": "s_5f1d10f4f4557a14",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "121-1",
+      "encodedId": "s_d772077028e4d17a",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "121-2",
+      "encodedId": "s_5048e7b159aab869",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "121-3",
+      "encodedId": "s_5fa6f947918e0bb4",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "122-1",
+      "encodedId": "s_dd12102bd6572700",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "124",
+      "encodedId": "s_d443cf4d2e97386e",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "126",
+      "encodedId": "s_ad86e93ae919b93c",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127",
+      "encodedId": "s_db9ae1cfcc671f3c",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127-1",
+      "encodedId": "s_1f9c0c043de6d61b",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127-2",
+      "encodedId": "s_d84841db62514315",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127-3",
+      "encodedId": "s_a14e036cbc12278a",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127-4",
+      "encodedId": "s_f1bf62631505dbc5",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "127-5",
+      "encodedId": "s_08d9f4aa0788a52d",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "128",
+      "encodedId": "s_4b18795c813a1295",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "130",
+      "encodedId": "s_0a38b64819af95ad",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "140",
+      "encodedId": "s_42062c3370c1869d",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "191-2",
+      "encodedId": "s_42784540b3bc53ef",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "192",
+      "encodedId": "s_300fd680d2174ec9",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "192-10",
+      "encodedId": "s_e2ed34f24cde6aed",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "193",
+      "encodedId": "s_8444f00c9934520c",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "194",
+      "encodedId": "s_63cc04a3da42b7f4",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "194-10",
+      "encodedId": "s_9fe06abc06946bca",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "196",
+      "encodedId": "s_5a3ddc251231b862",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "197",
+      "encodedId": "s_e488b9dddb9e3352",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "197-1",
+      "encodedId": "s_6fce2c55fd0889b2",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "198",
+      "encodedId": "s_ae0c6765e03e1c08",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "199",
+      "encodedId": "s_2a3668b34dead332",
+      "floor": "m_c84b9c6695e64100"
+    },
+    {
+      "roomNumber": "199-19",
+      "encodedId": "s_c287c6d6e3d7bdda",
+      "floor": "m_c84b9c6695e64100"
+    }
+  ]
+}
