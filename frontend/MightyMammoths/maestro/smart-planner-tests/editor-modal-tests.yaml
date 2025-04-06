@@ -34,7 +34,7 @@ appId: com.anonymous.MightyMammoths
 - tapOn:
     id: "locationSmartPlannerDropdown-start"
 
-- inputText: "EV"
+- inputText: "MB"
 
 - tapOn:
     point: "87%,89%"
