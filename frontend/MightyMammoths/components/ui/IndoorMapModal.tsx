@@ -46,35 +46,17 @@ const IndoorMapModal = ({
   
   const buildingName = building?.properties?.BuildingName || "Hall Building";
 
-  // Debug the component rendering and props
-  useEffect(() => {
-    console.log('IndoorMapModal rendered with props:', {
-      visible,
-      buildingName,
-      roomNumber, 
-      propRoomId,
-      propFloorId,
-      selectedRoomId: state.selectedRoomId
-    });
-  }, [visible, roomNumber, propRoomId, propFloorId, state.selectedRoomId]);
-
   // Reset state when modal shows/hides
   useEffect(() => {
-    console.log(`[IndoorMapModal] Visibility changed to: ${visible}`);
     if (visible) {
-      console.log('[IndoorMapModal] Modal became visible, resetting state');
       setIsLoading(true);
       setError(null);
       setMapLoaded(false);
       
       // Set default entrance ID for Hall Building
       if (buildingName === "Hall Building" || buildingName === "H Building") {
-        console.log('[IndoorMapModal] Setting default Hall Building entrance ID');
         setEntranceId("s_e72c2ed4f1949630"); // Main entrance ID from URL
       }
-      
-      // Alert to confirm we're actually showing the modal (for debugging)
-      console.log('[IndoorMapModal] 🚨 MODAL IS NOW VISIBLE 🚨');
     }
   }, [visible, buildingName]);
 
@@ -83,29 +65,20 @@ const IndoorMapModal = ({
     // If we have a room ID (either direct prop or from context) but modal isn't visible
     const hasRoomId = propRoomId || selectedRoomId || roomNumber;
     if (hasRoomId && !visible && !error) {
-      console.log('[IndoorMapModal] 🔄 We have a room ID but modal is not visible:', {
-        propRoomId,
-        selectedRoomId,
-        roomNumber
-      });
+      // This is just informational, no action needed
     }
   }, [propRoomId, selectedRoomId, roomNumber, visible]);
 
   // Check if we have direct roomId and floorId props
   useEffect(() => {
-    console.log('Checking room and floor IDs:', { propRoomId, propFloorId, selectedRoomId });
-    
     // Priority: 1. Direct props passed in, 2. Context selectedRoomId, 3. Look up by roomNumber
     if (propRoomId) {
-      console.log('Using propRoomId:', propRoomId);
       setRoomId(propRoomId);
     } else if (selectedRoomId) {
-      console.log('Using selectedRoomId from context:', selectedRoomId);
       setRoomId(selectedRoomId);
     }
 
     if (propFloorId) {
-      console.log('Using propFloorId:', propFloorId);
       setFloorId(propFloorId);
     }
   }, [propRoomId, propFloorId, selectedRoomId]);
@@ -113,13 +86,11 @@ const IndoorMapModal = ({
   // Load room and entrance IDs when modal becomes visible
   useEffect(() => {
     if (visible && roomNumber && !roomId) {
-      console.log('Trying to load room details for:', roomNumber);
       const loadLocationIds = async () => {
         try {
           // Get room by number
           const room = await getRoom(buildingName, roomNumber);
           if (room) {
-            console.log('Found room:', room);
             setRoomId(room.id);
           } else {
             console.warn(`Room ${roomNumber} not found in ${buildingName}`);
@@ -129,7 +100,6 @@ const IndoorMapModal = ({
           if (userLocation) {
             const entrance = await getNearestEntrance(buildingName, userLocation);
             if (entrance) {
-              console.log('Found entrance:', entrance);
               setEntranceId(entrance.id);
             } else {
               console.warn(`Could not determine nearest entrance for ${buildingName}`);
@@ -198,8 +168,6 @@ const IndoorMapModal = ({
   const [retryKey, setRetryKey] = useState(0);
 
   const displayRoomInfo = roomNumber ? `• Room ${roomNumber}` : (roomId ? '• Selected Room' : '• Indoor Map');
-
-  console.log(`[IndoorMapModal] Rendering with visible=${visible}, roomId=${roomId || 'none'}, floorId=${floorId || 'none'}`);
 
   return (
     <Modal

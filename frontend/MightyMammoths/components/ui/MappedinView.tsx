@@ -25,22 +25,10 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   const [isEmbeddedView, setIsEmbeddedView] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // Debug log the props
-  useEffect(() => {
-    console.log('MappedinView rendering with props:', {
-      buildingName,
-      roomId,
-      entranceId,
-      floorId
-    });
-  }, [buildingName, roomId, entranceId, floorId]);
-
   /**
    * Generate the URL for the Mappedin map
    */
-  function getMapUrl(buildingName: string, roomId?: string, entranceId?: string, floorId?: string): string {
-    console.log('[MappedinView] Generating URL with:', { buildingName, roomId, entranceId, floorId });
-    
+  function getMapUrl(buildingName: string, roomId?: string, entranceId?: string, floorId?: string): string {    
     // Default to Hall Building if not specified
     const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
     
@@ -74,7 +62,6 @@ const MappedinView: React.FC<MappedinViewProps> = ({
       url = `${url}?floor=${floorId}`;
     }
     
-    console.log('[MappedinView] Generated URL:', url);
     return url;
   }
 

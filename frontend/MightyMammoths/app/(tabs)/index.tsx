@@ -449,16 +449,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     // Format the user's current location
     const userLocationStr = `${myLocation.latitude},${myLocation.longitude}`;
     
-    // Check if user is near Hall Building specifically
-    const isNearHall = await isNearHallBuilding(userLocationStr);
-    
-    if (isNearHall) {
-      console.log("User is near Hall Building - showing room prompt");
-      setShowHallBuildingPrompt(true);
-      return;
-    }
-    
-    // Continue with the original proximity check for the destination building
+    // Continue with the proximity check for the destination building
     if (selectedBuilding && myLocation && destinationRoom) {
       try {
         // Get the destination building's place ID
@@ -700,23 +691,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     };
   }, [isOriginYourLocation, isZoomedIn, destinationRoom, selectedBuilding]); // Added destinationRoom and selectedBuilding to dependencies
 
-  // Debug useEffect to track indoor map visibility state
-  useEffect(() => {
-    console.log(`[DEBUG] IndoorMapModal visibility changed to: ${indoorMapVisible}`);
-    if (indoorMapVisible) {
-      console.log(`[DEBUG] IndoorMapModal data:`, {
-        selectedBuilding: selectedBuilding?.properties?.BuildingName || 'None',
-        destinationRoom: destinationRoom,
-        selectedRoomId: selectedRoomId,
-        selectedFloorId: selectedFloorId
-      });
-    }
-  }, [indoorMapVisible, selectedRoomId, selectedFloorId]);
-
   // This function is specifically for handling the transition from room prompt to indoor map
   const showIndoorMapWithRoom = (roomId: string, floorId: string, roomNumber: string) => {
-    console.log('Explicitly showing indoor map with room:', roomId, floorId, roomNumber);
-    
     // Set all required state variables
     setDestinationRoom(roomNumber);
     setSelectedRoomId(roomId);
@@ -755,7 +731,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
   // Force show the indoor map - call this directly to avoid using context
   const forceShowIndoorMap = () => {
     // First complete any pending state updates
-    console.log("[FORCE SHOW] Room data before showing map:", roomSelectionData.current);
     
     // Set the room and floor IDs from our temporary storage
     if (roomSelectionData.current.roomId) {
@@ -782,11 +757,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     
     // Give a little time for state to update, then show the modal
     setTimeout(() => {
-      console.log("[FORCE SHOW] Setting indoorMapVisible to true directly with data:", {
-        roomId: selectedRoomId,
-        floorId: selectedFloorId,
-        roomNumber: destinationRoom
-      });
       setIndoorMapVisible(true);
     }, 300);
   };
@@ -928,8 +898,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             isZoomedIn={isZoomedIn}
             userLocation={myLocation}
             onShowIndoorMap={(roomData) => {
-              console.log("[INDEX] Received room data from NavigationSheet:", roomData);
-              
               // Store the room data in our temporary storage
               if (roomData) {
                 roomSelectionData.current = {
@@ -953,8 +921,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             visible={showHallBuildingPrompt}
             onClose={() => setShowHallBuildingPrompt(false)}
             onSelectRoom={(roomId, floorId, roomNumber) => {
-              console.log('Room selected:', roomId, floorId, roomNumber);
-              
               // Use the new function to show the indoor map with proper parameters
               showIndoorMapWithRoom(roomId, floorId, roomNumber);
               
@@ -967,7 +933,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           <IndoorMapModal
             visible={indoorMapVisible}
             onClose={() => {
-              console.log('Closing indoor map modal');
               setIndoorMapVisible(false);
               setShowHallBuildingPrompt(false);
               if (navigationMode) {
