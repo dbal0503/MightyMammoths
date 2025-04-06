@@ -119,6 +119,7 @@ function NavigationSheet({
     useEffect(() => {
       if (origin){
         setIsOriginYourLocation(origin === "Your Location");
+        console.log("isOriginYourLocation: ", isOriginYourLocation); //! Don't remove
       }
     }, [origin]);
 
@@ -263,7 +264,7 @@ function NavigationSheet({
                 setShowRoomPrompt(false);
                 
                 // Hide sheet immediately to prevent UI conflicts
-                actionsheetref.current?.hide();
+                // actionsheetref.current?.hide();
                 
                 // Call the parent's callback function to show the indoor map
                 if (onShowIndoorMap) {
@@ -281,6 +282,19 @@ function NavigationSheet({
                       roomNumber
                     });
                   }, 300);
+                  
+                  //* Uncomment the following lines if you want it so that if the View Indoor is pressed then we stop navigation
+                  //* If left commented, when the back arrow for indoor is pressed, the user will return back to the outdoor navigation
+
+                  // setNavigationIsStarted(false);
+                  // actionsheetref.current?.hide();
+                  // setPoly("");
+                  // setStartedSelectedRoute(false);
+                  // setIsOriginYourLocation(false);
+                  // setRoutesValid(false);
+                  // setIsBackgroundInteractionEnabled(false);
+                  // if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+
                 } else {
                   // Fallback alert if all else fails
                   Alert.alert(

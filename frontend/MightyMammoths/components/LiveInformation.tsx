@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { buildingList } from '../utils/getBuildingList';
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);
@@ -35,46 +36,72 @@ export function LiveInformation({
 
     // Check if room number is specified
     const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
+    const isConcordiaBuilding = buildingList.some(building =>
+        destination.toLowerCase().includes(building.buildingName.toLowerCase())
+      );
+    
+    console.log('[LiveInformation] destination:', destination);
+    console.log('[LiveInformation] isConcordiaBuilding:', isConcordiaBuilding);
 
     return (
     <>
-    <View style={styles.container}>
-        <View style={styles.destinationInformation}>
-            <View style={styles.etaContainer}>
-                <Text style={styles.routeHeading}>ETA</Text>
-                <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
-            </View>
-            <View style={styles.travelInformation}>
-                <View style={styles.travelText}>
-                    <Text style={styles.time}>{bestEstimate.duration}</Text>
-                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
+    {!isConcordiaBuilding ? (
+        <View style={styles.container}>
+            <View style={styles.destinationInformation}>
+                <View style={styles.etaContainer}>
+                    <Text style={styles.routeHeading}>ETA</Text>
+                    <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
                 </View>
-                <View style={styles.buttonContainer}>
-                    {/* Show "View Building Info" button if no room number */}
-                    {!hasRoomNumber && onViewBuildingInfo && (
-                        <TouchableOpacity 
-                            style={[styles.actionButton, styles.buildingInfoButton]} 
-                            onPress={() => {
-                                console.log('[LiveInformation] View Indoor button clicked');
-                                // First execute the callback to show the room prompt
-                                if (onViewBuildingInfo) {
-                                    onViewBuildingInfo();
-                                }
-                            }}
-                        >
-                            <Text style={styles.buttonText}>View Indoor</Text>
-                        </TouchableOpacity>
-                    )}
-                    <TouchableOpacity 
-                        style={[styles.actionButton, styles.stopButton]} 
-                        onPress={stopNavigation}
-                    >
-                        <Text style={styles.buttonText}>Stop</Text>
+                <View style={styles.travelInformation}>
+                    <View style={styles.travelText}>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
+                        <Text style={styles.stop}>Stop</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </View>
-    </View>
+    ) : (
+        <View style={styles.container}>
+            <View style={styles.destinationInformation}>
+                <View style={styles.etaContainer}>
+                    <Text style={styles.routeHeading}>ETA</Text>
+                    <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
+                </View>
+                <View style={styles.travelInformation}>
+                    <View style={styles.travelText}>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {/* Show "View Building Info" button if no room number */}
+                        {!hasRoomNumber && onViewBuildingInfo && (
+                            <TouchableOpacity 
+                                style={[styles.actionButton, styles.buildingInfoButton]} 
+                                onPress={() => {
+                                    console.log('[LiveInformation] View Indoor button clicked');
+                                    // First execute the callback to show the room prompt
+                                    if (onViewBuildingInfo) {
+                                        onViewBuildingInfo();
+                                    }
+                                }}
+                            >
+                                <Text style={styles.buttonText}>View Indoor</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity 
+                            style={[styles.actionButton, styles.stopButton]} 
+                            onPress={stopNavigation}
+                        >
+                            <Text style={styles.buttonText}>Stop</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </View>
+    )}
     </>
     );
 }
@@ -155,6 +182,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#1e88e5',
         marginRight: 10,
         minWidth: 120,
+    },
+    startButton:{
+        position: 'absolute',
+        backgroundColor: 'red',
+        borderRadius: 20,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 230,
+        width:'40%',
+        justifyContent: 'center',
+        marginTop: 100
     },
     buttonText: {
         fontSize: 18,
