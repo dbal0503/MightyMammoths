@@ -57,6 +57,16 @@ function NavigationSheet({
         routesValid
     } = state;
     
+    // Add debug logs to help identify the issue
+    useEffect(() => {
+      console.log("NavigationSheet - DEBUG INFO:");
+      console.log("Origin:", origin);
+      console.log("Destination:", destination);
+      console.log("routesValid:", routesValid);
+      console.log("twoBuildingsSelected:", twoBuildingsSelected);
+      console.log("routeEstimates available modes:", Object.keys(routeEstimates));
+    }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates]);
+    
     const { 
         setSelectedMode, 
         setRouteEstimates,

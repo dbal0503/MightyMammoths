@@ -83,61 +83,29 @@ const NavigationProvider = ({
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
     if(name === "Your Location"){
-      const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.High});
-      console.log(`Current user location: ${loc.coords.latitude},${loc.coords.longitude}`);
-      return `${loc.coords.latitude},${loc.coords.longitude}`;
+      const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
+      return `${loc.coords.latitude},${loc.coords.longitude}`
+    } else if (name === "Concordia") {
+      // Use the Hall Building coordinates for Concordia
+      console.log("Resolving Concordia to Hall Building coordinates");
+      const hallBuilding = campusBuildingCoords.features.find((item) => item.properties.Building === "H");
+      if (hallBuilding) {
+        return `${hallBuilding.properties.Latitude},${hallBuilding.properties.Longitude}`;
+      }
+      // Fallback to hardcoded coordinates for Hall Building
+      return "45.497092,-73.5788";
     } else {
-      // First check if the location is one of our campus buildings by building name
-      let buildingMatch = campusBuildingCoords.features.find(
-        (item) => item.properties.BuildingName === name || item.properties.Building === name
-      );
-      
-      if (buildingMatch?.properties?.PlaceID) {
-        console.log(`Found campus building: ${name} with place ID: ${buildingMatch.properties.PlaceID}`);
-        return `place_id:${buildingMatch.properties.PlaceID}`;
-      }
-      
-      // Then check by abbreviation (like "H" for Hall Building)
-      buildingMatch = campusBuildingCoords.features.find(
-        (item) => item.properties.Building === name
-      );
-      
-      if (buildingMatch?.properties?.PlaceID) {
-        console.log(`Found campus building by code: ${name} with place ID: ${buildingMatch.properties.PlaceID}`);
-        return `place_id:${buildingMatch.properties.PlaceID}`;
-      }
-      
-      // If not a campus building, check search suggestions
-      const suggestionMatch = searchSuggestions.find(
-        (item) => item.placePrediction.structuredFormat.mainText.text === name
-      );
-      
-      if (suggestionMatch?.placePrediction?.placeId) {
-        console.log(`Found place in search suggestions: ${name} with place ID: ${suggestionMatch.placePrediction.placeId}`);
-        return `place_id:${suggestionMatch.placePrediction.placeId}`;
-      }
-      
-      // If it's a hardcoded location like "Concordia", use the coordinates directly
-      if (name === "Concordia") {
-        // Using Hall Building (H Building) coordinates from the campusbuildingcoords.json file
-        const hallBuildingData = campusBuildingCoords.features.find(
-          (item) => item.properties.Building === "H"
-        );
-        
-        if (hallBuildingData) {
-          const coords = `${hallBuildingData.properties.Latitude},${hallBuildingData.properties.Longitude}`;
-          console.log(`Using Hall Building coordinates for Concordia: ${coords}`);
-          return coords;
+      let id = campusBuildingCoords.features.find((item) => item.properties.Building === name)?.properties.PlaceID
+      if(id){
+        return `place_id:${id}`;
+      }else{
+        id = searchSuggestions.find((item) => item.placePrediction.structuredFormat.mainText.text === name)?.placePrediction.placeId
+        if(id){
+          return `place_id:${id}`;
+        }else{
+          throw new Error("Could not resolve name to place id.")
         }
-        
-        // Fallback to hardcoded coordinates if Hall Building not found
-        const concordiaCoords = "45.497092,-73.5788"; // Coordinates for Concordia University Hall Building
-        console.log(`Using hardcoded coordinates for ${name}: ${concordiaCoords}`);
-        return concordiaCoords;
       }
-      
-      console.error(`Could not resolve name to place ID: ${name}`);
-      throw new Error(`Could not resolve name to place ID: ${name}`);
     }
   }
 
@@ -153,6 +121,16 @@ const NavigationProvider = ({
 
     if (!origin || !destination || !navigationMode) return;
     setLoadingRoutes(true);
+    
+    // Set twoBuildingsSelected to true when both origin and destination are set
+    if (origin && destination) {
+      setTwoBuildingsSelected(true);
+      console.log("Both origin and destination are set:", { origin, destination });
+    } else {
+      setTwoBuildingsSelected(false);
+      console.log("Missing origin or destination:", { origin, destination });
+    }
+    
     const estimates: { [mode: string]: RouteData[] } = {};
     try {
       
