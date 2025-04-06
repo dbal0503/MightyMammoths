@@ -15,6 +15,8 @@ interface LiveInformationProps {
     isZoomedIn: boolean;
     destination: string;
     destinationCoords: string;
+    roomNumber?: string | null;
+    onViewBuildingInfo?: () => void;
 }
 
 export function LiveInformation({
@@ -23,11 +25,16 @@ export function LiveInformation({
     onZoomOut,
     isZoomedIn,
     destination,
-    destinationCoords
+    destinationCoords,
+    roomNumber,
+    onViewBuildingInfo
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
     const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
+
+    // Check if room number is specified
+    const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
 
     return (
     <>
@@ -42,9 +49,29 @@ export function LiveInformation({
                     <Text style={styles.time}>{bestEstimate.duration}</Text>
                     <Text style={styles.distance}>{bestEstimate.distance}</Text>
                 </View>
-                <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
-                    <Text style={styles.stop}>Stop</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                    {/* Show "View Building Info" button if no room number */}
+                    {!hasRoomNumber && onViewBuildingInfo && (
+                        <TouchableOpacity 
+                            style={[styles.actionButton, styles.buildingInfoButton]} 
+                            onPress={() => {
+                                console.log('[LiveInformation] View Indoor button clicked');
+                                // First execute the callback to show the room prompt
+                                if (onViewBuildingInfo) {
+                                    onViewBuildingInfo();
+                                }
+                            }}
+                        >
+                            <Text style={styles.buttonText}>View Indoor</Text>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity 
+                        style={[styles.actionButton, styles.stopButton]} 
+                        onPress={stopNavigation}
+                    >
+                        <Text style={styles.buttonText}>Stop</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     </View>
@@ -104,23 +131,40 @@ const styles = StyleSheet.create({
         fontSize:18,
         color: 'white',
     },
-    startButton:{
+    buttonContainer: {
         position: 'absolute',
-        backgroundColor: 'red',
+        flexDirection: 'row',
+        marginLeft: 100,
+        marginTop: 100,
+        justifyContent: 'space-between',
+        width: '70%',
+    },
+    actionButton: {
         borderRadius: 20,
         height: 60,
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 230,
-        width:'40%',
         justifyContent: 'center',
-        marginTop: 100
+        paddingHorizontal: 15,
+    },
+    stopButton: {
+        backgroundColor: 'red',
+        minWidth: 120,
+    },
+    buildingInfoButton: {
+        backgroundColor: '#1e88e5',
+        marginRight: 10,
+        minWidth: 120,
+    },
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        fontWeight: 'bold',
     },
     navigationIcon: {
         paddingLeft: 10
     },
     stop:{
-        
         fontSize: 23,
         color: 'white',
     },

@@ -123,6 +123,8 @@ export default function HomeScreen() {
   const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
   const [isNearDestination, setIsNearDestination] = useState(false);
   const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedFloorId, setSelectedFloorId] = useState<string | null>(null);
  
   const parseRoomNumber = (text: string): string | null => {
     const match = /(?:room\s+)?(\d+)|\b([a-z])-(\d+)\b/i.exec(text);
@@ -698,6 +700,97 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     };
   }, [isOriginYourLocation, isZoomedIn, destinationRoom, selectedBuilding]); // Added destinationRoom and selectedBuilding to dependencies
 
+  // Debug useEffect to track indoor map visibility state
+  useEffect(() => {
+    console.log(`[DEBUG] IndoorMapModal visibility changed to: ${indoorMapVisible}`);
+    if (indoorMapVisible) {
+      console.log(`[DEBUG] IndoorMapModal data:`, {
+        selectedBuilding: selectedBuilding?.properties?.BuildingName || 'None',
+        destinationRoom: destinationRoom,
+        selectedRoomId: selectedRoomId,
+        selectedFloorId: selectedFloorId
+      });
+    }
+  }, [indoorMapVisible, selectedRoomId, selectedFloorId]);
+
+  // This function is specifically for handling the transition from room prompt to indoor map
+  const showIndoorMapWithRoom = (roomId: string, floorId: string, roomNumber: string) => {
+    console.log('Explicitly showing indoor map with room:', roomId, floorId, roomNumber);
+    
+    // Set all required state variables
+    setDestinationRoom(roomNumber);
+    setSelectedRoomId(roomId);
+    setSelectedFloorId(floorId);
+    
+    // If no building is selected, set the Hall Building as default
+    if (!selectedBuilding) {
+      const hallBuilding = campusBuildingCoords.features.find(
+        feature => feature.properties.BuildingName === "Hall Building"
+      );
+      if (hallBuilding) {
+        setSelectedBuilding(hallBuilding);
+      }
+    }
+    
+    // Hide any open sheets
+    navigationSheet.current?.hide();
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    // Show the indoor map modal
+    setIndoorMapVisible(true);
+  };
+
+  // Global temporary storage for room selection
+  const roomSelectionData = useRef<{
+    roomId: string | null;
+    floorId: string | null;
+    roomNumber: string | null;
+  }>({
+    roomId: null,
+    floorId: null,
+    roomNumber: null
+  });
+
+  // Force show the indoor map - call this directly to avoid using context
+  const forceShowIndoorMap = () => {
+    // First complete any pending state updates
+    console.log("[FORCE SHOW] Room data before showing map:", roomSelectionData.current);
+    
+    // Set the room and floor IDs from our temporary storage
+    if (roomSelectionData.current.roomId) {
+      setSelectedRoomId(roomSelectionData.current.roomId);
+    }
+    
+    if (roomSelectionData.current.floorId) {
+      setSelectedFloorId(roomSelectionData.current.floorId);
+    }
+    
+    if (roomSelectionData.current.roomNumber) {
+      setDestinationRoom(roomSelectionData.current.roomNumber);
+    }
+    
+    // Ensure we have a proper Hall building if no building is selected
+    if (!selectedBuilding) {
+      const hallBuilding = campusBuildingCoords.features.find(
+        feature => feature.properties.BuildingName === "Hall Building"
+      );
+      if (hallBuilding) {
+        setSelectedBuilding(hallBuilding);
+      }
+    }
+    
+    // Give a little time for state to update, then show the modal
+    setTimeout(() => {
+      console.log("[FORCE SHOW] Setting indoorMapVisible to true directly with data:", {
+        roomId: selectedRoomId,
+        floorId: selectedFloorId,
+        roomNumber: destinationRoom
+      });
+      setIndoorMapVisible(true);
+    }, 300);
+  };
+
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
@@ -707,16 +800,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             onClose={()=>setShowTutorialHowTo(false)}
           />
         }
-        
-        {/* Hall Building Room Prompt */}
-        <HallBuildingRoomPrompt
-          visible={showHallBuildingPrompt}
-          onClose={() => setShowHallBuildingPrompt(false)}
-          onSelectRoom={(roomId) => {
-            // After selecting a room, show the indoor map
-            setIndoorMapVisible(true);
-          }}
-        />
         
         <MapView
           style={styles.map}
@@ -815,28 +898,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           />
         )}
 
-        {selectedBuilding && (
-          <IndoorMapModal
-            visible={indoorMapVisible}
-            onClose={() => {
-              setIndoorMapVisible(false);
-              setShowHallBuildingPrompt(false);
-              if (navigationMode) {
-                navigationSheet.current?.show();
-              } else {
-                campusToggleSheet.current?.show();
-              }
-            }}
-            building={selectedBuilding || {
-              properties: { BuildingName: "Hall Building" },
-              geometry: { type: "Point", coordinates: [-73.5788, 45.497092] },
-              type: "Feature"
-            }}
-            roomNumber={destinationRoom}
-            userLocation={myLocation}
-          />
-        )}
-
         <PlaceInfoSheet
           navigate={startNavigation}
           actionsheetref={placeInfoSheet}
@@ -866,12 +927,73 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             setLongitudeStepByStep={setLongitudeStepByStep}
             isZoomedIn={isZoomedIn}
             userLocation={myLocation}
+            onShowIndoorMap={(roomData) => {
+              console.log("[INDEX] Received room data from NavigationSheet:", roomData);
+              
+              // Store the room data in our temporary storage
+              if (roomData) {
+                roomSelectionData.current = {
+                  roomId: roomData.roomId,
+                  floorId: roomData.floorId,
+                  roomNumber: roomData.roomNumber
+                };
+              }
+              
+              // Then call forceShowIndoorMap to display the indoor map
+              forceShowIndoorMap();
+            }}
           />
           <DestinationChoices
             buildingList={buildingList}
             visible={chooseDestVisible}
             destination={destination}
             locationServicesEnabled={locationServicesEnabled}
+          />
+          <HallBuildingRoomPrompt
+            visible={showHallBuildingPrompt}
+            onClose={() => setShowHallBuildingPrompt(false)}
+            onSelectRoom={(roomId, floorId, roomNumber) => {
+              console.log('Room selected:', roomId, floorId, roomNumber);
+              
+              // Use the new function to show the indoor map with proper parameters
+              showIndoorMapWithRoom(roomId, floorId, roomNumber);
+              
+              // Hide the room prompt
+              setShowHallBuildingPrompt(false);
+            }}
+          />
+          
+          {/* Add IndoorMapModal inside the NavigationProvider */}
+          <IndoorMapModal
+            visible={indoorMapVisible}
+            onClose={() => {
+              console.log('Closing indoor map modal');
+              setIndoorMapVisible(false);
+              setShowHallBuildingPrompt(false);
+              if (navigationMode) {
+                navigationSheet.current?.show();
+              } else {
+                campusToggleSheet.current?.show();
+              }
+            }}
+            building={selectedBuilding || {
+              properties: { 
+                BuildingName: "Hall Building",
+                Campus: "SGW",
+                Building: "H",
+                "Building Long Name": "Henry F. Hall Building",
+                Address: "1455 De Maisonneuve Blvd. W",
+                PlaceID: "ChIJbWPFbY6QyUwRXZZcfOWRRD0",
+                Latitude: 45.497092,
+                Longitude: -73.5788
+              },
+              geometry: { type: "Point", coordinates: [-73.5788, 45.497092] },
+              type: "Feature"
+            }}
+            roomNumber={destinationRoom}
+            roomId={selectedRoomId || undefined}
+            floorId={selectedFloorId || undefined}
+            userLocation={myLocation}
           />
         </NavigationProvider>
       </GestureHandlerRootView>

@@ -9,15 +9,20 @@ export interface RoomInfo {
 /**
  * Get room information by room number
  * @param roomNumber The room number to search for
- * @returns Room information if found, undefined otherwise
+ * @returns Room information or undefined if not found
  */
 export const getRoomInfoByNumber = (roomNumber: string): RoomInfo | undefined => {
-  // Normalize the room number (remove leading 'H-' if present)
-  const normalizedRoomNumber = roomNumber.replace(/^H-/i, '');
-  
-  return hallBuildingRooms.rooms.find(
-    (room) => room.roomNumber === normalizedRoomNumber
-  );
+  try {
+    // Normalize the room number by removing "H-" prefix if present
+    const normalizedRoomNumber = roomNumber.replace(/^H-/i, '');
+    
+    return hallBuildingRooms.rooms.find(
+      (room) => room.roomNumber === normalizedRoomNumber
+    );
+  } catch (error) {
+    console.error("Error getting room info:", error);
+    return undefined;
+  }
 };
 
 /**
@@ -57,6 +62,35 @@ export const getFloorName = (floorId: string): string => {
   };
   
   return floorMap[floorId] || 'Unknown Floor';
+};
+
+/**
+ * Generate a Mappedin URL for indoor navigation to a specific room
+ * @param roomId The encoded room ID
+ * @param floorId The floor ID
+ * @returns A complete Mappedin URL for navigation
+ */
+export const getMappedinUrl = (roomId: string, floorId: string): string => {
+  // Base map ID for Hall Building
+  const mapId = "677d8a736e2f5c000b8f3fa6";
+  
+  // Default entrance IDs - these are the IDs for all possible entrances
+  const entranceIdsList = [
+    "e_a6d56acd8c7128f9", "e_49ea4cec0d60fc53", "e_823c13b48c7d7535", 
+    "e_766d70498983ac55", "e_4ada9ddb34466065", "e_2bac326896ceb47c", 
+    "e_b0b0fdb3f80b8d3b", "e_d6c18d77bf0edd71", "e_c4b0c10524716958", 
+    "e_8c0d903a739d8b4c", "e_ac9c98cd67f127b0", "e_77086adeb3630af8", 
+    "e_6837c7ba1963b2e0", "e_2d2b69303c8da8a8", "e_ed4cf2425c3acb41", 
+    "e_68407775901d72b7", "e_7d7a551d207d7ff7", "e_5ba356e194baf98c", 
+    "e_f6c4cd06031bfcc4", "e_49bbdf7d3822b2f0", "e_55b8bca4c727d96d", 
+    "e_2fff074511aa43da", "e_ec733df862eeed50", "e_1f81e73cf49ef139", 
+    "e_a835788d35cf96cb"
+  ];
+  
+  const entrances = entranceIdsList.join('+');
+  
+  // Return the complete URL for directions to the room from all entrances
+  return `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${entrances}&floor=${floorId}`;
 };
 
 /**

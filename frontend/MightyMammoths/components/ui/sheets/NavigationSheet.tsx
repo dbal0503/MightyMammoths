@@ -1,12 +1,13 @@
-import { View, StyleSheet } from 'react-native';
-import { useEffect, useState } from 'react';
-import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
-import { TransportChoice } from "@/components/TransportChoice";
-import { useNavigation } from "@/components/NavigationProvider"
-import { LiveInformation } from '@/components/LiveInformation';
-import polyline from "@mapbox/polyline"
-import { LatLng } from 'react-native-maps';
-import { StaticNavigationInformation } from '@/components/StaticNavigationInformation';
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Pressable, Text, Alert } from "react-native";
+import { useNavigation } from "../../../components/NavigationProvider";
+import ActionSheet, { ActionSheetRef, ActionSheetProps } from "react-native-actions-sheet";
+import { TransportChoice } from "../../../components/TransportChoice";
+import { StaticNavigationInformation } from "../../../components/StaticNavigationInformation";
+import { LiveInformation } from "../../../components/LiveInformation";
+import * as polyline from "@mapbox/polyline";
+import { LatLng } from "react-native-maps";
+import HallBuildingRoomPrompt from "../../ui/HallBuildingRoomPrompt";
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
@@ -20,6 +21,7 @@ export type NavigationSheetProps = ActionSheetProps & {
     onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
     isZoomedIn: boolean;
     userLocation: {latitude: number, longitude: number};
+    onShowIndoorMap?: (roomData?: {roomId: string, floorId: string, roomNumber: string}) => void;
 }
 
 function NavigationSheet({
@@ -41,7 +43,8 @@ function NavigationSheet({
     onZoomIn,
     onZoomOut,
     isZoomedIn,
-    userLocation
+    userLocation,
+    onShowIndoorMap
 }: NavigationSheetProps) {
     const [navigationIsStarted, setNavigationIsStarted] = useState(false);
     const { state, functions } = useNavigation();
@@ -54,8 +57,11 @@ function NavigationSheet({
         destination,
         originCoords,
         destinationCoords,
-        routesValid
+        routesValid,
+        selectedRoomId
     } = state;
+    
+    const [showRoomPrompt, setShowRoomPrompt] = useState(false);
     
     // Add debug logs to help identify the issue
     useEffect(() => {
@@ -161,14 +167,14 @@ function NavigationSheet({
                         setRoutesValid(false);
                       }}
                       routeEstimates={routeEstimates}
-                      onSelectMode={(mode) => {
+                      onSelectMode={(mode: string) => {
                         if(origin && destination){
                           setSelectedMode(mode);
                           actionsheetref.current?.snapToIndex(1)
                           console.log("onselect mode"+mode);
                         }
                       }}
-                      onSetSteps={(steps) => {
+                      onSetSteps={(steps: any) => {
                         console.log("Steps set: ", steps);
                         console.log("steps mode: " + selectedMode)
                       }}
@@ -232,10 +238,59 @@ function NavigationSheet({
                       isZoomedIn={isZoomedIn}
                       destination={destination}
                       destinationCoords={destinationCoords}
+                      roomNumber={selectedRoomId}
+                      onViewBuildingInfo={() => {
+                        console.log('View Indoor button clicked - showing room prompt');
+                        // Explicitly hide the sheet to prevent UI conflicts
+                        actionsheetref.current?.snapToIndex(0);
+                        // Then show the room prompt after a small delay
+                        setTimeout(() => {
+                          setShowRoomPrompt(true);
+                        }, 100);
+                      }}
                     /> 
                   )
                 }
             </View>
+            
+            <HallBuildingRoomPrompt
+              visible={showRoomPrompt}
+              onClose={() => setShowRoomPrompt(false)}
+              onSelectRoom={(roomId, floorId, roomNumber) => {
+                console.log('Room selected in NavigationSheet:', roomId, floorId, roomNumber);
+                
+                // First close the prompt
+                setShowRoomPrompt(false);
+                
+                // Hide sheet immediately to prevent UI conflicts
+                actionsheetref.current?.hide();
+                
+                // Call the parent's callback function to show the indoor map
+                if (onShowIndoorMap) {
+                  // Use a modified approach that directly handles the data
+                  // Pass the data to the parent component through a callback
+                  console.log(`Before showing indoor map, passing data: ${roomId}, ${floorId}, ${roomNumber}`);
+                  
+                  // Call the parent's function to show the indoor map
+                  setTimeout(() => {
+                    // Before we call onShowIndoorMap, we need to ensure the room data is available
+                    // The index.tsx file will handle the data through the callback
+                    onShowIndoorMap({
+                      roomId, 
+                      floorId, 
+                      roomNumber
+                    });
+                  }, 300);
+                } else {
+                  // Fallback alert if all else fails
+                  Alert.alert(
+                    "Room Selected",
+                    `Room: ${roomNumber}\nID: ${roomId}\nFloor: ${floorId}`,
+                    [{ text: "OK" }]
+                  );
+                }
+              }}
+            />
         </ActionSheet>
       </>
     );

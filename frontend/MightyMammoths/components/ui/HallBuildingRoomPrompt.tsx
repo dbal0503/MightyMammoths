@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { isValidHallBuildingRoom, getRoomInfoByNumber } from '../../utils/hallBuildingRooms';
-import { useNavigation as useNavigationProvider } from '../NavigationProvider';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { isValidHallBuildingRoom, getRoomInfoByNumber, RoomInfo } from '../../utils/hallBuildingRooms';
 
 interface HallBuildingRoomPromptProps {
   visible: boolean;
   onClose: () => void;
-  onSelectRoom?: (roomId: string) => void;
+  onSelectRoom?: (roomId: string, floorId: string, roomNumber: string) => void;
 }
 
 const HallBuildingRoomPrompt: React.FC<HallBuildingRoomPromptProps> = ({ 
@@ -16,49 +15,65 @@ const HallBuildingRoomPrompt: React.FC<HallBuildingRoomPromptProps> = ({
 }) => {
   const [roomNumber, setRoomNumber] = useState('');
   const [isRoomValid, setIsRoomValid] = useState(false);
-  const { state } = useNavigationProvider();
-  const { setModalVisible } = state;
+  const [selectedRoomInfo, setSelectedRoomInfo] = useState<RoomInfo | null>(null);
+
+  useEffect(() => {
+    // Reset room number when modal becomes visible
+    if (visible) {
+      setRoomNumber('');
+      setIsRoomValid(false);
+      setSelectedRoomInfo(null);
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (roomNumber.trim() === '') {
       setIsRoomValid(false);
+      setSelectedRoomInfo(null);
       return;
     }
     
-    const isValid = isValidHallBuildingRoom(roomNumber);
+    const roomInfo = getRoomInfoByNumber(roomNumber);
+    const isValid = roomInfo !== undefined;
+    
     setIsRoomValid(isValid);
+    setSelectedRoomInfo(isValid ? roomInfo : null);
   }, [roomNumber]);
 
   const handleSubmit = () => {
-    if (!isRoomValid) {
+    if (!isRoomValid || !selectedRoomInfo) {
       Alert.alert('Invalid Room', 'Please enter a valid Hall Building room number.');
       return;
     }
 
-    const roomInfo = getRoomInfoByNumber(roomNumber);
-    if (!roomInfo) {
-      Alert.alert('Error', 'Could not find room information.');
-      return;
-    }
-
-    console.log('Room selected:', roomInfo);
+    console.log('Room selected in HallBuildingRoomPrompt:', selectedRoomInfo);
     
     // Close this prompt
     onClose();
     
-    // Call the onSelectRoom callback if provided
+    // Call the onSelectRoom callback with all necessary info if provided
     if (onSelectRoom) {
-      onSelectRoom(roomInfo.encodedId);
+      console.log('Calling onSelectRoom with:', 
+        selectedRoomInfo.encodedId,
+        selectedRoomInfo.floor,
+        selectedRoomInfo.roomNumber
+      );
+      
+      // Log the complete floor ID to ensure it's correctly captured
+      console.log('🔍 IMPORTANT - Floor ID being passed:', selectedRoomInfo.floor);
+      
+      // Call onSelectRoom without a timeout - pass data directly
+      onSelectRoom(
+        selectedRoomInfo.encodedId,
+        selectedRoomInfo.floor,
+        selectedRoomInfo.roomNumber
+      );
     }
-    
-    // Open the indoor map modal with the selected room
-    setTimeout(() => {
-      setModalVisible(true, roomInfo.encodedId);
-    }, 300);
   };
 
   const handleCancel = () => {
     setRoomNumber('');
+    setSelectedRoomInfo(null);
     onClose();
   };
 
@@ -73,7 +88,7 @@ const HallBuildingRoomPrompt: React.FC<HallBuildingRoomPromptProps> = ({
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Enter Room Number</Text>
           <Text style={styles.modalSubtitle}>
-            You're near Hall Building. Enter your destination room number to continue.
+            Enter your destination room number to view indoor directions.
           </Text>
           
           <TextInput

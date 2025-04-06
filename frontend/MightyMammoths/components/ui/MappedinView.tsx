@@ -7,6 +7,7 @@ interface MappedinViewProps {
   buildingName: string;
   roomId?: string;
   entranceId?: string;
+  floorId?: string;
   onMapLoaded?: () => void;
   onError?: (error: string) => void;
 }
@@ -15,6 +16,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   buildingName,
   roomId,
   entranceId,
+  floorId,
   onMapLoaded,
   onError,
 }) => {
@@ -23,10 +25,22 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   const [isEmbeddedView, setIsEmbeddedView] = useState(true);
   const [hasError, setHasError] = useState(false);
 
+  // Debug log the props
+  useEffect(() => {
+    console.log('MappedinView rendering with props:', {
+      buildingName,
+      roomId,
+      entranceId,
+      floorId
+    });
+  }, [buildingName, roomId, entranceId, floorId]);
+
   /**
    * Generate the URL for the Mappedin map
    */
-  function getMapUrl(buildingName: string, roomId?: string, entranceId?: string): string {
+  function getMapUrl(buildingName: string, roomId?: string, entranceId?: string, floorId?: string): string {
+    console.log('[MappedinView] Generating URL with:', { buildingName, roomId, entranceId, floorId });
+    
     // Default to Hall Building if not specified
     const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
     
@@ -35,13 +49,32 @@ const MappedinView: React.FC<MappedinViewProps> = ({
     
     // Add directional info if both room and entrance are specified
     if (roomId && entranceId) {
-      url = `${url}/directions?location=${roomId}&departure=${entranceId}`;
+      // Using the proper format: /directions?floor=&location=&departure=
+      url = `${url}/directions?`;
+      
+      // Add floor ID first if available
+      if (floorId) {
+        url += `floor=${floorId}&`;
+      }
+      
+      // Add location (room) and departure (entrance) parameters
+      url += `location=${roomId}&departure=${entranceId}`;
     } 
     // Just show the room if only room is specified
     else if (roomId) {
-      url = `${url}/routes/${roomId}`;
+      // Use directions format but without departure
+      if (floorId) {
+        url = `${url}/directions?floor=${floorId}&location=${roomId}`;
+      } else {
+        url = `${url}/directions?location=${roomId}`;
+      }
+    }
+    // Just specify floor if only floor is specified
+    else if (floorId) {
+      url = `${url}?floor=${floorId}`;
     }
     
+    console.log('[MappedinView] Generated URL:', url);
     return url;
   }
 
@@ -83,7 +116,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
         <body>
           ${isEmbeddedView ? 
             `<iframe 
-              src="${getMapUrl(buildingName, roomId, entranceId)}"
+              src="${getMapUrl(buildingName, roomId, entranceId, floorId)}"
               allow="geolocation" 
               allowfullscreen
               onerror="handleIframeError()"
@@ -101,7 +134,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
                 return '<div class="fallback">' +
                   '<h2>${buildingName}</h2>' +
                   '<p>Indoor map is available in the web browser.</p>' +
-                  '<a href="${getMapUrl(buildingName, roomId, entranceId)}" target="_blank">Open Map in Browser</a>' +
+                  '<a href="${getMapUrl(buildingName, roomId, entranceId, floorId)}" target="_blank">Open Map in Browser</a>' +
                 '</div>';
               }
             </script>` 
@@ -109,7 +142,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
             `<div class="fallback">
               <h2>${buildingName}</h2>
               <p>Indoor map is available in the web browser.</p>
-              <a href="${getMapUrl(buildingName, roomId, entranceId)}" target="_blank">Open Map in Browser</a>
+              <a href="${getMapUrl(buildingName, roomId, entranceId, floorId)}" target="_blank">Open Map in Browser</a>
              </div>`
           }
           <script>
@@ -158,7 +191,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   };
 
   const openInBrowser = () => {
-    const url = getMapUrl(buildingName, roomId, entranceId);
+    const url = getMapUrl(buildingName, roomId, entranceId, floorId);
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
         Linking.openURL(url);

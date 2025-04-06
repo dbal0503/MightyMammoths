@@ -195,10 +195,19 @@ const NavigationProvider = ({
 
   // Function to set modal visibility and optionally a room ID
   const setModalVisible = (visible: boolean, roomId: string | null = null) => {
-    setIsIndoorMapVisible(visible);
+    console.log(`[NavigationProvider] Setting modal visibility to ${visible}, roomId: ${roomId || 'none'}`);
+    
+    // First set the room ID if provided
     if (roomId) {
+      console.log(`[NavigationProvider] Setting selected room ID to ${roomId}`);
       setSelectedRoomId(roomId);
     }
+    
+    // Then set visibility with a slight delay to ensure state updates
+    setTimeout(() => {
+      console.log(`[NavigationProvider] Actually changing visibility to ${visible}`);
+      setIsIndoorMapVisible(visible);
+    }, 100);
   };
 
   return (
