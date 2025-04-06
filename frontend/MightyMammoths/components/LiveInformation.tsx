@@ -1,13 +1,8 @@
-import React, { useMemo } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
+import React, { useMemo, useState, useEffect } from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import buildingData from "../assets/buildings/coordinates/campusbuildingcoords.json";
+import IndoorMapModal from "../components/ui/IndoorMapModal"; // Make sure this path is correct
 
 const getUpdatedTime = (duration: string) => {
   const numericDuration = parseInt(duration, 10);
@@ -16,24 +11,20 @@ const getUpdatedTime = (duration: string) => {
   return timeNow.toLocaleTimeString();
 };
 
-// Add tons of console logs for debugging
 const isDestinationBuilding = (destination: string) => {
   console.log(
     "DEBUG: isDestinationBuilding called with destination:",
     destination
   );
 
-  // Check if we have a valid destination
   if (!destination) {
     console.log("DEBUG: Destination is null, undefined, or empty string");
     return false;
   }
 
-  // Convert destination to lowercase, trim any extra spaces
   const normalizedDestination = destination.toLowerCase().trim();
   console.log("DEBUG: normalizedDestination:", normalizedDestination);
 
-  // Check each building
   const foundBuilding = buildingData.features.find((feature, index) => {
     const buildingName = feature.properties.BuildingName.toLowerCase().trim();
     console.log(
@@ -45,7 +36,6 @@ const isDestinationBuilding = (destination: string) => {
       buildingName
     );
 
-    // Compare normalized strings
     const isMatch = buildingName === normalizedDestination;
     console.log("DEBUG: isMatch:", isMatch);
     return isMatch;
@@ -77,6 +67,7 @@ interface LiveInformationProps {
   destination: string;
   destinationCoords: string;
   onIndoorMapPress: () => void;
+  campusToggleSheet: any; // Add this to manage showing the sheet
 }
 
 export function LiveInformation({
@@ -87,40 +78,37 @@ export function LiveInformation({
   destination,
   destinationCoords,
   onIndoorMapPress,
+  campusToggleSheet,
 }: LiveInformationProps) {
-  console.log("DEBUG: LiveInformation Props -> destination:", destination);
+  const [indoorMapVisible, setIndoorMapVisible] = useState(false);
 
   const estimates = routes;
-  console.log("DEBUG: routes (estimates) array:", estimates);
-
   const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
-  console.log("DEBUG: bestEstimate:", bestEstimate);
 
   const stopNavigation = () => {
-    console.log("DEBUG: stopNavigation called");
     onStop();
     if (onZoomOut && isZoomedIn) {
-      console.log(
-        "DEBUG: onZoomOut invoked with coords:",
-        destinationCoords,
-        "destination:",
-        destination
-      );
       onZoomOut(destinationCoords, destination);
     }
   };
 
-  // Determine if we should show the indoor map button
+  // Determine if we should show the indoor map
   const showIndoorMapButton = useMemo(() => {
-    console.log(
-      "DEBUG: useMemo showIndoorMapButton -> checking isDestinationBuilding"
-    );
     const result = isDestinationBuilding(destination);
     console.log("DEBUG: showIndoorMapButton result:", result);
     return result;
   }, [destination]);
 
-  console.log("DEBUG: showIndoorMapButton:", showIndoorMapButton);
+  // Set the indoor map visibility based on the button condition
+  useEffect(() => {
+    if (showIndoorMapButton) {
+      setIndoorMapVisible(true);
+      // If you need to hide any sheets when showing the modal
+      if (campusToggleSheet?.current?.hide) {
+        campusToggleSheet.current.hide();
+      }
+    }
+  }, [showIndoorMapButton, campusToggleSheet]);
 
   return (
     <>
@@ -143,19 +131,20 @@ export function LiveInformation({
             </View>
           </View>
 
-          {/* Bottom Buttons Container */}
-          <View style={styles.buttonsContainer}>
+          {/* Show the stop button */}
+          <View style={styles.buttonsRow}>
             <TouchableOpacity
               style={styles.stopButton}
               onPress={stopNavigation}
             >
-              <Text style={styles.stop}>Stop</Text>
+              <Text style={styles.buttonText}>Stop</Text>
             </TouchableOpacity>
 
+            {/* Manual toggle button for indoor map - optional */}
             {showIndoorMapButton && (
               <TouchableOpacity
                 style={styles.indoorMapButton}
-                onPress={onIndoorMapPress}
+                onPress={() => setIndoorMapVisible(true)}
                 testID="indoorMapButton"
               >
                 <Text style={styles.buttonText}>View Indoor Map</Text>
@@ -164,6 +153,18 @@ export function LiveInformation({
           </View>
         </View>
       </View>
+
+      {/* Indoor Map Modal */}
+      <IndoorMapModal
+        visible={indoorMapVisible}
+        building={destination} // Using destination as the building name
+        onClose={() => {
+          setIndoorMapVisible(false);
+          if (campusToggleSheet?.current?.show) {
+            campusToggleSheet.current.show();
+          }
+        }}
+      />
     </>
   );
 }
@@ -178,16 +179,14 @@ const styles = StyleSheet.create({
     marginBottom: "100%",
     backgroundColor: "black",
   },
-  dropdownWrapper: {
-    alignItems: "center",
+  destinationInformation: {
+    paddingLeft: 20,
+    paddingRight: 20,
+    width: "100%",
   },
-  modeIcon: {
-    alignItems: "center",
-    color: "black",
-    padding: 5,
-    backgroundColor: "white",
-    borderRadius: 20,
-    height: "22%",
+  etaContainer: {
+    display: "flex",
+    flexDirection: "column",
   },
   routeHeading: {
     paddingTop: 20,
@@ -196,19 +195,17 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     color: "white",
   },
-  routeHeadingDestination: {
-    fontSize: 20,
-    marginBottom: 0,
+  destinationTime: {
     color: "white",
-  },
-  destinationInformation: {
-    paddingLeft: 20,
-    width: "90%",
+    fontSize: 20,
   },
   travelInformation: {
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 0,
+  },
+  travelText: {
+    marginTop: 10,
   },
   time: {
     fontSize: 20,
@@ -220,47 +217,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "white",
   },
-  buttonsContainer: {
+  buttonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 10,
     width: "100%",
+    position: "absolute",
+    bottom: -100,
   },
   stopButton: {
     backgroundColor: "red",
     borderRadius: 20,
-    height: 50,
-    flexDirection: "row",
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
     width: "45%",
+    paddingVertical: 8,
   },
   indoorMapButton: {
     backgroundColor: "#800000",
     borderRadius: 20,
-    height: 50,
-    flexDirection: "row",
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    width: "50%",
-  },
-  navigationIcon: {
-    paddingLeft: 10,
-  },
-  stop: {
-    fontSize: 23,
-    color: "white",
-  },
-  etaContainer: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  destinationTime: {
-    color: "white",
-    fontSize: 20,
-  },
-  travelText: {
-    marginTop: 10,
+    width: "45%",
+    paddingVertical: 8,
   },
   buttonText: {
     color: "white",
