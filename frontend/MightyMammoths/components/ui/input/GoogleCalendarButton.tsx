@@ -22,12 +22,61 @@ GoogleSignin.configure({
 });
 
 type GoogleCalendarButtonProps = {
-  navigateToRoutes: (destination: string) => void;
+  navigateToRoutes: (destination: string | { origin?: string; destination: string; roomNumber?: string }) => void;
   onNextEvent: (eventData: any) => void;
   testID?: string;
 };
 
 const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes, onNextEvent, testID }) => {
+
+  // Function to extract room numbers from text
+  const parseRoomNumber = (text: string): string | null => {
+    // Early return if text is empty
+    if (!text) return null;
+    
+    console.log("Parsing text for room number:", text);
+    
+    // Pattern for Concordia course codes "SOEN 345 H"
+    // In this case, we want to extract the course number (345), not the building code (H)
+    const coursePattern = /\b([A-Z]+)\s+(\d+)\s+([A-Z])\b/i;
+    const courseMatch = coursePattern.exec(text);
+    if (courseMatch) {
+      // Check if this is a course with a course number
+      // For courses, we DON'T want to use the course number as a room number
+      // Only return null to indicate no room number found, unless it's explicitly stated
+      console.log("Found course pattern, not treating as room number");
+      return null;
+    }
+    
+    // Pattern for "H-920" or "H 920" format
+    const buildingRoomPattern = /\b([a-z])[- ](\d+)\b/i;
+    const buildingRoomMatch = buildingRoomPattern.exec(text);
+    if (buildingRoomMatch) {
+      const building = buildingRoomMatch[1].toUpperCase();
+      const room = buildingRoomMatch[2];
+      console.log(`Found building-room format: ${building}-${room}`);
+      return room;
+    }
+    
+    // Pattern for "Room 123" format
+    const roomPattern = /(?:room\s+)(\d+)/i;
+    const roomMatch = roomPattern.exec(text);
+    if (roomMatch) {
+      console.log("Found 'room NNN' format:", roomMatch[1]);
+      return roomMatch[1];
+    }
+    
+    // Pattern for "at 123" format (common in calendar events)
+    const atRoomPattern = /\bat\s+(\d+)\b/i;
+    const atRoomMatch = atRoomPattern.exec(text);
+    if (atRoomMatch) {
+      console.log("Found 'at NNN' format:", atRoomMatch[1]);
+      return atRoomMatch[1];
+    }
+    
+    console.log("No room number pattern matched");
+    return null;
+  };
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [calendars, setCalendars] = useState<any[]>([]);
@@ -93,6 +142,28 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
         const eventName = event.summary || "No Title";
         const description = event.description || "";
         const location = event.location || "";
+        console.log("Event discription: ", description);
+        
+        // Extract building code from event name or location
+        let buildingCode = null;
+        const classWithBuildingPattern = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i;
+        
+        // Check location first
+        const locationMatch = classWithBuildingPattern.exec(location);
+        if (locationMatch) {
+          buildingCode = locationMatch[2].toUpperCase();
+        } 
+        // If not in location, check the summary/name
+        else {
+          const nameMatch = classWithBuildingPattern.exec(eventName);
+          if (nameMatch) {
+            buildingCode = nameMatch[2].toUpperCase();
+          }
+        }
+        
+        // Try to extract room number from all text
+        let roomNumber = description; 
+        
         const startDateTime = event.start?.dateTime
           ? new Date(event.start.dateTime)
           : null;
@@ -117,6 +188,8 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
           name: eventName,
           description: description,
           location: location,
+          buildingCode: buildingCode,
+          roomNumber: roomNumber,
           time: timeRange,
         };
 
@@ -177,9 +250,40 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
               <Text style={styles.timeText}>{nextEvent.time}</Text>
               <Pressable
                 style={styles.showDirectionsButton}
-                onPress={() =>
-                  navigateToRoutes(`${nextEvent.location}`)
-                }
+                onPress={() => {
+                  console.log("Show Directions button pressed");
+                  
+                  // Get event information
+                  const eventName = nextEvent.name || "";
+                  const location = nextEvent.location || "";
+                  const description = nextEvent.description || "";
+                  
+                  console.log("Event name:", eventName);
+                  console.log("Event location:", location);
+                  console.log("Event description:", description);
+                  
+                  // Default to using event location
+                  let destination = location;
+                  
+                  // If location is empty, try to use name
+                  if (!destination) {
+                    destination = eventName;
+                  }
+                  
+                  // Extract room number if available
+                  const roomNumber = nextEvent.roomNumber || 
+                                    (nextEvent.description && nextEvent.description.includes("at ") ? 
+                                      parseRoomNumber(nextEvent.description) : undefined);
+                  
+                  console.log("Final destination:", destination);
+                  console.log("Room number to use:", roomNumber);
+                  
+                  // Navigate to the destination
+                  navigateToRoutes({
+                    destination,
+                    roomNumber,
+                  });
+                }}
               >
                 <Text style={styles.showDirectionsText}>Show Directions</Text>
               </Pressable>

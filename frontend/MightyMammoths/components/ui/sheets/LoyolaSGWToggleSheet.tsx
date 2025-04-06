@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import GoogleCalendarButton from '../input/GoogleCalendarButton';
 import ToggleSwitch from '../input/ToggleSwitch';
 import RetroSwitch from '../input/RetroSwitch';
@@ -10,7 +10,7 @@ export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
   setSelectedCampus: (selected: string) => void;
   actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
   navigateToRoutes: (
-    destination: string | { origin?: string; destination: string }
+    destination: string | { origin?: string; destination: string; roomNumber?: string }
   ) => void;
 };
 
@@ -78,7 +78,7 @@ function LoyolaSGWToggleSheet({
         <GoogleCalendarButton
           testID="google-calendar-button"
           onNextEvent={(eventData) => setNextEvent(eventData)}
-          navigateToRoutes={(destination: string) => navigateToRoutes(destination)}
+          navigateToRoutes={navigateToRoutes}
         />
         <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={openSmartPlanner}>
           <Image source={require('../../../assets/images/smart-planner-logo.png')} />

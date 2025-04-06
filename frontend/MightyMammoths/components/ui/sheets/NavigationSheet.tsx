@@ -68,10 +68,24 @@ function NavigationSheet({
       console.log("NavigationSheet - DEBUG INFO:");
       console.log("Origin:", origin);
       console.log("Destination:", destination);
+      console.log("Destination Room ID:", state.selectedRoomId);
+      console.log("Destination Room:", state.destinationRoom);
       console.log("routesValid:", routesValid);
       console.log("twoBuildingsSelected:", twoBuildingsSelected);
       console.log("routeEstimates available modes:", Object.keys(routeEstimates));
-    }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates]);
+      
+      // Check for building codes in class format
+      const classCodeMatch = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i.exec(destination);
+      if (classCodeMatch) {
+        console.log("Detected class code format in destination");
+        console.log("Building code:", classCodeMatch[2]);
+      }
+      
+      // Also check for single building codes
+      if (/^[A-Z]{1,3}$/i.test(destination.trim())) {
+        console.log("Destination is a building code:", destination);
+      }
+    }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates, state.selectedRoomId, state.destinationRoom]);
     
     const { 
         setSelectedMode, 
@@ -239,15 +253,62 @@ function NavigationSheet({
                       isZoomedIn={isZoomedIn}
                       destination={destination}
                       destinationCoords={destinationCoords}
-                      roomNumber={selectedRoomId}
+                      roomNumber={state.selectedRoomId || state.destinationRoom}
                       onViewBuildingInfo={() => {
                         console.log('View Indoor button clicked - showing room prompt');
-                        // Explicitly hide the sheet to prevent UI conflicts
-                        actionsheetref.current?.snapToIndex(0);
-                        // Then show the room prompt after a small delay
-                        setTimeout(() => {
-                          setShowRoomPrompt(true);
-                        }, 100);
+                        console.log('Current destination:', destination);
+                        console.log('Current roomNumber:', state.selectedRoomId || state.destinationRoom);
+                        
+                        const existingRoomNumber = state.selectedRoomId || state.destinationRoom;
+                        
+                        // If we already have a room number from Google Calendar, don't show the prompt
+                        if (existingRoomNumber) {
+                          console.log('Using existing room number from Google Calendar:', existingRoomNumber);
+                          
+                          // Explicitly hide the sheet to prevent UI conflicts
+                          actionsheetref.current?.snapToIndex(0);
+                          
+                          // Import the Hall Building room info utility to get the room info
+                          const roomInfo = require('../../../utils/hallBuildingRooms').getRoomInfoByNumber(existingRoomNumber);
+                          
+                          if (roomInfo) {
+                            console.log('Found valid room info:', roomInfo);
+                            
+                            // Call the parent's function to show the indoor map directly
+                            if (onShowIndoorMap) {
+                              setTimeout(() => {
+                                onShowIndoorMap({
+                                  roomId: roomInfo.encodedId, 
+                                  floorId: roomInfo.floor, 
+                                  roomNumber: roomInfo.roomNumber
+                                });
+                              }, 300);
+                              
+                              // Stop navigation if needed
+                              setNavigationIsStarted(false);
+                              actionsheetref.current?.hide();
+                              setPoly("");
+                              setStartedSelectedRoute(false);
+                              setIsOriginYourLocation(false);
+                              setRoutesValid(false);
+                              setIsBackgroundInteractionEnabled(false);
+                              if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                            }
+                          } else {
+                            console.log('Room number from Google Calendar is not valid. Showing prompt instead.');
+                            // Fallback to showing the prompt if the room number is not valid
+                            actionsheetref.current?.snapToIndex(0);
+                            setTimeout(() => {
+                              setShowRoomPrompt(true);
+                            }, 100);
+                          }
+                        } else {
+                          // No room number exists, show the prompt as usual
+                          actionsheetref.current?.snapToIndex(0);
+                          setTimeout(() => {
+                            setShowRoomPrompt(true);
+                          }, 100);
+                        }
                       }}
                     /> 
                   )
@@ -286,14 +347,14 @@ function NavigationSheet({
                   //* Uncomment the following lines if you want it so that if the View Indoor is pressed then we stop navigation
                   //* If left commented, when the back arrow for indoor is pressed, the user will return back to the outdoor navigation
 
-                  // setNavigationIsStarted(false);
-                  // actionsheetref.current?.hide();
-                  // setPoly("");
-                  // setStartedSelectedRoute(false);
-                  // setIsOriginYourLocation(false);
-                  // setRoutesValid(false);
-                  // setIsBackgroundInteractionEnabled(false);
-                  // if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+                  setNavigationIsStarted(false);
+                  actionsheetref.current?.hide();
+                  setPoly("");
+                  setStartedSelectedRoute(false);
+                  setIsOriginYourLocation(false);
+                  setRoutesValid(false);
+                  setIsBackgroundInteractionEnabled(false);
+                  if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
 
                 } else {
                   // Fallback alert if all else fails

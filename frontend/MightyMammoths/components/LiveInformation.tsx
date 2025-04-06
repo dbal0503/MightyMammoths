@@ -36,11 +36,38 @@ export function LiveInformation({
 
     // Check if room number is specified
     const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
-    const isConcordiaBuilding = buildingList.some(building =>
+    
+    // Check if the destination is a Concordia building, considering both full names and building codes
+    const isConcordiaBuilding = (() => {
+      // First check if it's a direct match with any building name
+      const isNameMatch = buildingList.some(building =>
         destination.toLowerCase().includes(building.buildingName.toLowerCase())
       );
+      
+      if (isNameMatch) return true;
+      
+      // If not a name match, check if it's a building code like "H" or "EV"
+      // Only match single letter or 2-3 letter building codes, not full names that happen to include those letters
+      const isCodeMatch = /^([A-Z]{1,3})$/i.test(destination.trim());
+      
+      if (isCodeMatch) {
+        console.log('[LiveInformation] Detected potential building code:', destination);
+        return true;
+      }
+      
+      // Check if it's a class name with building code like "SOEN 345 H"
+      const classCodeMatch = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i.exec(destination);
+      if (classCodeMatch) {
+        console.log('[LiveInformation] Detected building code from class name:', classCodeMatch[2]);
+        return true;
+      }
+      
+      return false;
+    })();
     
     console.log('[LiveInformation] destination:', destination);
+    console.log('[LiveInformation] roomNumber:', roomNumber);
+    console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
     console.log('[LiveInformation] isConcordiaBuilding:', isConcordiaBuilding);
 
     return (
@@ -76,19 +103,25 @@ export function LiveInformation({
                         <Text style={styles.distance}>{bestEstimate.distance}</Text>
                     </View>
                     <View style={styles.buttonContainer}>
-                        {/* Show "View Building Info" button if no room number */}
-                        {!hasRoomNumber && onViewBuildingInfo && (
+                        {/* Show "View Indoor" button for Concordia buildings */}
+                        {isConcordiaBuilding && onViewBuildingInfo && (
                             <TouchableOpacity 
-                                style={[styles.actionButton, styles.buildingInfoButton]} 
+                                style={[
+                                    styles.actionButton, 
+                                    styles.buildingInfoButton,
+                                    hasRoomNumber ? styles.roomNumberButton : null
+                                ]} 
                                 onPress={() => {
                                     console.log('[LiveInformation] View Indoor button clicked');
+                                    console.log('[LiveInformation] roomNumber:', roomNumber);
+                                    console.log('[LiveInformation] Using specific room number:', hasRoomNumber ? roomNumber : 'No room number available');
                                     // First execute the callback to show the room prompt
                                     if (onViewBuildingInfo) {
                                         onViewBuildingInfo();
                                     }
                                 }}
                             >
-                                <Text style={styles.buttonText}>View Indoor</Text>
+                                <Text style={styles.buttonText}>{hasRoomNumber ? `View Room ${roomNumber}` : 'View Indoor'}</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity 
@@ -217,5 +250,10 @@ const styles = StyleSheet.create({
     },
     travelText:{
         marginTop:10
-    }
+    },
+    roomNumberButton: {
+        backgroundColor: '#007f5f',
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
 });

@@ -273,6 +273,31 @@ export default function HomeScreen() {
   }, []);
   const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
   const handleSearch = async (placeName: string) => {
+    console.log("handleSearch called with placeName:", placeName);
+    
+    // Check if this is a class code with format like "SOEN 345 H"
+    const classPattern = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i;
+    const classMatch = classPattern.exec(placeName);
+    
+    if (classMatch) {
+      // Extract the building code (e.g., "H" from "SOEN 345 H")
+      const buildingCode = classMatch[2].toUpperCase();
+      console.log(`Extracted building code "${buildingCode}" from class name "${placeName}"`);
+      
+      // Check if there's a building with this code in campusBuildingCoords
+      const building = campusBuildingCoords.features.find(
+        (feature) => feature.properties.Building === buildingCode
+      );
+      
+      if (building) {
+        console.log(`Found building for code "${buildingCode}":`, building.properties.BuildingName);
+        centerAndShowBuilding(building.properties.BuildingName);
+        return;
+      } else {
+        console.log(`No building found for code "${buildingCode}"`);
+      }
+    }
+    
     if (placeName === "Your Location") {
       const { status } = await Location.getForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -608,30 +633,73 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     setNavigationMode(true);
   }
 
-
-  function navigateToRoutes (
-    params: string | { origin?: string; destination: string }
-  ) {
+  const navigateToRoutes = (
+    params: string | { origin?: string; destination: string; roomNumber?: string }
+  ) => {
+    console.log("navigateToRoutes called with params:", params);
+    
     let finalDestination: string;
     let finalOrigin: string | undefined;
+    let roomNumber: string | null = null;
   
     if (typeof params === "string") {
       finalDestination = params;
-      finalOrigin = undefined;
+      // Try to parse room number from destination string
+      roomNumber = parseRoomNumber(params);
+      console.log("String param parsed: destination =", finalDestination, "roomNumber =", roomNumber);
     } else {
       finalDestination = params.destination;
       finalOrigin = params.origin;
+      // Use provided room number or try to parse from destination
+      roomNumber = params.roomNumber || parseRoomNumber(params.destination);
+      console.log("Object param parsed: destination =", finalDestination, "origin =", finalOrigin, "roomNumber =", roomNumber);
     }
   
-    if (!finalDestination) return;
+    if (!finalDestination) {
+      console.log("No destination found, returning early");
+      return;
+    }
+    
+    // Check if this is a class code with format like "SOEN 345 H"
+    const classPattern = /\b([A-Z]+)\s+\d+\s+([A-Z])\b/i;
+    const classMatch = classPattern.exec(finalDestination);
+    
+    if (classMatch) {
+      // Extract the building code (e.g., "H" from "SOEN 345 H")
+      const buildingCode = classMatch[2].toUpperCase();
+      console.log(`Extracted building code "${buildingCode}" from class name "${finalDestination}"`);
+      
+      // Find the building with this code
+      const building = campusBuildingCoords.features.find(
+        (feature) => feature.properties.Building === buildingCode
+      );
+      
+      if (building) {
+        console.log(`Found building for code "${buildingCode}":`, building.properties.BuildingName);
+        finalDestination = buildingCode;
+      }
+    }
   
+    console.log("Setting destination to:", finalDestination);
     setDestination(finalDestination);
+    
+    // Set the destination room if we have a room number
+    if (roomNumber) {
+      console.log("Setting destinationRoom to:", roomNumber);
+      setDestinationRoom(roomNumber);
+    }
   
     // Store origin so NavigationSheet can access it
     if (finalOrigin) {
+      console.log("Setting origin to:", finalOrigin);
       setOrigin(finalOrigin);
+    } else {
+      // Default to "Your Location" if no origin specified
+      console.log("Setting default origin to: Your Location");
+      setOrigin("Your Location");
     }
 
+    console.log("Showing navigation sheet");
     navigationSheet.current?.show();
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
@@ -907,6 +975,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
           setDestination={setDestination}
           origin={origin}
           setOrigin={setOrigin}
+          destinationRoom={destinationRoom}
+          setDestinationRoom={setDestinationRoom}
         >
           <NavigationSheet
             setNavigationMode={setNavigationMode}
