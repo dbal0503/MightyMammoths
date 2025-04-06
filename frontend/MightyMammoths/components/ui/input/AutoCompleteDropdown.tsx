@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
-import { DarkTheme } from "@react-navigation/native";
 import { BoundingBox } from "react-native-maps";
 
 

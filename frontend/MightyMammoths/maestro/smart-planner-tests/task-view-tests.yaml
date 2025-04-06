@@ -18,10 +18,10 @@ appId: com.anonymous.MightyMammoths
 - assertVisible:
     id: "time-icon-task"
 
-- assertVisible:
+- assertNotVisible:
     id: "directions-button-task"
 
-- assertVisible:
+- assertNotVisible:
     id: "done-button-task"
 
 - assertVisible:

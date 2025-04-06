@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getDistanceAndDuration, DistanceResult } from '../smartPlannerDistancePairs';
+import { getDistanceAndDuration } from '../smartPlannerDistancePairs';
 
 jest.mock('axios');
 jest.mock('../assets/buildings/coordinates/campusbuildingcoords.json', () => ({

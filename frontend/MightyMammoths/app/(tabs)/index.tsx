@@ -1,10 +1,10 @@
 import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
-import {StyleSheet, View, Keyboard, Modal, AppState, Linking, Platform, Alert} from "react-native";
-import { GestureHandlerRootView, Pressable } from 'react-native-gesture-handler';
+import {StyleSheet, View, Keyboard, AppState, Linking, Platform, Alert} from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
 import {
   AutoCompleteDropdown,
-  BuildingData,
+  
 } from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";

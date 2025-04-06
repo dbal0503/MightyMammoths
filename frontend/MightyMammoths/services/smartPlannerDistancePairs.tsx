@@ -1,6 +1,4 @@
 import axios from "axios";
-import campusBuildingCoords from "../assets/buildings/coordinates/campusbuildingcoords.json";
-import * as FileSystem from "expo-file-system";
 
 type Tuple = [string, string];
 
@@ -11,9 +9,6 @@ const addTuple = (tuple: Tuple, tupleSet: Set<string>) => {
 const hasTuple = (tuple: Tuple, tupleSet: Set<string>): boolean => {
   return tupleSet.has(JSON.stringify(tuple));
 };
-
-const buildingResults: DistanceResult[] = [];
-const buildingSet = new Set<string>();
 
 type Location = {
     id: number;
@@ -32,30 +27,6 @@ export interface DistanceResult {
     distance: string;
     duration: string;
 };
-
-interface CampusBuildingFeature {
-  type: string;
-  properties: {
-    Campus: string;
-    Building: string;
-    BuildingName: string;
-    "Building Long Name": string;
-    Address: string;
-    PlaceID: string;
-    Latitude: number;
-    Longitude: number;
-  };
-  geometry: {
-    type: string;
-    coordinates: number[];
-  };
-}
-
-interface CampusBuildingCollection {
-  type: string;
-  name: string;
-  features: CampusBuildingFeature[];
-}
 
 export async function getDistanceAndDuration(
     origin: string,

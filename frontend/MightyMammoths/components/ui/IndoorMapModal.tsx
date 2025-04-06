@@ -7,7 +7,6 @@ import {
   Text,
   Dimensions,
   ActivityIndicator,
-  BackHandler,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { GeoJsonFeature } from "./BuildingMapping";

@@ -172,7 +172,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
       
       // Navigate to routes
       navigateToRoutes({ origin, destination });
-    }, 800);
+    }, 200);
   };
 
   useEffect(() => {
@@ -182,7 +182,7 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
         navigateToRoutes({ origin: pendingOrigin, destination: pendingDestination });
         setPendingOrigin('');
         setPendingDestination('');
-      }, 500);
+      }, 200);
     }
   }, [pendingOrigin, pendingDestination]);
 

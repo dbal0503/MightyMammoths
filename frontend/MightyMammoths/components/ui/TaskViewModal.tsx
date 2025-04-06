@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef } from 'react';
 import {
   Modal,
   View,
