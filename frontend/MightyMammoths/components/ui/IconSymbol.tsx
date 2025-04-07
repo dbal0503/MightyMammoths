@@ -24,6 +24,14 @@ const MAPPING = {
   'play' : 'play-circle-outline',
   'flag' : 'flag-circle',
   'arrow-up-right' : 'arrow-up-right',
+  'swap-vert': 'swap-vert',
+  'close': 'close',
+  'search': 'search',
+  'info': 'info',
+  'location': 'location-pin',
+  'clock': 'access-time',
+  'trash': 'delete',
+  'pencil': 'edit',
 
 } as Partial<
   Record<

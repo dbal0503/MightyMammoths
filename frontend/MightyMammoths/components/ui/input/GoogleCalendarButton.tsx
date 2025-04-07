@@ -17,16 +17,17 @@ import axios from "axios";
 //webclient not android client id
 GoogleSignin.configure({
   webClientId:
-    "1069237773869-m1q5nruuve50ee7a9enku70vr1f057fj.apps.googleusercontent.com",
-  iosClientId: "1069237773869-lj16d9448a1unfds0k42ag37iu39nv62.apps.googleusercontent.com",
+    "928706434521-68ol8ennd84iqjug4rd3e648hrs9fm15.apps.googleusercontent.com",
+  iosClientId: "928706434521-k6o2qqdt247fpd170a72g939jrbh11b0.apps.googleusercontent.com",
 });
 
 type GoogleCalendarButtonProps = {
   navigateToRoutes: (destination: string) => void;
+  onNextEvent: (eventData: any) => void;
   testID?: string;
 };
 
-const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes }) => {
+const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToRoutes, onNextEvent, testID }) => {
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [calendars, setCalendars] = useState<any[]>([]);
@@ -37,7 +38,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
     try {
       await GoogleSignin.hasPlayServices();
       await GoogleSignin.configure({
-        iosClientId: "1069237773869-lj16d9448a1unfds0k42ag37iu39nv62.apps.googleusercontent.com",
+        iosClientId: "928706434521-k6o2qqdt247fpd170a72g939jrbh11b0.apps.googleusercontent.com",
         scopes: [
           "https://www.googleapis.com/auth/calendar.readonly",
           "https://www.googleapis.com/auth/calendar.events.readonly",
@@ -89,9 +90,9 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
       const events = res.data.items;
       if (events && events.length > 0) {
         const event = events[0];
-        const eventName = event.summary || "No Title";
-        const description = event.description || "";
-        const location = event.location || "";
+        const eventName = event.summary ?? "No Title";
+        const description = event.description ?? "";
+        const location = event.location ?? "";
         const startDateTime = event.start?.dateTime
           ? new Date(event.start.dateTime)
           : null;
@@ -112,15 +113,18 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
           timeRange = `${startStr} - ${endStr}`;
         }
 
-        // Take the class from description only
-        setNextEvent({
+        const nextEventData = {
           name: eventName,
           description: description,
           location: location,
           time: timeRange,
-        });
+        };
+
+        setNextEvent(nextEventData);
+        onNextEvent(nextEventData); // notify parent component
       } else {
         setNextEvent(null);
+        onNextEvent(null); // notify parent no event found
       }
     } catch {
       Alert.alert("Error fetching events");
@@ -145,7 +149,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <View style={styles.dateContainer}>
         <Text style={styles.dateText}>
           {new Date().toLocaleDateString("en-US", {

@@ -1,0 +1,17 @@
+appId: com.anonymous.MightyMammoths
+---
+
+- assertVisible:
+    id: "directions-button-task"
+
+- tapOn:
+    id: "directions-button-task"
+
+- assertVisible:
+    id: "startButton"
+
+- assertVisible:
+    id: "routesSheetBackButton"
+
+- tapOn:
+    id: "routesSheetBackButton"

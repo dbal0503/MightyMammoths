@@ -1,0 +1,40 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "plan-builder-button"
+
+- tapOn:
+    id: "plan-builder-button"
+
+- assertVisible:
+    id: "save-plan-button"
+
+- tapOn:
+    id: "save-plan-button"
+
+- assertVisible:
+    id: "get-directions-button-main-modal"
+
+- assertVisible:
+    id: "info-icon-main-modal"
+
+- assertVisible:
+    id: "location-icon-main-modal"
+
+- assertVisible:
+    id: "clock-icon-main-modal"
+
+- assertVisible:
+    id: "get-directions-button-main-modal"
+
+- tapOn:
+    id: "get-directions-button-main-modal"
+
+- assertVisible:
+    id: "startButton"
+
+- assertVisible:
+    id: "routesSheetBackButton"
+
+- tapOn:
+    id: "routesSheetBackButton"

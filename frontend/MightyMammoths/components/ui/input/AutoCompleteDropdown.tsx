@@ -10,7 +10,9 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { autoCompleteSearch, suggestionResult } from "@/services/searchService";
+import { autoCompleteSearch, SuggestionResult, nearbyPlacesSearch } from "@/services/searchService";
+import { BoundingBox } from "react-native-maps";
+
 
 export interface BuildingData {
   buildingName: string;
@@ -18,17 +20,26 @@ export interface BuildingData {
 }
 
 export interface AutoCompleteDropdownRef {
-  reset: () => void; // Define the reset function for the ref
+  reset: () => void;
+  setValue: (value: string) => void; 
 }
 
 interface AutoCompleteDropdownProps {
   currentVal?: string;
   buildingData: BuildingData[];
-  searchSuggestions: suggestionResult[];
-  setSearchSuggestions: React.Dispatch<React.SetStateAction<suggestionResult[]>>;
+  searchSuggestions: SuggestionResult[];
+  setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   onSelect: (selected: string) => void;
   locked: boolean;
   testID?: string;
+  darkTheme?: boolean;
+  onNearbyResults?: (results: SuggestionResult[]) => void;
+  boundaries?: BoundingBox
+  showNearbyButtons?: boolean;
+  showCafes?: boolean;
+  showRestaurants?: boolean;
+  setShowCafes?: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowRestaurants?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoCompleteDropdownProps>(({
@@ -38,24 +49,41 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   searchSuggestions,
   setSearchSuggestions,
   locked,
-  testID
+  testID,
+  darkTheme = false,
+  onNearbyResults,
+  boundaries,
+  showNearbyButtons=false,
+  showCafes,
+  showRestaurants,
+  setShowCafes ,
+  setShowRestaurants,
 }, ref) => {
 
   //functions exposed through ref
   useImperativeHandle(ref, () => ({
     reset: () => {
-      setSelected("Select a building");
+      setSelected("Your Location");
       setIsOpen(false);
+    },
+    setValue: (value: string) => {
+      setSelected(value);
     },
   }));
 
   const [selected, setSelected] = useState("Select a building");
   const [options, setOptions] = useState([
     "Your Location",
-    ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+    ...searchSuggestions.map((item) => {
+      if(item.discriminator === "place"){
+        return item.placePrediction.structuredFormat.mainText.text + " - " + item.placePrediction.structuredFormat.secondaryText.text
+      }else{
+        return item.placePrediction.structuredFormat.mainText.text
+      }
+    })
   ]);  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName));
+  const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName)); //Whats in the dropdown
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
@@ -87,7 +115,13 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   useEffect(() => {
     setOptions([
       "Your Location",
-      ...searchSuggestions.map((item) => item.placePrediction.structuredFormat.mainText.text)
+      ...searchSuggestions.map((item) => {
+        if(item.discriminator === "place"){
+          return item.placePrediction.structuredFormat.mainText.text + " - " + item.placePrediction.structuredFormat.secondaryText.text
+        }else{
+          return item.placePrediction.structuredFormat.mainText.text
+        }
+      })
     ]);
   }, [searchSuggestions]);
 
@@ -97,6 +131,47 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   }, [currentVal])
 
+  function toRadians(degrees: number) {
+    return degrees * Math.PI / 180;
+  }
+  
+  function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371e3; // Earth's radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function getRadiusFromBoundingBox(boundingBox: BoundingBox) {
+    const { northEast, southWest } = boundingBox;
+    // Calculate center of bounding box
+    const centerLat = (northEast.latitude + southWest.latitude) / 2;
+    const centerLng = (northEast.longitude + southWest.longitude) / 2;
+  
+    // Calculate radius from center to northEast
+    const radius = haversineDistance(centerLat, centerLng, northEast.latitude, northEast.longitude);
+    return radius;
+  }
+
+  const getNearbySuggestions = async (searchQuery: string, boundaries: BoundingBox | undefined) => {
+    if (boundaries){
+      const radius = getRadiusFromBoundingBox(boundaries)
+
+    try{
+      const results = await nearbyPlacesSearch(searchQuery, radius);
+      if (onNearbyResults) {
+        onNearbyResults(results);
+      }
+    }
+    catch (err) {
+      console.log(err)
+    }}
+  };
 
   const getSuggestions = async (searchQuery: string) => {
     const results = await autoCompleteSearch(searchQuery);
@@ -104,9 +179,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
       setSearchSuggestions(prevSuggestions => {
         // Optionally filter out duplicates based on a unique property, e.g., placeId
         const newResults = results.filter(newResult => 
-          !prevSuggestions.some(oldResult => 
-            oldResult.placePrediction.placeId === newResult.placePrediction.placeId
-          )
+          mergeUniqueResults(prevSuggestions, newResult)
         );
         return [...prevSuggestions, ...newResults];
       });
@@ -115,7 +188,21 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     }
   };
 
+  const mergeUniqueResults = (prevSuggestions: SuggestionResult[], newResult: SuggestionResult) => {
+    return !prevSuggestions.some(oldResult => 
+      oldResult.placePrediction.placeId === newResult.placePrediction.placeId
+    )
+  };
+
   const handleSelect = (placeName: string) => {
+    /*
+      checks for what the user selected
+      your location
+      search suggestions
+      hardcoded building names
+      Then defers to Onselect function
+    */
+
     setSelected(placeName);
 
     if(placeName === "Your Location") {
@@ -125,7 +212,8 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         return;
     }
 
-    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName)
+    //re-format string
+    let selectedLocation = searchSuggestions.find((place) => place.placePrediction.structuredFormat.mainText.text === placeName.split('-')[0].trim())
     if(!selectedLocation){
       let building = buildingData.find((item) => item.buildingName === placeName);
       if(!building){
@@ -141,9 +229,42 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
     setSearchQuery("");
   };
 
+  const handleFindNearbyCoffee = () => {
+    if (!showCafes) {
+      if (setShowRestaurants && showRestaurants) {
+        setShowRestaurants(false);
+      }
+      if (boundaries && onNearbyResults) {
+        getNearbySuggestions("cafe", boundaries);
+      }
+    }
+    if (setShowCafes) {
+      setShowCafes(prevState => !prevState);
+    }
+  };
+
+  const handleFindNearbyRestaurants = () => {
+    if (!showRestaurants) {
+      if (setShowCafes) {
+        setShowCafes(false);
+      }
+      
+      if (boundaries && onNearbyResults) {
+        getNearbySuggestions("restaurant", boundaries);
+      }
+    }
+    
+    if (setShowRestaurants) {
+      setShowRestaurants(prevState => !prevState);
+    }
+  };
+
   return (
-    <View style={styles.container} testID={testID}>
-      <Pressable style={styles.dropdownContainer} onPress={() => {
+    <View style={{...styles.container, width: darkTheme ? 5 : 280}} testID={testID}>
+      <Pressable style={{ ...styles.dropdownContainer, 
+                backgroundColor: darkTheme ? '#2c2c38' : "white", 
+                borderColor: darkTheme ? '#2c2c38' : '#d1d1d1',
+              borderRadius: darkTheme ? 8 : 25 }} onPress={() => {
           if(!locked){setIsOpen(!isOpen)}
         }}>
         <Image
@@ -152,7 +273,7 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
           }}
           style={styles.logo}
         />
-        <Text style={styles.selectedText}>{selected}</Text>
+        <Text style={{...styles.selectedText, color: darkTheme ? "white": '#555'}}>{selected}</Text>
         <MaterialIcons
           name={isOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"}
           size={24}
@@ -190,26 +311,36 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
         }}
         contentContainerStyle={{ paddingVertical: 5 }}
       />
+      {showNearbyButtons && (
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.actionButton, showCafes && styles.activeButton]} 
+        onPress={handleFindNearbyCoffee}>
+            <Text style={styles.buttonText}>{showCafes ? "Hide Cafes" : "Show Cafes"}</Text>
+          </Pressable>
+          <Pressable style={[styles.actionButton, showRestaurants && styles.activeButton]} 
+        onPress={handleFindNearbyRestaurants}>
+            <Text style={styles.buttonText}>{showRestaurants ? "Hide Restaurants" : "Show Restaurants"}</Text>
+          </Pressable>
+        </View>
+      )}
       </Animated.View>
     </View>
   );
 });
+AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     position: "relative",
     alignSelf: "center",
   },
   dropdownContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
     borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "#d1d1d1",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -224,7 +355,6 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     fontSize: 16,
-    color: "#555",
     flex: 1,
   },
   arrow: {
@@ -262,6 +392,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
+  },
+  actionButton: {
+    width: "45%",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "darkblue",
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  activeButton: {
+    backgroundColor: "darkgreen"
+  ,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+  }
 });
 AutoCompleteDropdown.displayName = "AutoCompleteDropdown";
 

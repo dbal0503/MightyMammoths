@@ -1,0 +1,124 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "view-current-tasks-button-location-view"
+
+- tapOn:
+    id: "view-current-tasks-button-location-view"
+
+- assertVisible:
+    id: "edit-icon-task"
+
+- assertVisible:
+    id: "delete-icon-task"
+
+- assertVisible:
+    id: "location-icon-task"
+
+- assertVisible:
+    id: "time-icon-task"
+
+- assertNotVisible:
+    id: "directions-button-task"
+
+- assertNotVisible:
+    id: "done-button-task"
+
+- assertVisible:
+    id: "delete-plan-button"
+
+- assertVisible:
+    id: "plan-builder-button"
+
+- tapOn:
+    id: "plan-builder-button"
+
+- assertVisible:
+    id: "task-name-input"
+
+- assertVisible:
+    id: "locationSmartPlannerDropdown-start"
+
+- assertVisible:
+    id: "time-picker"
+
+- assertVisible:
+    id: "view-current-tasks-button-location-view"
+
+- tapOn:
+    id: "view-current-tasks-button-location-view"
+
+- tapOn:
+    id: "edit-icon-task"
+
+- runFlow: "edit-task-test.yaml"
+- runFlow: "save-plan-tests.yaml"
+
+- swipe:
+    direction: "up"
+    element: "home-page-sheet"
+
+- assertVisible:
+    id: "smart-planner-button"
+
+- tapOn:
+    id: "smart-planner-button"
+
+- assertVisible:
+    id: "view-plan-button"
+
+- tapOn:
+    id: "view-plan-button"
+
+- runFlow: "directions-button.yaml"
+
+- swipe:
+    direction: "up"
+    element: "home-page-sheet"
+
+- assertVisible:
+    id: "smart-planner-button"
+
+- tapOn:
+    id: "smart-planner-button"
+
+- assertVisible:
+    id: "view-plan-button"
+
+- tapOn:
+    id: "view-plan-button"
+
+- assertVisible:
+    id: "done-button-task"
+
+- tapOn:
+    id: "done-button-task"
+
+- tapOn:
+    point: "67%,57%"
+
+- assertNotVisible:
+    id: "done-button-task"
+
+- assertNotVisible:
+    id: "directions-button-task"
+
+- assertVisible:
+    id: "close-task-view-button"
+
+- tapOn:
+    id: "close-task-view-button"
+
+- assertNotVisible:
+    id: "get-directions-button-main-modal"
+
+- assertVisible:
+    id: "view-plan-button"
+
+- tapOn:
+    id: "view-plan-button"
+
+- runFlow: "delete-plan-test.yaml"
+
+- assertVisible:
+    id: "create-plan-button"

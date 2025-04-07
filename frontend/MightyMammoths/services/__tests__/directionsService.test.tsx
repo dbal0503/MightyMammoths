@@ -3,7 +3,18 @@ import { getRoutes, RouteData } from "../directionsService";
 
 jest.mock("axios");
 
+
 describe("getRoutes", () => {
+  beforeEach(() => {
+    // Silence console errors during tests
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  
+  afterEach(() => {
+    // Restore original console behavior
+    jest.restoreAllMocks();
+  });
   const mockResponse = {
     data: {
       routes: [

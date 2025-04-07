@@ -1,0 +1,79 @@
+appId: com.anonymous.MightyMammoths
+---
+- assertVisible:
+    id: "add-next-class-button-location-view"
+
+- assertVisible:
+    id: "view-current-tasks-button-location-view"
+
+- assertVisible:
+    id: "plan-name-input"
+
+- tapOn:
+    id: "plan-name-input"
+
+- inputText: "Test Plan For Today"
+
+- tapOn:
+    point: "87%,89%"
+
+- assertVisible:
+    id: "task-name-input"
+
+- tapOn:
+    id: "task-name-input"
+
+- inputText: "Task 1"
+
+- tapOn:
+    point: "87%,89%"
+
+- assertVisible:
+    id: "locationSmartPlannerDropdown-start"
+
+- tapOn:
+    id: "locationSmartPlannerDropdown-start"
+
+- inputText: "MB"
+
+- tapOn:
+    point: "87%,89%"
+
+- tapOn:
+    point: "50%,72%"
+
+- assertVisible:
+    id: "time-picker"
+
+- tapOn:
+    id: "time-picker"
+
+- swipe:  
+    start: 32%, 56% 
+    end: 32%, 50% 
+
+- tapOn:
+    point: 70%,45%
+
+- assertVisible:
+    id: "save-add-task-button"
+
+- tapOn:
+    id: "save-add-task-button"
+
+- assertVisible:
+    id: "set-start-location-button"
+
+- tapOn:
+    id: "set-start-location-button"
+    enabled: true
+
+- runFlow: "start-location-modal-tests.yaml"
+
+- tapOn:
+    id: "set-start-location-button"
+    enabled: false
+
+- tapOn:
+    id: "save-add-task-button"
+    enabled: false

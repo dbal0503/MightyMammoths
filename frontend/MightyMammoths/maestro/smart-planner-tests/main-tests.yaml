@@ -1,0 +1,14 @@
+appId: com.anonymous.MightyMammoths
+onFlowStart:
+  - runFlow: "../launch-app.yaml"
+---
+- runFlow: "show-sheet.yaml"
+- runFlow: "smart-planner-button-on-sheet.yaml"
+- runFlow: "close-main-modal-tests.yaml"
+- runFlow: "show-sheet.yaml"
+- runFlow: "smart-planner-button-on-sheet.yaml"
+- runFlow: "create-plan-tests.yaml"
+- runFlow: "back-button-editor-modal-test.yaml"
+- runFlow: "create-plan-tests.yaml"
+- runFlow: "editor-modal-tests.yaml"
+- runFlow: "task-view-tests.yaml"

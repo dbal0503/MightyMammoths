@@ -1,6 +1,6 @@
 // components/Destinations.tsx
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import { StyleSheet, View, Animated, Alert, Linking} from "react-native";
+import { StyleSheet, View, Animated, Alert, Linking, TouchableOpacity} from "react-native";
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from "./ui/input/AutoCompleteDropdown";
 import * as Location from "expo-location";
 import { useNavigation } from "@/components/NavigationProvider";
@@ -9,6 +9,7 @@ import { IconSymbolName, IconSymbol } from "@/components/ui/IconSymbol";
 interface DestinationChoicesProps {
   buildingList: BuildingData[];
   visible?: boolean;
+  origin: string;
   destination: string;
   locationServicesEnabled: boolean;
 }
@@ -16,8 +17,8 @@ interface DestinationChoicesProps {
 export function DestinationChoices({
   buildingList,
   visible,
+  origin,
   destination,
-  locationServicesEnabled
 }: DestinationChoicesProps) {
   const { state, functions } = useNavigation();
   const { 
@@ -59,19 +60,19 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      topDropDownRef.current?.reset();
-      setSelectedStart("");
-      checkSelection("", selectedDestination);
-      setOrigin("");
+      setSelectedStart(origin);
+      topDropDownRef.current?.setValue(origin);
+      bottomDropDownRef.current?.setValue(destination);
     }
   }, [visible]);
 
   useEffect(()=>{
-    setDestination(destination);
     setSelectedBuilding(destination);
+    setSelectedStart(origin);
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
-  }, [destination])
+  }, [destination, origin]);
+
 
   const _openAppSetting = useCallback(async () => {
         await Linking.openSettings();
@@ -105,6 +106,24 @@ export function DestinationChoices({
       onSuccess();
     }
   };
+
+  const swapBuildings = () => {
+    if (origin && destination) {
+      console.log(`Swapping ${destination} and ${origin}`)
+      const tempOrigin = origin
+      const tempDestination = destination // from index.tsx
+
+      setSelectedStart(tempDestination);
+      setSelectedDestination(tempOrigin);
+  
+      setOrigin(tempDestination);
+      setDestination(tempOrigin); // Navigation context
+      setSelectedBuilding(tempOrigin);
+  
+      topDropDownRef.current?.setValue(tempDestination);
+      bottomDropDownRef.current?.setValue(tempOrigin);
+    }
+  };
       
 
   return (
@@ -124,34 +143,45 @@ export function DestinationChoices({
           searchSuggestions={searchSuggestions}
           setSearchSuggestions={setSearchSuggestions}
           buildingData={buildingList} 
+          currentVal={origin}
           onSelect={(selected) => {
+            console.log("Selected", selected);
             if(!selected) return;
             if (selected === "Your Location") {
               checkLocationPermission(
                 () => {
-                  setSelectedStart(selected);
                   checkSelection(selected, selectedDestination);
                   setOrigin(selected);
                 },
                 () => {
                   topDropDownRef.current?.reset();
-                  setSelectedStart("Select a building");
                   setOrigin("Select a building");
                 }
               );
             } else {
-              setSelectedStart(selected);
               checkSelection(selected, selectedDestination);
               setOrigin(selected);
             }
         }} />
       </View>
-      <IconSymbol
-        name= {"more-vert" as IconSymbolName}
-        size={30}
-        color="black"
-        style={styles.modeIcon}
-      />
+      <View style={styles.buttonContainer}>
+        <IconSymbol
+          name= {"more-vert" as IconSymbolName}
+          size={30}
+          color="black"
+          style={styles.modeIcon}
+          testID="more-vert"
+        />
+        <TouchableOpacity onPress={swapBuildings} style={styles.swapButton}>
+          <IconSymbol
+            name={"swap-vert" as IconSymbolName}
+            size={30}
+            color="black"
+            style={styles.swapIcon}
+            testID="swap-vert"
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.dropdownWrapper}>
       <AutoCompleteDropdown
         testID="destinationNavigationDropdown"
@@ -176,6 +206,7 @@ export function DestinationChoices({
                 setDestination("Select a building");
                 setSelectedBuilding("Select a building");
                 setSelectedDestination("Select a building");
+                
               }
             );
           } else {
@@ -213,4 +244,19 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 5,
   },
+  buttonContainer:{
+    display:'flex',
+    flexDirection: 'row',
+    
+    width: 220,
+    marginLeft: 195,
+  },
+  swapIcon: {
+    alignItems: "center",
+    color: "white",
+    padding: 5,
+  },
+  swapButton:{
+    marginLeft: 'auto',
+  }
 });
