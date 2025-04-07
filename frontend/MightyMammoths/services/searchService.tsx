@@ -191,7 +191,7 @@ class PlacesRepository {
             const maxResults = radius > 1000 ? 20 : 10;
 
             const data = await this.client.searchNearby(searchString, cappedRadius, this.defaultLocation, maxResults);
-            return this.transformPlacesToSuggestions(data.places || []);
+            return this.transformPlacesToSuggestions(data.places ?? []);
         } catch (error) {
             console.log(`Error getting nearby places: ${error}`);
             return [];

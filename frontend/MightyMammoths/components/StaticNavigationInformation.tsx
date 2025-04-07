@@ -68,7 +68,7 @@ export function StaticNavigationInformation(
   useEffect(() => {
     if (routes && routes.length > 0) {
       const bestEstimate = routes[0];
-      const stepsData = bestEstimate?.steps || [];
+      const stepsData = bestEstimate?.steps ?? [];
       let adjustedStepsData = stepsData;
       if (selectedMode === 'shuttle') {
         adjustedStepsData = [

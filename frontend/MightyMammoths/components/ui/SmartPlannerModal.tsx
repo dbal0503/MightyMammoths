@@ -114,8 +114,9 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
     );
     setGeneratedPlan(plan);
   } catch (error) {
-    setGeneratedPlan([]);
-    Alert.alert("Error", "Failed to generate plan.");
+      setGeneratedPlan([]);
+      Alert.alert("Error", "Failed to generate plan.");
+      console.log(error);
   } finally {
     setIsLoading(false);
   }

@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetProps } from 'react-native-actions-sheet';
-import {ActionSheetRef} from "react-native-actions-sheet";
+import ActionSheet, {ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 import { PlaceDetails } from '@/services/searchService';
 
 export type PlaceInfoSheetProps = ActionSheetProps & {
@@ -41,7 +39,7 @@ function PlaceInfoSheet({
         onClose={()=>mainsheet.current?.show()}
         >
       <View style={styles.container}>
-    <Text style={styles.header}>{PlaceDetails?.shortFormattedAddress || ""}</Text>
+    <Text style={styles.header}>{PlaceDetails?.shortFormattedAddress ?? ""}</Text>
     <View style={styles.buttonsContainer}>
             <View style={[
                 styles.button, styles.destinationButton
