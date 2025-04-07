@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { buildingList } from '../utils/getBuildingList';
+import campusBuildingdata from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 const getUpdatedTime = (duration: string) => {
     const numericDuration = parseInt(duration, 10);
@@ -15,6 +17,8 @@ interface LiveInformationProps {
     isZoomedIn: boolean;
     destination: string;
     destinationCoords: string;
+    roomNumber?: string | null;
+    onViewBuildingInfo?: () => void;
 }
 
 export function LiveInformation({
@@ -23,31 +27,94 @@ export function LiveInformation({
     onZoomOut,
     isZoomedIn,
     destination,
-    destinationCoords
+    destinationCoords,
+    roomNumber,
+    onViewBuildingInfo
 }: LiveInformationProps) {
     const estimates = routes;
     const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
     const stopNavigation = () => {onStop(); if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);}
 
+    // Check if room number is specified
+    const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
+    console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
+    //const hasRoomNumber = true;
+    console.log()
+    const isConcordiaBuilding = (destination: string): boolean => {
+        const lowerDestination = destination.toLowerCase();
+        return campusBuildingdata.features.some((feature: any) => {
+          const buildingName = feature.properties.BuildingName.toLowerCase();
+          const buildingCode = feature.properties.Building.toLowerCase();
+          return (
+            lowerDestination.includes(buildingName) ||
+            lowerDestination.includes(buildingCode)
+          );
+        });
+      };
+      
+    
+    console.log('[LiveInformation] destination:', destination);
+    console.log('[LiveInformation] isConcordiaBuilding:', isConcordiaBuilding);
+
     return (
     <>
-    <View style={styles.container}>
-        <View style={styles.destinationInformation}>
-            <View style={styles.etaContainer}>
-                <Text style={styles.routeHeading}>ETA</Text>
-                <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
-            </View>
-            <View style={styles.travelInformation}>
-                <View style={styles.travelText}>
-                    <Text style={styles.time}>{bestEstimate.duration}</Text>
-                    <Text style={styles.distance}>{bestEstimate.distance}</Text>
+    {!isConcordiaBuilding ? (
+        <View style={styles.container}>
+            <View style={styles.destinationInformation}>
+                <View style={styles.etaContainer}>
+                    <Text style={styles.routeHeading}>ETA</Text>
+                    <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
                 </View>
-                <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
-                    <Text style={styles.stop}>Stop</Text>
-                </TouchableOpacity>
+                <View style={styles.travelInformation}>
+                    <View style={styles.travelText}>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.startButton} onPress={stopNavigation}>
+                        <Text style={styles.stop}>Stop</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
-    </View>
+    ) : (
+        <View style={styles.container}>
+            <View style={styles.destinationInformation}>
+                <View style={styles.etaContainer}>
+                    <Text style={styles.routeHeading}>ETA</Text>
+                    <Text style={styles.destinationTime}>{getUpdatedTime(bestEstimate.duration)}</Text>
+                </View>
+                <View style={styles.travelInformation}>
+                    <View style={styles.travelText}>
+                        <Text style={styles.time}>{bestEstimate.duration}</Text>
+                        <Text style={styles.distance}>{bestEstimate.distance}</Text>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {/* Show "View Building Info" button if no room number */}
+                        {!hasRoomNumber && onViewBuildingInfo && (
+                            <TouchableOpacity 
+                                style={[styles.actionButton, styles.buildingInfoButton]} 
+                                onPress={() => {
+                                    console.log('[LiveInformation] View Indoor button clicked');
+                                    // First execute the callback to show the room prompt
+                                    if (onViewBuildingInfo) {
+                                        onViewBuildingInfo();
+                                    }
+                                }}
+                            >
+                                <Text style={styles.buttonText}>View Indoor</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity 
+                            style={[styles.actionButton, styles.stopButton]} 
+                            onPress={stopNavigation}
+                        >
+                            <Text style={styles.buttonText}>Stop</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </View>
+    )}
     </>
     );
 }
@@ -104,6 +171,31 @@ const styles = StyleSheet.create({
         fontSize:18,
         color: 'white',
     },
+    buttonContainer: {
+        position: 'absolute',
+        flexDirection: 'row',
+        marginLeft: 100,
+        marginTop: 100,
+        justifyContent: 'space-between',
+        width: '70%',
+    },
+    actionButton: {
+        borderRadius: 20,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 15,
+    },
+    stopButton: {
+        backgroundColor: 'red',
+        minWidth: 120,
+    },
+    buildingInfoButton: {
+        backgroundColor: '#1e88e5',
+        marginRight: 10,
+        minWidth: 120,
+    },
     startButton:{
         position: 'absolute',
         backgroundColor: 'red',
@@ -116,11 +208,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 100
     },
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        fontWeight: 'bold',
+    },
     navigationIcon: {
         paddingLeft: 10
     },
     stop:{
-        
         fontSize: 23,
         color: 'white',
     },

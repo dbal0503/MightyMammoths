@@ -12,6 +12,8 @@ export type LoyolaSGWToggleSheetProps = ActionSheetProps & {
   navigateToRoutes: (
     destination: string | { origin?: string; destination: string }
   ) => void;
+  setClassRoom: (classRoom: string) => void;
+  setClassBuilding: (classBuilding: string) => void;
 };
 
 function LoyolaSGWToggleSheet({
@@ -27,6 +29,8 @@ function LoyolaSGWToggleSheet({
   actionsheetref,
   zIndex = 300,
   navigateToRoutes,
+  setClassRoom,
+  setClassBuilding,
 }: LoyolaSGWToggleSheetProps) {
   const [isEnabled, setIsEnabled] = useState(false);
   const [smartPlannerVisible, setSmartPlannerVisible] = useState(false);
@@ -36,6 +40,8 @@ function LoyolaSGWToggleSheet({
     actionsheetref.current?.hide();
     setTimeout(() => setSmartPlannerVisible(true), 300);
   };
+
+  console.log("Next Event: ", nextEvent);
 
 
   const closeSmartPlanner = () => {
@@ -77,8 +83,8 @@ function LoyolaSGWToggleSheet({
         <Text testID="calendar-text" style={styles.subTitleText}>Calendar</Text>
         <GoogleCalendarButton
           testID="google-calendar-button"
-          onNextEvent={(eventData) => setNextEvent(eventData)}
-          navigateToRoutes={(destination: string) => navigateToRoutes(destination)}
+          onNextEvent={(eventData) => {setNextEvent(eventData); setClassRoom(eventData.description); setClassBuilding(eventData.location);}}
+          navigateToRoutes={navigateToRoutes}
         />
         <TouchableOpacity testID="smart-planner-button" style={styles.smartPlannerButton} onPress={openSmartPlanner}>
           <Image source={require('../../../assets/images/smart-planner-logo.png')} />

@@ -28,6 +28,10 @@ interface NavigationState {
   searchSuggestions: SuggestionResult[];
   setSearchSuggestions: React.Dispatch<React.SetStateAction<SuggestionResult[]>>;
   routesValid: boolean;
+  isIndoorMapVisible: boolean;
+  selectedRoomId: string | null;
+  setModalVisible: (visible: boolean, roomId?: string | null) => void;
+  navigationIsStarted: boolean
 }
 
 interface NavigationContextType {
@@ -45,6 +49,8 @@ interface NavigationContextType {
     setTwoBuildingsSelected: (value: boolean) => void;
     fetchRoutes: () => void;
     setRoutesValid: (value: boolean) => void;
+    setModalVisible: (visible: boolean, roomId?: string | null) => void;
+    setNavigationIsStarted: (value: boolean) => void;
   };
 }
 
@@ -87,13 +93,25 @@ const NavigationProvider = ({
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [twoBuildingsSelected, setTwoBuildingsSelected] = useState<boolean>(false);
   const [routesValid, setRoutesValid] = useState<boolean>(false);
+  const [isIndoorMapVisible, setIsIndoorMapVisible] = useState<boolean>(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [navigationIsStarted, setNavigationIsStarted] = useState(false);
 
   //Translate building name i.e EV, MB, etc to coords to pass to google directions api
   async function nameToPlaceID(name: string): Promise<string>{
     if(name === "Your Location"){
       const loc = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
       return `${loc.coords.latitude},${loc.coords.longitude}`
-    }else{
+    } else if (name === "Concordia") {
+      // Use the Hall Building coordinates for Concordia
+      console.log("Resolving Concordia to Hall Building coordinates");
+      const hallBuilding = campusBuildingCoords.features.find((item) => item.properties.Building === "H");
+      if (hallBuilding) {
+        return `${hallBuilding.properties.Latitude},${hallBuilding.properties.Longitude}`;
+      }
+      // Fallback to hardcoded coordinates for Hall Building
+      return "45.497092,-73.5788";
+    } else {
       let id = campusBuildingCoords.features.find((item) => item.properties.Building === name)?.properties.PlaceID
       if(id){
         return `place_id:${id}`;
@@ -119,6 +137,16 @@ const NavigationProvider = ({
       return;
     }
     setLoadingRoutes(true);
+    
+    // Set twoBuildingsSelected to true when both origin and destination are set
+    if (origin && destination) {
+      setTwoBuildingsSelected(true);
+      console.log("Both origin and destination are set:", { origin, destination });
+    } else {
+      setTwoBuildingsSelected(false);
+      console.log("Missing origin or destination:", { origin, destination });
+    }
+    
     const estimates: { [mode: string]: RouteData[] } = {};
     try {
       
@@ -175,6 +203,23 @@ const NavigationProvider = ({
     fetchRoutes();
   }, [origin, destination, navigationMode]);
 
+  // Function to set modal visibility and optionally a room ID
+  const setModalVisible = (visible: boolean, roomId: string | null = null) => {
+    console.log(`[NavigationProvider] Setting modal visibility to ${visible}, roomId: ${roomId || 'none'}`);
+    
+    // First set the room ID if provided
+    if (roomId) {
+      console.log(`[NavigationProvider] Setting selected room ID to ${roomId}`);
+      setSelectedRoomId(roomId);
+    }
+    
+    // Then set visibility with a slight delay to ensure state updates
+    setTimeout(() => {
+      console.log(`[NavigationProvider] Actually changing visibility to ${visible}`);
+      setIsIndoorMapVisible(visible);
+    }, 100);
+  };
+
   return (
     <NavigationContext.Provider
       value={{
@@ -194,6 +239,10 @@ const NavigationProvider = ({
           searchSuggestions,
           setSearchSuggestions,
           routesValid,
+          isIndoorMapVisible,
+          selectedRoomId,
+          setModalVisible,
+          navigationIsStarted
         },
         functions: {
           setOrigin,
@@ -208,6 +257,8 @@ const NavigationProvider = ({
           setTwoBuildingsSelected,
           fetchRoutes,
           setRoutesValid,
+          setModalVisible,
+          setNavigationIsStarted
         },
       }}
     >
