@@ -54,21 +54,34 @@ const IndoorMapModal = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [buildingName, setBuildingName] = useState<string | null>(null);
   const [campusName, setCampusName] = useState<string | null>(null);
+
+  console.log("Campus Name: ", campusName);
   
   useEffect(() => {
     if (building) {
       setBuildingName(building.properties.BuildingName);
       setCampusName(building.properties.Campus);
     }
+    console.log("Building Name: ", buildingName);
+    console.log("Campus Name new: ", campusName);
   }, [building]);
+
+
+  useEffect(() => {
+    if (propRoomId) {
+      setRoomId(propRoomId);
+    }
+    if (propFloorId) {
+      setFloorId(propFloorId);
+    }
+  }, [propRoomId, propFloorId]);
 
   useEffect(() => {
     if (roomNumber) {
+      console.log("Room Number:", roomNumber);
       setCampusName(getBuildingNameByRoomNumber(roomNumber));
-      setRoomId(roomId);
-      setFloorId(floorId);
     }
-  }, [floorId, roomId, roomNumber]);
+  }, [roomNumber]);
 
 
 
@@ -103,6 +116,7 @@ const IndoorMapModal = ({
       
       // Fallback to old method if we don't have floor information
       if (campusName) {
+        console.log('Campus Name new ahaha:', campusName);
         const mapId = getMapId(campusName);
       
       
@@ -127,6 +141,8 @@ const IndoorMapModal = ({
   const [retryKey, setRetryKey] = useState(0);
 
   const displayRoomInfo = roomNumber ? `• Room ${roomNumber}` : (roomId ? '• Selected Room' : '• Indoor Map');
+
+  console.log("Room ID:", roomId);
 
   return (
     <Modal
@@ -188,6 +204,7 @@ const IndoorMapModal = ({
             <MappedinView
               key={`mappedin-view-${retryKey}`}
               buildingName={buildingName || ''}
+              campusName={campusName || ''}
               roomId={roomId || undefined}
               entranceId={entranceId || undefined}
               floorId={floorId || undefined}

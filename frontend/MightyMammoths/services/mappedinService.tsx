@@ -33,6 +33,7 @@ const BUILDING_MAP_IDS: Record<string, string> = {
  * Gets the map ID for a building
  */
 export function getMapId(campusName: string): string | null {
+  console.log('getMapId called with campusName:', campusName);
   return BUILDING_MAP_IDS[campusName] || null;
 }
 

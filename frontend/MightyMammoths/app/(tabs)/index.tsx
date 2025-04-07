@@ -438,63 +438,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     campusToggleSheet.current?.hide();
     navigationSheet.current?.show();
   };
-  const checkProximityToDestination = async () => {
-    // Only check if we're not already showing prompts or indoor maps
-    if (indoorMapVisible || showHallBuildingPrompt || isNearDestination) {
-      return;
-    }
-    
-    // Format the user's current location
-    const userLocationStr = `${myLocation.latitude},${myLocation.longitude}`;
-    
-    // Continue with the proximity check for the destination building
-    if (selectedBuilding && myLocation && destinationRoom) {
-      try {
-        // Get the destination building's place ID
-        const buildingPlaceId = selectedBuilding.properties.PlaceID 
-          ? `place_id:${selectedBuilding.properties.PlaceID}` 
-          : `${selectedBuilding.geometry.coordinates[1]},${selectedBuilding.geometry.coordinates[0]}`;
-        
-        // Check proximity using Google's Directions API
-        const proximityResult = await checkDistanceWithGoogleMaps(
-          userLocationStr,
-          buildingPlaceId,
-          50, // 50 meters threshold
-          "walking"
-        );
-        
-        // If we're near the destination and not already showing the indoor map
-        if (proximityResult.isNearby && !indoorMapVisible && !isNearDestination) {
-          setIsNearDestination(true);
-          
-          // Show alert asking user if they want to switch to indoor navigation
-          Alert.alert(
-            "You're near your destination",
-            `Would you like to switch to indoor navigation? (${proximityResult.distanceText} away)`,
-            [
-              { 
-                text: "No thanks", 
-                style: "cancel",
-                onPress: () => setIsNearDestination(false)
-              },
-              { 
-                text: "Yes", 
-                onPress: () => {
-                  // Switch to indoor map
-                  setIndoorMapVisible(true);
-                  setNavigationMode(false);
-                }
-              }
-            ]
-          );
-        } else if (!proximityResult.isNearby && isNearDestination) {
-          setIsNearDestination(false);
-        }
-      } catch (error) {
-        console.error("Error checking proximity:", error);
-      }
-    }
-  };
 
   const zoomIn = async (
     originCoordsPlaceID: string,
@@ -675,7 +618,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       }
       
       // Check if we're near the destination building
-      await checkProximityToDestination();
+
     };
 
     // Run updateLocation immediately and then every 10 seconds instead of 5
@@ -756,6 +699,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     // Set the room and floor IDs from our temporary storage
     if (roomSelectionData.current.roomId) {
       setSelectedRoomId(roomSelectionData.current.roomId);
+      console.log("Selected Room ID: ", roomSelectionData.current.roomId);
     }
     
     if (roomSelectionData.current.floorId) {
@@ -764,6 +708,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     
     if (roomSelectionData.current.roomNumber) {
       setDestinationRoom(roomSelectionData.current.roomNumber);
+      console.log("Selected Room Number: ", roomSelectionData.current.roomNumber);
     }
     
     // Ensure we have a proper Hall building if no building is selected

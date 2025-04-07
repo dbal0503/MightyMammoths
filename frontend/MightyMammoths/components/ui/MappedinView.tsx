@@ -10,6 +10,7 @@ interface MappedinViewProps {
   floorId?: string;
   onMapLoaded?: () => void;
   onError?: (error: string) => void;
+  campusName: string;
 }
 
 const MappedinView: React.FC<MappedinViewProps> = ({
@@ -19,6 +20,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
   floorId,
   onMapLoaded,
   onError,
+  campusName,
 }) => {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +32,10 @@ const MappedinView: React.FC<MappedinViewProps> = ({
    */
   function getMapUrl(buildingName: string, roomId?: string, entranceId?: string, floorId?: string): string {    
     // Default to Hall Building if not specified
-    const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
+    const mapId = getMapId(campusName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
+    console.log("AAAAA campusName:", campusName);
+
+    console.log("Room ID:", roomId);
     
     // Base URL for the map
     let url = `https://app.mappedin.com/map/${mapId}`;
