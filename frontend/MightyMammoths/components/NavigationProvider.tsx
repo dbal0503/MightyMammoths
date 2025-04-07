@@ -137,13 +137,7 @@ const NavigationProvider = ({
     setLoadingRoutes(true);
     
     // Set twoBuildingsSelected to true when both origin and destination are set
-    if (origin && destination) {
-      setTwoBuildingsSelected(true);
-      console.log("Both origin and destination are set:", { origin, destination });
-    } else {
-      setTwoBuildingsSelected(false);
-      console.log("Missing origin or destination:", { origin, destination });
-    }
+    setTwoBuildingsSelected(origin !== "" && destination !== "");
     
     const estimates: { [mode: string]: RouteData[] } = {};
     try {
