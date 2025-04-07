@@ -1,47 +1,34 @@
 import React, { Dispatch, SetStateAction, useState, useEffect, useCallback, useRef } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Linking,
-  Alert
-} from 'react-native';
+import {Modal, View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform, Linking, Alert} from 'react-native';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { Task } from './types';
 import * as Location from "expo-location";
 import { buildingList } from '@/utils/getBuildingList';
 import { SuggestionResult } from '@/services/searchService';
 import AutoCompleteDropdown, { BuildingData, AutoCompleteDropdownRef } from './input/AutoCompleteDropdown';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent, DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { TaskPlan } from '@/services/spOpenAI';
 
 type TaskViewModalProps = {
-  visible: boolean;
-  onClose: () => void;
-  planName: string;
-  tasks: Task[];
-  setTasks: Dispatch<SetStateAction<Task[]>>;
-  isStartLocationSet: boolean;
-  setIsStartLocationSet: Dispatch<SetStateAction<boolean>>;
-  generatedPlan: TaskPlan[];
-  setGeneratedPlan: Dispatch<SetStateAction<TaskPlan[]>>;
-  deletePlan: () => void;
-  openPlanBuilder: () => void;
-  onRegeneratePlan: (updatedTasks: Task[]) => Promise<void>;
-  navigateToRoutes: (
+  readonly visible: boolean;
+  readonly onClose: () => void;
+  readonly planName: string;
+  readonly tasks: Task[];
+  readonly setTasks: Dispatch<SetStateAction<Task[]>>;
+  readonly isStartLocationSet: boolean;
+  readonly setIsStartLocationSet: Dispatch<SetStateAction<boolean>>;
+  readonly generatedPlan: TaskPlan[];
+  readonly setGeneratedPlan: Dispatch<SetStateAction<TaskPlan[]>>;
+  readonly deletePlan: () => void;
+  readonly openPlanBuilder: () => void;
+  readonly  onRegeneratePlan: (updatedTasks: Task[]) => Promise<void>;
+  readonly navigateToRoutes: (
     destination: string | { origin?: string; destination: string }
   ) => void;
-  onCloseAllModals: () => void;
-  handleGetDirections: (origin: string, destination: string) => void;
-  setPendingDestination: Dispatch<SetStateAction<string>>;
-  setPendingOrigin: Dispatch<SetStateAction<string>>;
+  readonly onCloseAllModals: () => void;
+  readonly handleGetDirections: (origin: string, destination: string) => void;
+  readonly setPendingDestination: Dispatch<SetStateAction<string>>;
+  readonly setPendingOrigin: Dispatch<SetStateAction<string>>;
 };
 
 type DisplayItem = Task | TaskPlan;
@@ -52,16 +39,12 @@ export default function TaskViewModal({
   planName,
   tasks,
   setTasks,
-  isStartLocationSet,
   setIsStartLocationSet,
   generatedPlan,
   setGeneratedPlan,
   deletePlan,
   openPlanBuilder,
   onRegeneratePlan,
-  navigateToRoutes,
-  onCloseAllModals,
-  handleGetDirections,
   setPendingDestination,
   setPendingOrigin,
 }: TaskViewModalProps) {
@@ -341,23 +324,26 @@ export default function TaskViewModal({
   };
 
    const handleDeletePlanPress = () => {
-    if (isDeletePlanDisabled) return;
-      Alert.alert(
-        'Confirm Delete',
-        'Are you sure you want to delete this entire plan?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: () => {
-              deletePlan();
-              onClose();
-            },
+    if (isDeletePlanDisabled){
+      return
+    };
+
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this entire plan?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deletePlan();
+            onClose();
           },
-        ],
-        { cancelable: true }
-      );
+        },
+      ],
+      { cancelable: true }
+    );
     };
 
   return (
@@ -473,9 +459,6 @@ export default function TaskViewModal({
                     }}
                     style={{ maxHeight: '75%' }}
                     renderItem={({ item, index }) => {
-                      // console.log("Tasks: ", tasks);
-                      // console.log("Generated Plan: ", generatedPlan);
-                      // console.log("Item: ", item);
                       const itemId = 'id' in item ? item.id : item.order;
                       const itemName = 'name' in item ? item.name : item.taskName;
                       const itemLocation = 'location' in item ? item.location : item.taskLocation;

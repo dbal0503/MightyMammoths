@@ -19,7 +19,6 @@ export function DestinationChoices({
   visible,
   origin,
   destination,
-  locationServicesEnabled
 }: DestinationChoicesProps) {
   const { state, functions } = useNavigation();
   const { 
@@ -61,28 +60,15 @@ export function DestinationChoices({
         friction: 7
       }).start();
       //cleanup
-      //setSelectedStart("");
-      // console.log("Selected start", selectedStart);
-      // console.log("Selected origin", origin);
       setSelectedStart(origin);
       topDropDownRef.current?.setValue(origin);
       bottomDropDownRef.current?.setValue(destination);
-      // console.log("Selected start", selectedStart);
-      // console.log("Selected origin", origin);
-      // console.log("SelectedDestination", selectedDestination);
-      // console.log("Selected destination", destination);
-      // topDropDownRef.current?.reset();
-      // setSelectedStart("Your Location");
-      // checkSelection("Your Location", selectedDestination);
-      // setOrigin("Your Location");
     }
   }, [visible]);
 
   useEffect(()=>{
-    //setDestination(destination);
     setSelectedBuilding(destination);
     setSelectedStart(origin);
-    //setOrigin(origin);
     setSelectedDestination(destination);
     checkSelection(selectedStart, destination);
   }, [destination, origin]);

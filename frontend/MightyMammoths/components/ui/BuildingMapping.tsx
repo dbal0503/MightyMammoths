@@ -102,7 +102,7 @@ const BuildingMapping: React.FC<BuildingMappingProps> = ({
             key={`nearby-${index}`}
             coordinate={{ latitude, longitude }}
             title={mainText}
-            onPress={() => onNearbyPlacePress && onNearbyPlacePress(place)}
+            onPress={() => onNearbyPlacePress?.(place)}
           >
             <View style={styles.nearbyMarker}>
               <Text style={styles.text}>{mainText}</Text>

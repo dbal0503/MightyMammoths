@@ -90,9 +90,9 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ navigateToR
       const events = res.data.items;
       if (events && events.length > 0) {
         const event = events[0];
-        const eventName = event.summary || "No Title";
-        const description = event.description || "";
-        const location = event.location || "";
+        const eventName = event.summary ?? "No Title";
+        const description = event.description ?? "";
+        const location = event.location ?? "";
         const startDateTime = event.start?.dateTime
           ? new Date(event.start.dateTime)
           : null;

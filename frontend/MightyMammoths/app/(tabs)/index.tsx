@@ -1,43 +1,29 @@
 import React, {useRef, useState, useEffect, useCallback, useMemo} from "react";
-import {StyleSheet, View, Keyboard, AppState, Linking, Platform, Alert} from "react-native";
+import {StyleSheet, View, Keyboard, AppState, Linking, Platform, Alert, Image} from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActionSheetRef } from "react-native-actions-sheet";
-import {
-  AutoCompleteDropdown,
-  
-} from "@/components/ui/input/AutoCompleteDropdown";
+import {AutoCompleteDropdown,} from "@/components/ui/input/AutoCompleteDropdown";
 import MapView, { Marker, Polyline, LatLng, BoundingBox } from "react-native-maps";
 import * as Location from "expo-location";
-import BuildingMapping, {
-  GeoJsonFeature,
-} from "../../components/ui/BuildingMapping";
-import RoundButton from "../../components/ui/buttons/RoundButton";
+import BuildingMapping, {GeoJsonFeature,} from "@/components/ui/BuildingMapping";
+import RoundButton from "@/components/ui/buttons/RoundButton";
 import campusBuildingCoords from "../../assets/buildings/coordinates/campusbuildingcoords.json";
 import mapStyle from "../../assets/map/map.json"; // Styling the map https://mapstyle.withgoogle.com/
-import { DestinationChoices } from "../../components/DestinationsChoices";
-import {
-  SuggestionResult,
-  getPlaceDetails,
-  PlaceDetails,
-} from "../../services/searchService";
-import { checkProximityToDestination as checkDistanceWithGoogleMaps } from "../../services/directionsService";
-import { Image } from "react-native";
+import { DestinationChoices } from "@/components/DestinationsChoices";
+import {SuggestionResult,getPlaceDetails,PlaceDetails,} from "@/services/searchService";
 import { useFirstLaunch } from '../../hooks/useFirstLaunch'
-import TutorialHowTo from "../../components/TutorialHowTo";
-
+import TutorialHowTo from "@/components/TutorialHowTo";
 
 // Context providers
 import { NavigationProvider } from "../../components/NavigationProvider";
 import { getPlaceIdCoordinates } from "../../services/getPlaceIdCoordinatesService";
 
 // Sheets
-import LoyolaSGWToggleSheet from "../../components/ui/sheets/LoyolaSGWToggleSheet";
-import BuildingInfoSheet from "../../components/ui/sheets/BuildingInfoSheet";
-import PlaceInfoSheet from "../../components/ui/sheets/PlaceInfoSheet";
-
-// Styling the map https://mapstyle.withgoogle.com/
-import NavigationSheet from "../../components/ui/sheets/NavigationSheet";
-import IndoorMapModal from "../../components/ui/IndoorMapModal";
+import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
+import BuildingInfoSheet from "@/components/ui/sheets/BuildingInfoSheet";
+import PlaceInfoSheet from "@/components/ui/sheets/PlaceInfoSheet";
+import NavigationSheet from "@/components/ui/sheets/NavigationSheet";
+import IndoorMapModal from "@/components/ui/IndoorMapModal";
 import { buildingList } from "@/utils/getBuildingList";
 
 export default function HomeScreen() {
@@ -63,28 +49,23 @@ export default function HomeScreen() {
   };
 
   const mapRef = useRef<MapView>(null);
-
   const campusToggleSheet = useRef<ActionSheetRef>(null);
   const buildingInfoSheet = useRef<ActionSheetRef>(null);
   const navigationSheet = useRef<ActionSheetRef>(null);
   const isFirstLaunch = useFirstLaunch();
   const [showTutorialHowTo, setShowTutorialHowTo] = useState(true);
   const [indoorMapVisible, setIndoorMapVisible] = useState(false);
+  const placeInfoSheet = useRef<ActionSheetRef>(null);
 
-  //This is for globally storing data for place search so that all location choice dropdown
-  //have the same options
+  //This is for globally storing data for place search so that all location choice dropdown have the same options
   //probably should be refactored to be defined in a context if time allows
   const [searchSuggestions, setSearchSuggestions] = useState<SuggestionResult[]>([]); //stores google api search suggestion data
-
-  const placeInfoSheet = useRef<ActionSheetRef>(null);
   const [currentPlace, setCurrentPlace] = useState<PlaceDetails| undefined>(undefined)
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("")
   const [navigationMode, setNavigationMode] = useState<boolean>(false);
-
   const [chooseDestVisible, setChooseDestVisible] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] =
-    useState<GeoJsonFeature | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<GeoJsonFeature | null>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [regionMap, setRegion] = useState(sgwRegion);
   const [myLocation, setMyLocation] = useState({
@@ -101,8 +82,7 @@ export default function HomeScreen() {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
-  const [searchMarkerVisible, setSearchMarkerVisible] =
-    useState<boolean>(false);
+  const [searchMarkerVisible, setSearchMarkerVisible] = useState<boolean>(false);
   const [routePolyline, setRoutePolyline] = useState<LatLng[]>([]);
   const routePolylineRef = useRef<LatLng[]>([]);
   const [latitudeStepByStep, setLatitudeStepByStep] = useState(0);
@@ -149,7 +129,6 @@ export default function HomeScreen() {
       console.log("Cannot find building in campusBuildingCoords");
       return;
     }
-
     // 2. Update the state to store the selected building
     setDestination(buildingFeature.properties.BuildingName);
     setSelectedBuilding(buildingFeature);
@@ -215,6 +194,7 @@ export default function HomeScreen() {
       },1000);
     }
   }
+
   const fetchBoundaries = async () => {
     if (mapRef.current) {
       try {
@@ -235,8 +215,6 @@ export default function HomeScreen() {
     }
   };
   
-
-
   useEffect(() => {
     if (latitudeStepByStep !== 0 && longitudeStepByStep !== 0) {
       recenterToPolyline(latitudeStepByStep, longitudeStepByStep);
@@ -271,6 +249,7 @@ export default function HomeScreen() {
   const _openAppSetting = useCallback(async () => {
     await Linking.openSettings();
   }, []);
+
   const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
   const handleSearch = async (placeName: string) => {
     if (placeName === "Your Location") {
@@ -392,19 +371,15 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     setSearchMarkerLocation(placeRegion);
     setRegion(placeRegion);
     setSearchMarkerVisible(true);
-    //setDestination(place.placePrediction.structuredFormat.mainText.text);
 
     // Fetching the place details
     if (place.placePrediction.placeId) {
       const details = await getPlaceDetails(place.placePrediction.placeId);
       if (details) {
         setCurrentPlace(details);
-        //setDestination(place.placePrediction.placeId);
         setDestination(place.placePrediction.structuredFormat.mainText.text);
       }
     }
-
-    
 
     if (mapRef.current) {
       mapRef.current.animateToRegion(placeRegion, 1000);
@@ -415,10 +390,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     
     if (placeInfoSheet.current) {
       placeInfoSheet.current.show();
-    } else {
+    } 
+    else {
       console.log('Index.tsx: place info sheet ref is not defined');
     }
-  } catch (error) {
+  } 
+  catch (error) {
     console.log(`Index.tsx: Error handling nearby place: ${error}`);
   }
 };
@@ -613,7 +590,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
         if (isOriginYourLocation) {
           CenterOnLocation();
         }
-      } else if (mapRef.current) {
+      } else if (mapRef.current){
         mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
       
@@ -627,7 +604,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
 
     campusToggleSheet.current?.show();
 
-    // Optimize keyboard listeners to use refs instead of state to prevent unnecessary re-renders
     let keyboardVisible = false;
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -953,7 +929,7 @@ const styles = StyleSheet.create({
         position: 'relative',
       },
       android: {
-        // Android-specific adjustments
+        
       },
     }),
   },

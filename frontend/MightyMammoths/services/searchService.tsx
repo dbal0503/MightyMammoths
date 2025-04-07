@@ -88,7 +88,7 @@ class GooglePlacesAPIClient {
     private readonly baseURL: string = 'https://places.googleapis.com/v1';
     private readonly defaultLocation: Location = { latitude: 45.495376, longitude: -73.577997 }; // EV Building
 
-    constructor(private apiKey: string) {
+    constructor(private readonly apiKey: string) {
         if (!apiKey) {
             throw new Error('API key is required');
         }
@@ -167,8 +167,8 @@ class GooglePlacesAPIClient {
 
 // Repository - Handles business logic and data transformation
 class PlacesRepository {
-    private client: GooglePlacesAPIClient;
-    private defaultLocation: Location = { latitude: 45.495376, longitude: -73.577997 };
+    private readonly client: GooglePlacesAPIClient;
+    private readonly defaultLocation: Location = { latitude: 45.495376, longitude: -73.577997 };
 
     constructor(apiKey: string) {
         this.client = new GooglePlacesAPIClient(apiKey);
@@ -191,7 +191,7 @@ class PlacesRepository {
             const maxResults = radius > 1000 ? 20 : 10;
 
             const data = await this.client.searchNearby(searchString, cappedRadius, this.defaultLocation, maxResults);
-            return this.transformPlacesToSuggestions(data.places || []);
+            return this.transformPlacesToSuggestions(data.places ?? []);
         } catch (error) {
             console.log(`Error getting nearby places: ${error}`);
             return [];
