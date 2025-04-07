@@ -15,8 +15,8 @@ import { useFirstLaunch } from '../../hooks/useFirstLaunch'
 import TutorialHowTo from "@/components/TutorialHowTo";
 
 // Context providers
-import { NavigationProvider } from "@/components/NavigationProvider";
-import { getPlaceIdCoordinates } from "@/services/getPlaceIdCoordinatesService";
+import { NavigationProvider } from "../../components/NavigationProvider";
+import { getPlaceIdCoordinates } from "../../services/getPlaceIdCoordinatesService";
 
 // Sheets
 import LoyolaSGWToggleSheet from "@/components/ui/sheets/LoyolaSGWToggleSheet";
@@ -94,7 +94,20 @@ export default function HomeScreen() {
   const [boundaries, setBoundaries] = useState<BoundingBox>();
   const [showCafes, setShowCafes] = useState(false);
   const [showRestaurants, setShowRestaurants] = useState(false);
+  const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
+  const [isNearDestination, setIsNearDestination] = useState(false);
+  const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedFloorId, setSelectedFloorId] = useState<string | null>(null);
+  const [classBuilding, setClassBuilding] = useState<string | null>(null);
+  const [classRoom, setClassRoom] = useState<string | null>(null);
  
+  const parseRoomNumber = (text: string): string | null => {
+    const match = /(?:room\s+)?(\d+)|\b([a-z])-(\d+)\b/i.exec(text);
+    return match ? match[1] || match[3] : null;
+  };
+
+
   const ChangeLocation = (area: string) => {
     let newRegion;
     if (area === "SGW") newRegion = sgwRegion;
@@ -392,6 +405,11 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     setOrigin("Your Location");
     setChooseDestVisible(true);
     setNavigationMode(true);
+    
+    // Extract room number from destination if possible
+    const roomNumber = parseRoomNumber(destination);
+    setDestinationRoom(roomNumber);
+    
     placeInfoSheet.current?.hide();
     buildingInfoSheet.current?.hide();
     campusToggleSheet.current?.hide();
@@ -503,6 +521,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
   function navigateToRoutes (
     params: string | { origin?: string; destination: string }
   ) {
+    console.log("Origin: ", origin);
+    console.log("Destination: ", destination);
     let finalDestination: string;
     let finalOrigin: string | undefined;
   
@@ -513,6 +533,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       finalDestination = params.destination;
       finalOrigin = params.origin;
     }
+    console.log("Final Destination: ", finalDestination);
+    console.log("Final Origin: ", finalOrigin);
   
     if (!finalDestination) return;
   
@@ -521,6 +543,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     // Store origin so NavigationSheet can access it
     if (finalOrigin) {
       setOrigin(finalOrigin);
+    } else {
+      setOrigin("Your Location");
     }
 
     navigationSheet.current?.show();
@@ -569,6 +593,9 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       } else if (mapRef.current){
         mapRef.current.animateCamera({ heading: 0 }, { duration: 1000 });
       }
+      
+      // Check if we're near the destination building
+
     };
 
     // Run updateLocation immediately and then every 10 seconds instead of 5
@@ -602,7 +629,79 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [isOriginYourLocation, isZoomedIn]); 
+  }, [isOriginYourLocation, isZoomedIn, destinationRoom, selectedBuilding]); // Added destinationRoom and selectedBuilding to dependencies
+
+  // This function is specifically for handling the transition from room prompt to indoor map
+  const showIndoorMapWithRoom = (roomId: string, floorId: string, roomNumber: string) => {
+    // Set all required state variables
+    setDestinationRoom(roomNumber);
+    setSelectedRoomId(roomId);
+    setSelectedFloorId(floorId);
+    
+    // If no building is selected, set the Hall Building as default
+    if (!selectedBuilding) {
+      const hallBuilding = campusBuildingCoords.features.find(
+        feature => feature.properties.BuildingName === "Hall Building"
+      );
+      if (hallBuilding) {
+        setSelectedBuilding(hallBuilding);
+      }
+    }
+    
+    // Hide any open sheets
+    navigationSheet.current?.hide();
+    campusToggleSheet.current?.hide();
+    buildingInfoSheet.current?.hide();
+    
+    // Show the indoor map modal
+    setIndoorMapVisible(true);
+  };
+
+  // Global temporary storage for room selection
+  const roomSelectionData = useRef<{
+    roomId: string | null;
+    floorId: string | null;
+    roomNumber: string | null;
+  }>({
+    roomId: null,
+    floorId: null,
+    roomNumber: null
+  });
+
+  // Force show the indoor map - call this directly to avoid using context
+  const forceShowIndoorMap = () => {
+    // First complete any pending state updates
+    
+    // Set the room and floor IDs from our temporary storage
+    if (roomSelectionData.current.roomId) {
+      setSelectedRoomId(roomSelectionData.current.roomId);
+      console.log("Selected Room ID: ", roomSelectionData.current.roomId);
+    }
+    
+    if (roomSelectionData.current.floorId) {
+      setSelectedFloorId(roomSelectionData.current.floorId);
+    }
+    
+    if (roomSelectionData.current.roomNumber) {
+      setDestinationRoom(roomSelectionData.current.roomNumber);
+      console.log("Selected Room Number: ", roomSelectionData.current.roomNumber);
+    }
+    
+    // Ensure we have a proper Hall building if no building is selected
+    if (!selectedBuilding) {
+      const hallBuilding = campusBuildingCoords.features.find(
+        feature => feature.properties.BuildingName === "Hall Building"
+      );
+      if (hallBuilding) {
+        setSelectedBuilding(hallBuilding);
+      }
+    }
+    
+    // Give a little time for state to update, then show the modal
+    setTimeout(() => {
+      setIndoorMapVisible(true);
+    }, 300);
+  };
 
   return (
     <>
@@ -613,6 +712,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             onClose={()=>setShowTutorialHowTo(false)}
           />
         }
+        
         <MapView
           style={styles.map}
           initialRegion={regionMap}
@@ -693,6 +793,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             actionsheetref={campusToggleSheet}
             setSelectedCampus={CenterOnCampus}
             navigateToRoutes={navigateToRoutes}
+            setClassBuilding={setClassBuilding}
+            setClassRoom={setClassRoom}
           />
 
         {/* BUILDING INFO */}
@@ -703,17 +805,6 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             actionsheetref={buildingInfoSheet}
             building={selectedBuilding}
             onClose={() => {
-              campusToggleSheet.current?.show();
-            }}
-          />
-        )}
-
-        {selectedBuilding && (
-          <IndoorMapModal
-            visible={indoorMapVisible}
-            building={selectedBuilding}
-            onClose={() => {
-              setIndoorMapVisible(false);
               campusToggleSheet.current?.show();
             }}
           />
@@ -752,6 +843,21 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             setLongitudeStepByStep={setLongitudeStepByStep}
             isZoomedIn={isZoomedIn}
             userLocation={myLocation}
+            classBuilding={classBuilding}
+            classRoom={classRoom}
+            onShowIndoorMap={(roomData) => {
+              // Store the room data in our temporary storage
+              if (roomData) {
+                roomSelectionData.current = {
+                  roomId: roomData.roomId,
+                  floorId: roomData.floorId,
+                  roomNumber: roomData.roomNumber
+                };
+              }
+              
+              // Then call forceShowIndoorMap to display the indoor map
+              forceShowIndoorMap();
+            }}
           />
           <DestinationChoices
             buildingList={buildingList}
@@ -759,6 +865,49 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             destination={destination}
             origin={origin}
             locationServicesEnabled={locationServicesEnabled}
+          />
+          {/* <HallBuildingRoomPrompt
+            visible={showHallBuildingPrompt}
+            onClose={() => setShowHallBuildingPrompt(false)}
+            onSelectRoom={(roomId, floorId, roomNumber) => {
+              // Use the new function to show the indoor map with proper parameters
+              showIndoorMapWithRoom(roomId, floorId, roomNumber);
+              
+              // Hide the room prompt
+              setShowHallBuildingPrompt(false);
+            }}
+          /> */}
+          
+          {/* Add IndoorMapModal inside the NavigationProvider */}
+          <IndoorMapModal
+            visible={indoorMapVisible}
+            onClose={() => {
+              setIndoorMapVisible(false);
+              setShowHallBuildingPrompt(false);
+              if (navigationMode) {
+                navigationSheet.current?.show();
+              } else {
+                campusToggleSheet.current?.show();
+              }
+            }}
+            building={selectedBuilding || {
+              properties: { 
+                BuildingName: "Hall Building",
+                Campus: "SGW",
+                Building: "H",
+                "Building Long Name": "Henry F. Hall Building",
+                Address: "1455 De Maisonneuve Blvd. W",
+                PlaceID: "ChIJbWPFbY6QyUwRXZZcfOWRRD0",
+                Latitude: 45.497092,
+                Longitude: -73.5788
+              },
+              geometry: { type: "Point", coordinates: [-73.5788, 45.497092] },
+              type: "Feature"
+            }}
+            roomNumber={destinationRoom}
+            roomId={selectedRoomId || undefined}
+            floorId={selectedFloorId || undefined}
+            userLocation={myLocation}
           />
         </NavigationProvider>
       </GestureHandlerRootView>

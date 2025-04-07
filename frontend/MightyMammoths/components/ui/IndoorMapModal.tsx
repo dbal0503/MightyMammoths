@@ -1,67 +1,165 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Pressable,
   Modal,
   Text,
-  Dimensions,
   ActivityIndicator,
+  Linking,
 } from "react-native";
-import { WebView } from "react-native-webview";
-import { GeoJsonFeature } from "./BuildingMapping";
 import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
-
-// MappedIn map ID
-const MAP_ID = "677d8a736e2f5c000b8f3fa6";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+import { GeoJsonFeature } from "./BuildingMapping";
+import MappedinView from "./MappedinView";
+import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
+import { useNavigation as useNavigationProvider } from "../NavigationProvider";
+import { getMappedinUrl } from "../../utils/hallBuildingRooms";
+import { useNavigation } from "@/components/NavigationProvider";
+import { getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 
 interface IndoorMapModalProps {
   visible: boolean;
   onClose: () => void;
   building: GeoJsonFeature;
+  roomNumber?: string | null;
+  roomId?: string | null;
+  floorId?: string | null;
+  userLocation?: { latitude: number; longitude: number } | null;
 }
 
 const IndoorMapModal = ({
   visible,
   onClose,
   building,
+  roomNumber,
+  roomId: propRoomId,
+  floorId: propFloorId,
+  userLocation,
 }: IndoorMapModalProps) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const webViewRef = useRef<WebView>(null);
-  const buildingName = building?.properties?.BuildingName || "Hall";
-  
-  // Use the direct embedded iframe URL from Mappedin
-  const mappedinEmbedUrl = `https://app.mappedin.com/map/${MAP_ID}?embedded=true`;
 
-  // Simplest possible HTML wrapping the iframe
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <style>
-          body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #010213; }
-          iframe { border: 0; width: 100%; height: 100%; }
-        </style>
-      </head>
-      <body>
-        <iframe src="${mappedinEmbedUrl}" allow="geolocation" allowfullscreen></iframe>
-      </body>
-    </html>
-  `;
+  const { state, functions } = useNavigation();
+  const { 
+      selectedRoomId,
+  } = state;
+  
+  const { 
+      setNavigationIsStarted
+  } = functions;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [floorId, setFloorId] = useState<string | null>(null);
+  const [entranceId, setEntranceId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [buildingName, setBuildingName] = useState<string | null>(null);
+  const [campusName, setCampusName] = useState<string | null>(null);
+
+  console.log("Campus Name: ", campusName);
+  
+  useEffect(() => {
+    if (building) {
+      setBuildingName(building.properties.BuildingName);
+      setCampusName(building.properties.Campus);
+    }
+    console.log("Building Name: ", buildingName);
+    console.log("Campus Name new: ", campusName);
+  }, [building]);
+
+
+  useEffect(() => {
+    if (propRoomId) {
+      setRoomId(propRoomId);
+    }
+    if (propFloorId) {
+      setFloorId(propFloorId);
+    }
+  }, [propRoomId, propFloorId]);
+
+  useEffect(() => {
+    if (roomNumber) {
+      console.log("Room Number:", roomNumber);
+      setCampusName(getBuildingNameByRoomNumber(roomNumber));
+    }
+  }, [roomNumber]);
+
+
+
+  const handleMapError = (errorMessage: string) => {
+    console.error('Map error:', errorMessage);
+    setError(errorMessage);
+    setIsLoading(false);
+  };
+
+  const handleMapLoaded = () => {
+    setIsLoading(false);
+    setMapLoaded(true);
+    setError(null);
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setIsLoading(true);
+    setMapLoaded(false);
+    // Force a re-render of MappedinView by using a key
+    setRetryKey(prevKey => prevKey + 1);
+  };
+  
+  const openInBrowser = () => {
+    try {
+      // If we have roomId and floorId, use our utility function
+      if (roomId && floorId) {
+        const url = getMappedinUrl(roomId, floorId);
+        Linking.openURL(url);
+        return;
+      }
+      
+      // Fallback to old method if we don't have floor information
+      if (campusName) {
+        console.log('Campus Name new ahaha:', campusName);
+        const mapId = getMapId(campusName);
+      
+      
+      // Base URL without directions
+      let url = `https://app.mappedin.com/map/${mapId}`;
+      
+      // If we have room and entrance IDs, add directions
+      if (roomId && entranceId) {
+        url = `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${entranceId}`;
+      } else if (roomId) {
+        // Just navigate to the room without directions
+        url = `https://app.mappedin.com/map/${mapId}/routes/${roomId}`;
+      }
+      
+      Linking.openURL(url);}
+    } catch (error) {
+      console.error('Error opening browser URL:', error);
+      setError('Failed to open browser');
+    }
+  };
+
+  const [retryKey, setRetryKey] = useState(0);
+
+  const displayRoomInfo = roomNumber ? `• Room ${roomNumber}` : (roomId ? '• Selected Room' : '• Indoor Map');
+
+  console.log("Room ID:", roomId);
 
   return (
     <Modal
       animationType="slide"
       transparent={false}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={() => {
+        onClose()
+        setNavigationIsStarted(true);
+      }}
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Pressable onPress={onClose} style={styles.backButton}>
+          <Pressable onPress={() => {
+        onClose()
+        setNavigationIsStarted(true);
+      }} style={styles.backButton}>
             <IconSymbol
               name={"arrow-back" as IconSymbolName}
               size={28}
@@ -69,29 +167,51 @@ const IndoorMapModal = ({
               style={styles.modeIcon}
             />
           </Pressable>
-          <Text style={styles.headerTitle}>{buildingName} • Indoor Map</Text>
+          <Text style={styles.headerTitle}>
+            {buildingName} {displayRoomInfo}
+          </Text>
         </View>
 
         <View style={styles.webViewContainer}>
-          {isLoading && (
+          {isLoading && !error && (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.loadingText}>Loading map...</Text>
+              <Text style={styles.loadingText}>Loading indoor map...</Text>
             </View>
           )}
           
-          <WebView
-            ref={webViewRef}
-            source={{ html: htmlContent }}
-            style={styles.webView}
-            onLoadStart={() => setIsLoading(true)}
-            onLoadEnd={() => setIsLoading(false)}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            allowsFullscreenVideo={true}
-            originWhitelist={['*']}
-            onError={(error) => console.error('WebView error:', error)}
-          />
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                Unable to load indoor map. {error}
+              </Text>
+              <View style={styles.buttonRow}>
+                <Pressable 
+                  style={styles.tryAgainButton}
+                  onPress={handleRetry}
+                >
+                  <Text style={styles.tryAgainButtonText}>Try Again</Text>
+                </Pressable>
+                <Pressable 
+                  style={[styles.tryAgainButton, styles.browserButton]}
+                  onPress={openInBrowser}
+                >
+                  <Text style={styles.tryAgainButtonText}>Open in Browser</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <MappedinView
+              key={`mappedin-view-${retryKey}`}
+              buildingName={buildingName || ''}
+              campusName={campusName || ''}
+              roomId={roomId || undefined}
+              entranceId={entranceId || undefined}
+              floorId={floorId || undefined}
+              onMapLoaded={handleMapLoaded}
+              onError={handleMapError}
+            />
+          )}
         </View>
       </View>
     </Modal>
@@ -123,10 +243,6 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  webView: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
@@ -146,6 +262,41 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 2,
     borderRadius: 16,
+  },
+  errorContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(1, 2, 19, 0.8)",
+    zIndex: 10,
+  },
+  errorText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+  },
+  tryAgainButton: {
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    marginHorizontal: 5,
+    flex: 1,
+    alignItems: "center",
+  },
+  browserButton: {
+    backgroundColor: "#4a90e2",
+  },
+  tryAgainButtonText: {
+    color: "#010213",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

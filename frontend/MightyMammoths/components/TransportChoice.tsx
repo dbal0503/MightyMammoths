@@ -15,7 +15,7 @@ interface TransportChoiceProps {
   defPoly:()=>void;
   starting: ()=> void;
   onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
-  showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
+  showStepByStep: (value: boolean) => void;
   routes: any
   origin: string;
   originCoords: string;
@@ -41,6 +41,16 @@ export function TransportChoice({
 }: TransportChoiceProps) {
   const [selectedMode, setSelectedMode] = useState<string>("driving");
   const [bestEstimate, setBestEstimate] = useState<RouteData | null>(null);
+  
+  // Log debug info to help troubleshoot
+  useEffect(() => {
+    console.log("TransportChoice - DEBUG INFO:");
+    console.log("bothSelected:", bothSelected);
+    console.log("routesValid:", routesValid);
+    console.log("routeEstimates modes:", Object.keys(routeEstimates));
+    console.log("origin:", origin);
+    console.log("destination:", destination);
+  }, [bothSelected, routesValid, routeEstimates, origin, destination]);
   
   const startNavigation = () => {starting(); defPoly(); if (onZoomIn) onZoomIn(originCoords, origin);}
   const setStepByStepVisible = () => {
@@ -141,20 +151,31 @@ export function TransportChoice({
           const bestEstimate = estimates && estimates.length > 0 ? estimates[0] : null;
           const steps = bestEstimate?.steps || [];
           const isSelected = selectedMode === mode;
+          // Make buttons enabled if we have valid routes
           const isDisabled = !estimates || estimates.length === 0;
-
+          
+          // Log why a button might be disabled
+          if (isDisabled) {
+            console.log(`Mode ${mode} is disabled because:`, 
+              !estimates ? "No estimates available" : "Empty estimates array");
+          }
+          
           return (
             <TouchableOpacity
               key={mode}
               style={[styles.modeItem, isSelected && styles.selectedMode,  isDisabled && styles.disabledMode]}
               onPress={() => {
                 if (!isDisabled) {
+                  console.log(`Selected transportation mode: ${mode}`);
                   setSelectedMode(mode);
                   onSelectMode(mode);
                   onSetSteps(steps);
                   setBestEstimate(routeEstimates[mode][0]);
+                } else {
+                  console.log(`Cannot select disabled mode: ${mode}`);
                 }
               }}
+              // Only disable if absolutely no estimates are available
               disabled={!bothSelected || isDisabled}
             >
               {modeIcons[mode]}
@@ -170,18 +191,20 @@ export function TransportChoice({
             <Text style={styles.distance} testID="distanceInformation">{bestEstimate.distance}</Text>
           </View>
         )}
-        {bothSelected && bestEstimate && (
+        {/* Show Go button if we have a valid route, regardless of bothSelected state */}
+        {bestEstimate && (
           <TouchableOpacity
             testID="startButton"
             style={styles.goButton}
             onPress={() => {
+              console.log("Go button pressed! Starting navigation...");
               startNavigation();
               setStepByStepVisible();
             }}
           >
             <Text style={styles.goStyle}>Go</Text>
           </TouchableOpacity>
-        )}          
+        )}
       </View>
     </View>
   );

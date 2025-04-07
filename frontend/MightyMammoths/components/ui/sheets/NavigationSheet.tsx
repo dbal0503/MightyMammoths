@@ -1,12 +1,14 @@
-import { View, StyleSheet } from 'react-native';
-import { useEffect, useState } from 'react';
-import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
-import { TransportChoice } from "@/components/TransportChoice";
-import { useNavigation } from "@/components/NavigationProvider"
-import { LiveInformation } from '@/components/LiveInformation';
-import polyline from "@mapbox/polyline"
-import { LatLng } from 'react-native-maps';
-import { StaticNavigationInformation } from '@/components/StaticNavigationInformation';
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Pressable, Text, Alert } from "react-native";
+import { useNavigation } from "../../../components/NavigationProvider";
+import ActionSheet, { ActionSheetRef, ActionSheetProps } from "react-native-actions-sheet";
+import { TransportChoice } from "../../../components/TransportChoice";
+import { StaticNavigationInformation } from "../../../components/StaticNavigationInformation";
+import { LiveInformation } from "../../../components/LiveInformation";
+import * as polyline from "@mapbox/polyline";
+import { LatLng } from "react-native-maps";
+import HallBuildingRoomPrompt from "../../ui/HallBuildingRoomPrompt";
+import {isValidRoom, findBuildingCampus, getFloorIdbyRoomID, getRoomInfoByNumberString} from "../../../utils/hallBuildingRooms";
 
 export type NavigationSheetProps = ActionSheetProps & {
     actionsheetref: React.MutableRefObject<ActionSheetRef | null>;
@@ -20,6 +22,9 @@ export type NavigationSheetProps = ActionSheetProps & {
     onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
     isZoomedIn: boolean;
     userLocation: {latitude: number, longitude: number};
+    onShowIndoorMap?: (roomData?: {roomId: string, floorId: string, roomNumber: string}) => void;
+    classBuilding?: string | null;
+    classRoom?: string | null;
 }
 
 function NavigationSheet({
@@ -41,9 +46,12 @@ function NavigationSheet({
     onZoomIn,
     onZoomOut,
     isZoomedIn,
-    userLocation
+    userLocation,
+    onShowIndoorMap,
+    classBuilding,
+    classRoom,
 }: NavigationSheetProps) {
-    const [navigationIsStarted, setNavigationIsStarted] = useState(false);
+
     const { state, functions } = useNavigation();
     const { 
         routeEstimates, 
@@ -54,14 +62,29 @@ function NavigationSheet({
         destination,
         originCoords,
         destinationCoords,
-        routesValid
+        routesValid,
+        selectedRoomId,
+        navigationIsStarted
     } = state;
+    
+    const [showRoomPrompt, setShowRoomPrompt] = useState(false);
     
     const { 
         setSelectedMode, 
         setRouteEstimates,
         setRoutesValid,
+        setNavigationIsStarted
     } = functions;
+
+        // // Add debug logs to help identify the issue
+    // useEffect(() => {
+    //   console.log("NavigationSheet - DEBUG INFO:");
+    //   console.log("Origin:", origin);
+    //   console.log("Destination:", destination);
+    //   console.log("routesValid:", routesValid);
+    //   console.log("twoBuildingsSelected:", twoBuildingsSelected);
+    //   console.log("routeEstimates available modes:", Object.keys(routeEstimates));
+    // }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates]);
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
     const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
@@ -103,6 +126,7 @@ function NavigationSheet({
     useEffect(() => {
       if (origin){
         setIsOriginYourLocation(origin === "Your Location");
+        console.log("isOriginYourLocation: ", isOriginYourLocation); //! Don't remove
       }
     }, [origin]);
 
@@ -151,13 +175,14 @@ function NavigationSheet({
                         setRoutesValid(false);
                       }}
                       routeEstimates={routeEstimates}
-                      onSelectMode={(mode) => {
+                      onSelectMode={(mode: string) => {
                         if(origin && destination){
                           setSelectedMode(mode);
                           actionsheetref.current?.snapToIndex(1)
                         }
                       }}
-                      onSetSteps={(steps) => {
+                      onSetSteps={(steps: any) => {
+                        console.log("Steps set: ", steps);
                         console.log("steps mode: " + selectedMode)
                       }}
                       destinationBuilding={selectedBuilding}
@@ -211,7 +236,7 @@ function NavigationSheet({
                         actionsheetref.current?.hide();
                         setPoly("");
                         setStartedSelectedRoute(false);
-                        setIsOriginYourLocation(false);
+                        //setIsOriginYourLocation(false);
                         setRoutesValid(false);
                         setIsBackgroundInteractionEnabled(false);
                       }}
@@ -220,10 +245,93 @@ function NavigationSheet({
                       isZoomedIn={isZoomedIn}
                       destination={destination}
                       destinationCoords={destinationCoords}
+                      roomNumber={selectedRoomId}
+                      onViewBuildingInfo={() => {
+                        console.log('View Indoor button clicked - showing room prompt');
+                        // Explicitly hide the sheet to prevent UI conflicts
+                        //actionsheetref.current?.snapToIndex(0); //???????????
+                        
+                        // Then show the room prompt after a small delay
+                        if (!classRoom || !isValidRoom(classRoom, findBuildingCampus(classBuilding) )) {
+                          setTimeout(() => {
+                            setShowRoomPrompt(true);
+                          }, 100);
+                        } else {
+                          setTimeout(() => {
+                            // Before we call onShowIndoorMap, we need to ensure the room data is available
+                            // The index.tsx file will handle the data through the callback
+                            let campus = findBuildingCampus(classBuilding);
+                            const roomId = getRoomInfoByNumberString(classRoom, campus);
+                            console.log("Room ID: ", roomId);
+                            const floorId = getFloorIdbyRoomID(roomId);
+                            console.log("Floor ID: ", floorId);
+                            onShowIndoorMap?.({
+                              roomId, 
+                              floorId, 
+                              roomNumber: classRoom
+                            });
+                            
+                          }, 300);
+                          setNavigationIsStarted(false);
+                        }
+                      }}
                     /> 
                   )
                 }
             </View>
+            
+            <HallBuildingRoomPrompt
+              visible={showRoomPrompt}
+              onClose={() => setShowRoomPrompt(false)}
+              onSelectRoom={(roomId, floorId, roomNumber) => {
+                console.log('Room selected in NavigationSheet:', roomId, floorId, roomNumber);
+                
+                // First close the prompt
+                setShowRoomPrompt(false);
+                
+                // Hide sheet immediately to prevent UI conflicts
+                // actionsheetref.current?.hide();
+                
+                // Call the parent's callback function to show the indoor map
+                if (onShowIndoorMap) {
+                  // Use a modified approach that directly handles the data
+                  // Pass the data to the parent component through a callback
+                  console.log(`Before showing indoor map, passing data: ${roomId}, ${floorId}, ${roomNumber}`);
+                  
+                  // Call the parent's function to show the indoor map
+                  setTimeout(() => {
+                    // Before we call onShowIndoorMap, we need to ensure the room data is available
+                    // The index.tsx file will handle the data through the callback
+                    onShowIndoorMap({
+                      roomId, 
+                      floorId, 
+                      roomNumber
+                    });
+                  }, 300);
+                  
+                  //* Uncomment the following lines if you want it so that if the View Indoor is pressed then we stop navigation
+                  //* If left commented, when the back arrow for indoor is pressed, the user will return back to the outdoor navigation
+
+                  //290
+                  setNavigationIsStarted(false);
+                  //actionsheetref.current?.hide();
+                  //setPoly("");
+                  //setStartedSelectedRoute(false);
+                  //setIsOriginYourLocation(false);
+                  //setRoutesValid(false);
+                  //setIsBackgroundInteractionEnabled(false);
+                  //if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
+
+                } else {
+                  // Fallback alert if all else fails
+                  Alert.alert(
+                    "Room Selected",
+                    `Room: ${roomNumber}\nID: ${roomId}\nFloor: ${floorId}`,
+                    [{ text: "OK" }]
+                  );
+                }
+              }}
+            />
         </ActionSheet>
       </>
     );
