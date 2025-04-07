@@ -5,21 +5,21 @@ import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { RouteData } from "@/services/directionsService";
 
 interface TransportChoiceProps {
-  routeEstimates: { [mode: string]: RouteData[] };
-  onSelectMode: (mode: string) => void;
-  destinationBuilding: string | null;
-  bothSelected: boolean;
-  onBack: () => void;
-  onSetSteps: (steps: any[]) => void;
-  routesValid: boolean;
-  defPoly:()=>void;
-  starting: ()=> void;
-  onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
-  showStepByStep: (value: boolean) => void;
-  routes: any
-  origin: string;
-  originCoords: string;
-  destination: string;
+  readonly routeEstimates: { [mode: string]: RouteData[] };
+  readonly onSelectMode: (mode: string) => void;
+  readonly destinationBuilding: string | null;
+  readonly bothSelected: boolean;
+  readonly onBack: () => void;
+  readonly onSetSteps: (steps: any[]) => void;
+  readonly routesValid: boolean;
+  readonly defPoly:()=>void;
+  readonly starting: ()=> void;
+  readonly onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
+  readonly showStepByStep: (value: boolean) => void;
+  readonly routes: any
+  readonly origin: string;
+  readonly originCoords: string;
+  readonly destination: string;
 }
 
 export function TransportChoice({
@@ -127,8 +127,6 @@ export function TransportChoice({
       />
     ),
   };
-
-
 
   return (
     <View style={styles.container}>

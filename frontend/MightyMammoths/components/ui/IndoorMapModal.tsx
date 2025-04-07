@@ -11,11 +11,9 @@ import {
 import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
 import { GeoJsonFeature } from "./BuildingMapping";
 import MappedinView from "./MappedinView";
-import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
-import { useNavigation as useNavigationProvider } from "../NavigationProvider";
-import { getMappedinUrl } from "../../utils/hallBuildingRooms";
+import {getMapId } from "../../services/mappedinService";
+import { getMappedinUrl, getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 import { useNavigation } from "@/components/NavigationProvider";
-import { getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 
 interface IndoorMapModalProps {
   visible: boolean;
@@ -34,13 +32,9 @@ const IndoorMapModal = ({
   roomNumber,
   roomId: propRoomId,
   floorId: propFloorId,
-  userLocation,
 }: IndoorMapModalProps) => {
 
-  const { state, functions } = useNavigation();
-  const { 
-      selectedRoomId,
-  } = state;
+  const { functions } = useNavigation();
   
   const { 
       setNavigationIsStarted
@@ -49,9 +43,8 @@ const IndoorMapModal = ({
   const [isLoading, setIsLoading] = useState(true);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [floorId, setFloorId] = useState<string | null>(null);
-  const [entranceId, setEntranceId] = useState<string | null>(null);
+
   const [error, setError] = useState<string | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [buildingName, setBuildingName] = useState<string | null>(null);
   const [campusName, setCampusName] = useState<string | null>(null);
 
@@ -93,14 +86,12 @@ const IndoorMapModal = ({
 
   const handleMapLoaded = () => {
     setIsLoading(false);
-    setMapLoaded(true);
     setError(null);
   };
 
   const handleRetry = () => {
     setError(null);
     setIsLoading(true);
-    setMapLoaded(false);
     // Force a re-render of MappedinView by using a key
     setRetryKey(prevKey => prevKey + 1);
   };
@@ -124,8 +115,8 @@ const IndoorMapModal = ({
       let url = `https://app.mappedin.com/map/${mapId}`;
       
       // If we have room and entrance IDs, add directions
-      if (roomId && entranceId) {
-        url = `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${entranceId}`;
+      if (roomId) {
+        url = `https://app.mappedin.com/map/${mapId}/directions?location=${roomId}&departure=${undefined}`;
       } else if (roomId) {
         // Just navigate to the room without directions
         url = `https://app.mappedin.com/map/${mapId}/routes/${roomId}`;
@@ -203,11 +194,11 @@ const IndoorMapModal = ({
           ) : (
             <MappedinView
               key={`mappedin-view-${retryKey}`}
-              buildingName={buildingName || ''}
-              campusName={campusName || ''}
-              roomId={roomId || undefined}
-              entranceId={entranceId || undefined}
-              floorId={floorId || undefined}
+              buildingName={buildingName ?? ''}
+              campusName={campusName ?? ''}
+              roomId={roomId ?? undefined}
+              entranceId={undefined}
+              floorId={floorId ?? undefined}
               onMapLoaded={handleMapLoaded}
               onError={handleMapError}
             />

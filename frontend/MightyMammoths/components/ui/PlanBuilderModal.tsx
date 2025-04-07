@@ -372,7 +372,7 @@ export default function PlanBuilderModal({
                   testID='time-picker'
                 >
                   <Text style={{ color: 'white', fontSize: 17 }}>
-                    {tempTaskTime || 'Select Time'}
+                    {tempTaskTime ?? 'Select Time'}
                   </Text>
                 </TouchableOpacity>
               )}
