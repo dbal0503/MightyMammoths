@@ -74,9 +74,7 @@ const NavigationProvider = ({
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%", "60%"], []);
 
-  //const [origin, setOrigin] = useState<string>("");
   const [originCoords, setOriginCoords] = useState<string>("");
-  //const [destination, setDestination] = useState<string>("");
   const [destinationCoords, setDestinationCoords] = useState<string>("");
   const [routeEstimates, setRouteEstimates] = useState<{
     [mode: string]: RouteData[];
@@ -131,7 +129,6 @@ const NavigationProvider = ({
       console.log(`originCoords: ${originCoordsLocal}, destinationCoords: ${destinationCoordsLocal}`)
       for (const mode of transportModes) {
         const routeMode = await getRoutes(originCoordsLocal, destinationCoordsLocal, mode);
-        //console.log("Mode: ", mode, "Shortest Route: ", routeMode);
         if (routeMode) {
           estimates[mode] = [routeMode]; 
         }

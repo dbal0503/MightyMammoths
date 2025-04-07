@@ -39,16 +39,12 @@ export default function TaskViewModal({
   planName,
   tasks,
   setTasks,
-  isStartLocationSet,
   setIsStartLocationSet,
   generatedPlan,
   setGeneratedPlan,
   deletePlan,
   openPlanBuilder,
   onRegeneratePlan,
-  navigateToRoutes,
-  onCloseAllModals,
-  handleGetDirections,
   setPendingDestination,
   setPendingOrigin,
 }: TaskViewModalProps) {
@@ -328,23 +324,26 @@ export default function TaskViewModal({
   };
 
    const handleDeletePlanPress = () => {
-    if (isDeletePlanDisabled) return;
-      Alert.alert(
-        'Confirm Delete',
-        'Are you sure you want to delete this entire plan?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: () => {
-              deletePlan();
-              onClose();
-            },
+    if (isDeletePlanDisabled){
+      return
+    };
+
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this entire plan?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deletePlan();
+            onClose();
           },
-        ],
-        { cancelable: true }
-      );
+        },
+      ],
+      { cancelable: true }
+    );
     };
 
   return (
@@ -460,9 +459,6 @@ export default function TaskViewModal({
                     }}
                     style={{ maxHeight: '75%' }}
                     renderItem={({ item, index }) => {
-                      // console.log("Tasks: ", tasks);
-                      // console.log("Generated Plan: ", generatedPlan);
-                      // console.log("Item: ", item);
                       const itemId = 'id' in item ? item.id : item.order;
                       const itemName = 'name' in item ? item.name : item.taskName;
                       const itemLocation = 'location' in item ? item.location : item.taskLocation;

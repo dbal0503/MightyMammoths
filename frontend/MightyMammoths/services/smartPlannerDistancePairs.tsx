@@ -36,8 +36,8 @@ export async function getDistanceAndDuration(
   ): Promise<DistanceResult | null> {
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-    let originParam = ``;
-    let destinationParam = ``;
+    let originParam;
+    let destinationParam;
 
     if (origin === "Your Location"){
       originParam = originPlaceID;
