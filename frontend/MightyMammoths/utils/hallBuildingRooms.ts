@@ -115,9 +115,6 @@ export const getMappedinUrl = (roomId: string, floorId: string): string => {
  * @param roomNumber The room number to check
  * @returns True if the room exists, false otherwise
  */
-// export const isValidHallBuildingRoom = (roomNumber: string): boolean => {
-//   return getRoomInfoByNumber(roomNumber) !== undefined;
-// }; 
 
 export function findBuildingCampus(destination?: string | null): string {
   if (!destination) {

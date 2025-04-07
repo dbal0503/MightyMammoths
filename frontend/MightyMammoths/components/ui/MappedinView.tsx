@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { WebView } from 'react-native-webview';
 import { StyleSheet, ActivityIndicator, View, Text, Linking, TouchableOpacity } from 'react-native';
 import { getMapId } from '../../services/mappedinService';
@@ -32,7 +32,7 @@ const MappedinView: React.FC<MappedinViewProps> = ({
    */
   function getMapUrl(buildingName: string, roomId?: string, entranceId?: string, floorId?: string): string {    
     // Default to Hall Building if not specified
-    const mapId = getMapId(campusName) || "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
+    const mapId = getMapId(campusName) ?? "677d8a736e2f5c000b8f3fa6"; // Hall Building ID
     console.log("AAAAA campusName:", campusName);
 
     console.log("Room ID:", roomId);

@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { buildingList } from '../utils/getBuildingList';
 import campusBuildingdata from '../assets/buildings/coordinates/campusbuildingcoords.json';
 
 const getUpdatedTime = (duration: string) => {
@@ -11,14 +10,14 @@ const getUpdatedTime = (duration: string) => {
 };
 
 interface LiveInformationProps {
-    onStop: ()=> void;
-    routes: any;
-    onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
-    isZoomedIn: boolean;
-    destination: string;
-    destinationCoords: string;
-    roomNumber?: string | null;
-    onViewBuildingInfo?: () => void;
+    readonly onStop: ()=> void;
+    readonly routes: any;
+    readonly onZoomOut: (destinationCoordsPlaceID: string, destinationPlaceName: string) => void;
+    readonly isZoomedIn: boolean;
+    readonly destination: string;
+    readonly destinationCoords: string;
+    readonly roomNumber?: string | null;
+    readonly onViewBuildingInfo?: () => void;
 }
 
 export function LiveInformation({
@@ -38,8 +37,6 @@ export function LiveInformation({
     // Check if room number is specified
     const hasRoomNumber = roomNumber !== null && roomNumber !== undefined && roomNumber !== '';
     console.log('[LiveInformation] hasRoomNumber:', hasRoomNumber);
-    //const hasRoomNumber = true;
-    console.log()
     const isConcordiaBuilding = (destination: string): boolean => {
         const lowerDestination = destination.toLowerCase();
         return campusBuildingdata.features.some((feature: any) => {
