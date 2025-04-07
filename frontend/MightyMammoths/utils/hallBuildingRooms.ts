@@ -13,6 +13,15 @@ export interface RoomInfo {
  * @param roomNumber The room number to search for
  * @returns Room information or undefined if not found
  */
+export const getBuildingNameByRoomNumber = (roomNumber: string): string => {
+  if (hallBuildingRooms.rooms.find(room => room.roomNumber === roomNumber) !== null) {
+    return 'H';
+  } else if (vlBuildingRooms.rooms.find(room => room.roomNumber === roomNumber) !== null) {
+    return 'VL';
+  }
+  return '';
+};
+
 export const getRoomInfoByNumber = (roomNumber: string, campus:string): RoomInfo | undefined => {
   try {
     // Normalize the room number by removing "H-" prefix if present

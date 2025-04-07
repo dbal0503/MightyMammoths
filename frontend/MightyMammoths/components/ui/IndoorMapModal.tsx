@@ -15,6 +15,7 @@ import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinSe
 import { useNavigation as useNavigationProvider } from "../NavigationProvider";
 import { getMappedinUrl } from "../../utils/hallBuildingRooms";
 import { useNavigation } from "@/components/NavigationProvider";
+import { getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 
 interface IndoorMapModalProps {
   visible: boolean;
@@ -51,77 +52,17 @@ const IndoorMapModal = ({
   const [entranceId, setEntranceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
-  const buildingName = building?.properties?.BuildingName || "Hall Building";
+  const [buildingName, setBuildingName] = useState<string | null>(null);
 
-  // Reset state when modal shows/hides
   useEffect(() => {
-    if (visible) {
-      setIsLoading(true);
-      setError(null);
-      setMapLoaded(false);
-      
-      // Set default entrance ID for Hall Building
-      if (buildingName === "Hall Building" || buildingName === "H Building") {
-        setEntranceId("s_e72c2ed4f1949630"); // Main entrance ID from URL
-      }
+    if (roomNumber) {
+      setBuildingName(getBuildingNameByRoomNumber(roomNumber));
+      setRoomId(roomId);
+      setFloorId(floorId);
     }
-  }, [visible, buildingName]);
+  }, [floorId, roomId, roomNumber]);
 
-  // Force visibility if we have a room ID but modal isn't showing
-  useEffect(() => {
-    // If we have a room ID (either direct prop or from context) but modal isn't visible
-    const hasRoomId = propRoomId || selectedRoomId || roomNumber;
-    if (hasRoomId && !visible && !error) {
-      // This is just informational, no action needed
-    }
-  }, [propRoomId, selectedRoomId, roomNumber, visible]);
 
-  // Check if we have direct roomId and floorId props
-  useEffect(() => {
-    // Priority: 1. Direct props passed in, 2. Context selectedRoomId, 3. Look up by roomNumber
-    if (propRoomId) {
-      setRoomId(propRoomId);
-    } else if (selectedRoomId) {
-      setRoomId(selectedRoomId);
-    }
-
-    if (propFloorId) {
-      setFloorId(propFloorId);
-    }
-  }, [propRoomId, propFloorId, selectedRoomId]);
-
-  // Load room and entrance IDs when modal becomes visible
-  useEffect(() => {
-    if (visible && roomNumber && !roomId) {
-      const loadLocationIds = async () => {
-        try {
-          // Get room by number
-          const room = await getRoom(buildingName, roomNumber);
-          if (room) {
-            setRoomId(room.id);
-          } else {
-            console.warn(`Room ${roomNumber} not found in ${buildingName}`);
-          }
-          
-          // Get nearest entrance based on user location
-          if (userLocation) {
-            const entrance = await getNearestEntrance(buildingName, userLocation);
-            if (entrance) {
-              setEntranceId(entrance.id);
-            } else {
-              console.warn(`Could not determine nearest entrance for ${buildingName}`);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading indoor map data:', error);
-          setError('Failed to load indoor navigation data');
-        }
-      };
-      
-      loadLocationIds();
-    }
-  }, [visible, roomNumber, buildingName, userLocation, roomId]);
 
   const handleMapError = (errorMessage: string) => {
     console.error('Map error:', errorMessage);
@@ -153,7 +94,9 @@ const IndoorMapModal = ({
       }
       
       // Fallback to old method if we don't have floor information
-      const mapId = getMapId(buildingName) || "677d8a736e2f5c000b8f3fa6"; // Fallback to Hall Building ID
+      if (buildingName) {
+        const mapId = getMapId(buildingName);
+      
       
       // Base URL without directions
       let url = `https://app.mappedin.com/map/${mapId}`;
@@ -166,7 +109,7 @@ const IndoorMapModal = ({
         url = `https://app.mappedin.com/map/${mapId}/routes/${roomId}`;
       }
       
-      Linking.openURL(url);
+      Linking.openURL(url);}
     } catch (error) {
       console.error('Error opening browser URL:', error);
       setError('Failed to open browser');
