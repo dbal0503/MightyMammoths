@@ -58,6 +58,7 @@ const IndoorMapModal = ({
   useEffect(() => {
     if (building) {
       setBuildingName(building.properties.BuildingName);
+      setCampusName(building.properties.Campus);
     }
   }, [building]);
 
