@@ -53,10 +53,17 @@ const IndoorMapModal = ({
   const [error, setError] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [buildingName, setBuildingName] = useState<string | null>(null);
+  const [campusName, setCampusName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (building) {
+      setBuildingName(building.properties.BuildingName);
+    }
+  }, [building]);
 
   useEffect(() => {
     if (roomNumber) {
-      setBuildingName(getBuildingNameByRoomNumber(roomNumber));
+      setCampusName(getBuildingNameByRoomNumber(roomNumber));
       setRoomId(roomId);
       setFloorId(floorId);
     }
@@ -94,8 +101,8 @@ const IndoorMapModal = ({
       }
       
       // Fallback to old method if we don't have floor information
-      if (buildingName) {
-        const mapId = getMapId(buildingName);
+      if (campusName) {
+        const mapId = getMapId(campusName);
       
       
       // Base URL without directions
@@ -179,7 +186,7 @@ const IndoorMapModal = ({
           ) : (
             <MappedinView
               key={`mappedin-view-${retryKey}`}
-              buildingName={buildingName}
+              buildingName={buildingName || ''}
               roomId={roomId || undefined}
               entranceId={entranceId || undefined}
               floorId={floorId || undefined}

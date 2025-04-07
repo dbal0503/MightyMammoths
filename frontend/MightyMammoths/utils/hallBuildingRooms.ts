@@ -15,9 +15,9 @@ export interface RoomInfo {
  */
 export const getBuildingNameByRoomNumber = (roomNumber: string): string => {
   if (hallBuildingRooms.rooms.find(room => room.roomNumber === roomNumber) !== null) {
-    return 'H';
+    return 'SGW';
   } else if (vlBuildingRooms.rooms.find(room => room.roomNumber === roomNumber) !== null) {
-    return 'VL';
+    return 'LOY';
   }
   return '';
 };

@@ -24,16 +24,16 @@ let mapDataCache: Record<string, MappedinData> = {};
 
 // Building IDs mapping
 const BUILDING_MAP_IDS: Record<string, string> = {
-  "H": "677d8a736e2f5c000b8f3fa6",
-  "VL": "67f019943060f8000b749624",
+  "SGW": "677d8a736e2f5c000b8f3fa6",
+  "LOY": "67f019943060f8000b749624",
   // Add other buildings here
 };
 
 /**
  * Gets the map ID for a building
  */
-export function getMapId(buildingName: string): string | null {
-  return BUILDING_MAP_IDS[buildingName] || null;
+export function getMapId(campusName: string): string | null {
+  return BUILDING_MAP_IDS[campusName] || null;
 }
 
 /**
