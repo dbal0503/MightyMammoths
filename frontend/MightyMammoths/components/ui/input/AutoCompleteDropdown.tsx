@@ -34,7 +34,7 @@ interface AutoCompleteDropdownProps {
   testID?: string;
   darkTheme?: boolean;
   onNearbyResults?: (results: SuggestionResult[]) => void;
-  boundaries?: BoundingBox | undefined
+  boundaries?: BoundingBox
   showNearbyButtons?: boolean;
   showCafes?: boolean;
   showRestaurants?: boolean;
@@ -86,9 +86,6 @@ export const AutoCompleteDropdown = forwardRef<AutoCompleteDropdownRef, AutoComp
   const [filteredOptions, setFilteredOptions] = useState(buildingData.map((item) => item.buildingName)); //Whats in the dropdown
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
-  //const [showCafes, setShowCafes] = useState(false);
-
-  //const [showRestaurants, setShowRestaurants] = useState(false);
 
   useEffect(() => {
     Animated.timing(dropdownHeight, {

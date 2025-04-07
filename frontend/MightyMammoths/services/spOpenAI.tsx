@@ -52,7 +52,7 @@ export const generatePlanFromChatGPT = async (
         - LOY Campus: ${loyBuildingsDesc}
 
         Notes:
-        - Tasks with location \"Any SGW campus building\", \"Any LOY campus building\", or \"Any campus building\" should be assigned the most efficient building from the provided campus buildings and the distance data. 
+        - Tasks with location "Any SGW campus building", "Any LOY campus building", or "Any campus building" should be assigned the most efficient building from the provided campus buildings and the distance data. 
         If there is no distance data then calculate the estimated distance and duration using the buildings from the respective campus. Note that all buildings are in Montreal, Canada.
         - Some tasks may not be time-sensitive and you will know this because some tasks will not have an associated time; prioritize optimizing overall travel distance and duration.
         
@@ -94,7 +94,6 @@ export const generatePlanFromChatGPT = async (
         const data = await response.json();
         const messageContent = data.choices[0].message.content;
         const cleanedContent = messageContent.replace(/```json\s*|\s*```/g, '').trim();
-        //console.log('Cleaned content:', cleanedContent);
 
         const taskPlan: TaskPlan[] = JSON.parse(cleanedContent);
         return taskPlan;

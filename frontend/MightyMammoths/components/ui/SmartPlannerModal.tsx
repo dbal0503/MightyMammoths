@@ -59,15 +59,6 @@ export default function SmartPlannerModal({
 
   const [initBuilder, setInitBuilder] = useState(false);
 
-  // Should prob stay commented out, leaving in case for now
-  // useEffect(() => {
-  //   if (!visible) {
-  //     setHasPlan(false); setPlanName(''); setTasks([]); setGeneratedPlan([]); setIsStartLocationSet(false);
-  //     setPlanBuilderVisible(false); setTaskViewVisible(false); setEditingTasks([]); setTaskViewFromEditor(false); setIsLoading(false);
-  //   }
-  // }, [visible]);
-
-
   const handleCloseAllModals = () => {
     setTaskViewVisible(false);
     setPlanBuilderVisible(false);
@@ -151,21 +142,6 @@ const handleRegeneratePlan = async (taskList: Task[]) => {
       Alert.alert("Error", "No next task found in the plan.");
       return;
     }
-  
-    // const nextIncompleteTaskIndex = generatedPlan.findIndex((task, index) => 
-    //   index > 0 && !task.completed
-    // );
-
-    // console.log("Next Incomplete Task Index: ", nextIncompleteTaskIndex);
-    
-    // if (nextIncompleteTaskIndex === -1) {
-    //   Alert.alert("Info", "All tasks have been completed.");
-    //   return;
-    // }
-    
-    // const origin = generatedPlan[nextIncompleteTaskIndex].origin;
-    // const destination = generatedPlan[nextIncompleteTaskIndex].destination;
-    // console.log(origin + ', ' + destination);
 
     onClose();
   

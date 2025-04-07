@@ -380,14 +380,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
     setSearchMarkerLocation(placeRegion);
     setRegion(placeRegion);
     setSearchMarkerVisible(true);
-    //setDestination(place.placePrediction.structuredFormat.mainText.text);
 
     // Fetching the place details
     if (place.placePrediction.placeId) {
       const details = await getPlaceDetails(place.placePrediction.placeId);
       if (details) {
         setCurrentPlace(details);
-        //setDestination(place.placePrediction.placeId);
         setDestination(place.placePrediction.structuredFormat.mainText.text);
       }
     }
