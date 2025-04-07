@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Pressable, Text, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "../../../components/NavigationProvider";
 import ActionSheet, { ActionSheetRef, ActionSheetProps } from "react-native-actions-sheet";
 import { TransportChoice } from "../../../components/TransportChoice";
@@ -135,7 +135,7 @@ function NavigationSheet({
       <>
         {navigationIsStarted && selectedMode &&(
           <StaticNavigationInformation                       
-            routes={routeEstimates[selectedMode] || []}
+            routes={routeEstimates[selectedMode] ?? []}
             setLatitudeStepByStep = {setLatitudeStepByStep}
             setLongitudeStepByStep = {setLongitudeStepByStep}
             userLocation = {userLocation}
@@ -209,7 +209,7 @@ function NavigationSheet({
                             .map(step => step.polyline)
                             .join(''); 
 
-                          const shuttlePolyline = steps.find(step => step.mode === "BUS")?.polyline || '';
+                          const shuttlePolyline = steps.find(step => step.mode === "BUS")?.polyline ?? '';
 
                           const walkingAfterShuttle = steps
                             .filter(step => step.mode === "WALKING" && step.polyline)

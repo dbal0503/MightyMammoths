@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import {getRoomInfoByNumber, RoomInfo } from '../../utils/hallBuildingRooms';
 
 interface HallBuildingRoomPromptProps {

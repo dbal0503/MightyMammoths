@@ -202,7 +202,7 @@ const NavigationProvider = ({
 
   // Function to set modal visibility and optionally a room ID
   const setModalVisible = (visible: boolean, roomId: string | null = null) => {
-    console.log(`[NavigationProvider] Setting modal visibility to ${visible}, roomId: ${roomId || 'none'}`);
+    console.log(`[NavigationProvider] Setting modal visibility to ${visible}, roomId: ${roomId ?? 'none'}`);
     
     // First set the room ID if provided
     if (roomId) {

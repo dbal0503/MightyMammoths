@@ -890,7 +890,7 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
                 campusToggleSheet.current?.show();
               }
             }}
-            building={selectedBuilding || {
+            building={selectedBuilding ?? {
               properties: { 
                 BuildingName: "Hall Building",
                 Campus: "SGW",
@@ -905,8 +905,8 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
               type: "Feature"
             }}
             roomNumber={destinationRoom}
-            roomId={selectedRoomId || undefined}
-            floorId={selectedFloorId || undefined}
+            roomId={selectedRoomId ?? undefined}
+            floorId={selectedFloorId ?? undefined}
             userLocation={myLocation}
           />
         </NavigationProvider>

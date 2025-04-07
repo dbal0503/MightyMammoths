@@ -11,11 +11,9 @@ import {
 import { IconSymbol, IconSymbolName } from "../../components/ui/IconSymbol";
 import { GeoJsonFeature } from "./BuildingMapping";
 import MappedinView from "./MappedinView";
-import { getRoom, getNearestEntrance, getMapId } from "../../services/mappedinService";
-import { useNavigation as useNavigationProvider } from "../NavigationProvider";
-import { getMappedinUrl } from "../../utils/hallBuildingRooms";
+import {getMapId } from "../../services/mappedinService";
+import { getMappedinUrl, getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 import { useNavigation } from "@/components/NavigationProvider";
-import { getBuildingNameByRoomNumber } from "../../utils/hallBuildingRooms";
 
 interface IndoorMapModalProps {
   visible: boolean;
@@ -203,11 +201,11 @@ const IndoorMapModal = ({
           ) : (
             <MappedinView
               key={`mappedin-view-${retryKey}`}
-              buildingName={buildingName || ''}
-              campusName={campusName || ''}
-              roomId={roomId || undefined}
-              entranceId={entranceId || undefined}
-              floorId={floorId || undefined}
+              buildingName={buildingName ?? ''}
+              campusName={campusName ?? ''}
+              roomId={roomId ?? undefined}
+              entranceId={entranceId ?? undefined}
+              floorId={floorId ?? undefined}
               onMapLoaded={handleMapLoaded}
               onError={handleMapError}
             />

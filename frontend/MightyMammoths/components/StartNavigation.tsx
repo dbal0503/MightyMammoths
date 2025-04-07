@@ -2,15 +2,15 @@ import React from "react";
 import {StyleSheet,Text,View,TouchableOpacity} from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 interface StartNavigationProps {
-    showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
-    onBack: ()=> void; 
-    destinationBuilding: any
-    routes: any
-    starting: ()=> void;
-    defPoly:()=>void;
-    onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
-    origin: string;
-    originCoords: string;
+    readonly showStepByStep: React.Dispatch<React.SetStateAction<boolean>>;
+    readonly onBack: ()=> void; 
+    readonly destinationBuilding: any
+    readonly routes: any
+    readonly starting: ()=> void;
+    readonly defPoly:()=>void;
+    readonly onZoomIn: (originCoordsPlaceID: string, originPlaceName: string) => void;
+    readonly origin: string;
+    readonly originCoords: string;
 }
 
 export function StartNavigation({

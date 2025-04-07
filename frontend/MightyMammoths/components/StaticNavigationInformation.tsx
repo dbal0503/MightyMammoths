@@ -19,17 +19,17 @@ interface Step {
 }
 
 interface StaticNavigationInformationProps {
-  visible?: boolean;
-  routes: any;
-  setLatitudeStepByStep: React.Dispatch<React.SetStateAction<number>>;
-  setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
-  userLocation: {latitude: number, longitude: number};
-  isOriginYL: boolean;
-  selectedMode?: string;
-  walk1Polyline: string;
-  walk2Polyline: string;
-  shuttlePolyline: string;
-  destination: string;
+  readonly visible?: boolean;
+  readonly routes: any;
+  readonly setLatitudeStepByStep: React.Dispatch<React.SetStateAction<number>>;
+  readonly setLongitudeStepByStep:  React.Dispatch<React.SetStateAction<number>>;
+  readonly userLocation: {latitude: number, longitude: number};
+  readonly isOriginYL: boolean;
+  readonly selectedMode?: string;
+  readonly walk1Polyline: string;
+  readonly walk2Polyline: string;
+  readonly shuttlePolyline: string;
+  readonly destination: string;
 }
 
 export function StaticNavigationInformation(
@@ -83,7 +83,7 @@ export function StaticNavigationInformation(
           ? step.html_instructions
               .replace(/<\/div>/g, ". ")
               .replace(/<[^>]*>/g, "")
-          : step?.instructions || '';
+          : step?.instructions ?? '';
         stepText = stepText.replace(/(\w)(Destination)/g, '$1. $2');
 
         return stepText.replace(/place_id:([\w-]+)/g, (match, placeId) => 
