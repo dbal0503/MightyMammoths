@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Pressable, Text, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "../../../components/NavigationProvider";
 import ActionSheet, { ActionSheetRef, ActionSheetProps } from "react-native-actions-sheet";
 import { TransportChoice } from "../../../components/TransportChoice";
@@ -33,7 +33,6 @@ function NavigationSheet({
     onPolylineUpdate,
     isModal = false,
     snapPoints = [25 ,50 ,100],
-    backgroundInteractionEnabled,
     closable = false,
     gestureEnabled = false,
     initialSnapIndex = 1,
@@ -75,16 +74,6 @@ function NavigationSheet({
         setRoutesValid,
         setNavigationIsStarted
     } = functions;
-
-        // // Add debug logs to help identify the issue
-    // useEffect(() => {
-    //   console.log("NavigationSheet - DEBUG INFO:");
-    //   console.log("Origin:", origin);
-    //   console.log("Destination:", destination);
-    //   console.log("routesValid:", routesValid);
-    //   console.log("twoBuildingsSelected:", twoBuildingsSelected);
-    //   console.log("routeEstimates available modes:", Object.keys(routeEstimates));
-    // }, [origin, destination, routesValid, twoBuildingsSelected, routeEstimates]);
 
     const [startedSelectedRoute,setStartedSelectedRoute] = useState(false);
     const [isOriginYourLocation, setIsOriginYourLocation] = useState(false);
@@ -236,7 +225,6 @@ function NavigationSheet({
                         actionsheetref.current?.hide();
                         setPoly("");
                         setStartedSelectedRoute(false);
-                        //setIsOriginYourLocation(false);
                         setRoutesValid(false);
                         setIsBackgroundInteractionEnabled(false);
                       }}
@@ -249,7 +237,6 @@ function NavigationSheet({
                       onViewBuildingInfo={() => {
                         console.log('View Indoor button clicked - showing room prompt');
                         // Explicitly hide the sheet to prevent UI conflicts
-                        //actionsheetref.current?.snapToIndex(0); //???????????
                         
                         // Then show the room prompt after a small delay
                         if (!classRoom || !isValidRoom(classRoom, findBuildingCampus(classBuilding) )) {
@@ -290,8 +277,7 @@ function NavigationSheet({
                 setShowRoomPrompt(false);
                 
                 // Hide sheet immediately to prevent UI conflicts
-                // actionsheetref.current?.hide();
-                
+
                 // Call the parent's callback function to show the indoor map
                 if (onShowIndoorMap) {
                   // Use a modified approach that directly handles the data
@@ -311,16 +297,7 @@ function NavigationSheet({
                   
                   //* Uncomment the following lines if you want it so that if the View Indoor is pressed then we stop navigation
                   //* If left commented, when the back arrow for indoor is pressed, the user will return back to the outdoor navigation
-
-                  //290
                   setNavigationIsStarted(false);
-                  //actionsheetref.current?.hide();
-                  //setPoly("");
-                  //setStartedSelectedRoute(false);
-                  //setIsOriginYourLocation(false);
-                  //setRoutesValid(false);
-                  //setIsBackgroundInteractionEnabled(false);
-                  //if (onZoomOut && isZoomedIn) onZoomOut(destinationCoords, destination);
 
                 } else {
                   // Fallback alert if all else fails

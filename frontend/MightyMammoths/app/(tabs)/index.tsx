@@ -95,8 +95,6 @@ export default function HomeScreen() {
   const [showCafes, setShowCafes] = useState(false);
   const [showRestaurants, setShowRestaurants] = useState(false);
   const [destinationRoom, setDestinationRoom] = useState<string | null>(null);
-  const [isNearDestination, setIsNearDestination] = useState(false);
-  const [showHallBuildingPrompt, setShowHallBuildingPrompt] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedFloorId, setSelectedFloorId] = useState<string | null>(null);
   const [classBuilding, setClassBuilding] = useState<string | null>(null);
@@ -866,24 +864,12 @@ const handleNearbyPlacePress = async(place: SuggestionResult) => {
             origin={origin}
             locationServicesEnabled={locationServicesEnabled}
           />
-          {/* <HallBuildingRoomPrompt
-            visible={showHallBuildingPrompt}
-            onClose={() => setShowHallBuildingPrompt(false)}
-            onSelectRoom={(roomId, floorId, roomNumber) => {
-              // Use the new function to show the indoor map with proper parameters
-              showIndoorMapWithRoom(roomId, floorId, roomNumber);
-              
-              // Hide the room prompt
-              setShowHallBuildingPrompt(false);
-            }}
-          /> */}
           
           {/* Add IndoorMapModal inside the NavigationProvider */}
           <IndoorMapModal
             visible={indoorMapVisible}
             onClose={() => {
               setIndoorMapVisible(false);
-              setShowHallBuildingPrompt(false);
               if (navigationMode) {
                 navigationSheet.current?.show();
               } else {
